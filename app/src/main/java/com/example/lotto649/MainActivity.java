@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity
 
         bottomNavigationView
                 .setOnNavigationItemSelectedListener(this);
-        bottomNavigationView.setSelectedItemId(R.id.person);
+        bottomNavigationView.setSelectedItemId(R.id.account);
     }
     HomeFragment homeFragment = new HomeFragment();
     CameraFragment cameraFragment = new CameraFragment();
@@ -37,19 +37,19 @@ public class MainActivity extends AppCompatActivity
     public boolean
     onNavigationItemSelected(@NonNull MenuItem item)
     {
-        if (item.getItemId() == R.id.person) {
+        if (item.getItemId() == R.id.home) {
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.flFragment, homeFragment)
                     .commit();
             return true;
-        } else if (item.getItemId() == R.id.home) {
+        } else if (item.getItemId() == R.id.camera) {
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.flFragment, cameraFragment)
                     .commit();
             return true;
-        } else if (item.getItemId() == R.id.camera) {
+        } else if (item.getItemId() == R.id.account) {
                 getSupportFragmentManager()
                         .beginTransaction()
                         .replace(R.id.flFragment, accountFragment)

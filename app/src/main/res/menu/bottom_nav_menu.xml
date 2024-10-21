@@ -11,7 +11,7 @@
         android:title="Camera"
         android:icon="@drawable/ic_camera_foreground"/>
     <item
-        android:id="@+id/person"
-        android:title="Person"
+        android:id="@+id/account"
+        android:title="Account"
         android:icon="@drawable/ic_person_foreground"/>
 </menu>
