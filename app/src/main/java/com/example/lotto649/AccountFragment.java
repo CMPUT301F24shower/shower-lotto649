@@ -16,13 +16,22 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.auth.User;
 
 public class AccountFragment extends Fragment {
     private AccountView accountView;
+    private AccountUserController userController;
     private FirebaseFirestore db;
+    private UserModel user;
+    private TextInputLayout fullNameInputLayout, emailInputLayout, phoneNumberInputLayout;
+    private TextInputEditText fullNameEditText, emailEditText, phoneNumberEditText;
+    private ExtendedFloatingActionButton saveButton;
 
     public AccountFragment(){
         // require a empty public constructor
@@ -32,36 +41,44 @@ public class AccountFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_account, container, false);
 
+        fullNameInputLayout = view.findViewById(R.id.textFieldFullName);
+        emailInputLayout = view.findViewById(R.id.textFieldEmail);
+        phoneNumberInputLayout = view.findViewById(R.id.textFieldPhoneNumber);
+
+        fullNameEditText = (TextInputEditText) fullNameInputLayout.getEditText();
+        emailEditText = (TextInputEditText) emailInputLayout.getEditText();
+        phoneNumberEditText = (TextInputEditText) phoneNumberInputLayout.getEditText();
+        saveButton = view.findViewById(R.id.extended_fab);
+
         db = FirebaseFirestore.getInstance();
-        checkUserInFirestore();
+        user = new UserModel();
 
+        checkUserInFirestore(new FirestoreUserCallback() {
+            @Override
+            public void onCallback(UserModel userModel) {
+                user.update(userModel);
+                // Here you get either the existing user or a new UserModel object
+                fullNameEditText.setText(user.getName());
+                emailEditText.setText(user.getEmail());
+                phoneNumberEditText.setText(user.getPhone());
+            }
+        });
 
-        accountView = new AccountView(view);
-
-        accountView.setSaveButtonClickListener(new View.OnClickListener() {
+        accountView = new AccountView(user, this);
+        userController = new AccountUserController(user);
+        saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Collect the data from the AccountView
-                String fullName = accountView.getFullName();
-                String email = accountView.getEmail();
-                String phoneNumber = accountView.getPhoneNumber();
 
                 // Create a new UserModel object
-                UserModel userModel = new UserModel(requireContext(), fullName, email, phoneNumber);
-
-                // Here, you can now save this userModel to Firestore or perform other actions
-
-                // Log or handle the UserModel
-                System.out.println(userModel.toString());  // Example of logging the model
+                userController.update(new UserModel(getContext(), fullNameEditText.getText().toString(), emailEditText.getText().toString(), phoneNumberEditText.getText().toString()));
             }
         });
         return view;
     }
 
-    /**
-     * Method to query Firestore for a user with the matching device ID.
-     */
-    private void checkUserInFirestore() {
+    private void checkUserInFirestore(FirestoreUserCallback firestoreUserCallback) {
         String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
         DocumentReference doc = db.collection("users").document(deviceId);
         doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -70,20 +87,35 @@ public class AccountFragment extends Fragment {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        // Deserialize the document into the User model
+                        // Deserialize the document into the UserModel
                         UserModel user = document.toObject(UserModel.class);
                         if (user != null) {
-                            accountView.getFullNameEditText().setText(user.getName());
-                            accountView.getEmailEditText().setText(user.getEmail());
-                            accountView.getPhoneNumberEditText().setText(user.getPhone());
+                            // Pass the existing user object to the callback
+                            firestoreUserCallback.onCallback(user);
                         }
                     } else {
-//                        Log.d(TAG, "No such document!");
+                        // Create a new UserModel with default values
+                        UserModel newUser = new UserModel();
+                        // Pass the new user object to the callback
+                        firestoreUserCallback.onCallback(newUser);
                     }
                 } else {
-//                    Log.d(TAG, "Get failed with ", task.getException());
+                    // Handle the failure case
+                    firestoreUserCallback.onCallback(new UserModel());  // Return a new UserModel in case of failure
                 }
             }
         });
     }
+
+    public void showUserDetails(UserModel user) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                fullNameEditText.setText(user.getName());
+                emailEditText.setText(user.getEmail());
+                phoneNumberEditText.setText(user.getPhone());
+            }
+        });
+    }
+
 }

@@ -7,17 +7,16 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
  * The Data Model for Our Users
- *
  * Main purpose of this class is to manage the user data
  */
-public class UserModel {
+public class UserModel extends AbstractModel {
     private String name;
     private String email;
     private String phone;
     private String deviceId;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    // No-argument constructor
+    // No-argument constructor for firestore deserialization
     public UserModel() {
 
     }
@@ -29,9 +28,10 @@ public class UserModel {
         deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         saveUserToFirestore();
     }
+
     public UserModel(Context context, String name, String email) {
         this(context, name, email, null);
-        }
+    }
 
 
 
@@ -50,17 +50,17 @@ public class UserModel {
     }
 
     private void updateFirestore() {
-//        db.collection("users")
-//                .document(deviceId)
-//                .update("name", this.name, "email", this.email, "phone", (this.phone == null) ? "" : this.phone)
-//                .addOnSuccessListener(aVoid -> {
-//                    // Handle success, e.g., log or notify
-//                    System.out.println("User updated successfully!");
-//                })
-//                .addOnFailureListener(e -> {
-//                    // Handle failure, e.g., log or notify
-//                    System.err.println("Error updating user: " + e.getMessage());
-//                });
+        // Don't try to search for a document that doesn't exist
+        if (deviceId == null) return;
+        db.collection("users")
+                .document(deviceId)
+                .update("name", this.name, "email", this.email, "phone", (this.phone == null) ? "" : this.phone)
+                .addOnSuccessListener(aVoid -> {
+                    // Log here
+                })
+                .addOnFailureListener(e -> {
+                    // Log here
+                });
     }
 
     public String getName() {
@@ -70,6 +70,7 @@ public class UserModel {
     public void setName(String name) {
         this.name = name;
         updateFirestore();
+        notifyViews();
     }
 
     public String getEmail() {
@@ -79,6 +80,7 @@ public class UserModel {
     public void setEmail(String email) {
         this.email = email;
         updateFirestore();
+        notifyViews();
     }
 
     public String getPhone() {
@@ -92,6 +94,15 @@ public class UserModel {
             this.phone = phone;
         }
         updateFirestore();
+        notifyViews();
+    }
+
+    public void update(UserModel user) {
+        this.name = user.getName();
+        this.email = user.getEmail();
+        this.phone = user.getPhone();
+        updateFirestore();
+        notifyViews();
     }
 
     public String getDeviceId() {

@@ -1,23 +1,16 @@
 package com.example.lotto649;
 
-import android.content.Context;
-
-public class AccountUserController {
-
-    private UserModel userModel;
-
-    // Controller constructor
-    public AccountUserController() {
+public class AccountUserController extends AbstractController {
+    public AccountUserController(UserModel user) {
+        super(user);
     }
 
-    // Method to create a new user and save it to Firestore
-    public void createUser(Context context, String name, String email) {
-        userModel = new UserModel(context, name, email);
+    @Override
+    public UserModel getModel() {
+        return (UserModel) super.getModel();
     }
 
-    public void createUser(Context context, String name, String email, String phone) {
-        userModel = new UserModel(context, name, email, phone);
+    public void update(UserModel user) {
+        getModel().update(user);
     }
-
-    // Other controller methods that interact with the model can go here
 }
