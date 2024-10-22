@@ -11,6 +11,10 @@
         android:title="Camera"
         android:icon="@drawable/ic_camera_foreground"/>
     <item
+        android:id="@+id/facility"
+        android:title="Facility"
+        android:icon="@drawable/ic_map_pin_foreground"/>
+    <item
         android:id="@+id/account"
         android:title="Account"
         android:icon="@drawable/ic_person_foreground"/>
