@@ -1,9 +1,18 @@
 /**
- * Code used from the following source for menu bar
+ * AccountFragment class manages the account details of the user in the application.
+ * <p>
+ * This fragment is responsible for displaying and updating the user's account information
+ * (name, email, and phone number) using a form. The user information is retrieved from and
+ * saved to Firebase Firestore. The class also manages the interactions between the view,
+ * model, and controller in a Model-View-Controller (MVC) pattern.
+ * </p>
+ * <p>
+ * Code for the bottom navigation bar was adapted from:
  * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
+ * </p>
  */
-
 package com.example.lotto649;
+
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.LayoutInflater;
@@ -22,6 +31,9 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+/**
+ * The AccountFragment class handles the user interface for viewing and editing account details.
+ */
 public class AccountFragment extends Fragment {
     private AccountView accountView;
     private AccountUserController userController;
@@ -31,14 +43,27 @@ public class AccountFragment extends Fragment {
     private TextInputEditText fullNameEditText, emailEditText, phoneNumberEditText;
     private ExtendedFloatingActionButton saveButton;
 
-    public AccountFragment(){
-        // require a empty public constructor
+    /**
+     * Required empty public constructor for AccountFragment.
+     */
+    public AccountFragment() {
+        // Required empty public constructor
     }
 
+    /**
+     * Called to create the view hierarchy for this fragment.
+     * This method inflates the layout for the account fragment and initializes the UI components.
+     *
+     * @param inflater  LayoutInflater object used to inflate any views in the fragment
+     * @param container The parent view that the fragment's UI should be attached to
+     * @param savedInstanceState Bundle containing data about the previous state (if any)
+     * @return View for the account fragment's UI
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_account, container, false);
 
+        // Initialize UI components
         fullNameInputLayout = view.findViewById(R.id.textFieldFullName);
         emailInputLayout = view.findViewById(R.id.textFieldEmail);
         phoneNumberInputLayout = view.findViewById(R.id.textFieldPhoneNumber);
@@ -48,34 +73,44 @@ public class AccountFragment extends Fragment {
         phoneNumberEditText = (TextInputEditText) phoneNumberInputLayout.getEditText();
         saveButton = view.findViewById(R.id.extended_fab);
 
+        // Initialize Firestore and UserModel
         db = FirebaseFirestore.getInstance();
         user = new UserModel();
 
+        // Check if the user exists in Firestore, or create a new user
         checkUserInFirestore(new FirestoreUserCallback() {
             @Override
             public void onCallback(UserModel userModel) {
                 user.update(userModel);
-                // Here you get either the existing user or a new UserModel object
                 fullNameEditText.setText(user.getName());
                 emailEditText.setText(user.getEmail());
                 phoneNumberEditText.setText(user.getPhone());
             }
         });
 
+        // Initialize MVC components
         accountView = new AccountView(user, this);
         userController = new AccountUserController(user);
+
+        // Set up the save button click listener
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Collect the data from the AccountView
-
-                // Create a new UserModel object
-                userController.update(new UserModel(getContext(), fullNameEditText.getText().toString(), emailEditText.getText().toString(), phoneNumberEditText.getText().toString()));
+                // Update user information via the controller
+                userController.update(new UserModel(getContext(), fullNameEditText.getText().toString(),
+                        emailEditText.getText().toString(), phoneNumberEditText.getText().toString()));
             }
         });
+
         return view;
     }
 
+    /**
+     * Checks if the user exists in Firestore based on the device ID and retrieves the user data.
+     * If no user is found, a new UserModel with default values is created.
+     *
+     * @param firestoreUserCallback The callback used to return the user model
+     */
     private void checkUserInFirestore(FirestoreUserCallback firestoreUserCallback) {
         String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
         DocumentReference doc = db.collection("users").document(deviceId);
@@ -85,26 +120,28 @@ public class AccountFragment extends Fragment {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        // Deserialize the document into the UserModel
+                        // User exists, deserialize to UserModel
                         UserModel user = document.toObject(UserModel.class);
                         if (user != null) {
-                            // Pass the existing user object to the callback
                             firestoreUserCallback.onCallback(user);
                         }
                     } else {
-                        // Create a new UserModel with default values
-                        UserModel newUser = new UserModel();
-                        // Pass the new user object to the callback
-                        firestoreUserCallback.onCallback(newUser);
+                        // No user found, create a new one
+                        firestoreUserCallback.onCallback(new UserModel());
                     }
                 } else {
-                    // Handle the failure case
-                    firestoreUserCallback.onCallback(new UserModel());  // Return a new UserModel in case of failure
+                    // Failure, return a new default user
+                    firestoreUserCallback.onCallback(new UserModel());
                 }
             }
         });
     }
 
+    /**
+     * Updates the UI with the user's account details.
+     *
+     * @param user The user model containing the details to be displayed
+     */
     public void showUserDetails(UserModel user) {
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -115,5 +152,4 @@ public class AccountFragment extends Fragment {
             }
         });
     }
-
 }
