@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity
     HomeFragment homeFragment = new HomeFragment();
     CameraFragment cameraFragment = new CameraFragment();
     AccountFragment accountFragment = new AccountFragment();
+    FacilityFragment facilityFragment = new FacilityFragment();
 
     @Override
     public boolean
@@ -50,9 +51,15 @@ public class MainActivity extends AppCompatActivity
                     .commit();
             return true;
         } else if (item.getItemId() == R.id.account) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.flFragment, accountFragment)
+                    .commit();
+            return true;
+        } else if (item.getItemId() == R.id.facility) {
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.flFragment, accountFragment)
+                        .replace(R.id.flFragment, facilityFragment)
                         .commit();
                 return true;
        } else {

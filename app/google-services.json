@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "210762583900",
+    "project_id": "shower-lotto649",
+    "storage_bucket": "shower-lotto649.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:210762583900:android:8cf2206186b404b98d3b99",
+        "android_client_info": {
+          "package_name": "com.example.lotto649"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBZeWcyB1Xp7TY1Vt9kjBVwHyJgETWon0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
