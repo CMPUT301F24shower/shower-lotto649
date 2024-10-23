@@ -31,6 +31,9 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * The AccountFragment class handles the user interface for viewing and editing account details.
  */
@@ -103,13 +106,27 @@ public class AccountFragment extends Fragment {
                 String name = fullNameEditText.getText().toString();
                 String email = emailEditText.getText().toString();
                 String phone = phoneNumberEditText.getText().toString();
+                if (name.isEmpty()) {
+                    fullNameInputLayout.setError("Please enter your name");
+                    return;
+                }
+                final String EMAIL_PATTERN = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+                Pattern pattern = Pattern.compile(EMAIL_PATTERN);
+                Matcher matcher = pattern.matcher(email);
+                if (email.isEmpty() || !matcher.matches()) {
+                    emailInputLayout.setError("Please enter an email address");
+                    return;
+                }
+                fullNameInputLayout.setError(null);
+                emailInputLayout.setError(null);
+                fullNameInputLayout.setErrorEnabled(false);
+                emailInputLayout.setErrorEnabled(false);
                 if (!userController.getSavedToFirebase()) {
                     userController.saveToFirestore();
                 }
                 userController.updateName(name);
                 userController.updateEmail(email);
                 userController.updatePhone(phone);
-
             }
         });
 
