@@ -4,6 +4,8 @@ import android.content.Context;
 import android.provider.Settings;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.HashMap;
+
 /**
  * UserModel is the data model representing a user in the application.
  * It manages user-specific data such as name, email, phone, and device ID,
@@ -81,11 +83,15 @@ public class UserModel extends AbstractModel {
      * Saves the current user data to Firestore.
      * This method is called during initialization to persist the user data.
      */
-    public void saveUserToFirestore() {
+    public void saveUserToFirestore(String name, String email, String phone) {
         if (savedToFirestore) return;
         db.collection("users")
                 .document(deviceId)
-                .set(this)  // Saves the current user object to Firestore
+                .set(new HashMap<String, String>() {{
+                        put("name", name);
+                        put("email", email);
+                        put("phone", phone);
+                }})  // Saves the current user object to Firestore
                 .addOnSuccessListener(aVoid -> {
                     System.out.println("User saved successfully!");
                     savedToFirestore = true;

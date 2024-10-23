@@ -122,11 +122,12 @@ public class AccountFragment extends Fragment {
                 fullNameInputLayout.setErrorEnabled(false);
                 emailInputLayout.setErrorEnabled(false);
                 if (!userController.getSavedToFirebase()) {
-                    userController.saveToFirestore();
+                    userController.saveToFirestore(name, email, phone);
+                } else {
+                    userController.updateName(name);
+                    userController.updateEmail(email);
+                    userController.updatePhone(phone);
                 }
-                userController.updateName(name);
-                userController.updateEmail(email);
-                userController.updatePhone(phone);
             }
         });
 

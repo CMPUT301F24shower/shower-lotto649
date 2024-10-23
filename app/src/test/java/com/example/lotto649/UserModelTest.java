@@ -27,6 +27,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -114,10 +115,14 @@ public class UserModelTest {
     @Test
     public void testSaveUserToFirestoreSuccessful() {
         assertFalse(user.getSavedToFirestore());
-        user.saveUserToFirestore();
+        user.saveUserToFirestore(user.getName(), user.getEmail(), user.getPhone());
         verify(mockFirestore).collection("users");
         verify(mockCollectionReference).document(mockDeviceId);
-        verify(mockDocumentReference).set(user);
+        verify(mockDocumentReference).set(new HashMap<String, String>() {{
+            put("name", user.getName());
+            put("email", user.getEmail());
+            put("phone", user.getPhone());
+        }});
         assertTrue(user.getSavedToFirestore());
     }
 
@@ -136,10 +141,14 @@ public class UserModelTest {
         }).when(mockTask).addOnFailureListener(any());
 
         assertFalse(user.getSavedToFirestore());
-        user.saveUserToFirestore();
+        user.saveUserToFirestore(user.getName(), user.getEmail(), user.getPhone());
         verify(mockFirestore).collection("users");
         verify(mockCollectionReference).document(mockDeviceId);
-        verify(mockDocumentReference).set(user);
+        verify(mockDocumentReference).set(new HashMap<String, String>() {{
+            put("name", user.getName());
+            put("email", user.getEmail());
+            put("phone", user.getPhone());
+        }});
         assertFalse(user.getSavedToFirestore());
     }
 

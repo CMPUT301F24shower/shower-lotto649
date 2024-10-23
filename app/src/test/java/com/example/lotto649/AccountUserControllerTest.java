@@ -72,9 +72,12 @@ public class AccountUserControllerTest {
 
     @Test
     public void testSaveToFirestore() {
-        accountUserController.saveToFirestore();
+        String name = "Tester";
+        String email = "test@example.com";
+        String phone = "1234567";
+        accountUserController.saveToFirestore(name, email, phone);
 
-        verify(mockUserModel).saveUserToFirestore(); // Verify that saveUserToFirestore was called
+        verify(mockUserModel).saveUserToFirestore(name, email, phone); // Verify that saveUserToFirestore was called
     }
 }
 
