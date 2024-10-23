@@ -41,6 +41,9 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     testImplementation(libs.junit)
+    testImplementation("org.mockito:mockito-core:3.12.4")
+    testImplementation("org.robolectric:robolectric:4.9")
+    testImplementation("com.google.firebase:firebase-firestore:24.x.x")
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 }

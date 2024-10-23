@@ -75,13 +75,16 @@ public class AccountFragment extends Fragment {
 
         // Initialize Firestore and UserModel
         db = FirebaseFirestore.getInstance();
-        user = new UserModel();
+        user = new UserModel(getContext(), FirebaseFirestore.getInstance());
 
         // Check if the user exists in Firestore, or create a new user
         checkUserInFirestore(new FirestoreUserCallback() {
             @Override
-            public void onCallback(UserModel userModel) {
-                user.update(userModel);
+            public void onCallback(String name, String email, String phone) {
+                userController.updateName(name);
+                userController.updateEmail(email);
+                userController.updatePhone(phone);
+//                userController.update(userModel);
                 fullNameEditText.setText(user.getName());
                 emailEditText.setText(user.getEmail());
                 phoneNumberEditText.setText(user.getPhone());
@@ -97,8 +100,16 @@ public class AccountFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 // Update user information via the controller
-                userController.update(new UserModel(getContext(), fullNameEditText.getText().toString(),
-                        emailEditText.getText().toString(), phoneNumberEditText.getText().toString()));
+                String name = fullNameEditText.getText().toString();
+                String email = emailEditText.getText().toString();
+                String phone = phoneNumberEditText.getText().toString();
+                if (!userController.getSavedToFirebase()) {
+                    userController.saveToFirestore();
+                }
+                userController.updateName(name);
+                userController.updateEmail(email);
+                userController.updatePhone(phone);
+
             }
         });
 
@@ -123,15 +134,15 @@ public class AccountFragment extends Fragment {
                         // User exists, deserialize to UserModel
                         UserModel user = document.toObject(UserModel.class);
                         if (user != null) {
-                            firestoreUserCallback.onCallback(user);
+                            firestoreUserCallback.onCallback(user.getName(), user.getEmail(), user.getPhone());
                         }
                     } else {
                         // No user found, create a new one
-                        firestoreUserCallback.onCallback(new UserModel());
+                        firestoreUserCallback.onCallback("", "", "");
                     }
                 } else {
                     // Failure, return a new default user
-                    firestoreUserCallback.onCallback(new UserModel());
+                    firestoreUserCallback.onCallback("", "", "");
                 }
             }
         });

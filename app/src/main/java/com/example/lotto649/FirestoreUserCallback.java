@@ -16,6 +16,7 @@ public interface FirestoreUserCallback {
      *
      * @param user The UserModel object representing the user data, either retrieved
      *             from Firestore or created as a new default user.
+     *             TODO: This needs updating
      */
-    void onCallback(UserModel user);
+    void onCallback(String name, String email, String phone);
 }

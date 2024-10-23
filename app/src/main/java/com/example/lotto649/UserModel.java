@@ -20,7 +20,8 @@ public class UserModel extends AbstractModel {
     private String deviceId;
 
     // Firestore instance for saving and updating user data
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private FirebaseFirestore db;
+    private boolean savedToFirestore = false;
 
     /**
      * No-argument constructor for Firestore deserialization.
@@ -32,6 +33,22 @@ public class UserModel extends AbstractModel {
     }
 
     /**
+     * Constructor to create a new user model without the given name, email, and phone number.
+     * They will all be set to ""
+     * Also retrieves the device ID of the current device and immediately saves the user to Firestore.
+     *
+     * @param context the application context used to retrieve the device ID
+     * @param db the firestore database containing user info
+     */
+    public UserModel(Context context, FirebaseFirestore db) {
+        this.name = "";
+        this.email = "";
+        this.phone = "";
+        this.deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        this.db = db;
+    }
+
+    /**
      * Constructor to create a new user model with the given name, email, and phone number.
      * Also retrieves the device ID of the current device and immediately saves the user to Firestore.
      *
@@ -40,12 +57,13 @@ public class UserModel extends AbstractModel {
      * @param email the email of the user
      * @param phone the phone number of the user (optional)
      */
-    public UserModel(Context context, String name, String email, String phone) {
+    public UserModel(Context context, String name, String email, String phone, FirebaseFirestore db) {
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-        saveUserToFirestore();
+        this.db = db;
+//        saveUserToFirestore();
     }
 
     /**
@@ -56,7 +74,7 @@ public class UserModel extends AbstractModel {
      * @param email the email of the user
      */
     public UserModel(Context context, String name, String email) {
-        this(context, name, email, null);
+        this(context, name, email, null, null);
     }
 
     /**
@@ -64,11 +82,13 @@ public class UserModel extends AbstractModel {
      * This method is called during initialization to persist the user data.
      */
     public void saveUserToFirestore() {
+        if (savedToFirestore) return;
         db.collection("users")
                 .document(deviceId)
                 .set(this)  // Saves the current user object to Firestore
                 .addOnSuccessListener(aVoid -> {
                     System.out.println("User saved successfully!");
+                    savedToFirestore = true;
                 })
                 .addOnFailureListener(e -> {
                     System.err.println("Error saving user: " + e.getMessage());
@@ -79,17 +99,19 @@ public class UserModel extends AbstractModel {
      * Updates Firestore with the current user's information.
      * This method is used whenever a setter modifies the user data to synchronize the changes.
      */
-    private void updateFirestore() {
+    public void updateFirestore(String field, String value) {
         if (deviceId == null) return; // Ensure the device ID exists
-
+        if (db == null) return;
         db.collection("users")
                 .document(deviceId)
-                .update("name", this.name, "email", this.email, "phone", (this.phone == null) ? "" : this.phone)
+                .update(field, value)
                 .addOnSuccessListener(aVoid -> {
-                    // Log success (optional)
+                    // TODO: Add error handling to test for failure
+
                 })
                 .addOnFailureListener(e -> {
-                    // Log failure (optional)
+                    // TODO: Add error handling to test for failure
+
                 });
     }
 
@@ -110,7 +132,7 @@ public class UserModel extends AbstractModel {
      */
     public void setName(String name) {
         this.name = name;
-        updateFirestore();
+        updateFirestore("name", name);
         notifyViews();
     }
 
@@ -131,7 +153,7 @@ public class UserModel extends AbstractModel {
      */
     public void setEmail(String email) {
         this.email = email;
-        updateFirestore();
+        updateFirestore("email", email);
         notifyViews();
     }
 
@@ -152,21 +174,7 @@ public class UserModel extends AbstractModel {
      */
     public void setPhone(String phone) {
         this.phone = (phone == null) ? "" : phone;
-        updateFirestore();
-        notifyViews();
-    }
-
-    /**
-     * Updates the current user's data with the provided user model.
-     * This method is typically used when synchronizing user data.
-     *
-     * @param user the user model containing updated information
-     */
-    public void update(UserModel user) {
-        this.name = user.getName();
-        this.email = user.getEmail();
-        this.phone = user.getPhone();
-        updateFirestore();
+        updateFirestore("phone", phone);
         notifyViews();
     }
 
@@ -178,6 +186,24 @@ public class UserModel extends AbstractModel {
     public String getDeviceId() {
         return deviceId;
     }
+
+    /**
+     * Gets if the user has been saved to firebase
+     *
+     * @return a boolean representing if the user has been saved to firestore
+     */
+    public boolean getSavedToFirestore() {
+        return savedToFirestore;
+    }
+
+    /**
+     * Sets the boolean tracking whether the user is saved to firestore to true
+     */
+    public void setSavedToFirestore() {
+        // Once a user has been saved to firestore they should not be removed at any point
+        savedToFirestore = true;
+    }
+
 
     // No setter for device ID, as it is immutable after being set
 }

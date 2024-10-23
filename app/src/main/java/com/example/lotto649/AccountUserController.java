@@ -37,9 +37,45 @@ public class AccountUserController extends AbstractController {
      * Updates the user model with new data. This method is used to modify the
      * state of the `UserModel` and trigger any necessary updates.
      *
-     * @param user the updated user model containing new data
+     * @param name the updated user name
      */
-    public void update(UserModel user) {
-        getModel().update(user);
+    public void updateName(String name) {
+        getModel().setName(name);
+    }
+
+    /**
+     * Updates the user model with new data. This method is used to modify the
+     * state of the `UserModel` and trigger any necessary updates.
+     *
+     * @param email the updated user email
+     */
+    public void updateEmail(String email) {
+        getModel().setEmail(email);
+    }
+
+    /**
+     * Updates the user model with new data. This method is used to modify the
+     * state of the `UserModel` and trigger any necessary updates.
+     *
+     * @param phone the updated user phone
+     */
+    public void updatePhone(String phone) {
+        getModel().setPhone(phone);
+    }
+
+    /**
+     * Gets if the user has been saved to firebase
+     *
+     * @return a boolean representing if the user has been saved to firebase
+     */
+    public boolean getSavedToFirebase() {
+        return getModel().getSavedToFirestore();
+    }
+
+    /**
+     * Save the user to firestore for data retention
+     */
+    public void saveToFirestore() {
+        getModel().saveUserToFirestore();
     }
 }
