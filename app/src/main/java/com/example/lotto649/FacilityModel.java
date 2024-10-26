@@ -29,6 +29,7 @@ public class FacilityModel extends AbstractModel {
 
     public void setFacilityName(String facilityName) {
         this.facilityName = facilityName;
+        notifyViews();
     }
 
     public String getAddress() {
@@ -37,6 +38,7 @@ public class FacilityModel extends AbstractModel {
 
     public void setAddress(String address) {
         this.address = address;
+        notifyViews();
     }
 
     public String getDeviceId() {
