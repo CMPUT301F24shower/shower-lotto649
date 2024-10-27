@@ -1,8 +1,7 @@
 /**
- * Code used from the following source for menu bar
- * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
+ * FacilityFragment works with the Facility model, controller, and view to integrate them
+ * into a working application.
  */
-
 package com.example.lotto649;
 import android.graphics.drawable.RippleDrawable;
 import android.os.Build;
@@ -28,6 +27,15 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Objects;
 
+/**
+ * FacilityFragment class manages the facility details of the user in the application.
+ * This fragment is responsible for displaying and updating the user's facility information
+ * using a form. The facility information is retrieved from and saved to Firebase Firestore.
+ * The class also manages the interactions between the view,
+ * model, and controller in a Model-View-Controller (MVC) pattern.
+ * Code for the bottom navigation bar was adapted from:
+ * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
+ */
 public class FacilityFragment extends Fragment {
     private FacilityView facilityView;
     private FacilityModel facility;
@@ -41,11 +49,22 @@ public class FacilityFragment extends Fragment {
     private String initialFacilityNameInput;
     private String initialAddressInput;
 
-
+    /**
+     * Empty constructor that fragment needs.
+     */
     public FacilityFragment(){
         // require a empty public constructor
     }
 
+    /**
+     * Called to create the view hierarchy for this fragment.
+     * This method inflates the layout for the facility fragment and initializes the UI components.
+     *
+     * @param inflater  LayoutInflater object used to inflate any views in the fragment
+     * @param container The parent view that the fragment's UI should be attached to
+     * @param savedInstanceState Bundle containing data about the previous state (if any)
+     * @return View for the facility fragment's UI
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_facility, container, false);
@@ -99,6 +118,7 @@ public class FacilityFragment extends Fragment {
         facilityView = new FacilityView(facility, this);
         facilityController = new FacilityController(facility);
 
+        // Click save to save inputted information
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -106,6 +126,7 @@ public class FacilityFragment extends Fragment {
                 nameInput.setError(null);
                 String facilityName = nameInput.getEditableText().toString();
                 String address = addressInput.getEditableText().toString();
+                // If no facility name given, error
                 if (facilityName.isEmpty()) {
                     nameInput.setError("Please enter a facility name");
                     return;
@@ -137,10 +158,20 @@ public class FacilityFragment extends Fragment {
         });
     }
 
-    private boolean DidFacilityPageTextChange() {
+    /**
+     * Finds if the information in the EditText components is the same as in Firestore or not.
+     *
+     * @return true if either of the facility name or address changed from the saved version
+     */
+    private boolean DidInfoRemainConstant() {
         return Objects.equals(nameInput.getEditableText().toString(), initialFacilityNameInput) && Objects.equals(addressInput.getEditableText().toString(), initialAddressInput);
     }
 
+    /**
+     * Sets the save button's colour depending on whether information on the page changed.
+     *
+     * @param isEqual if the facility information inputted is the same as in Firestore
+     */
     private void SetSaveButtonColor(boolean isEqual) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             RippleDrawable saveBackgroundColor = (RippleDrawable) save.getBackground();
@@ -159,23 +190,29 @@ public class FacilityFragment extends Fragment {
         }
     }
 
+    /**
+     * Watches the facility name EditText for changes, and calls to possibly change the save button colour
+     */
     private TextWatcher facilityNameWatcher = new TextWatcher() {
         public void afterTextChanged(Editable s) {}
 
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SetSaveButtonColor(DidFacilityPageTextChange());
+            SetSaveButtonColor(DidInfoRemainConstant());
         }
     };
 
+    /**
+     * Watches the address EditText for changes, and calls to possibly change the save button colour
+     */
     private TextWatcher addressWatcher = new TextWatcher() {
         public void afterTextChanged(Editable s) {}
 
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SetSaveButtonColor(DidFacilityPageTextChange());
+            SetSaveButtonColor(DidInfoRemainConstant());
         }
     };
 }

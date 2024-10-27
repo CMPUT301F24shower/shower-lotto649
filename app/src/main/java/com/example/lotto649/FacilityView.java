@@ -1,5 +1,15 @@
+/**
+ * Facility view is the view for the Facility class which shows the facility details.
+ */
 package com.example.lotto649;
 
+/**
+ * FacilityView is part of the Model-View-Controller (MVC) architecture.
+ * It represents the view component in the application, observing the state of the `FacilityModel`
+ * and updating the associated `FacilityFragment` whenever the model changes.
+ * This class extends `AbstractView` to implement the functionality for observing the `FacilityModel`
+ * and updating the view with the latest user details.
+ */
 public class FacilityView extends AbstractView {
     // Reference to the fragment associated with this view
     private final FacilityFragment facilityFragment;
@@ -8,7 +18,7 @@ public class FacilityView extends AbstractView {
     private FacilityModel facility;
 
     /**
-     * Constructor for the AccountView class.
+     * Constructor for the FacilityView class.
      * Initializes the view with the specified facility model and fragment,
      * and starts observing changes in the facility model.
      *
