@@ -116,7 +116,7 @@ public class FacilityFragment extends Fragment {
 
         // Initialize MVC components
         facilityView = new FacilityView(facility, this);
-        facilityController = new FacilityController(facility);
+        facilityController = new FacilityController(facility, db);
 
         // Click save to save inputted information
         save.setOnClickListener(new View.OnClickListener() {

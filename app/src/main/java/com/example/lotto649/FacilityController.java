@@ -27,13 +27,14 @@ public class FacilityController extends AbstractController {
 
     /**
      * Constructor for the FacilityController class. Takes in a FacilityModel to change.
-     * Also instantiates a Firestore instance and gets the facilities collection.
+     * Also takes a Firestore instance and gets the facilities collection.
      *
      * @param facility the facility model to change
+     * @param db the Firestore db instance
      */
-    public FacilityController(FacilityModel facility) {
+    public FacilityController(FacilityModel facility, FirebaseFirestore db) {
         super(facility);
-        db = FirebaseFirestore.getInstance();
+        this.db = db;
         facilitiesRef = db.collection("facilities");
     }
 
@@ -73,12 +74,10 @@ public class FacilityController extends AbstractController {
         data.put("facility", getModel().getFacilityName());
         data.put("address", getModel().getAddress());
         facilitiesRef.document(getModel().getDeviceId())
-                .set(data, SetOptions.merge())
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("Firestore", "Facility successfully written!");
-                    }
-                });
+                .set(data, SetOptions.merge());
+                // TODO: add in success listener (currently breaks testing)
+                // .addOnSuccessListener(aVoid -> {
+                    // Log.d("Firestore", "Facility successfully written!");
+                // });
     }
 }
