@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity
     HomeFragment homeFragment = new HomeFragment();
     CameraFragment cameraFragment = new CameraFragment();
     AccountFragment accountFragment = new AccountFragment();
+    FacilityFragment facilityFragment = new FacilityFragment();
 
     /**
      * Handles the selection of items from the BottomNavigationView.
@@ -73,6 +74,12 @@ public class MainActivity extends AppCompatActivity
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.flFragment, accountFragment)
+                    .commit();
+            return true;
+        } else if (item.getItemId() == R.id.facility) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.flFragment, facilityFragment)
                     .commit();
             return true;
         } else {

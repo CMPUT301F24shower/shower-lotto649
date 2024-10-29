@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Code used from the following source for menu bar-->
+<!--https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/-->
+<!--code used for icon in edit text-->
+<!--https://stackoverflow.com/questions/4281749/how-to-add-icon-inside-edittext-view-in-android-->
+<!--https://stackoverflow.com/questions/40998914/how-to-change-a-drawableleft-icon-size-on-a-button-->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:id="@+id/facility_inputs_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:orientation="vertical"
+        android:paddingHorizontal="40dp"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/facilityFragment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create a Facility"
+            android:textColor="@color/lightOnSurface"
+            android:textSize="40sp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputFacilityName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/input_border"
+                android:drawableEnd="@drawable/text_icon"
+                android:hint="Facility Name"
+                android:textSize="16sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/inputFacilityNameUnder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="16sp"
+            android:text="Required"
+            android:textColor="@color/lightOnSurfaceVariant"
+            android:textSize="12sp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/input_border"
+                android:drawableEnd="@drawable/facility_icon"
+                android:hint="Address" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="16sp"
+            android:text="Optional"
+            android:textColor="@color/lightOnSurfaceVariant"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/facility_save_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/lightSurfaceContainerHigh"
+        android:textColor="@color/lightPrimary"
+        android:text="Save"
+        android:drawableLeft="@drawable/check_icon"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

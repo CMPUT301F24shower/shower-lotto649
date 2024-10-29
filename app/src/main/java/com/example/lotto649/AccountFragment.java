@@ -172,7 +172,8 @@ public class AccountFragment extends Fragment {
      * @param user The user model containing the details to be displayed
      */
     public void showUserDetails(UserModel user) {
-        getActivity().runOnUiThread(new Runnable() {
+        // getActivity().runOnUiThread(new Runnable() {
+        requireActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 fullNameEditText.setText(user.getName());
