@@ -7,7 +7,7 @@
  * https://ualberta-cmput301.github.io/general/slides/020mvc.pdf
  */
 
-package com.example.lotto649;
+package com.example.lotto649.AbstractClasses;
 
 public abstract class AbstractObserver {
     public transient AbstractObservable observable;

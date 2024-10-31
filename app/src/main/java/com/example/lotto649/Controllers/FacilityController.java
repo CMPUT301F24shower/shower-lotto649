@@ -1,13 +1,10 @@
 /**
  * FacilityController serves as the controller for the Facility class.
  */
-package com.example.lotto649;
+package com.example.lotto649.Controllers;
 
-import android.util.Log;
-
-import com.example.lotto649.AbstractController;
-import com.example.lotto649.FacilityModel;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.example.lotto649.AbstractClasses.AbstractController;
+import com.example.lotto649.Models.FacilityModel;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;

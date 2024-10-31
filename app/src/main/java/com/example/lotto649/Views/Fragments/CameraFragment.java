@@ -9,7 +9,7 @@
  * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
  * </p>
  */
-package com.example.lotto649;
+package com.example.lotto649.Views.Fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,6 +17,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
+
+import com.example.lotto649.R;
 
 public class CameraFragment extends Fragment {
 

@@ -2,7 +2,7 @@
  * FacilityFragment works with the Facility model, controller, and view to integrate them
  * into a working application.
  */
-package com.example.lotto649;
+package com.example.lotto649.Views.Fragments;
 import android.graphics.drawable.RippleDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,6 +18,10 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.example.lotto649.Controllers.FacilityController;
+import com.example.lotto649.Models.FacilityModel;
+import com.example.lotto649.R;
+import com.example.lotto649.Views.FacilityView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;

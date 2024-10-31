@@ -1,7 +1,9 @@
-package com.example.lotto649;
+package com.example.lotto649.Models;
 
 import android.content.Context;
 import android.provider.Settings;
+
+import com.example.lotto649.AbstractClasses.AbstractModel;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -19,6 +21,9 @@ public class UserModel extends AbstractModel {
     private String name;
     private String email;
     private String phone;
+    private boolean entrant;
+    private boolean organizer;
+    private boolean admin;
     private String deviceId;
 
     // Firestore instance for saving and updating user data
@@ -46,6 +51,9 @@ public class UserModel extends AbstractModel {
         this.name = "";
         this.email = "";
         this.phone = "";
+        this.entrant = true;
+        this.organizer = false;
+        this.admin = false;
         this.deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         this.db = db;
     }
@@ -63,6 +71,9 @@ public class UserModel extends AbstractModel {
         this.name = name;
         this.email = email;
         this.phone = phone;
+        this.entrant = true;
+        this.organizer = false;
+        this.admin = false;
         this.deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         this.db = db;
 //        saveUserToFirestore();
@@ -82,15 +93,19 @@ public class UserModel extends AbstractModel {
     /**
      * Saves the current user data to Firestore.
      * This method is called during initialization to persist the user data.
+     * Users are default set to entrants
      */
     public void saveUserToFirestore(String name, String email, String phone) {
         if (savedToFirestore) return;
         db.collection("users")
                 .document(deviceId)
-                .set(new HashMap<String, String>() {{
+                .set(new HashMap<String, Object>() {{
                         put("name", name);
                         put("email", email);
                         put("phone", phone);
+                        put("entrant", true);
+                        put("organizer", false);
+                        put("admin", false);
                 }})  // Saves the current user object to Firestore
                 .addOnSuccessListener(aVoid -> {
                     System.out.println("User saved successfully!");
@@ -105,7 +120,7 @@ public class UserModel extends AbstractModel {
      * Updates Firestore with the current user's information.
      * This method is used whenever a setter modifies the user data to synchronize the changes.
      */
-    public void updateFirestore(String field, String value) {
+    public void updateFirestore(String field, Object value) {
         if (deviceId == null) return; // Ensure the device ID exists
         if (db == null) return;
         db.collection("users")
@@ -185,6 +200,67 @@ public class UserModel extends AbstractModel {
     }
 
     /**
+     * Sets the user's entrant privilege and updates Firestore.
+     * Notifies the views about the change.
+     *
+     * @param bool the new privilege of the user (must be true or false)
+     */
+    public void setEntrant(Boolean bool) {
+        this.entrant = bool;
+        updateFirestore("entrant", bool);
+        notifyViews();
+    }
+
+    /**
+     * Gets the user's entrant privilege.
+     *
+     * @return the entrant privilege of the user
+     */
+    public Boolean getEntrant() {
+        return entrant;
+    }
+
+    /**
+     * Sets the user's organizer privilege and updates Firestore.
+     * Notifies the views about the change.
+     *
+     * @param bool the new privilege of the user (must be true or false)
+     */
+    public void setOrganizer(Boolean bool) {
+        updateFirestore("organizer", bool);
+        notifyViews();
+    }
+
+    /**
+     * Gets the user's organizer privilege.
+     *
+     * @return the organizer privilege of the user
+     */
+    public Boolean getOrganizer() {
+        return organizer;
+    }
+
+    /**
+     * Sets the user's admin privilege and updates Firestore.
+     * Notifies the views about the change.
+     *
+     * @param bool the new privilege of the user (must be true or false)
+     */
+    public void setAdmin(Boolean bool) {
+        updateFirestore("admin", bool);
+        notifyViews();
+    }
+
+    /**
+     * Gets the user's admin privilege.
+     *
+     * @return the admin privilege of the user
+     */
+    public Boolean getAdmin() {
+        return admin;
+    }
+
+    /**
      * Gets the device ID associated with the current user.
      *
      * @return the device ID of the user's device
@@ -209,7 +285,5 @@ public class UserModel extends AbstractModel {
         // Once a user has been saved to firestore they should not be removed at any point
         savedToFirestore = true;
     }
-
-
     // No setter for device ID, as it is immutable after being set
 }

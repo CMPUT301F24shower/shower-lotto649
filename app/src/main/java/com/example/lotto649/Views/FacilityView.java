@@ -1,7 +1,12 @@
 /**
  * Facility view is the view for the Facility class which shows the facility details.
  */
-package com.example.lotto649;
+package com.example.lotto649.Views;
+
+import com.example.lotto649.AbstractClasses.AbstractModel;
+import com.example.lotto649.AbstractClasses.AbstractView;
+import com.example.lotto649.Views.Fragments.FacilityFragment;
+import com.example.lotto649.Models.FacilityModel;
 
 /**
  * FacilityView is part of the Model-View-Controller (MVC) architecture.

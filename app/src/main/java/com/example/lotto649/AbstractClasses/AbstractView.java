@@ -6,7 +6,7 @@
  * This implementation is used from the lecture slides:
  * https://ualberta-cmput301.github.io/general/slides/020mvc.pdf
  */
-package com.example.lotto649;
+package com.example.lotto649.AbstractClasses;
 
 public abstract class AbstractView {
     private AbstractModel model;

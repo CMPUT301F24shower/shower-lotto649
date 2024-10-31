@@ -12,6 +12,11 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.lotto649.Views.Fragments.AccountFragment;
+import com.example.lotto649.Views.Fragments.CameraFragment;
+import com.example.lotto649.Views.Fragments.FacilityFragment;
+import com.example.lotto649.Views.Fragments.HomeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity

@@ -11,6 +11,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
+import com.example.lotto649.Controllers.AccountUserController;
+import com.example.lotto649.Models.UserModel;
+
 @RunWith(RobolectricTestRunner.class)
 public class AccountUserControllerTest {
 
