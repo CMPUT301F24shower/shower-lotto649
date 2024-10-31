@@ -15,7 +15,7 @@ import java.util.HashMap;
  * and provides methods to handle Firestore integration for saving and updating user information.
  * </p>
  */
-public class UserModel extends AbstractModel {
+public class UserModel extends AbstractModel{
     private String name;
     private String email;
     private String phone;
@@ -82,15 +82,19 @@ public class UserModel extends AbstractModel {
     /**
      * Saves the current user data to Firestore.
      * This method is called during initialization to persist the user data.
+     * Users are default set to entrants
      */
     public void saveUserToFirestore(String name, String email, String phone) {
         if (savedToFirestore) return;
         db.collection("users")
                 .document(deviceId)
-                .set(new HashMap<String, String>() {{
+                .set(new HashMap<String, Object>() {{
                         put("name", name);
                         put("email", email);
                         put("phone", phone);
+                        put("entrant", true);
+                        put("organizer", false);
+                        put("admin", false);
                 }})  // Saves the current user object to Firestore
                 .addOnSuccessListener(aVoid -> {
                     System.out.println("User saved successfully!");
@@ -105,7 +109,7 @@ public class UserModel extends AbstractModel {
      * Updates Firestore with the current user's information.
      * This method is used whenever a setter modifies the user data to synchronize the changes.
      */
-    public void updateFirestore(String field, String value) {
+    public void updateFirestore(String field, Object value) {
         if (deviceId == null) return; // Ensure the device ID exists
         if (db == null) return;
         db.collection("users")
@@ -181,6 +185,38 @@ public class UserModel extends AbstractModel {
     public void setPhone(String phone) {
         this.phone = (phone == null) ? "" : phone;
         updateFirestore("phone", phone);
+        notifyViews();
+    }
+
+    /**
+     * Sets the user's entrant privilege and updates Firestore.
+     * Notifies the views about the change.
+     *
+     * @param bool the new privilege of the user (must be true or false)
+     */
+    public void setEntrant(Boolean bool) {
+        updateFirestore("entrant", bool);
+        notifyViews();
+    }
+
+    /**
+     * Sets the user's organizer privilege and updates Firestore.
+     * Notifies the views about the change.
+     *
+     * @param bool the new privilege of the user (must be true or false)
+     */
+    public void setOrganizer(Boolean bool) {
+        updateFirestore("organizer", bool);
+        notifyViews();
+    }
+    /**
+     * Sets the user's admin privilege and updates Firestore.
+     * Notifies the views about the change.
+     *
+     * @param bool the new privilege of the user (must be true or false)
+     */
+    public void setAdmin(Boolean bool) {
+        updateFirestore("admin", bool);
         notifyViews();
     }
 
