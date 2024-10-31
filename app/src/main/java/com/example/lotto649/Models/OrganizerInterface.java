@@ -99,5 +99,19 @@ public interface OrganizerInterface {
      */
     ArrayList<String> getSelectedAttendees(String eventId);
 
-/**
- * Retrieves the list
+    /**
+     * Retrieves the list of cancelled attendees for the specified event.
+     *
+     * @param eventId The unique identifier of the event.
+     * @return An ArrayList of IDs of cancelled attendees.
+     */
+    ArrayList<String> getCancelledAttendees(String eventId);
+
+    /**
+     * Retrieves the final list of attendees for the specified event.
+     *
+     * @param eventId The unique identifier of the event.
+     * @return An ArrayList of IDs of final attendees.
+     */
+    ArrayList<String> getFinalAttendees(String eventId);
+}
