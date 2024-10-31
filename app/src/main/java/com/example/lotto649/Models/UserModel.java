@@ -21,6 +21,9 @@ public class UserModel extends AbstractModel {
     private String name;
     private String email;
     private String phone;
+    private boolean entrant;
+    private boolean organizer;
+    private boolean admin;
     private String deviceId;
 
     // Firestore instance for saving and updating user data
@@ -48,6 +51,9 @@ public class UserModel extends AbstractModel {
         this.name = "";
         this.email = "";
         this.phone = "";
+        this.entrant = true;
+        this.organizer = false;
+        this.admin = false;
         this.deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         this.db = db;
     }
@@ -65,6 +71,9 @@ public class UserModel extends AbstractModel {
         this.name = name;
         this.email = email;
         this.phone = phone;
+        this.entrant = true;
+        this.organizer = false;
+        this.admin = false;
         this.deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         this.db = db;
 //        saveUserToFirestore();
@@ -197,8 +206,18 @@ public class UserModel extends AbstractModel {
      * @param bool the new privilege of the user (must be true or false)
      */
     public void setEntrant(Boolean bool) {
+        this.entrant = bool;
         updateFirestore("entrant", bool);
         notifyViews();
+    }
+
+    /**
+     * Gets the user's entrant privilege.
+     *
+     * @return the entrant privilege of the user
+     */
+    public Boolean getEntrant() {
+        return entrant;
     }
 
     /**
@@ -211,6 +230,16 @@ public class UserModel extends AbstractModel {
         updateFirestore("organizer", bool);
         notifyViews();
     }
+
+    /**
+     * Gets the user's organizer privilege.
+     *
+     * @return the organizer privilege of the user
+     */
+    public Boolean getOrganizer() {
+        return organizer;
+    }
+
     /**
      * Sets the user's admin privilege and updates Firestore.
      * Notifies the views about the change.
@@ -220,6 +249,15 @@ public class UserModel extends AbstractModel {
     public void setAdmin(Boolean bool) {
         updateFirestore("admin", bool);
         notifyViews();
+    }
+
+    /**
+     * Gets the user's admin privilege.
+     *
+     * @return the admin privilege of the user
+     */
+    public Boolean getAdmin() {
+        return admin;
     }
 
     /**
@@ -247,7 +285,5 @@ public class UserModel extends AbstractModel {
         // Once a user has been saved to firestore they should not be removed at any point
         savedToFirestore = true;
     }
-
-
     // No setter for device ID, as it is immutable after being set
 }
