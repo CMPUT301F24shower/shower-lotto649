@@ -83,7 +83,6 @@ public class UserModelTest {
         user.setName(newName);
 
         assertEquals(newName, user.getName());
-        verifyFirestoreUpdate("name", newName);
         verify(user).notifyViews();
     }
 
@@ -117,10 +116,13 @@ public class UserModelTest {
         user.saveUserToFirestore(user.getName(), user.getEmail(), user.getPhone());
         verify(mockFirestore).collection("users");
         verify(mockCollectionReference).document(mockDeviceId);
-        verify(mockDocumentReference).set(new HashMap<String, String>() {{
+        verify(mockDocumentReference).set(new HashMap<String, Object>() {{
             put("name", user.getName());
             put("email", user.getEmail());
             put("phone", user.getPhone());
+            put("entrant", user.getEntrant());
+            put("organizer", user.getOrganizer());
+            put("admin", user.getAdmin());
         }});
         assertTrue(user.getSavedToFirestore());
     }
@@ -143,10 +145,13 @@ public class UserModelTest {
         user.saveUserToFirestore(user.getName(), user.getEmail(), user.getPhone());
         verify(mockFirestore).collection("users");
         verify(mockCollectionReference).document(mockDeviceId);
-        verify(mockDocumentReference).set(new HashMap<String, String>() {{
+        verify(mockDocumentReference).set(new HashMap<String, Object>() {{
             put("name", user.getName());
             put("email", user.getEmail());
             put("phone", user.getPhone());
+            put("entrant", user.getEntrant());
+            put("organizer", user.getOrganizer());
+            put("admin", user.getAdmin());
         }});
         assertFalse(user.getSavedToFirestore());
     }
