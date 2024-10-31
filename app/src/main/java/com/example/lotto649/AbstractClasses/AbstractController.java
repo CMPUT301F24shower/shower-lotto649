@@ -2,7 +2,7 @@
  * Code used from the lecture slides
  * https://ualberta-cmput301.github.io/general/slides/020mvc.pdf
  */
-package com.example.lotto649;
+package com.example.lotto649.AbstractClasses;
 
 /**
  * General controller class used to manage

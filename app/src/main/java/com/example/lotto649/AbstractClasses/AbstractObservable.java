@@ -8,7 +8,7 @@
  * https://ualberta-cmput301.github.io/general/slides/020mvc.pdf
  * </p>
  */
-package com.example.lotto649;
+package com.example.lotto649.AbstractClasses;
 
 import android.util.ArraySet;
 import java.util.Set;

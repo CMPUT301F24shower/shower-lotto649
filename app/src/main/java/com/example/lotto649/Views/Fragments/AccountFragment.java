@@ -11,7 +11,7 @@
  * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
  * </p>
  */
-package com.example.lotto649;
+package com.example.lotto649.Views.Fragments;
 
 import android.os.Bundle;
 import android.provider.Settings;
@@ -22,6 +22,11 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.example.lotto649.Controllers.AccountUserController;
+import com.example.lotto649.Models.FirestoreUserCallback;
+import com.example.lotto649.Models.UserModel;
+import com.example.lotto649.R;
+import com.example.lotto649.Views.AccountView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;

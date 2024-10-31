@@ -7,7 +7,12 @@
  * and updating the view with the latest user details.
  * </p>
  */
-package com.example.lotto649;
+package com.example.lotto649.Views;
+
+import com.example.lotto649.AbstractClasses.AbstractModel;
+import com.example.lotto649.AbstractClasses.AbstractView;
+import com.example.lotto649.Views.Fragments.AccountFragment;
+import com.example.lotto649.Models.UserModel;
 
 public class AccountView extends AbstractView {
     // Reference to the AccountFragment associated with this view

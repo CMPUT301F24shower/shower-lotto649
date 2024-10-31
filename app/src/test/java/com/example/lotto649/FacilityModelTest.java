@@ -8,6 +8,8 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
+import com.example.lotto649.Models.FacilityModel;
+
 public class FacilityModelTest {
     private FacilityModel mockFacility;
 

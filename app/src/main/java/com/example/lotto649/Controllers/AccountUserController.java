@@ -7,7 +7,10 @@
  * synchronized with any changes made by the user.
  * </p>
  */
-package com.example.lotto649;
+package com.example.lotto649.Controllers;
+
+import com.example.lotto649.AbstractClasses.AbstractController;
+import com.example.lotto649.Models.UserModel;
 
 public class AccountUserController extends AbstractController {
 

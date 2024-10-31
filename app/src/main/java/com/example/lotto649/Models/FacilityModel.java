@@ -1,7 +1,9 @@
 /**
  * A model of the Facility class.
  */
-package com.example.lotto649;
+package com.example.lotto649.Models;
+
+import com.example.lotto649.AbstractClasses.AbstractModel;
 
 /**
  * A model class that stores information about a given Facility.

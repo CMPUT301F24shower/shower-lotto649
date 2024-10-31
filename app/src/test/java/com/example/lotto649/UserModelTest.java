@@ -3,9 +3,8 @@ package com.example.lotto649;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.provider.Settings;
-import android.util.ArraySet;
 
-import com.example.lotto649.UserModel;
+import com.example.lotto649.Models.UserModel;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;

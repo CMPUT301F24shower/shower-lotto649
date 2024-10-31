@@ -1,7 +1,9 @@
-package com.example.lotto649;
+package com.example.lotto649.Models;
 
 import android.content.Context;
 import android.provider.Settings;
+
+import com.example.lotto649.AbstractClasses.AbstractModel;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -15,7 +17,7 @@ import java.util.HashMap;
  * and provides methods to handle Firestore integration for saving and updating user information.
  * </p>
  */
-public class UserModel extends AbstractModel{
+public class UserModel extends AbstractModel {
     private String name;
     private String email;
     private String phone;

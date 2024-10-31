@@ -7,7 +7,7 @@
  * or a new default user if no data is found in Firestore.
  * </p>
  */
-package com.example.lotto649;
+package com.example.lotto649.Models;
 
 public interface FirestoreUserCallback {
     /**

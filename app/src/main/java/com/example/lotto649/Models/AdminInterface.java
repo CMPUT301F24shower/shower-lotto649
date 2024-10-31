@@ -1,4 +1,4 @@
-package com.example.lotto649;
+package com.example.lotto649.Models;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 

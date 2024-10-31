@@ -10,8 +10,9 @@ import static org.mockito.Mockito.when;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.provider.Settings;
 
+import com.example.lotto649.Controllers.FacilityController;
+import com.example.lotto649.Models.FacilityModel;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
@@ -45,7 +46,8 @@ public class FacilityControllerTest {
     DocumentReference mockDocumentReference;
     @Mock
     Task<Void> mockTask;
-    @Mock FacilityModel mockFacility;
+    @Mock
+    FacilityModel mockFacility;
 
     private FacilityController controller;
 
