@@ -23,7 +23,7 @@ public class EventModel extends AbstractModel {
     private int numberOfSpots;
     private String eventType;
     private Object posterImage; // Placeholder for image class
-    private String qrCodePath;
+    private Object qrCode;
 
     private final ArrayList<UserModel> waitingList = new ArrayList<>();
 
@@ -69,7 +69,7 @@ public class EventModel extends AbstractModel {
         this.eventType = eventType;
         this.posterImage = null;
         this.db = db;
-        //generateQrCode();
+        generateQrCode();
         saveEventToFirestore();
     }
 
@@ -88,7 +88,7 @@ public class EventModel extends AbstractModel {
                     put("description", description);
                     put("numberOfSpots", numberOfSpots);
                     put("eventType", eventType);
-                    put("qrCodePath", qrCodePath);
+                    put("qrCode", qrCode);
                     put("posterImage", posterImage);
                     put("waitingList", serializeWaitingList());
                 }})
@@ -284,8 +284,8 @@ public class EventModel extends AbstractModel {
      *
      * @return the QR code path as a string
      */
-    public String getQrCodePath() {
-        return qrCodePath;
+    public Object getQrCode() {
+        return qrCode;
     }
 
     /**
@@ -323,6 +323,6 @@ public class EventModel extends AbstractModel {
      * Generates a QR code for the event (mock implementation).
      */
     private void generateQrCode() {
-        this.qrCodePath = QrCodeModel.generateForEvent(this);
+        this.qrCode = QrCodeModel.generateForEvent(this);
     }
 }
