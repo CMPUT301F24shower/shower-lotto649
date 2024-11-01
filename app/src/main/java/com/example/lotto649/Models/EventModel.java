@@ -6,6 +6,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * EventModel represents an event in the application with attributes such as title, location,
@@ -72,6 +74,7 @@ public class EventModel extends AbstractModel {
                     put("eventType", eventType);
                     put("qrCodePath", qrCodePath);
                     put("posterImage", posterImage);
+                    put("waitingList", serializeWaitingList());
                 }})
                 .addOnSuccessListener(documentReference -> {
                     eventId = documentReference.getId();
@@ -98,6 +101,8 @@ public class EventModel extends AbstractModel {
                 .addOnSuccessListener(aVoid -> System.out.println("Event field updated successfully!"))
                 .addOnFailureListener(e -> System.err.println("Error updating event: " + e.getMessage()));
     }
+
+    // Getters and setters with Firestore updates
 
     public String getTitle() {
         return title;
@@ -184,7 +189,19 @@ public class EventModel extends AbstractModel {
      */
     public void addToWaitingList(UserModel entrant) {
         waitingList.add(entrant);
-        updateFirestore("waitingList", waitingList); // Consider serializing user list for Firestore
+        updateFirestore("waitingList", serializeWaitingList());
+        notifyViews();
+    }
+
+    /**
+     * Serializes the waiting list to a list of user IDs or names for Firestore storage.
+     *
+     * @return a list of serialized waiting list entries
+     */
+    private List<String> serializeWaitingList() {
+        return waitingList.stream()
+                .map(UserModel::getDeviceId)
+                .collect(Collectors.toList());
     }
 
     /**
