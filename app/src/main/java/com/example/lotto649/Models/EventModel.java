@@ -39,6 +39,15 @@ public class EventModel extends AbstractModel {
     }
 
     /**
+     * No-argument constructor for Firestore deserialization.
+     * This constructor is required for creating instances of the `EventModel` when
+     * reading from Firestore.
+     */
+    public EventModel() {
+        // No initialization required
+    }
+
+    /**
      * Constructor to create an EventModel instance.
      * Automatically generates a QR code and initializes the Firestore database instance.
      *
@@ -60,7 +69,7 @@ public class EventModel extends AbstractModel {
         this.eventType = eventType;
         this.posterImage = null;
         this.db = db;
-        generateQrCode();
+        //generateQrCode();
         saveEventToFirestore();
     }
 
