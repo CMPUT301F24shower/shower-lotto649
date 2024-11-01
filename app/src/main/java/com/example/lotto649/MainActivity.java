@@ -12,6 +12,11 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.lotto649.Views.Fragments.AccountFragment;
+import com.example.lotto649.Views.Fragments.CameraFragment;
+import com.example.lotto649.Views.Fragments.FacilityFragment;
+import com.example.lotto649.Views.Fragments.HomeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity
@@ -46,6 +51,7 @@ public class MainActivity extends AppCompatActivity
     HomeFragment homeFragment = new HomeFragment();
     CameraFragment cameraFragment = new CameraFragment();
     AccountFragment accountFragment = new AccountFragment();
+    FacilityFragment facilityFragment = new FacilityFragment();
 
     /**
      * Handles the selection of items from the BottomNavigationView.
@@ -73,6 +79,12 @@ public class MainActivity extends AppCompatActivity
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.flFragment, accountFragment)
+                    .commit();
+            return true;
+        } else if (item.getItemId() == R.id.facility) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.flFragment, facilityFragment)
                     .commit();
             return true;
         } else {
