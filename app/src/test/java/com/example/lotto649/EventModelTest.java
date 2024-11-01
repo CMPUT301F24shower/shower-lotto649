@@ -102,7 +102,7 @@ public class EventModelTest {
         assertEquals(100, event.getNumberOfSpots());
         assertEquals("Conference", event.getEventType());
         assertNull(event.getPosterImage()); // Poster image should be null by default
-        assertNotNull(event.getQrCodePath()); // QR code path should be initialized
+        assertNotNull(event.getQrCode()); // QR code path should be initialized
     }
 
     /**
@@ -121,7 +121,7 @@ public class EventModelTest {
         assertEquals(100, event.getNumberOfSpots());
         assertEquals("Conference", event.getEventType());
         assertEquals(posterImage, event.getPosterImage());
-        assertNotNull(event.getQrCodePath());
+        assertNotNull(event.getQrCode());
     }
 
     /**
@@ -193,7 +193,7 @@ public class EventModelTest {
      */
     @Test
     public void testGenerateQrCode() {
-        assertNotNull(event.getQrCodePath());
+        assertNotNull(event.getQrCode());
     }
 
     /**
