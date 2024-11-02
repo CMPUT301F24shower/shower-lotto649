@@ -2,6 +2,7 @@ package com.example.lotto649.Models;
 
 import android.content.Context;
 import android.provider.Settings;
+import android.widget.Toast;
 
 import com.example.lotto649.AbstractClasses.AbstractModel;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -29,7 +30,7 @@ public class UserModel extends AbstractModel {
     // Firestore instance for saving and updating user data
     private FirebaseFirestore db;
     private boolean savedToFirestore = false;
-
+    private Context context;
     /**
      * No-argument constructor for Firestore deserialization.
      * This constructor is required for creating instances of the `UserModel` when
@@ -56,6 +57,7 @@ public class UserModel extends AbstractModel {
         this.admin = false;
         this.deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         this.db = db;
+        this.context = context;
     }
 
     /**
@@ -128,11 +130,9 @@ public class UserModel extends AbstractModel {
                 .update(field, value)
                 .addOnSuccessListener(aVoid -> {
                     // TODO: Add error handling to test for failure
-
                 })
                 .addOnFailureListener(e -> {
                     // TODO: Add error handling to test for failure
-
                 });
     }
 
