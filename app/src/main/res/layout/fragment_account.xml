@@ -31,6 +31,7 @@
         android:layout_marginStart="24dp"
         android:layout_marginEnd="25dp"
         android:hint="Full Name"
+
         app:helperTextEnabled="true"
         app:helperText="Required"
         app:endIconMode="custom"
