@@ -8,20 +8,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-
-    <TextView
-        android:id="@+id/accountFragment"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/facility_inputs_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Account"
-        android:textColor="#43a047"
-        android:textSize="40sp"
-        android:textStyle="italic|bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp"
+        android:gravity="center">
+        <TextView
+            android:id="@+id/accountFragmentTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Account"
+            android:textColor="@color/lightOnSurface"
+            android:textSize="40sp" />
 
     <com.google.android.material.textfield.TextInputLayout
         style="?attr/textInputFilledStyle"
@@ -94,7 +97,7 @@
             android:layout_height="wrap_content" />
 
     </com.google.android.material.textfield.TextInputLayout>
-
+    </LinearLayout>
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/extended_fab"
         android:layout_width="wrap_content"
