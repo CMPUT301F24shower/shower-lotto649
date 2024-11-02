@@ -27,41 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Create a Facility"
-            android:textColor="@color/lightOnSurface"
             android:textSize="40sp" />
-
-<!--        <com.google.android.material.textfield.TextInputLayout-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            app:helperTextEnabled="true"-->
-<!--            app:helperText="Required"-->
-<!--            app:endIconMode="custom"-->
-<!--            app:endIconDrawable="@drawable/ic_person_name_foreground">-->
-
-<!--            <com.google.android.material.textfield.TextInputEditText-->
-<!--                android:id="@+id/inputFacilityName"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:hint="Facility Name"-->
-<!--                android:textSize="16sp" />-->
-<!--            &lt;!&ndash;                android:background="@drawable/input_border"&ndash;&gt;-->
-<!--            &lt;!&ndash;                android:drawableEnd="@drawable/text_icon"&ndash;&gt;-->
-<!--        </com.google.android.material.textfield.TextInputLayout>-->
-
-<!--        <com.google.android.material.textfield.TextInputLayout-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            app:helperTextEnabled="true"-->
-<!--            app:helperText="Optional">-->
-
-<!--            <com.google.android.material.textfield.TextInputEditText-->
-<!--                android:id="@+id/inputAddress"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:background="@drawable/input_border"-->
-<!--                android:drawableEnd="@drawable/facility_icon"-->
-<!--                android:hint="Address" />-->
-<!--        </com.google.android.material.textfield.TextInputLayout>-->
 
         <com.google.android.material.textfield.TextInputLayout
             style="?attr/textInputFilledStyle"
@@ -76,10 +42,6 @@
             app:helperText="Required"
             app:endIconMode="custom"
             app:endIconDrawable="@drawable/text_icon">
-<!--            app:layout_constraintBottom_toTopOf="@+id/textFieldEmail"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/accountFragment">-->
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputFacilityName"
@@ -100,11 +62,6 @@
             app:helperText="Optional"
             app:endIconMode="custom"
             app:endIconDrawable="@drawable/facility_icon">
-<!--            app:layout_constraintBottom_toTopOf="@+id/textFieldPhoneNumber"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/textFieldFullName">-->
-
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputAddress"
@@ -115,16 +72,18 @@
 
     </LinearLayout>
 
-    <Button
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/facility_save_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/lightSurfaceContainerHigh"
-        android:textColor="@color/lightPrimary"
+        android:layout_gravity="bottom"
+        android:layout_margin="16dp"
         android:text="Save"
-        android:drawableLeft="@drawable/check_icon"
+        app:icon="@drawable/ic_check_foreground"
+        app:iconSize="40dp"
+        android:backgroundTint="@color/lightSurfaceContainerHigh"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

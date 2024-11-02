@@ -79,7 +79,7 @@ public class AccountFragment extends Fragment {
         fullNameEditText = (TextInputEditText) fullNameInputLayout.getEditText();
         emailEditText = (TextInputEditText) emailInputLayout.getEditText();
         phoneNumberEditText = (TextInputEditText) phoneNumberInputLayout.getEditText();
-        saveButton = view.findViewById(R.id.extended_fab);
+        saveButton = view.findViewById(R.id.account_save_button);
 
         // Initialize Firestore and UserModel
         db = FirebaseFirestore.getInstance();
