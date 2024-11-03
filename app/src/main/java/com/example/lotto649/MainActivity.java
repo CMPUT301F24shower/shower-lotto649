@@ -20,6 +20,7 @@ import com.example.lotto649.Models.FirestoreIsAdminCallback;
 import com.example.lotto649.Models.FirestoreUserCallback;
 import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.Views.Fragments.AccountFragment;
+import com.example.lotto649.Views.Fragments.AdminAndUserFragment;
 import com.example.lotto649.Views.Fragments.BrowseEventsFragment;
 import com.example.lotto649.Views.Fragments.BrowseFacilitiesFragment;
 import com.example.lotto649.Views.Fragments.BrowseProfilesFragment;
@@ -65,9 +66,20 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onCallback(boolean isAdmin) {
                 if (isAdmin) {
-                    bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_admin);
-                    // Set the default selected item to "browseProfiles"
-                    bottomNavigationView.setSelectedItemId(R.id.browseProfiles);
+                    checkUserEntrantStatus(new FirestoreIsAdminCallback() {
+                        @Override
+                        public void onCallback(boolean isEntrant) {
+                            if (isEntrant) {
+                                bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_user_and_admin);
+                                // Set the default selected item to "browseProfiles"
+                                bottomNavigationView.setSelectedItemId(R.id.home);
+                            } else {
+                                bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_admin);
+                                // Set the default selected item to "home"
+                                bottomNavigationView.setSelectedItemId(R.id.home);
+                            }
+                        }
+                    });
                 } else {
                     bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu);
                     // Set the default selected item to "home"
@@ -85,6 +97,7 @@ public class MainActivity extends AppCompatActivity
     BrowseEventsFragment browseEventsFragment = new BrowseEventsFragment();
     BrowseProfilesFragment browseProfilesFragment = new BrowseProfilesFragment();
     BrowseFacilitiesFragment browseFacilitiesFragment = new BrowseFacilitiesFragment();
+    AdminAndUserFragment adminAndUserFragment = new AdminAndUserFragment();
 
     /**
      * Handles the selection of items from the BottomNavigationView.
@@ -138,6 +151,12 @@ public class MainActivity extends AppCompatActivity
                     .replace(R.id.flFragment, browseProfilesFragment)
                     .commit();
             return true;
+        } else if (item.getItemId() == R.id.admin) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.flFragment, adminAndUserFragment)
+                    .commit();
+            return true;
         } else {
             return false;
         }
@@ -156,6 +175,32 @@ public class MainActivity extends AppCompatActivity
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         Boolean isAdmin = document.getBoolean("admin");
+                        if (isAdmin != null && isAdmin) {
+                            firestoreIsAdminCallback.onCallback(true);
+                        } else {
+                            firestoreIsAdminCallback.onCallback(false);
+                        }
+                    } else {
+                        firestoreIsAdminCallback.onCallback(false);
+                    }
+                } else {
+                    firestoreIsAdminCallback.onCallback(false);
+                }
+            }
+        });
+    }
+
+    private void checkUserEntrantStatus(FirestoreIsAdminCallback firestoreIsAdminCallback) {
+        String deviceId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
+        DocumentReference doc = FirebaseFirestore.getInstance().collection("users").document(deviceId);
+
+        doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Boolean isAdmin = document.getBoolean("entrant");
                         if (isAdmin != null && isAdmin) {
                             firestoreIsAdminCallback.onCallback(true);
                         } else {
