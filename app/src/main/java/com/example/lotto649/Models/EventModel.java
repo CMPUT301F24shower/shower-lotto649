@@ -47,6 +47,31 @@ public class EventModel extends AbstractModel {
         // No initialization required
     }
 
+
+    /**
+     * Constructs a new EventModel with the specified context and Firestore database instance.
+     * <p>
+     * This constructor initializes the event's title, facility ID, cost, description, number of spots,
+     * event type, and poster image with default values. It also generates a QR code for the event and
+     * saves the event data to Firestore.
+     *
+     * @param context the context in which this model operates, typically passed from an Activity or Fragment
+     * @param db      the Firestore database instance used to store event data
+     */
+    public EventModel(Context context, FirebaseFirestore db) {
+        this.title = "";
+        this.facilityId = "";
+        this.cost = 0;
+        this.description = "";
+        this.numberOfSpots = 0;
+        this.eventType = "";
+        this.posterImage = null;
+        this.db = db;
+        generateQrCode();
+        saveEventToFirestore();
+    }
+
+
     /**
      * Constructor to create an EventModel instance.
      * Automatically generates a QR code and initializes the Firestore database instance.
