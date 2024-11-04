@@ -24,7 +24,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Title"
-        app:layout_constraintTop_toBottomOf="@id/eventFragmentTitle"
+        app:layout_constraintTop_toBottomOf="@+id/eventFragmentTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="16dp">
@@ -41,7 +41,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Description"
-        app:layout_constraintTop_toBottomOf="@id/textFieldTitle"
+        app:layout_constraintTop_toBottomOf="@+id/textFieldTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="16dp">

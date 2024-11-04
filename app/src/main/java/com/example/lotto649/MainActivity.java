@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity
             return true;
         } else if (item.getItemId() == R.id.event) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.flFragment, new EventFragment())
+                    .replace(R.id.flFragment, eventFragment)
                     .commit();
             return true;
         } else {
