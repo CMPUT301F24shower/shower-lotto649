@@ -112,7 +112,7 @@ public class EventModel extends AbstractModel {
      * This is a mock implementation, assuming the QRCode utility class is present.
      */
     private void generateQrCode() {
-        this.qrCodePath = QrCodeModel.generateForEvent(this);
+        //this.qrCodePath = QrCodeModel.generateForEvent(this);
     }
 
     /**
