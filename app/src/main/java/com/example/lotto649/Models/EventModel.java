@@ -2,6 +2,7 @@ package com.example.lotto649.Models;
 
 import android.content.Context;
 import com.example.lotto649.AbstractClasses.AbstractModel;
+import com.example.lotto649.MyApp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -62,7 +63,7 @@ public class EventModel extends AbstractModel {
     public EventModel(Context context, FirebaseFirestore db) {
         this.title = "";
         this.facilityId = "";
-        this.organizerId = "";
+        this.organizerId = ((MyApp) context.getApplicationContext()).getUserModel().getDeviceId();
         this.cost = 0;
         this.description = "";
         this.numberOfSpots = 0;
@@ -87,10 +88,10 @@ public class EventModel extends AbstractModel {
      * @param eventType the type/category of the event
      * @param db the Firestore database instance
      */
-    public EventModel(Context context, String title, String facilityId, String organizerId, double cost, String description, int numberOfSpots, String eventType, FirebaseFirestore db) {
+    public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots, String eventType, FirebaseFirestore db) {
         this.title = title;
         this.facilityId = facilityId;
-        this.organizerId = organizerId;
+        this.organizerId = ((MyApp) context.getApplicationContext()).getUserModel().getDeviceId();
         this.cost = cost;
         this.description = description;
         this.numberOfSpots = numberOfSpots;
