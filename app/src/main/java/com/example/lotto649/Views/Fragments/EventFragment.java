@@ -57,7 +57,7 @@ public class EventFragment extends Fragment {
         costEditText.addTextChangedListener(costEditWatcher);
         // Initialize MVC components
         event = new EventModel(getContext(), FirebaseFirestore.getInstance());
-/*
+
         eventView = new EventView(event, this);
         eventController = new EventController(event);
 
@@ -74,7 +74,7 @@ public class EventFragment extends Fragment {
             eventController.updateCost(cost);
             eventController.saveEventToFirestore();
         });
-*/
+
         return view;
     }
 
