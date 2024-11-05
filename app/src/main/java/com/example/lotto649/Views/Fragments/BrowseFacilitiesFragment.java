@@ -55,12 +55,11 @@ public class BrowseFacilitiesFragment extends Fragment {
 
     /**
      * Called to create the view hierarchy associated with this fragment.
-     * This method inflates the layout defined in `fragment_camera.xml`.
      *
      * @param inflater LayoutInflater object used to inflate any views in the fragment
      * @param container The parent view that the fragment's UI should be attached to
      * @param savedInstanceState Bundle containing data about the previous state (if any)
-     * @return View for the camera fragment's UI
+     * @return View for this fragment
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
