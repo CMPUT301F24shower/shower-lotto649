@@ -13,15 +13,30 @@
  */
 package com.example.lotto649.Views.Fragments;
 
+import static android.app.Activity.RESULT_OK;
+
+import static androidx.core.util.TypedValueCompat.dpToPx;
+
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.drawable.RippleDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -39,7 +54,10 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,7 +74,10 @@ public class AccountFragment extends Fragment {
     private TextInputEditText fullNameEditText, emailEditText, phoneNumberEditText;
     private ExtendedFloatingActionButton saveButton;
     private String initialFullNameInput, initialEmailInput, initialPhoneInput;
-
+    private TextView imagePlaceholder;
+    private static final int PICK_IMAGE_REQUEST = 1;
+    private LinearLayout linearLayout;
+    ImageView profileImage;
     /**
      * Required empty public constructor for AccountFragment.
      */
@@ -86,6 +107,26 @@ public class AccountFragment extends Fragment {
         emailEditText = (TextInputEditText) emailInputLayout.getEditText();
         phoneNumberEditText = (TextInputEditText) phoneNumberInputLayout.getEditText();
         saveButton = view.findViewById(R.id.account_save_button);
+        linearLayout = view.findViewById(R.id.account_linear_layout);
+        profileImage = new ImageView(getContext());
+        profileImage.setId(View.generateViewId());
+        // TODO: This is hardcoded, but works good on my phone, not sure if this is a good idea or not
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(450, 450);
+        profileImage.setLayoutParams(layoutParams);
+        profileImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        imagePlaceholder = view.findViewById(R.id.imagePlaceholder);
+        imagePlaceholder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                linearLayout.removeView(imagePlaceholder);
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+                linearLayout.addView(profileImage, 2);
+            }
+        });
+
 
         fullNameEditText.addTextChangedListener(nameWatcher);
         emailEditText.addTextChangedListener(emailWatcher);
@@ -114,6 +155,7 @@ public class AccountFragment extends Fragment {
                 initialFullNameInput = name;
                 initialEmailInput = email;
                 initialPhoneInput = phone;
+                imagePlaceholder.setText(getInitials(name));
                 SetSaveButtonColor(true);
             }
         });
@@ -148,6 +190,7 @@ public class AccountFragment extends Fragment {
                 initialFullNameInput = name;
                 initialEmailInput = email;
                 initialPhoneInput = phone;
+                imagePlaceholder.setText(getInitials(name));
                 SetSaveButtonColor(true);
                 if (!userController.getSavedToFirebase()) {
                     userController.saveToFirestore(name, email, phone);
@@ -280,5 +323,32 @@ public class AccountFragment extends Fragment {
                 }
             }
         }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Uri imageUri = data.getData();
+            profileImage.setImageURI(imageUri);
+        }
+    }
+
+
+    public String getInitials(String name) {
+        if (name == null || name.isEmpty()) {
+            return "";
+        }
+
+        StringBuilder initials = new StringBuilder();
+        String[] nameParts = name.split(" ");
+
+        for (String part : nameParts) {
+            if (!part.isEmpty()) {
+                initials.append(part.charAt(0));
+            }
+        }
+
+        return initials.toString().toUpperCase(); // Return uppercase initials
     }
 }
