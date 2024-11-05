@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 public class EventModel extends AbstractModel {
     private String title;
     private String facilityId;
+    private String organizerId;
     private double cost;
     private String description;
     private int numberOfSpots;
@@ -61,6 +62,7 @@ public class EventModel extends AbstractModel {
     public EventModel(Context context, FirebaseFirestore db) {
         this.title = "";
         this.facilityId = "";
+        this.organizerId = "";
         this.cost = 0;
         this.description = "";
         this.numberOfSpots = 0;
@@ -85,9 +87,10 @@ public class EventModel extends AbstractModel {
      * @param eventType the type/category of the event
      * @param db the Firestore database instance
      */
-    public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots, String eventType, FirebaseFirestore db) {
+    public EventModel(Context context, String title, String facilityId, String organizerId, double cost, String description, int numberOfSpots, String eventType, FirebaseFirestore db) {
         this.title = title;
         this.facilityId = facilityId;
+        this.organizerId = organizerId;
         this.cost = cost;
         this.description = description;
         this.numberOfSpots = numberOfSpots;
@@ -109,6 +112,7 @@ public class EventModel extends AbstractModel {
                 .add(new HashMap<String, Object>() {{
                     put("title", title);
                     put("facilityId", facilityId);
+                    put("organizerId", organizerId);
                     put("cost", cost);
                     put("description", description);
                     put("numberOfSpots", numberOfSpots);
@@ -204,6 +208,14 @@ public class EventModel extends AbstractModel {
         notifyViews();
     }
 
+    /**
+     * Retrieves the organizer ID associated with this event.
+     *
+     * @return the organizer ID as a string
+     */
+    public String getOrganizerId() {
+        return organizerId;
+    }
     /**
      * Retrieves the cost of the event.
      *
