@@ -29,7 +29,6 @@ public class UserModel extends AbstractModel {
     // Firestore instance for saving and updating user data
     private FirebaseFirestore db;
     private boolean savedToFirestore = false;
-
     /**
      * No-argument constructor for Firestore deserialization.
      * This constructor is required for creating instances of the `UserModel` when
@@ -128,11 +127,9 @@ public class UserModel extends AbstractModel {
                 .update(field, value)
                 .addOnSuccessListener(aVoid -> {
                     // TODO: Add error handling to test for failure
-
                 })
                 .addOnFailureListener(e -> {
                     // TODO: Add error handling to test for failure
-
                 });
     }
 
