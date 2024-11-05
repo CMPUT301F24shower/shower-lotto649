@@ -12,15 +12,36 @@
 package com.example.lotto649.Views.Fragments;
 
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.lotto649.Models.FacilityModel;
 import com.example.lotto649.R;
+import com.example.lotto649.Views.ArrayAdapters.BrowseFacilitiesArrayAdapter;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
 
 public class BrowseFacilitiesFragment extends Fragment {
+    private ArrayList<FacilityModel> dataList;
+    private ListView browseFacilityList;
+    private BrowseFacilitiesArrayAdapter facilitiesAdapter;
+    private FirebaseFirestore db;
+    private CollectionReference facilitiesRef;
 
     /**
      * Public empty constructor for BrowseFacilitiesFragment.
@@ -44,6 +65,53 @@ public class BrowseFacilitiesFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_browse_facilities, container, false);
+        View view = inflater.inflate(R.layout.fragment_browse_facilities, container, false);
+
+        // initialize Firestore
+        db = FirebaseFirestore.getInstance();
+        facilitiesRef = db.collection("facilities");
+
+        // fill dataList from Firestore
+        dataList = new ArrayList<FacilityModel>();
+        db.collection("cities")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot doc : task.getResult()) {
+                                String deviceIdText = doc.getId();
+                                String nameText = doc.getString("facility");
+                                String addressText = doc.getString("address");
+                                dataList.add(new FacilityModel(deviceIdText, nameText, addressText));
+                            }
+                        }
+                    }
+                });
+
+        browseFacilityList = view.findViewById(R.id.browse_facilities_list);
+        facilitiesAdapter = new BrowseFacilitiesArrayAdapter(view.getContext(), dataList);
+        browseFacilityList.setAdapter(facilitiesAdapter);
+
+        facilitiesRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot querySnapshots, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    return;
+                }
+                if (querySnapshots != null) {
+                    dataList.clear();
+                    for (QueryDocumentSnapshot doc: querySnapshots) {
+                        String deviceIdText = doc.getId();
+                        String nameText = doc.getString("facility");
+                        String addressText = doc.getString("address");
+                        dataList.add(new FacilityModel(deviceIdText, nameText, addressText));
+                    }
+                    facilitiesAdapter.notifyDataSetChanged();
+                }
+            }
+        });
+
+        return view;
     }
 }
