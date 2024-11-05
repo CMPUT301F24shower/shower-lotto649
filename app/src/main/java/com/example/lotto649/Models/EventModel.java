@@ -7,9 +7,11 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Date;
 
 /**
  * EventModel represents an event in the application with attributes such as title, location,
@@ -23,7 +25,9 @@ public class EventModel extends AbstractModel {
     private double cost;
     private String description;
     private int numberOfSpots;
-    private String eventType;
+    private int numberOfMaxEntrants;
+    private Date startDate;
+    private Date endDate;
     private Object posterImage; // Placeholder for image class
     private Object qrCode;
 
@@ -67,11 +71,13 @@ public class EventModel extends AbstractModel {
         this.cost = 0;
         this.description = "";
         this.numberOfSpots = 0;
-        this.eventType = "";
+        this.numberOfMaxEntrants = 0;
+        this.startDate = new Date();
+        this.endDate =  new Date();
         this.posterImage = null;
         this.db = db;
         generateQrCode();
-        //saveEventToFirestore();
+        saveEventToFirestore();
     }
 
 
@@ -85,21 +91,22 @@ public class EventModel extends AbstractModel {
      * @param cost the cost to attend the event
      * @param description a description of the event
      * @param numberOfSpots the number of spots available for the event
-     * @param eventType the type/category of the event
      * @param db the Firestore database instance
      */
-    public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots, String eventType, FirebaseFirestore db) {
+    public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots, int numberOfMaxEntrants, Date startDate, Date endDate, FirebaseFirestore db) {
         this.title = title;
         this.facilityId = facilityId;
         this.organizerId = ((MyApp) context.getApplicationContext()).getUserModel().getDeviceId();
         this.cost = cost;
         this.description = description;
         this.numberOfSpots = numberOfSpots;
-        this.eventType = eventType;
+        this.numberOfMaxEntrants = numberOfMaxEntrants;
+        this.startDate = startDate;
+        this.endDate = endDate;
         this.posterImage = null;
         this.db = db;
         generateQrCode();
-        //saveEventToFirestore();
+        saveEventToFirestore();
     }
 
     /**
@@ -117,7 +124,9 @@ public class EventModel extends AbstractModel {
                     put("cost", cost);
                     put("description", description);
                     put("numberOfSpots", numberOfSpots);
-                    put("eventType", eventType);
+                    put("numberOfMaxEntrants", numberOfMaxEntrants);
+                    put("startDate", startDate);
+                    put("endDate", endDate);
                     put("qrCode", qrCode);
                     put("posterImage", posterImage);
                     put("waitingList", serializeWaitingList());
@@ -131,6 +140,30 @@ public class EventModel extends AbstractModel {
                     System.err.println("Error saving event: " + e.getMessage());
                 });
     }
+
+    /**
+     * Removes the event data to Firestore.
+     * If the event has already been removed, this method does nothing.
+     */
+    public void removeEventFromFirestore() {
+        if (eventId == null || eventId.isEmpty()) {
+            System.err.println("Event ID is not set. Cannot delete event.");
+            return;
+        }
+
+        db.collection("events")
+                .document(eventId)
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    savedToFirestore = false;
+                    System.out.println("Event removed successfully with ID: " + eventId);
+                    eventId = null; // Clear the ID after deletion
+                })
+                .addOnFailureListener(e -> {
+                    System.err.println("Error removing event: " + e.getMessage());
+                });
+    }
+
 
     /**
      * Updates a specific field in Firestore for this event.
@@ -278,22 +311,62 @@ public class EventModel extends AbstractModel {
     }
 
     /**
-     * Retrieves the event type (e.g., "conference" or "workshop").
+     * Retrieves the number of max entrants for the event.
      *
-     * @return the event type as a string
+     * @return the number of max entrants as an integer
      */
-    public String getEventType() {
-        return eventType;
+    public int getNumberOfMaxEntrants() {
+        return numberOfMaxEntrants;
     }
 
     /**
-     * Sets the event type and updates Firestore.
+     * Sets the number of max entrants for the event and updates Firestore.
      *
-     * @param eventType the new event type
+     * @param numberOfMaxEntrants the new number of max entrants
      */
-    public void setEventType(String eventType) {
-        this.eventType = eventType;
-        updateFirestore("eventType", eventType);
+    public void setNumberOfMaxEntrants(int numberOfMaxEntrants) {
+        this.numberOfMaxEntrants = numberOfMaxEntrants;
+        updateFirestore("numberOfMaxEntrants", numberOfMaxEntrants);
+        notifyViews();
+    }
+
+    /**
+     * Retrieves start date for the event lottery.
+     *
+     * @return start date for the event lottery as a date
+     */
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    /**
+     * Sets the start date for the event lottery and updates Firestore.
+     *
+     * @param startDate the new start date for the event lottery
+     */
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+        updateFirestore("startDate", startDate);
+        notifyViews();
+    }
+
+    /**
+     * Retrieves end date for the event lottery.
+     *
+     * @return end date for the event lottery as a date
+     */
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    /**
+     * Sets the end date for the event lottery and updates Firestore.
+     *
+     * @param endDate the new end date for the event lottery
+     */
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+        updateFirestore("endDate", endDate);
         notifyViews();
     }
 
