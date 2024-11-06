@@ -71,7 +71,7 @@ public class EventModel extends AbstractModel {
         this.cost = 0;
         this.description = "";
         this.numberOfSpots = 0;
-        this.numberOfMaxEntrants = 0;
+        this.numberOfMaxEntrants = -1;
         this.startDate = new Date();
         this.endDate =  new Date();
         this.posterImage = null;
@@ -80,6 +80,33 @@ public class EventModel extends AbstractModel {
         saveEventToFirestore();
     }
 
+    /**
+     * Constructor to create an EventModel instance.
+     * Automatically generates a QR code and initializes the Firestore database instance.
+     *
+     * @param context the application context
+     * @param title the title of the event
+     * @param facilityId the ID of the FacilityModel document representing the event location
+     * @param cost the cost to attend the event
+     * @param description a description of the event
+     * @param numberOfSpots the number of spots available for the event
+     * @param db the Firestore database instance
+     */
+    public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots, Date startDate, Date endDate, FirebaseFirestore db) {
+        this.title = title;
+        this.facilityId = facilityId;
+        this.organizerId = ((MyApp) context.getApplicationContext()).getUserModel().getDeviceId();
+        this.cost = cost;
+        this.description = description;
+        this.numberOfSpots = numberOfSpots;
+        this.numberOfMaxEntrants = -1;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.posterImage = null;
+        this.db = db;
+        generateQrCode();
+        saveEventToFirestore();
+    }
 
     /**
      * Constructor to create an EventModel instance.
@@ -414,7 +441,7 @@ public class EventModel extends AbstractModel {
      * @param entrant the user to add to the waiting list
      */
     public boolean addToWaitingList(UserModel entrant) {
-        if (numberOfMaxEntrants <= waitingList.size()) return false;
+        if (0 < numberOfMaxEntrants && numberOfMaxEntrants <= waitingList.size()) return false;
         waitingList.add(entrant);
         updateFirestore("waitingList", serializeWaitingList());
         notifyViews();
