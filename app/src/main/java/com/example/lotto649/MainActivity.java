@@ -108,6 +108,9 @@ public class MainActivity extends AppCompatActivity
      */
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        if (isFinishing() || isDestroyed()) {
+            return false; // Don't perform the transaction if the activity is finishing or destroyed
+        }
         // Handle navigation based on the selected item ID
         if (item.getItemId() == R.id.home) {
             getSupportFragmentManager()
