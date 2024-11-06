@@ -413,10 +413,12 @@ public class EventModel extends AbstractModel {
      *
      * @param entrant the user to add to the waiting list
      */
-    public void addToWaitingList(UserModel entrant) {
+    public boolean addToWaitingList(UserModel entrant) {
+        if (numberOfMaxEntrants <= waitingList.size()) return false;
         waitingList.add(entrant);
         updateFirestore("waitingList", serializeWaitingList());
         notifyViews();
+        return true;
     }
 
     /**
