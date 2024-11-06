@@ -494,7 +494,6 @@ public class EventModel extends AbstractModel {
      * Generates a QR code for the event (mock implementation).
      */
     private void generateQrCode() {
-        // this.qrCode = QrCodeModel.generateForEvent(this);
-        this.qrCode = "";
+        this.qrCode = QrCodeModel.generateForEvent(this);
     }
 }
