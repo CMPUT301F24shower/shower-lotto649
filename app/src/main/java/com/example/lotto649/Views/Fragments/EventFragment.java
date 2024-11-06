@@ -21,6 +21,7 @@ import android.widget.EditText;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
 
 public class EventFragment extends Fragment {
     private EventView eventView;
@@ -60,6 +61,10 @@ public class EventFragment extends Fragment {
         // Make the fields non-editable (only clickable to show date picker)
         lotteryStartDateField.setFocusable(false);
         lotteryEndDateField.setFocusable(false);
+        lotteryStartDateField.setClickable(true);
+        lotteryEndDateField.setClickable(true);
+        lotteryStartDateField.setOnClickListener(v -> showDatePickerDialog(lotteryStartDateField.getEditText()));
+        lotteryEndDateField.setOnClickListener(v -> showDatePickerDialog(lotteryEndDateField.getEditText()));
 
         // Initialize UI edits
         titleEditText = (TextInputEditText) titleInputLayout.getEditText();
@@ -75,16 +80,11 @@ public class EventFragment extends Fragment {
         // Initialize MVC components
         event = new EventModel(getContext(), FirebaseFirestore.getInstance());
 
-        lotteryStartDateField.setOnClickListener(v -> showDatePickerDialog(lotteryStartDateField.getEditText()));
-        lotteryEndDateField.setOnClickListener(v -> showDatePickerDialog(lotteryEndDateField.getEditText()));
-
-
         eventView = new EventView(event, this);
         eventController = new EventController(event);
 
         // Set up the cancel button click listener
         cancelButton.setOnClickListener(v -> {
-
             eventController.removeEventFromFirestore();
         });
         
@@ -111,19 +111,18 @@ public class EventFragment extends Fragment {
         return view;
     }
 
-    private void showDatePickerDialog(final EditText editText) {
+    private void showDatePickerDialog(EditText dateToPick) {
         final Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
+        DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
                 (view, selectedYear, selectedMonth, selectedDay) -> {
                     // Format the selected date and set it in the EditText
                     String selectedDate = selectedYear + "-" + (selectedMonth + 1) + "-" + selectedDay;
-                    editText.setText(selectedDate);
+                    dateToPick.setText(selectedDate);
                 }, year, month, day);
-
         datePickerDialog.show();
     }
 
