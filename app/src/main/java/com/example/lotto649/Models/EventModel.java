@@ -77,7 +77,7 @@ public class EventModel extends AbstractModel {
         this.posterImage = null;
         this.db = db;
         generateQrCode();
-        saveEventToFirestore();
+        //saveEventToFirestore();
     }
 
     /**
