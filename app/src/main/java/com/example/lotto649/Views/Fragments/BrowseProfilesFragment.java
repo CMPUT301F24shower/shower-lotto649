@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
@@ -67,7 +68,7 @@ public class BrowseProfilesFragment extends Fragment {
 
         // fill dataList from Firestore
         dataList = new ArrayList<UserModel>();
-        usersRef.whereEqualTo("entrant", true)
+        db.collection("users").whereEqualTo("entrant", true)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -79,6 +80,8 @@ public class BrowseProfilesFragment extends Fragment {
                                 String phoneText = doc.getString("phone");
                                 dataList.add(new UserModel(view.getContext(), nameText, emailText, phoneText, null));
                             }
+                        } else {
+                            Log.e("JASONERROR", "WHATTTT");
                         }
                     }
                 });
@@ -100,9 +103,24 @@ public class BrowseProfilesFragment extends Fragment {
                         String emailText = doc.getString("email");
                         String phoneText = doc.getString("phone");
                         dataList.add(new UserModel(view.getContext(), nameText, emailText, phoneText, null));
+                        profilesAdapter.notifyDataSetChanged();
                     }
-                    profilesAdapter.notifyDataSetChanged();
                 }
+            }
+        });
+
+        browseProfilesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                UserModel chosenUser = (UserModel) browseProfilesList.getItemAtPosition(i);
+                Bundle bundle = new Bundle();
+                bundle.putString("userDeviceId", chosenUser.getDeviceId());
+                AdminProfileFragment frag = new AdminProfileFragment();
+                frag.setArguments(bundle);
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.browse_profiles_list, frag, null)
+                        .addToBackStack(null)
+                        .commit();
             }
         });
 

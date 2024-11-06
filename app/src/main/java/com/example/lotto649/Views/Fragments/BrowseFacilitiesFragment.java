@@ -16,6 +16,7 @@ import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
@@ -23,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.lotto649.Models.FacilityModel;
+import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.R;
 import com.example.lotto649.Views.ArrayAdapters.BrowseFacilitiesArrayAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -108,6 +110,21 @@ public class BrowseFacilitiesFragment extends Fragment {
                     }
                     facilitiesAdapter.notifyDataSetChanged();
                 }
+            }
+        });
+
+        browseFacilityList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                FacilityModel chosenFacility = (FacilityModel) browseFacilityList.getItemAtPosition(i);
+                Bundle bundle = new Bundle();
+                bundle.putString("facilityDeviceId", chosenFacility.getDeviceId());
+                AdminFacilityFragment frag = new AdminFacilityFragment();
+                frag.setArguments(bundle);
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.browse_facilities_list, frag, null)
+                        .addToBackStack(null)
+                        .commit();
             }
         });
 
