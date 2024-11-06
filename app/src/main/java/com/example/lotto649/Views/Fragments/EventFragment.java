@@ -17,19 +17,22 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.FirebaseFirestore;
 import android.text.TextWatcher;
 import android.app.DatePickerDialog;
+import android.widget.CheckBox;
 import android.widget.EditText;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Objects;
+import java.util.GregorianCalendar;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class EventFragment extends Fragment {
     private EventView eventView;
     private EventController eventController;
     private EventModel event;
 
-    private TextInputLayout titleInputLayout, descriptionInputLayout, lotteryStartDateField, lotteryEndDateField, spotsInputLayout, maxEntrantsInputLayout, costInputLayout;
-    private TextInputEditText titleEditText, descriptionEditText, spotsEditText, maxEntrantsEditText, costEditText;
+    private TextInputLayout titleInputLayout, descriptionInputLayout, lotteryStartDateFieldLayout, lotteryEndDateFieldLayout, spotsInputLayout, maxEntrantsInputLayout, costInputLayout;
+    private TextInputEditText titleEditText, descriptionEditText, lotteryStartDateFieldText, lotteryEndDateFieldText, spotsEditText, maxEntrantsEditText, costEditText;
+    private CheckBox geoCheck;
     private ExtendedFloatingActionButton cancelButton, saveButton;
 
     public void showEventDetails(@NonNull EventModel event) {
@@ -52,33 +55,43 @@ public class EventFragment extends Fragment {
         View image = view.findViewById(R.id.headerImage);
         titleInputLayout = view.findViewById(R.id.textFieldTitle);
         descriptionInputLayout = view.findViewById(R.id.textFieldDescription);
-        lotteryStartDateField = view.findViewById(R.id.textFieldLotteryStartDate);
-        lotteryEndDateField = view.findViewById(R.id.textFieldLotteryEndDate);
+        lotteryStartDateFieldLayout = view.findViewById(R.id.textFieldLotteryStartDate);
+        lotteryEndDateFieldLayout = view.findViewById(R.id.textFieldLotteryEndDate);
         spotsInputLayout = view.findViewById(R.id.textFieldSpots);
         maxEntrantsInputLayout = view.findViewById(R.id.textFieldMaxEntrants);
         costInputLayout = view.findViewById(R.id.textFieldCost);
+        geoCheck = view.findViewById(R.id.checkBoxGeolocation);
 
         // Make the fields non-editable (only clickable to show date picker)
-        lotteryStartDateField.setFocusable(false);
-        lotteryEndDateField.setFocusable(false);
-        lotteryStartDateField.setClickable(true);
-        lotteryEndDateField.setClickable(true);
-        lotteryStartDateField.setOnClickListener(v -> showDatePickerDialog(lotteryStartDateField.getEditText()));
-        lotteryEndDateField.setOnClickListener(v -> showDatePickerDialog(lotteryEndDateField.getEditText()));
+        lotteryStartDateFieldLayout.setFocusable(false);
+        lotteryEndDateFieldLayout.setFocusable(false);
+        lotteryStartDateFieldLayout.setClickable(true);
+        lotteryEndDateFieldLayout.setClickable(true);
 
         // Initialize UI edits
         titleEditText = (TextInputEditText) titleInputLayout.getEditText();
         descriptionEditText = (TextInputEditText) descriptionInputLayout.getEditText();
+        lotteryStartDateFieldText = (TextInputEditText) lotteryStartDateFieldLayout.getEditText();
+        lotteryEndDateFieldText = (TextInputEditText) lotteryEndDateFieldLayout.getEditText();
         spotsEditText = (TextInputEditText) spotsInputLayout.getEditText();
         maxEntrantsEditText = (TextInputEditText) maxEntrantsInputLayout.getEditText();
         costEditText = (TextInputEditText) costInputLayout.getEditText();
         cancelButton = view.findViewById(R.id.cancelButton);
         saveButton = view.findViewById(R.id.saveButton);
 
+        AtomicReference<Date> startDate = new AtomicReference<>(new Date());
+        AtomicReference<Date> endDate = new AtomicReference<>(new Date());
+        lotteryStartDateFieldText.setOnClickListener(v -> {
+            showDatePickerDialog(lotteryStartDateFieldText, startDate, startDate.get());
+        });
+        lotteryEndDateFieldText.setOnClickListener(v -> {
+            showDatePickerDialog(lotteryEndDateFieldText, endDate, startDate.get());
+        });
+
         // Inside onCreateView() after initializing costEditText
         costEditText.addTextChangedListener(costEditWatcher);
         // Initialize MVC components
-        event = new EventModel(getContext(), FirebaseFirestore.getInstance());
+        event = new EventModel(requireContext(), FirebaseFirestore.getInstance());
 
         eventView = new EventView(event, this);
         eventController = new EventController(event);
@@ -95,34 +108,43 @@ public class EventFragment extends Fragment {
             int spots = Integer.parseInt(spotsEditText.getText().toString());
             int maxEntrants = Integer.parseInt(maxEntrantsEditText.getText().toString());
             double cost = Double.parseDouble(costEditText.getText().toString());
-            //Date startDate = Date.parse(lotteryStartDateField.getEditText().toString());
-            //Date endDate = Date.parse(lotteryEndDateField.getEditText().toString());
+            boolean geo = geoCheck.isChecked();
 
             eventController.updateTitle(title);
             eventController.updateDescription(description);
             eventController.updateNumberOfSpots(spots);
             eventController.updateNumberOfMaxEntrants(maxEntrants);
-            //eventController.updateStartDate(startDate);
-            //eventController.updateEndDate(endDate);
+            eventController.updateStartDate(startDate.get());
+            eventController.updateEndDate(endDate.get());
             eventController.updateCost(cost);
+            eventController.updateGeo(geo);
             eventController.saveEventToFirestore();
         });
 
         return view;
     }
 
-    private void showDatePickerDialog(EditText dateToPick) {
+    private void showDatePickerDialog(EditText dateToPick, AtomicReference<Date> dateReference, Date startdate) {
         final Calendar calendar = Calendar.getInstance();
+        calendar.setTime(startdate);
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
                 (view, selectedYear, selectedMonth, selectedDay) -> {
-                    // Format the selected date and set it in the EditText
+                    // Create a Calendar instance for the selected date
+                    Calendar selectedCalendar = Calendar.getInstance();
+                    selectedCalendar.set(selectedYear, selectedMonth, selectedDay);
+
+                    // Format the selected date and set it to the EditText
                     String selectedDate = selectedYear + "-" + (selectedMonth + 1) + "-" + selectedDay;
                     dateToPick.setText(selectedDate);
+
+                    // Update the date reference with the selected date
+                    dateReference.set(selectedCalendar.getTime());
                 }, year, month, day);
+
         datePickerDialog.show();
     }
 

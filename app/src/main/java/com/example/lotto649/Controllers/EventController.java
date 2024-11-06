@@ -44,6 +44,10 @@ public class EventController extends AbstractController {
         getModel().setCost(cost);
     }
 
+    public void updateGeo(boolean geo) {
+        getModel().setGeo(geo);
+    }
+
     public void saveEventToFirestore() {
         getModel().saveEventToFirestore();
     }

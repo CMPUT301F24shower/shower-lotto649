@@ -7,7 +7,6 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,6 +28,7 @@ public class EventModel extends AbstractModel {
     private Date startDate;
     private Date endDate;
     private Object posterImage; // Placeholder for image class
+    private boolean geo;
     private Object qrCode;
 
     private final ArrayList<UserModel> waitingList = new ArrayList<>();
@@ -53,6 +53,18 @@ public class EventModel extends AbstractModel {
         // No initialization required
     }
 
+    private void clear(){
+        this.title = "";
+        this.facilityId = "";
+        this.cost = 0;
+        this.description = "";
+        this.numberOfSpots = 0;
+        this.numberOfMaxEntrants = -1;
+        this.startDate = new Date();
+        this.endDate =  new Date();
+        this.posterImage = null;
+        this.geo = false;
+    }
 
     /**
      * Constructs a new EventModel with the specified context and Firestore database instance.
@@ -65,16 +77,8 @@ public class EventModel extends AbstractModel {
      * @param db      the Firestore database instance used to store event data
      */
     public EventModel(Context context, FirebaseFirestore db) {
-        this.title = "";
-        this.facilityId = "";
+        clear();
         this.organizerId = ((MyApp) context.getApplicationContext()).getUserModel().getDeviceId();
-        this.cost = 0;
-        this.description = "";
-        this.numberOfSpots = 0;
-        this.numberOfMaxEntrants = -1;
-        this.startDate = new Date();
-        this.endDate =  new Date();
-        this.posterImage = null;
         this.db = db;
         generateQrCode();
         //saveEventToFirestore();
@@ -92,7 +96,7 @@ public class EventModel extends AbstractModel {
      * @param numberOfSpots the number of spots available for the event
      * @param db the Firestore database instance
      */
-    public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots, Date startDate, Date endDate, FirebaseFirestore db) {
+    public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots, Date startDate, Date endDate, boolean geo, FirebaseFirestore db) {
         this.title = title;
         this.facilityId = facilityId;
         this.organizerId = ((MyApp) context.getApplicationContext()).getUserModel().getDeviceId();
@@ -103,6 +107,7 @@ public class EventModel extends AbstractModel {
         this.startDate = startDate;
         this.endDate = endDate;
         this.posterImage = null;
+        this.geo = geo;
         this.db = db;
         generateQrCode();
         saveEventToFirestore();
@@ -120,7 +125,7 @@ public class EventModel extends AbstractModel {
      * @param numberOfSpots the number of spots available for the event
      * @param db the Firestore database instance
      */
-    public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots, int numberOfMaxEntrants, Date startDate, Date endDate, FirebaseFirestore db) {
+    public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots, int numberOfMaxEntrants, Date startDate, Date endDate, boolean geo, FirebaseFirestore db) {
         this.title = title;
         this.facilityId = facilityId;
         this.organizerId = ((MyApp) context.getApplicationContext()).getUserModel().getDeviceId();
@@ -131,6 +136,7 @@ public class EventModel extends AbstractModel {
         this.startDate = startDate;
         this.endDate = endDate;
         this.posterImage = null;
+        this.geo = geo;
         this.db = db;
         generateQrCode();
         saveEventToFirestore();
@@ -156,6 +162,7 @@ public class EventModel extends AbstractModel {
                     put("endDate", endDate);
                     put("qrCode", qrCode);
                     put("posterImage", posterImage);
+                    put("geo",geo);
                     put("waitingList", serializeWaitingList());
                 }})
                 .addOnSuccessListener(documentReference -> {
@@ -173,6 +180,8 @@ public class EventModel extends AbstractModel {
      * If the event has already been removed, this method does nothing.
      */
     public void removeEventFromFirestore() {
+        clear();
+
         if (eventId == null || eventId.isEmpty()) {
             System.err.println("Event ID is not set. Cannot delete event.");
             return;
@@ -189,6 +198,8 @@ public class EventModel extends AbstractModel {
                 .addOnFailureListener(e -> {
                     System.err.println("Error removing event: " + e.getMessage());
                 });
+
+        notifyViews();
     }
 
 
@@ -400,7 +411,7 @@ public class EventModel extends AbstractModel {
     /**
      * Retrieves the poster image associated with the event.
      *
-     * @return the poster image as an object (update this type as needed)
+     * @return the poster image as an object
      */
     public Object getPosterImage() {
         return posterImage;
@@ -409,11 +420,31 @@ public class EventModel extends AbstractModel {
     /**
      * Sets the poster image for the event and updates Firestore.
      *
-     * @param posterImage the new poster image (update type as needed)
+     * @param posterImage the new poster image
      */
     public void setPosterImage(Object posterImage) {
         this.posterImage = posterImage;
         updateFirestore("posterImage", posterImage);
+        notifyViews();
+    }
+
+    /**
+     * Retrieves the geolocation associated with the event.
+     *
+     * @return the geolocation as a boolean
+     */
+    public boolean getGeo() {
+        return geo;
+    }
+
+    /**
+     * Sets the geolocation for the event and updates Firestore.
+     *
+     * @param geo the geolocation setting
+     */
+    public void setGeo(boolean geo) {
+        this.geo = geo;
+        updateFirestore("geo", geo);
         notifyViews();
     }
 
