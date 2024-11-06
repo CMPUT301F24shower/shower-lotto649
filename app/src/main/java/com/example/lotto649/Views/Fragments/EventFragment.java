@@ -24,7 +24,7 @@ public class EventFragment extends Fragment {
 
     private TextInputLayout titleInputLayout, descriptionInputLayout, spotsInputLayout, costInputLayout;
     private TextInputEditText titleEditText, descriptionEditText, spotsEditText, costEditText;
-    private ExtendedFloatingActionButton saveButton;
+    private ExtendedFloatingActionButton saveButton, generateQRCodeButton;
 
     public void showEventDetails(@NonNull EventModel event) {
         titleEditText.setText(event.getTitle());
@@ -52,6 +52,7 @@ public class EventFragment extends Fragment {
         spotsEditText = (TextInputEditText) spotsInputLayout.getEditText();
         costEditText = (TextInputEditText) costInputLayout.getEditText();
         saveButton = view.findViewById(R.id.saveButton);
+        generateQRCodeButton = view.findViewById(R.id.generateQRCodeButton);
 
         // Inside onCreateView() after initializing costEditText
         costEditText.addTextChangedListener(costEditWatcher);
@@ -75,6 +76,18 @@ public class EventFragment extends Fragment {
             eventController.saveEventToFirestore();
         });
 */
+        generateQRCodeButton.setOnClickListener(v-> {
+            String data = titleEditText.getText().toString() + " " +
+                    descriptionEditText.getText().toString() + " " +
+                    spotsEditText.getText().toString() + " " +
+                    costEditText.getText().toString();
+
+            QrFragment qrFragment = QrFragment.newInstance(data);
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.flFragment, qrFragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
         return view;
     }
 

@@ -86,15 +86,16 @@
 
     </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
+
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/account_save_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_margin="16dp"
-        android:textColor="@color/lightPrimary"
-        android:text="Save"
         android:backgroundTint="@color/lightSurfaceContainerHigh"
+        android:text="Save"
+        android:textColor="@color/lightPrimary"
         app:icon="@drawable/ic_check_foreground"
         app:iconSize="40dp"
         app:layout_constraintBottom_toBottomOf="parent"

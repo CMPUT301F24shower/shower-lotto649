@@ -40,6 +40,8 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+    implementation("com.google.zxing:core:3.5.0")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     testImplementation(libs.junit)
     testImplementation("org.mockito:mockito-core:3.12.4")
     testImplementation("org.robolectric:robolectric:4.9")
