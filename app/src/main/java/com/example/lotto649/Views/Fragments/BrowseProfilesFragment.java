@@ -118,7 +118,7 @@ public class BrowseProfilesFragment extends Fragment {
                 AdminProfileFragment frag = new AdminProfileFragment();
                 frag.setArguments(bundle);
                 getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.browse_profiles_list, frag, null)
+                        .replace(R.id.flFragment, frag, null)
                         .addToBackStack(null)
                         .commit();
             }

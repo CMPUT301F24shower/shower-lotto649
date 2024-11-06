@@ -122,7 +122,7 @@ public class BrowseFacilitiesFragment extends Fragment {
                 AdminFacilityFragment frag = new AdminFacilityFragment();
                 frag.setArguments(bundle);
                 getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.browse_facilities_list, frag, null)
+                        .replace(R.id.flFragment, frag, null)
                         .addToBackStack(null)
                         .commit();
             }
