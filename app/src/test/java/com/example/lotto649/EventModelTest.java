@@ -52,6 +52,43 @@ public class EventModelTest {
      * Initializes the test environment with mock objects for Firestore and other dependencies.
      * Sets up an EventModel instance to be used in each test.
      */
+//    @Before
+//    public void setUp() {
+//        MockitoAnnotations.openMocks(this);
+//        context = RuntimeEnvironment.getApplication();
+//
+//        // Mock FirebaseFirestore, CollectionReference, and DocumentReference
+//        mockFirestore = mock(FirebaseFirestore.class);
+//        mockCollectionReference = mock(CollectionReference.class);
+//        mockDocumentReference = mock(DocumentReference.class);
+//
+//        // Set up mock Firestore behavior for the "events" and "facilities" collections
+//        when(mockFirestore.collection("events")).thenReturn(mockCollectionReference);
+//        when(mockFirestore.collection("facilities")).thenReturn(mockCollectionReference);
+//        when(mockCollectionReference.document(anyString())).thenReturn(mockDocumentReference);
+//
+//        // Mock Task<DocumentSnapshot> for DocumentReference.get()
+//        Task<DocumentSnapshot> mockFetchTask = mock(Task.class);
+//        DocumentSnapshot mockDocumentSnapshot = mock(DocumentSnapshot.class);
+//        facilityMock = mock(FacilityModel.class);
+//
+//        // Configure DocumentSnapshot to return the facilityMock when toObject is called
+//        when(mockDocumentSnapshot.toObject(FacilityModel.class)).thenReturn(facilityMock);
+//
+//        // Configure the mock fetch task to handle success and failure listeners
+//        when(mockFetchTask.addOnSuccessListener(any(OnSuccessListener.class))).thenAnswer(invocation -> {
+//            OnSuccessListener<DocumentSnapshot> successListener = invocation.getArgument(0);
+//            successListener.onSuccess(mockDocumentSnapshot); // Trigger success with mockDocumentSnapshot
+//            return mockFetchTask;
+//        });
+//        when(mockFetchTask.addOnFailureListener(any(OnFailureListener.class))).thenReturn(mockFetchTask);
+//
+//        // Ensure DocumentReference.get() returns the configured mock fetch task
+//        when(mockDocumentReference.get()).thenReturn(mockFetchTask);
+//
+//        // Initialize EventModel with mocked FirebaseFirestore
+//        event = new EventModel(context, "Sample Event", "facilityId", 50.0, "Sample Description", 100, "Conference", mockFirestore);
+//    }
     @Before
     public void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -85,6 +122,18 @@ public class EventModelTest {
 
         // Ensure DocumentReference.get() returns the configured mock fetch task
         when(mockDocumentReference.get()).thenReturn(mockFetchTask);
+
+        // Mock Task for CollectionReference.add()
+        Task<DocumentReference> mockAddTask = mock(Task.class);
+        when(mockCollectionReference.add(anyMap())).thenReturn(mockAddTask);
+
+        // Configure the mock add task to handle success and failure listeners
+        when(mockAddTask.addOnSuccessListener(any(OnSuccessListener.class))).thenAnswer(invocation -> {
+            OnSuccessListener<DocumentReference> successListener = invocation.getArgument(0);
+            successListener.onSuccess(mockDocumentReference); // Trigger success with mockDocumentReference
+            return mockAddTask;
+        });
+        when(mockAddTask.addOnFailureListener(any(OnFailureListener.class))).thenReturn(mockAddTask);
 
         // Initialize EventModel with mocked FirebaseFirestore
         event = new EventModel(context, "Sample Event", "facilityId", 50.0, "Sample Description", 100, "Conference", mockFirestore);
