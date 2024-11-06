@@ -180,7 +180,7 @@ public class AccountFragment extends Fragment {
                 Pattern pattern = Pattern.compile(EMAIL_PATTERN);
                 Matcher matcher = pattern.matcher(email);
                 if (email.isEmpty() || !matcher.matches()) {
-                    emailInputLayout.setError("Please enter an email address");
+                    emailInputLayout.setError("Please enter a valid email address");
                     return;
                 }
                 fullNameInputLayout.setError(null);
