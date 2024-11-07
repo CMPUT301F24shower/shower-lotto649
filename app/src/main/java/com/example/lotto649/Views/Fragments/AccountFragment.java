@@ -23,13 +23,13 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -74,6 +74,7 @@ public class AccountFragment extends Fragment {
     private boolean hasSetImage;
     ImageView profileImage;
     Uri currentImageUri;
+
     /**
      * Required empty public constructor for AccountFragment.
      */
@@ -131,7 +132,6 @@ public class AccountFragment extends Fragment {
                 startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
                 if (!hasSetImage) {
                     linearLayout.addView(profileImage, 2);
-                    // TODO need to uncomment this
                 }
             }
         });
@@ -156,7 +156,6 @@ public class AccountFragment extends Fragment {
                 userController.updateName(name);
                 userController.updateEmail(email);
                 userController.updatePhone(phone);
-//                userController.update(userModel);
                 fullNameEditText.setText(user.getName());
                 emailEditText.setText(user.getEmail());
                 phoneNumberEditText.setText(user.getPhone());
@@ -164,7 +163,7 @@ public class AccountFragment extends Fragment {
                 initialFullNameInput = name;
                 initialEmailInput = email;
                 initialPhoneInput = phone;
-                imagePlaceholder.setText(getInitials(name));
+                imagePlaceholder.setText(user.getInitials());
                 SetSaveButtonColor(true);
 
                 // Update profile Image
@@ -172,16 +171,16 @@ public class AccountFragment extends Fragment {
                     StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(profileImageUri);
                     imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                         currentImageUri = uri;
-//                        profileImage.setImageURI(uri);
-                        Glide.with(getContext()) // or your fragment context if inside a fragment
+                        Glide.with(getContext())
                                 .load(uri)
-//                                .placeholder(R.drawable.image_placeholder) // Optional placeholder image
-//                                .error(R.drawable.image_error) // Optional error image
                                 .into(profileImage);
                         linearLayout.removeView(imagePlaceholder);
                         linearLayout.addView(profileImage, 2);
                         hasSetImage = true;
-                    });
+                    })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(getActivity(), "Unable to fetch profile image", Toast.LENGTH_SHORT).show();
+                            });
                 }
 
             }
@@ -217,24 +216,12 @@ public class AccountFragment extends Fragment {
                 initialFullNameInput = name;
                 initialEmailInput = email;
                 initialPhoneInput = phone;
-                imagePlaceholder.setText(getInitials(name));
+                imagePlaceholder.setText(user.getInitials());
                 String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
 
                 String fileName = deviceId + ".jpg";
 
-                FirebaseStorageHelper.uploadProfileImageToFirebaseStorage(currentImageUri, fileName, new FirebaseStorageHelper.UploadCallback() {
-                    @Override
-                    public void onSuccess(Uri downloadUri) {
-                        // Handle success, e.g., save downloadUri.toString() to a database
-                        Log.d("Upload", "Success! Download URL: " + downloadUri);
-                    }
-
-                    @Override
-                    public void onFailure(String errorMessage) {
-                        // Handle failure, e.g., show a toast or log error
-                        Log.e("Upload", "Failed to upload image: " + errorMessage);
-                    }
-                });
+                FirebaseStorageHelper.uploadProfileImageToFirebaseStorage(currentImageUri, fileName);
                 SetSaveButtonColor(true);
                 if (!userController.getSavedToFirebase()) {
                     userController.saveToFirestore(name, email, phone);
@@ -369,6 +356,18 @@ public class AccountFragment extends Fragment {
         }
     }
 
+    /**
+     * Handles the result of an activity that was started for a result, specifically for picking an image.
+     *
+     * <p>This method is called when the user selects an image from the gallery or other image sources.
+     * If the image selection is successful, the selected image's URI is set to the {@code profileImage}
+     * view, and the save button's color is updated to indicate the image has been selected.</p>
+     *
+     * @param requestCode The request code that was passed to the activity when it was started.
+     * @param resultCode  The result code returned by the activity, indicating whether the operation was successful.
+     * @param data        The intent containing the result data, which includes the URI of the selected image.
+     *                    If the operation was successful, this will not be null and will contain the image URI.
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -377,23 +376,5 @@ public class AccountFragment extends Fragment {
             profileImage.setImageURI(currentImageUri);
             SetSaveButtonColor(false);
         }
-    }
-
-
-    public String getInitials(String name) {
-        if (name == null || name.isEmpty()) {
-            return "";
-        }
-
-        StringBuilder initials = new StringBuilder();
-        String[] nameParts = name.split(" ");
-
-        for (String part : nameParts) {
-            if (!part.isEmpty()) {
-                initials.append(part.charAt(0));
-            }
-        }
-
-        return initials.toString().toUpperCase(); // Return uppercase initials
     }
 }
