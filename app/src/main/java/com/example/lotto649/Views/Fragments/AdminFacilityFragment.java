@@ -19,7 +19,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class AdminFacilityFragment  extends Fragment {
+public class AdminFacilityFragment extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference facilitiesRef;
     private String userDeviceId;

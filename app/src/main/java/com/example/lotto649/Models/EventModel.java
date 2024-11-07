@@ -110,7 +110,7 @@ public class EventModel extends AbstractModel {
         this.geo = geo;
         this.db = db;
         generateQrCode();
-        saveEventToFirestore();
+        // saveEventToFirestore();
     }
 
     /**
@@ -139,7 +139,7 @@ public class EventModel extends AbstractModel {
         this.geo = geo;
         this.db = db;
         generateQrCode();
-        saveEventToFirestore();
+        // saveEventToFirestore();
     }
 
     /**
