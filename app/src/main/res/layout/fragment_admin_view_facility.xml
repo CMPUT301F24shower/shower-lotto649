@@ -31,7 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_margin="16dp"
-        android:text="Delete Facility"
+        android:text="Remove Facility &amp; Events From Facility"
         app:icon="@drawable/ic_trash_foreground"
         app:iconSize="40dp"
         android:backgroundTint="@color/lightSurfaceContainerHigh"

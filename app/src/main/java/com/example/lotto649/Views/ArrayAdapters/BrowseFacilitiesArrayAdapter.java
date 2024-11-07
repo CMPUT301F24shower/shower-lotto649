@@ -23,12 +23,7 @@ public class BrowseFacilitiesArrayAdapter extends ArrayAdapter<FacilityModel> {
         @NonNull
         @Override
         public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            View view;
-            if (convertView == null) {
-                view = LayoutInflater.from(getContext()).inflate(R.layout.facility_list_item, parent, false);
-            } else {
-                view = convertView;
-            }
+            View view = LayoutInflater.from(getContext()).inflate(R.layout.facility_list_item, parent, false);
             FacilityModel facility = getItem(position);
             assert facility != null;
             TextView facilityName = view.findViewById(R.id.facility_name);

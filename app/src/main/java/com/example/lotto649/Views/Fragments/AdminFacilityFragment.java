@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -12,6 +13,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.lotto649.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -20,6 +22,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class AdminFacilityFragment  extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference facilitiesRef;
+    private String userDeviceId;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -43,7 +46,7 @@ public class AdminFacilityFragment  extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // get info from bundle
-        String userDeviceId = getArguments().getString("facilityDeviceId");
+        userDeviceId = getArguments().getString("facilityDeviceId");
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_admin_view_facility, container, false);
@@ -54,8 +57,7 @@ public class AdminFacilityFragment  extends Fragment {
 
         TextView name = view.findViewById(R.id.admin_facility_name);
         TextView address  = view.findViewById(R.id.admin_facility_address);
-
-        Log.e("JASON TAG", String.format("The deviceid is %s", userDeviceId));
+        Button deleteButton = view.findViewById(R.id.admin_delete_facility);
 
         facilitiesRef.document(userDeviceId)
                 .get()
@@ -71,6 +73,26 @@ public class AdminFacilityFragment  extends Fragment {
                         }
                     }
                 });
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                facilitiesRef
+                        .document(userDeviceId)
+                        .delete()
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                BrowseFacilitiesFragment frag = new BrowseFacilitiesFragment();
+                                getActivity().getSupportFragmentManager().beginTransaction()
+                                        .replace(R.id.flFragment, frag, null)
+                                        .addToBackStack(null)
+                                        .commit();
+                            //     add success log
+                            }
+                        });
+            }
+        });
 
 
         return view;

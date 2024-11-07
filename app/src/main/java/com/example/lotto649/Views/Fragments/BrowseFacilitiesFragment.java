@@ -74,21 +74,22 @@ public class BrowseFacilitiesFragment extends Fragment {
 
         // fill dataList from Firestore
         dataList = new ArrayList<FacilityModel>();
-        db.collection("cities")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot doc : task.getResult()) {
-                                String deviceIdText = doc.getId();
-                                String nameText = doc.getString("facility");
-                                String addressText = doc.getString("address");
-                                dataList.add(new FacilityModel(deviceIdText, nameText, addressText));
-                            }
-                        }
-                    }
-                });
+        // db.collection("facilities")
+        //         .get()
+        //         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        //             @Override
+        //             public void onComplete(@NonNull Task<QuerySnapshot> task) {
+        //                 if (task.isSuccessful()) {
+        //                     for (QueryDocumentSnapshot doc : task.getResult()) {
+        //                         String deviceIdText = doc.getId();
+        //                         String nameText = doc.getString("facility");
+        //                         String addressText = doc.getString("address");
+        //                         dataList.add(new FacilityModel(deviceIdText, nameText, addressText));
+        //                     }
+        //                     facilitiesAdapter.notifyDataSetChanged();
+        //                 }
+        //             }
+        //         });
 
         browseFacilityList = view.findViewById(R.id.browse_facilities_list);
         facilitiesAdapter = new BrowseFacilitiesArrayAdapter(view.getContext(), dataList);

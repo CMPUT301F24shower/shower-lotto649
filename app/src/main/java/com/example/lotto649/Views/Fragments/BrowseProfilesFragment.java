@@ -2,8 +2,6 @@ package com.example.lotto649.Views.Fragments;
 
 
 import android.os.Bundle;
-import android.provider.Settings;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +20,6 @@ import com.example.lotto649.Views.ArrayAdapters.BrowseProfilesArrayAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -32,14 +29,15 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 
 public class BrowseProfilesFragment extends Fragment {
+    private ArrayList<String> deviceIdList;
     private ArrayList<UserModel> dataList;
     private ListView browseProfilesList;
     private BrowseProfilesArrayAdapter profilesAdapter;
     private FirebaseFirestore db;
-    private CollectionReference usersRef;
+    private CollectionReference userRef;
 
     /**
-     * Public empty constructor for BrowseProfilesFragment.
+     * Public empty constructor for BrowseFacilitiesFragment.
      * <p>
      * Required for proper instantiation of the fragment by the Android system.
      * </p>
@@ -56,7 +54,6 @@ public class BrowseProfilesFragment extends Fragment {
      * @param savedInstanceState Bundle containing data about the previous state (if any)
      * @return View for this fragment
      */
-    // TODO: BUG!! WHEN FIRST LOADED, IF LISTVIEW ITEM CLICKED, APP CRASHES
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -64,33 +61,34 @@ public class BrowseProfilesFragment extends Fragment {
 
         // initialize Firestore
         db = FirebaseFirestore.getInstance();
-        usersRef = db.collection("users");
+        userRef = db.collection("users");
 
         // fill dataList from Firestore
         dataList = new ArrayList<UserModel>();
-        db.collection("users").whereEqualTo("entrant", true)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot doc : task.getResult()) {
-                                String nameText = doc.getString("name");
-                                String emailText = doc.getString("email");
-                                String phoneText = doc.getString("phone");
-                                dataList.add(new UserModel(view.getContext(), nameText, emailText, phoneText, null));
-                            }
-                        } else {
-                            Log.e("JASONERROR", "WHATTTT");
-                        }
-                    }
-                });
+        deviceIdList = new ArrayList<String>();
+        // db.collection("users")
+        //         .get()
+        //         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        //             @Override
+        //             public void onComplete(@NonNull Task<QuerySnapshot> task) {
+        //                 if (task.isSuccessful()) {
+        //                     for (QueryDocumentSnapshot doc : task.getResult()) {
+        //                         String deviceIdText = doc.getId();
+        //                         String nameText = doc.getString("name");
+        //                         String emailText = doc.getString("email");
+        //                         String phoneText = doc.getString("phone");
+        //                         dataList.add(new UserModel(getContext(), nameText, emailText, phoneText, null));
+        //                         deviceIdList.add(deviceIdText);
+        //                     }
+        //                 }
+        //             }
+        //         });
 
         browseProfilesList = view.findViewById(R.id.browse_profiles_list);
         profilesAdapter = new BrowseProfilesArrayAdapter(view.getContext(), dataList);
         browseProfilesList.setAdapter(profilesAdapter);
 
-        usersRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        db.collection("users").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot querySnapshots, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {
@@ -99,12 +97,14 @@ public class BrowseProfilesFragment extends Fragment {
                 if (querySnapshots != null) {
                     dataList.clear();
                     for (QueryDocumentSnapshot doc: querySnapshots) {
+                        String deviceIdText = doc.getId();
                         String nameText = doc.getString("name");
                         String emailText = doc.getString("email");
                         String phoneText = doc.getString("phone");
-                        dataList.add(new UserModel(view.getContext(), nameText, emailText, phoneText, null));
-                        profilesAdapter.notifyDataSetChanged();
+                        dataList.add(new UserModel(getContext(), nameText, emailText, phoneText, null));
+                        deviceIdList.add(deviceIdText);
                     }
+                    profilesAdapter.notifyDataSetChanged();
                 }
             }
         });
@@ -112,9 +112,9 @@ public class BrowseProfilesFragment extends Fragment {
         browseProfilesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                UserModel chosenUser = (UserModel) browseProfilesList.getItemAtPosition(i);
+                String chosenUserId = (String) deviceIdList.get(i);
                 Bundle bundle = new Bundle();
-                bundle.putString("userDeviceId", chosenUser.getDeviceId());
+                bundle.putString("userDeviceId", chosenUserId);
                 AdminProfileFragment frag = new AdminProfileFragment();
                 frag.setArguments(bundle);
                 getActivity().getSupportFragmentManager().beginTransaction()

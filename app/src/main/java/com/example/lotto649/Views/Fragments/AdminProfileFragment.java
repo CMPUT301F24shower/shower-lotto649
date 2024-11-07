@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -12,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -57,9 +59,11 @@ public class AdminProfileFragment extends Fragment {
         usersRef = db.collection("users");
 
         TextView name = view.findViewById(R.id.admin_user_name);
-        TextView email  = view.findViewById(R.id.admin_user_email);
-        TextView phone  = view.findViewById(R.id.admin_user_phone);
-        TextView roles  = view.findViewById(R.id.admin_user_roles);
+        TextView email = view.findViewById(R.id.admin_user_email);
+        TextView phone = view.findViewById(R.id.admin_user_phone);
+        TextView roles = view.findViewById(R.id.admin_user_roles);
+        Button removeImage = view.findViewById(R.id.admin_delete_user_image);
+        Button removeUser = view.findViewById(R.id.admin_delete_user);
 
         db.collection("users")
                 .document(userDeviceId)
@@ -86,7 +90,7 @@ public class AdminProfileFragment extends Fragment {
                             if (isEntrant) {
                                 rolesBuilder.append("Entrant, ");
                             }
-                            String rolesText = rolesBuilder.toString().substring(0, rolesBuilder.toString().length() - 3);
+                            String rolesText = rolesBuilder.toString().substring(0, rolesBuilder.toString().length() - 2);
                             name.setText(nameText);
                             email.setText(emailText);
                             phone.setText(phoneText);
@@ -94,6 +98,26 @@ public class AdminProfileFragment extends Fragment {
                         }
                     }
                 });
+
+        removeUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                usersRef
+                        .document(userDeviceId)
+                        .delete()
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                BrowseProfilesFragment frag = new BrowseProfilesFragment();
+                                getActivity().getSupportFragmentManager().beginTransaction()
+                                        .replace(R.id.flFragment, frag, null)
+                                        .addToBackStack(null)
+                                        .commit();
+                                //     add success log
+                            }
+                        });
+            }
+        });
 
 
         return view;
