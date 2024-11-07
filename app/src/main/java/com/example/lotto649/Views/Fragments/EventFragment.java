@@ -9,8 +9,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import com.example.lotto649.Controllers.EventController;
 import com.example.lotto649.Models.EventModel;
+import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
-import com.example.lotto649.Views.EventView;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -22,11 +22,9 @@ import android.widget.EditText;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class EventFragment extends Fragment {
-    private EventView eventView;
     private EventController eventController;
     private EventModel event;
 
@@ -52,15 +50,15 @@ public class EventFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_event, container, false);
 
         // Initialize UI elements
-        View image = view.findViewById(R.id.headerImage);
-        titleInputLayout = view.findViewById(R.id.textFieldTitle);
-        descriptionInputLayout = view.findViewById(R.id.textFieldDescription);
-        lotteryStartDateFieldLayout = view.findViewById(R.id.textFieldLotteryStartDate);
-        lotteryEndDateFieldLayout = view.findViewById(R.id.textFieldLotteryEndDate);
-        spotsInputLayout = view.findViewById(R.id.textFieldSpots);
-        maxEntrantsInputLayout = view.findViewById(R.id.textFieldMaxEntrants);
-        costInputLayout = view.findViewById(R.id.textFieldCost);
-        geoCheck = view.findViewById(R.id.checkBoxGeolocation);
+        View image = view.findViewById(R.id.eventPoster);
+        titleInputLayout = view.findViewById(R.id.eventTitle);
+        descriptionInputLayout = view.findViewById(R.id.eventDescription);
+        lotteryStartDateFieldLayout = view.findViewById(R.id.eventLotteryStartDate);
+        lotteryEndDateFieldLayout = view.findViewById(R.id.eventLotteryEndDate);
+        spotsInputLayout = view.findViewById(R.id.eventSpots);
+        maxEntrantsInputLayout = view.findViewById(R.id.eventMaxEntrants);
+        costInputLayout = view.findViewById(R.id.eventCost);
+        geoCheck = view.findViewById(R.id.eventGeolocation);
 
         // Make the fields non-editable (only clickable to show date picker)
         lotteryStartDateFieldLayout.setFocusable(false);
@@ -93,12 +91,12 @@ public class EventFragment extends Fragment {
         // Initialize MVC components
         event = new EventModel(requireContext(), FirebaseFirestore.getInstance());
 
-        eventView = new EventView(event, this);
         eventController = new EventController(event);
 
         // Set up the cancel button click listener
         cancelButton.setOnClickListener(v -> {
             eventController.removeEventFromFirestore();
+
         });
         
         // Set up the save button click listener

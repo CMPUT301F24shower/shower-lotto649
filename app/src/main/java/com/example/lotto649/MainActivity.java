@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.lotto649.Views.Fragments.AccountFragment;
 import com.example.lotto649.Views.Fragments.CameraFragment;
 import com.example.lotto649.Views.Fragments.EventFragment;
+import com.example.lotto649.Views.Fragments.EventsFragment;
 import com.example.lotto649.Views.Fragments.FacilityFragment;
 import com.example.lotto649.Views.Fragments.HomeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -46,6 +47,8 @@ public class MainActivity extends AppCompatActivity
 
         // Set the default selected item to "account"
         bottomNavigationView.setSelectedItemId(R.id.account);
+        MyApp.getInstance().setCurrentActivity(this);
+        MyApp.getInstance().replaceFragment(accountFragment);
     }
 
     // Create fragment instances
@@ -53,7 +56,7 @@ public class MainActivity extends AppCompatActivity
     CameraFragment cameraFragment = new CameraFragment();
     AccountFragment accountFragment = new AccountFragment();
     FacilityFragment facilityFragment = new FacilityFragment();
-    EventFragment eventFragment = new EventFragment();
+    EventsFragment eventsFragment = new EventsFragment();
 
 
     /**
@@ -67,33 +70,19 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation based on the selected item ID
         if (item.getItemId() == R.id.home) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, homeFragment)
-                    .commit();
+            MyApp.getInstance().replaceFragment(homeFragment);
             return true;
         } else if (item.getItemId() == R.id.camera) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, cameraFragment)
-                    .commit();
+            MyApp.getInstance().replaceFragment(cameraFragment);
             return true;
         } else if (item.getItemId() == R.id.account) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, accountFragment)
-                    .commit();
+            MyApp.getInstance().replaceFragment(accountFragment);
             return true;
         } else if (item.getItemId() == R.id.facility) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, facilityFragment)
-                    .commit();
+            MyApp.getInstance().replaceFragment(facilityFragment);
             return true;
-        } else if (item.getItemId() == R.id.event) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.flFragment, eventFragment)
-                    .commit();
+        } else if (item.getItemId() == R.id.events) {
+            MyApp.getInstance().replaceFragment(eventsFragment);
             return true;
         } else {
             return false;

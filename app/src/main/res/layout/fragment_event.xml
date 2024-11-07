@@ -25,9 +25,9 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Header Image Placeholder -->
+    <!-- Event Poster Placeholder -->
     <ImageView
-        android:id="@+id/headerImage"
+        android:id="@+id/eventPoster"
         android:layout_width="0dp"
         android:layout_height="200dp"
         android:background="#D3D3D3"
@@ -48,11 +48,11 @@
 
     <!-- Event Name Field -->
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textFieldTitle"
+        android:id="@+id/eventTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Event Name"
-        app:layout_constraintTop_toBottomOf="@+id/headerImage"
+        app:layout_constraintTop_toBottomOf="@+id/eventPoster"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="16dp">
@@ -65,11 +65,11 @@
 
     <!-- Description Field -->
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textFieldDescription"
+        android:id="@+id/eventDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Description"
-        app:layout_constraintTop_toBottomOf="@+id/textFieldTitle"
+        app:layout_constraintTop_toBottomOf="@+id/eventTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="16dp">
@@ -82,11 +82,11 @@
 
     <!-- Lottery Entry Start Date -->
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textFieldLotteryStartDate"
+        android:id="@+id/eventLotteryStartDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Lottery Entry Start Date"
-        app:layout_constraintTop_toBottomOf="@id/textFieldDescription"
+        app:layout_constraintTop_toBottomOf="@id/eventDescription"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="16dp"
@@ -101,11 +101,11 @@
 
     <!-- Lottery Entry End Date -->
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textFieldLotteryEndDate"
+        android:id="@+id/eventLotteryEndDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Lottery Entry End Date"
-        app:layout_constraintTop_toBottomOf="@id/textFieldLotteryStartDate"
+        app:layout_constraintTop_toBottomOf="@id/eventLotteryStartDate"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="16dp"
@@ -120,11 +120,11 @@
 
     <!-- Number of Spots Available -->
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textFieldSpots"
+        android:id="@+id/eventSpots"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Number of Spots Available"
-        app:layout_constraintTop_toBottomOf="@id/textFieldLotteryEndDate"
+        app:layout_constraintTop_toBottomOf="@id/eventLotteryEndDate"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="16dp">
@@ -139,11 +139,11 @@
 
     <!-- Max Number of Entrants -->
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textFieldMaxEntrants"
+        android:id="@+id/eventMaxEntrants"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Max Number of Entrants"
-        app:layout_constraintTop_toBottomOf="@id/textFieldSpots"
+        app:layout_constraintTop_toBottomOf="@id/eventSpots"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="16dp">
@@ -158,11 +158,11 @@
 
     <!-- Cost Field (Decimal with 2 Digits After Decimal) -->
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textFieldCost"
+        android:id="@+id/eventCost"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Cost"
-        app:layout_constraintTop_toBottomOf="@id/textFieldMaxEntrants"
+        app:layout_constraintTop_toBottomOf="@id/eventMaxEntrants"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="16dp">
@@ -177,11 +177,11 @@
 
     <!-- GeoLocation Checkbox -->
     <CheckBox
-        android:id="@+id/checkBoxGeolocation"
+        android:id="@+id/eventGeolocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="GeoLocation"
-        app:layout_constraintTop_toBottomOf="@id/textFieldCost"
+        app:layout_constraintTop_toBottomOf="@id/eventCost"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@id/cancelButton"
         android:layout_margin="16dp"/>

@@ -78,7 +78,7 @@ public class EventModel extends AbstractModel {
      */
     public EventModel(Context context, FirebaseFirestore db) {
         clear();
-        this.organizerId = ((MyApp) context.getApplicationContext()).getUserModel().getDeviceId();
+        this.organizerId = MyApp.getInstance().getUserModel().getDeviceId();
         this.db = db;
         generateQrCode();
         //saveEventToFirestore();
@@ -99,7 +99,7 @@ public class EventModel extends AbstractModel {
     public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots, Date startDate, Date endDate, boolean geo, FirebaseFirestore db) {
         this.title = title;
         this.facilityId = facilityId;
-        this.organizerId = ((MyApp) context.getApplicationContext()).getUserModel().getDeviceId();
+        this.organizerId = MyApp.getInstance().getUserModel().getDeviceId();
         this.cost = cost;
         this.description = description;
         this.numberOfSpots = numberOfSpots;
@@ -128,7 +128,7 @@ public class EventModel extends AbstractModel {
     public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots, int numberOfMaxEntrants, Date startDate, Date endDate, boolean geo, FirebaseFirestore db) {
         this.title = title;
         this.facilityId = facilityId;
-        this.organizerId = ((MyApp) context.getApplicationContext()).getUserModel().getDeviceId();
+        this.organizerId = MyApp.getInstance().getUserModel().getDeviceId();
         this.cost = cost;
         this.description = description;
         this.numberOfSpots = numberOfSpots;
@@ -494,7 +494,6 @@ public class EventModel extends AbstractModel {
      * Generates a QR code for the event (mock implementation).
      */
     private void generateQrCode() {
-        // this.qrCode = QrCodeModel.generateForEvent(this);
-        this.qrCode = "";
+        this.qrCode = QrCodeModel.generateForEvent(this);
     }
 }
