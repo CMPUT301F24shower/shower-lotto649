@@ -9,6 +9,14 @@
  * <p>
  * Code for the bottom navigation bar was adapted from:
  * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
+ * TextWatcher code was adapted from this thread:
+ * https://stackoverflow.com/questions/8543449/how-to-use-the-textwatcher-class-in-android
+ * Code for accessing images, and setting image within the app was adapted from this thread:
+ * https://www.geeksforgeeks.org/how-to-select-an-image-from-gallery-in-android/
+ * Code for accessing firebase was adapted from this thread:
+ * https://stackoverflow.com/questions/61418716/how-to-load-data-quickly-into-app-that-is-fetched-from-firestore
+ * Code for Glide image was adapted from this thread:
+ * https://stackoverflow.com/questions/44761720/save-picture-to-storage-using-glide
  * </p>
  */
 package com.example.lotto649.Views.Fragments;

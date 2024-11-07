@@ -4,6 +4,8 @@
  * <p>
  * Code adapted from the following source for implementing a bottom navigation bar:
  * <a href="https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/">GeeksforGeeks: Bottom Navigation Bar in Android</a>
+ * Notification permission code was adapted from this thread:
+ * https://stackoverflow.com/questions/44305206/ask-permission-for-push-notification
  * </p>
  */
 package com.example.lotto649;

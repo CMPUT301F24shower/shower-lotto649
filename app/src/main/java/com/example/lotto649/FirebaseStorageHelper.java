@@ -3,6 +3,8 @@
  *
  * <p>This class includes methods to upload a profile image to a specified location in Firebase Storage and
  * update the corresponding user's profile image URL in Firestore.</p>
+ * This code was adapted from the firebase docs:
+ * https://firebase.google.com/docs/storage/android/upload-files
  */
 package com.example.lotto649;
 
