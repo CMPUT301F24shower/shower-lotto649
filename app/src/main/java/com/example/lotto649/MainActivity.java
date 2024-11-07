@@ -8,6 +8,7 @@
  */
 package com.example.lotto649;
 
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.MenuItem;
@@ -15,6 +16,8 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.lotto649.Models.FirestoreIsAdminCallback;
 import com.example.lotto649.Models.FirestoreUserCallback;
@@ -40,11 +43,8 @@ import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener {
-
-    /**
-     * BottomNavigationView that allows navigation between fragments.
-     */
     BottomNavigationView bottomNavigationView;
+    private static final int REQUEST_CODE_POST_NOTIFICATIONS = 1;
 
     /**
      * Initializes the activity, setting up the bottom navigation view and its listener.
@@ -56,6 +56,15 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // TODO this code is incomplete, just here to fix build errors
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.POST_NOTIFICATIONS},
+                    REQUEST_CODE_POST_NOTIFICATIONS);
+        } else {
+            // Permission already granted, post notifications
+        }
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.getMenu().clear();
@@ -215,6 +224,19 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CODE_POST_NOTIFICATIONS) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, post notifications
+            } else {
+                // Permission denied, handle accordingly
+            }
+        }
     }
 
 }
