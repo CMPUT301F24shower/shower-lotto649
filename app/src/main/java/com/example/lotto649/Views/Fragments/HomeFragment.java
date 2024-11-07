@@ -17,9 +17,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 
+import com.example.lotto649.Controllers.EventsController;
+import com.example.lotto649.Models.EventsModel;
 import com.example.lotto649.R;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 public class HomeFragment extends Fragment {
+    private EventsController eventsController;
+    private ExtendedFloatingActionButton addButton;
+    private EventsModel events;
 
     /**
      * Required empty public constructor.
@@ -39,6 +45,16 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        View view = inflater.inflate(R.layout.fragment_events, container, false);
+
+        events = new EventsModel();
+        eventsController = new EventsController(events);
+        addButton = view.findViewById(R.id.addButton);
+
+
+
+        addButton.setOnClickListener(v -> eventsController.addEvent());
+
+        return view;
     }
 }

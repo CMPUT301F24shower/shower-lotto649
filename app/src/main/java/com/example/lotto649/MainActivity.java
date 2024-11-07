@@ -11,22 +11,18 @@ package com.example.lotto649;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.MenuItem;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.lotto649.Models.FirestoreIsAdminCallback;
-import com.example.lotto649.Models.FirestoreUserCallback;
-import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.Views.Fragments.AccountFragment;
 import com.example.lotto649.Views.Fragments.AdminAndUserFragment;
 import com.example.lotto649.Views.Fragments.BrowseEventsFragment;
 import com.example.lotto649.Views.Fragments.BrowseFacilitiesFragment;
 import com.example.lotto649.Views.Fragments.BrowseProfilesFragment;
 import com.example.lotto649.Views.Fragments.CameraFragment;
-import com.example.lotto649.Views.Fragments.EventFragment;
-import com.example.lotto649.Views.Fragments.EventsFragment;
+//import com.example.lotto649.Views.Fragments.EventsFragment;
 import com.example.lotto649.Views.Fragments.FacilityFragment;
 import com.example.lotto649.Views.Fragments.HomeFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -35,9 +31,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener {
@@ -100,7 +93,7 @@ public class MainActivity extends AppCompatActivity
     CameraFragment cameraFragment = new CameraFragment();
     AccountFragment accountFragment = new AccountFragment();
     FacilityFragment facilityFragment = new FacilityFragment();
-    EventsFragment eventsFragment = new EventsFragment();
+//    EventsFragment eventsFragment = new EventsFragment();
 
     BrowseEventsFragment browseEventsFragment = new BrowseEventsFragment();
     BrowseProfilesFragment browseProfilesFragment = new BrowseProfilesFragment();
@@ -129,9 +122,9 @@ public class MainActivity extends AppCompatActivity
         } else if (item.getItemId() == R.id.facility) {
             MyApp.getInstance().replaceFragment(facilityFragment);
             return true;
-        } else if (item.getItemId() == R.id.events) {
-            MyApp.getInstance().replaceFragment(eventsFragment);
-            return true;
+//        } else if (item.getItemId() == R.id.events) {
+//            MyApp.getInstance().replaceFragment(eventsFragment);
+//            return true;
         } else if (item.getItemId() == R.id.browseEvents) {
             MyApp.getInstance().replaceFragment(browseEventsFragment);
 

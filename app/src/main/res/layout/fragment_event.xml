@@ -18,7 +18,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Create a Event"
-        android:textColor="@color/lightOnSurface"
         android:textSize="40sp"
         android:textAlignment="center"
         app:layout_constraintTop_toTopOf="parent"
@@ -39,14 +38,19 @@
 
     <!-- Event Name Field -->
     <com.google.android.material.textfield.TextInputLayout
+        style="?attr/textInputFilledStyle"
         android:id="@+id/eventTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Event Name"
+        app:helperTextEnabled="true"
+        app:helperText="Required"
         app:layout_constraintTop_toBottomOf="@+id/eventPoster"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp">
+        android:layout_margin="16dp"
+        app:endIconMode="custom"
+        app:endIconDrawable="@drawable/text_icon">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
@@ -56,14 +60,19 @@
 
     <!-- Description Field -->
     <com.google.android.material.textfield.TextInputLayout
+        style="?attr/textInputFilledStyle"
         android:id="@+id/eventDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Description"
+        app:helperTextEnabled="true"
+        app:helperText="Required"
         app:layout_constraintTop_toBottomOf="@+id/eventTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp">
+        android:layout_margin="16dp"
+        app:endIconMode="custom"
+        app:endIconDrawable="@drawable/more_icon_foreground">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
@@ -73,15 +82,20 @@
 
     <!-- Lottery Entry Start Date -->
     <com.google.android.material.textfield.TextInputLayout
+        style="?attr/textInputFilledStyle"
         android:id="@+id/eventLotteryStartDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Lottery Entry Start Date"
+        app:helperTextEnabled="true"
+        app:helperText="Required"
         app:layout_constraintTop_toBottomOf="@id/eventDescription"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="16dp"
-        android:focusable="false">
+        android:focusable="false"
+        app:endIconMode="custom"
+        app:endIconDrawable="@drawable/calendar_icon_foreground">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
@@ -92,15 +106,20 @@
 
     <!-- Lottery Entry End Date -->
     <com.google.android.material.textfield.TextInputLayout
+        style="?attr/textInputFilledStyle"
         android:id="@+id/eventLotteryEndDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Lottery Entry End Date"
+        app:helperTextEnabled="true"
+        app:helperText="Required"
         app:layout_constraintTop_toBottomOf="@id/eventLotteryStartDate"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="16dp"
-        android:focusable="false">
+        android:focusable="false"
+        app:endIconMode="custom"
+        app:endIconDrawable="@drawable/calendar_icon_foreground">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
@@ -111,14 +130,19 @@
 
     <!-- Number of Spots Available -->
     <com.google.android.material.textfield.TextInputLayout
+        style="?attr/textInputFilledStyle"
         android:id="@+id/eventSpots"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Number of Spots Available"
+        app:helperTextEnabled="true"
+        app:helperText="Required"
         app:layout_constraintTop_toBottomOf="@id/eventLotteryEndDate"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp">
+        android:layout_margin="16dp"
+        app:endIconMode="custom"
+        app:endIconDrawable="@drawable/number_icon_foreground">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
@@ -130,14 +154,19 @@
 
     <!-- Max Number of Entrants -->
     <com.google.android.material.textfield.TextInputLayout
+        style="?attr/textInputFilledStyle"
         android:id="@+id/eventMaxEntrants"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Max Number of Entrants"
+        app:helperTextEnabled="true"
+        app:helperText="Optional"
         app:layout_constraintTop_toBottomOf="@id/eventSpots"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp">
+        android:layout_margin="16dp"
+        app:endIconMode="custom"
+        app:endIconDrawable="@drawable/number_icon_foreground">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
@@ -149,14 +178,19 @@
 
     <!-- Cost Field (Decimal with 2 Digits After Decimal) -->
     <com.google.android.material.textfield.TextInputLayout
+        style="?attr/textInputFilledStyle"
         android:id="@+id/eventCost"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Cost"
+        app:helperTextEnabled="true"
+        app:helperText="Optional"
         app:layout_constraintTop_toBottomOf="@id/eventMaxEntrants"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp">
+        android:layout_margin="16dp"
+        app:endIconMode="custom"
+        app:endIconDrawable="@drawable/ic_person_name_foreground">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
@@ -171,7 +205,7 @@
         android:id="@+id/eventGeolocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="GeoLocation"
+        android:text="Require GeoLocation"
         app:layout_constraintTop_toBottomOf="@id/eventCost"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@id/cancelButton"
