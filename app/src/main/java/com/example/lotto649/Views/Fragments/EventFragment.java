@@ -19,6 +19,7 @@ import android.text.TextWatcher;
 import android.app.DatePickerDialog;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -98,25 +99,35 @@ public class EventFragment extends Fragment {
             eventController.removeEventFromFirestore();
 
         });
-        
-        // Set up the save button click listener
-        saveButton.setOnClickListener(v -> {
-            String title = titleEditText.getText().toString();
-            String description = descriptionEditText.getText().toString();
-            int spots = Integer.parseInt(spotsEditText.getText().toString());
-            int maxEntrants = Integer.parseInt(maxEntrantsEditText.getText().toString());
-            double cost = Double.parseDouble(costEditText.getText().toString());
-            boolean geo = geoCheck.isChecked();
 
-            eventController.updateTitle(title);
-            eventController.updateDescription(description);
-            eventController.updateNumberOfSpots(spots);
-            eventController.updateNumberOfMaxEntrants(maxEntrants);
-            eventController.updateStartDate(startDate.get());
-            eventController.updateEndDate(endDate.get());
-            eventController.updateCost(cost);
-            eventController.updateGeo(geo);
-            eventController.saveEventToFirestore();
+        // Set up the save button click listener with validation
+        saveButton.setOnClickListener(v -> {
+            // Check if end date is greater than or equal to start date
+            if (!endDate.get().equals(startDate.get()) && endDate.get().before(startDate.get())) {
+                Toast.makeText(requireContext(), "End date must be greater than or equal to start date.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            try {
+                String title = titleEditText.getText().toString();
+                String description = descriptionEditText.getText().toString();
+                int spots = Integer.parseInt(spotsEditText.getText().toString());
+                int maxEntrants = Integer.parseInt(maxEntrantsEditText.getText().toString());
+                double cost = Double.parseDouble(costEditText.getText().toString());
+                boolean geo = geoCheck.isChecked();
+
+                eventController.updateTitle(title);
+                eventController.updateDescription(description);
+                eventController.updateNumberOfSpots(spots);
+                eventController.updateNumberOfMaxEntrants(maxEntrants);
+                eventController.updateStartDate(startDate.get());
+                eventController.updateEndDate(endDate.get());
+                eventController.updateCost(cost);
+                eventController.updateGeo(geo);
+                eventController.saveEventToFirestore();
+            } catch (NumberFormatException e) {
+                Toast.makeText(requireContext(), "Please enter valid numbers for spots, max entrants, and cost.", Toast.LENGTH_SHORT).show();
+            }
         });
 
         return view;
