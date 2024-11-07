@@ -22,14 +22,14 @@ public class UserModel extends AbstractModel {
     private String email;
     private String phone;
     private boolean entrant;
-    private boolean organizer;
+    private boolean organizer; // TODO: this logic depends on whether or not there is an associated facility, we would need a call to firebase to verify this
+                               // This is something we should do to establish connection between the 2 model classes
     private boolean admin;
     private String deviceId;
 
     // Firestore instance for saving and updating user data
     private FirebaseFirestore db;
     private boolean savedToFirestore = false;
-
     /**
      * No-argument constructor for Firestore deserialization.
      * This constructor is required for creating instances of the `UserModel` when
@@ -128,11 +128,9 @@ public class UserModel extends AbstractModel {
                 .update(field, value)
                 .addOnSuccessListener(aVoid -> {
                     // TODO: Add error handling to test for failure
-
                 })
                 .addOnFailureListener(e -> {
                     // TODO: Add error handling to test for failure
-
                 });
     }
 
