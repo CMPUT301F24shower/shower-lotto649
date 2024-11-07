@@ -78,6 +78,7 @@ public class ManageProfileTest {
                             assertEquals(false, document.getBoolean("admin"));
                             assertEquals(false, document.getBoolean("organizer"));
                             assertEquals(true, document.getBoolean("entrant"));
+                            assertEquals("", document.getString("profileImage"));
 
                         }
                     } else {
@@ -143,6 +144,7 @@ public class ManageProfileTest {
                             assertEquals(false, document.getBoolean("admin"));
                             assertEquals(false, document.getBoolean("organizer"));
                             assertEquals(true, document.getBoolean("entrant"));
+                            assertEquals("", document.getString("profileImage"));
                         }
                     } else {
                         throw new AssertionError("Failed to fetch document");
@@ -171,6 +173,7 @@ public class ManageProfileTest {
                             assertEquals(false, document.getBoolean("admin"));
                             assertEquals(false, document.getBoolean("organizer"));
                             assertEquals(true, document.getBoolean("entrant"));
+                            assertEquals("", document.getString("profileImage"));
                         }
                     } else {
                         throw new AssertionError("Failed to fetch document");
@@ -199,6 +202,7 @@ public class ManageProfileTest {
                             assertEquals(false, document.getBoolean("admin"));
                             assertEquals(false, document.getBoolean("organizer"));
                             assertEquals(true, document.getBoolean("entrant"));
+                            assertEquals("", document.getString("profileImage"));
                         }
                     } else {
                         throw new AssertionError("Failed to fetch document");
@@ -254,7 +258,7 @@ public class ManageProfileTest {
                             assertEquals(false, document.getBoolean("admin"));
                             assertEquals(false, document.getBoolean("organizer"));
                             assertEquals(true, document.getBoolean("entrant"));
-
+                            assertEquals("", document.getString("profileImage"));
                         }
                     } else {
                         throw new AssertionError("Failed to fetch document");
@@ -271,4 +275,74 @@ public class ManageProfileTest {
     }
 
     // There are no automated tests for uploading images, this requires a human eye to test, and a specific device to select different images, therefore no point in automating
+
+    /**
+     * Tests creating that the profile image is created from the users initials
+     * This tests US 01.03.03
+     */
+    @Test
+    public void testGeneratedProfileImage() {
+        // Delete the current devices user if it exists
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+        DocumentReference userRef = db.collection("users").document(deviceId);
+        userRef.delete();
+
+        ElapsedTimeIdlingResource idlingResource = new ElapsedTimeIdlingResource(5000);
+        IdlingRegistry.getInstance().register(idlingResource);
+        onView(withId(R.id.bottomNavigationView)).check(matches(isDisplayed()));
+        onView(withId(R.id.account))
+                .check(matches(isDisplayed()))
+                .perform(click());
+        onView(withId(R.id.imagePlaceholder))
+            .check(matches(withText("")));
+        onView(withId(R.id.nameEditText))
+                .check(matches(isDisplayed()))
+                .perform(typeText("John Doe"), closeSoftKeyboard());
+        onView(withId(R.id.emailEditText))
+                .check(matches(isDisplayed()))
+                .perform(typeText("john.doe@example.com"), closeSoftKeyboard());
+        onView(withId(R.id.phoneEditText))
+                .check(matches(isDisplayed()))
+                .perform(typeText("123-456-7890"), closeSoftKeyboard());
+
+        Espresso.onView(withId(R.id.account_save_button)).perform(click());
+        userRef.get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        assertNotNull("Document should not be null", document);
+                        if (document.exists()) {
+                            assertEquals("John Doe", document.getString("name"));
+                            assertEquals("john.doe@example.com", document.getString("email"));
+                            assertEquals("123-456-7890", document.getString("phone"));
+                            assertEquals(false, document.getBoolean("admin"));
+                            assertEquals(false, document.getBoolean("organizer"));
+                            assertEquals(true, document.getBoolean("entrant"));
+                            assertEquals("", document.getString("profileImage"));
+
+                        }
+                    } else {
+                        throw new AssertionError("Failed to fetch document");
+                    }});
+
+        onView(withId(R.id.nameEditText))
+                .check(matches(withText("John Doe")));
+        onView(withId(R.id.emailEditText))
+                .check(matches(withText("john.doe@example.com")));
+        onView(withId(R.id.phoneEditText))
+                .check(matches(withText("123-456-7890")));
+        onView(withId(R.id.imagePlaceholder))
+                .check(matches(withText("JD")));
+
+        // Edit name
+        onView(withId(R.id.nameEditText))
+                .check(matches(isDisplayed()))
+                .perform(clearText(), typeText("Billy Jim"), closeSoftKeyboard());
+        onView(withId(R.id.account_save_button)).perform(click());
+        onView(withId(R.id.imagePlaceholder))
+                .check(matches(withText("BJ")));
+        IdlingRegistry.getInstance().unregister(idlingResource);
+
+    }
 }

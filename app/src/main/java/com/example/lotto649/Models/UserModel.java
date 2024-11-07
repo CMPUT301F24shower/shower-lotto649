@@ -99,7 +99,7 @@ public class UserModel extends AbstractModel {
      * This method is called during initialization to persist the user data.
      * Users are default set to entrants
      */
-    public void saveUserToFirestore(String name, String email, String phone) {
+    public void saveUserToFirestore() {
         if (savedToFirestore) return;
         db.collection("users")
                 .document(deviceId)

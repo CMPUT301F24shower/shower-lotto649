@@ -114,7 +114,7 @@ public class UserModelTest {
     @Test
     public void testSaveUserToFirestoreSuccessful() {
         assertFalse(user.getSavedToFirestore());
-        user.saveUserToFirestore(user.getName(), user.getEmail(), user.getPhone());
+        user.saveUserToFirestore();
         verify(mockFirestore).collection("users");
         verify(mockCollectionReference).document(mockDeviceId);
         verify(mockDocumentReference).set(new HashMap<String, Object>() {{
@@ -144,7 +144,7 @@ public class UserModelTest {
         }).when(mockTask).addOnFailureListener(any());
 
         assertFalse(user.getSavedToFirestore());
-        user.saveUserToFirestore(user.getName(), user.getEmail(), user.getPhone());
+        user.saveUserToFirestore();
         verify(mockFirestore).collection("users");
         verify(mockCollectionReference).document(mockDeviceId);
         verify(mockDocumentReference).set(new HashMap<String, Object>() {{

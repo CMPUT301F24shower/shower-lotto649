@@ -164,6 +164,7 @@ public class AccountFragment extends Fragment {
                 userController.updateName(name);
                 userController.updateEmail(email);
                 userController.updatePhone(phone);
+                user = userController.getModel();
                 nameEditText.setText(user.getName());
                 emailEditText.setText(user.getEmail());
                 phoneEditText.setText(user.getPhone());
@@ -224,7 +225,6 @@ public class AccountFragment extends Fragment {
                 initialNameInput = name;
                 initialEmailInput = email;
                 initialPhoneInput = phone;
-                imagePlaceholder.setText(user.getInitials());
                 String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
 
                 String fileName = deviceId + ".jpg";
@@ -238,6 +238,8 @@ public class AccountFragment extends Fragment {
                     userController.updateEmail(email);
                     userController.updatePhone(phone);
                 }
+                user = userController.getModel();
+                imagePlaceholder.setText(user.getInitials()); // TODO, this isnt right
             }
         });
 
@@ -289,6 +291,7 @@ public class AccountFragment extends Fragment {
                 nameEditText.setText(user.getName());
                 emailEditText.setText(user.getEmail());
                 phoneEditText.setText(user.getPhone());
+                imagePlaceholder.setText(user.getInitials());
             }
         });
     }
