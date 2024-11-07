@@ -103,13 +103,14 @@ public class ManageProfileTest {
         String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
         DocumentReference userRef = FirebaseFirestore.getInstance().collection("users").document(deviceId);
         userRef.set(new HashMap<String, Object>() {{
-                    put("name", "John Tester");
-                    put("email", "john@example.com");
-                    put("phone", "999-999-9999");
-                    put("entrant", true);
-                    put("organizer", false);
-                    put("admin", false);
-                }});
+            put("name", "John Tester");
+            put("email", "john@example.com");
+            put("phone", "999-999-9999");
+            put("entrant", true);
+            put("organizer", false);
+            put("admin", false);
+            put("profileImage", "");
+        }});
 
         ElapsedTimeIdlingResource idlingResource = new ElapsedTimeIdlingResource(5000);
         IdlingRegistry.getInstance().register(idlingResource);
@@ -268,4 +269,6 @@ public class ManageProfileTest {
         IdlingRegistry.getInstance().unregister(idlingResource);
 
     }
+
+    // There are no automated tests for uploading images, this requires a human eye to test, and a specific device to select different images, therefore no point in automating
 }
