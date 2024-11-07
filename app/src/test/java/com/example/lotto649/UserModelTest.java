@@ -114,7 +114,7 @@ public class UserModelTest {
     @Test
     public void testSaveUserToFirestoreSuccessful() {
         assertFalse(user.getSavedToFirestore());
-        user.saveUserToFirestore(user.getName(), user.getEmail(), user.getPhone());
+        user.saveUserToFirestore();
         verify(mockFirestore).collection("users");
         verify(mockCollectionReference).document(mockDeviceId);
         verify(mockDocumentReference).set(new HashMap<String, Object>() {{
@@ -124,6 +124,7 @@ public class UserModelTest {
             put("entrant", user.getEntrant());
             put("organizer", user.getOrganizer());
             put("admin", user.getAdmin());
+            put("profileImage", user.getProfileImage());
         }});
         assertTrue(user.getSavedToFirestore());
     }
@@ -143,7 +144,7 @@ public class UserModelTest {
         }).when(mockTask).addOnFailureListener(any());
 
         assertFalse(user.getSavedToFirestore());
-        user.saveUserToFirestore(user.getName(), user.getEmail(), user.getPhone());
+        user.saveUserToFirestore();
         verify(mockFirestore).collection("users");
         verify(mockCollectionReference).document(mockDeviceId);
         verify(mockDocumentReference).set(new HashMap<String, Object>() {{
@@ -153,6 +154,7 @@ public class UserModelTest {
             put("entrant", user.getEntrant());
             put("organizer", user.getOrganizer());
             put("admin", user.getAdmin());
+            put("profileImage", user.getProfileImage());
         }});
         assertFalse(user.getSavedToFirestore());
     }
@@ -196,5 +198,45 @@ public class UserModelTest {
         // Verify the call to Firestore update
         verify(mockFirestore.collection("users").document(mockDeviceId)).update(
                 eq(field), eq(value));
+    }
+
+    @Test
+    public void testSetSavedToFirestore() {
+        assertFalse(user.getSavedToFirestore());
+
+        user.setSavedToFirestore();
+
+        assertTrue(user.getSavedToFirestore());
+    }
+
+    @Test
+    public void testGetInitials_withName() {
+        user.setName("John Doe");
+        assertEquals("JD", user.getInitials());
+    }
+
+    @Test
+    public void testGetInitials_withSingleName() {
+        user.setName("Cher");
+        assertEquals("C", user.getInitials());
+    }
+
+    @Test
+    public void testGetInitials_withEmptyName() {
+        user.setName("");
+        assertEquals("", user.getInitials());
+    }
+
+    @Test
+    public void testGetInitials_withNullName() {
+        user.setName(null);
+        assertEquals("", user.getInitials());
+    }
+
+    @Test
+    public void testGetAndSetProfileImage() {
+        String profileImageUrl = "https://example.com/image.jpg";
+        user.setProfileImage(profileImageUrl);
+        assertEquals(profileImageUrl, user.getProfileImage());
     }
 }

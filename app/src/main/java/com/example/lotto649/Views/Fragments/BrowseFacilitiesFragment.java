@@ -1,8 +1,8 @@
 /**
- * CameraFragment class represents a fragment for camera-related functionality in the application.
+ * BrowseFacilitiesFragment class represents a fragment for the admin to browse all facilities in the application.
  * <p>
- * This fragment inflates the camera layout when the user navigates to the camera section of the app.
- * It is part of the bottom navigation bar implementation used in the application.
+ * This fragment shows a list view of every facility, selecting the event will show its full details and allow for it to be deleted.
+ * This page is only accessible to users with 'admin' status
  * </p>
  * <p>
  * Code for the bottom navigation bar was adapted from:
