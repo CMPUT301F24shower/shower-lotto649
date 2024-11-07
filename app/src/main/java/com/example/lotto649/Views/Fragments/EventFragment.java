@@ -1,5 +1,7 @@
 package com.example.lotto649.Views.Fragments;
 
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.view.LayoutInflater;
@@ -100,34 +102,65 @@ public class EventFragment extends Fragment {
 
         });
 
-        // Set up the save button click listener with validation
+        // Set up the save button click listener
         saveButton.setOnClickListener(v -> {
-            // Check if end date is greater than or equal to start date
+            String title = titleEditText.getText().toString();
+            String description = descriptionEditText.getText().toString();
+            String spotsStr = spotsEditText.getText().toString();
+            String maxEntrantsStr = maxEntrantsEditText.getText().toString();
+            String costStr = costEditText.getText().toString();
+            boolean geo = geoCheck.isChecked();
+
+            int spots;
+            int maxEntrants = -1;
+            double cost = 0.00;
+
+            if (title.isBlank()) {
+                titleInputLayout.setHelperTextColor(ColorStateList.valueOf(Color.parseColor("#FF0000")));
+                return;
+            }
+            if (description.isBlank()) {
+                descriptionInputLayout.setHelperTextColor(ColorStateList.valueOf(Color.parseColor("#FF0000")));
+                return;
+            }
+            if (lotteryStartDateFieldText.getText().toString().isBlank()) {
+                lotteryStartDateFieldLayout.setHelperTextColor(ColorStateList.valueOf(Color.parseColor("#FF0000")));
+                return;
+            }
+            if (lotteryEndDateFieldText.getText().toString().isBlank()) {
+                lotteryEndDateFieldLayout.setHelperTextColor(ColorStateList.valueOf(Color.parseColor("#FF0000")));
+                return;
+            }
+            if (startDate.get().before(new Date())) {
+                Toast.makeText(requireContext(), "Start date can't be in the past.", Toast.LENGTH_SHORT).show();
+                return;
+            }
             if (!endDate.get().equals(startDate.get()) && endDate.get().before(startDate.get())) {
                 Toast.makeText(requireContext(), "End date must be greater than or equal to start date.", Toast.LENGTH_SHORT).show();
                 return;
             }
-
-            try {
-                String title = titleEditText.getText().toString();
-                String description = descriptionEditText.getText().toString();
-                int spots = Integer.parseInt(spotsEditText.getText().toString());
-                int maxEntrants = Integer.parseInt(maxEntrantsEditText.getText().toString());
-                double cost = Double.parseDouble(costEditText.getText().toString());
-                boolean geo = geoCheck.isChecked();
-
-                eventController.updateTitle(title);
-                eventController.updateDescription(description);
-                eventController.updateNumberOfSpots(spots);
-                eventController.updateNumberOfMaxEntrants(maxEntrants);
-                eventController.updateStartDate(startDate.get());
-                eventController.updateEndDate(endDate.get());
-                eventController.updateCost(cost);
-                eventController.updateGeo(geo);
-                eventController.saveEventToFirestore();
-            } catch (NumberFormatException e) {
-                Toast.makeText(requireContext(), "Please enter valid numbers for spots, max entrants, and cost.", Toast.LENGTH_SHORT).show();
+            if (spotsStr.isBlank()) {
+                spotsInputLayout.setHelperTextColor(ColorStateList.valueOf(Color.parseColor("#FF0000")));
+                return;
+            } else {
+                spots = Integer.parseInt(spotsStr);
             }
+            if (!maxEntrantsStr.isBlank()) {
+                maxEntrants = Integer.parseInt(maxEntrantsStr);
+            }
+            if (!costStr.isBlank()) {
+                cost = Double.parseDouble(costStr);
+            }
+
+            eventController.updateTitle(title);
+            eventController.updateDescription(description);
+            eventController.updateNumberOfSpots(spots);
+            eventController.updateNumberOfMaxEntrants(maxEntrants);
+            eventController.updateStartDate(startDate.get());
+            eventController.updateEndDate(endDate.get());
+            eventController.updateCost(cost);
+            eventController.updateGeo(geo);
+            eventController.saveEventToFirestore();
         });
 
         return view;
