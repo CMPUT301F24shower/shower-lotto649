@@ -72,10 +72,10 @@ public class AccountFragment extends Fragment {
     private AccountUserController userController;
     private FirebaseFirestore db;
     private UserModel user;
-    private TextInputLayout fullNameInputLayout, emailInputLayout, phoneNumberInputLayout;
-    private TextInputEditText fullNameEditText, emailEditText, phoneNumberEditText;
+    private TextInputLayout nameInputLayout, emailInputLayout, phoneInputLayout;
+    private TextInputEditText nameEditText, emailEditText, phoneEditText;
     private ExtendedFloatingActionButton saveButton;
-    private String initialFullNameInput, initialEmailInput, initialPhoneInput;
+    private String initialNameInput, initialEmailInput, initialPhoneInput;
     private TextView imagePlaceholder;
     private static final int PICK_IMAGE_REQUEST = 1;
     private LinearLayout linearLayout;
@@ -105,13 +105,13 @@ public class AccountFragment extends Fragment {
         hasSetImage = false;
         currentImageUri = null;
         // Initialize UI components
-        fullNameInputLayout = view.findViewById(R.id.textFieldFullName);
+        nameInputLayout = view.findViewById(R.id.textFieldName);
         emailInputLayout = view.findViewById(R.id.textFieldEmail);
-        phoneNumberInputLayout = view.findViewById(R.id.textFieldPhoneNumber);
+        phoneInputLayout = view.findViewById(R.id.textFieldPhone);
 
-        fullNameEditText = (TextInputEditText) fullNameInputLayout.getEditText();
+        nameEditText = (TextInputEditText) nameInputLayout.getEditText();
         emailEditText = (TextInputEditText) emailInputLayout.getEditText();
-        phoneNumberEditText = (TextInputEditText) phoneNumberInputLayout.getEditText();
+        phoneEditText = (TextInputEditText) phoneInputLayout.getEditText();
         saveButton = view.findViewById(R.id.account_save_button);
         linearLayout = view.findViewById(R.id.account_linear_layout);
         profileImage = new ImageView(getContext());
@@ -145,13 +145,13 @@ public class AccountFragment extends Fragment {
         });
 
 
-        fullNameEditText.addTextChangedListener(nameWatcher);
+        nameEditText.addTextChangedListener(nameWatcher);
         emailEditText.addTextChangedListener(emailWatcher);
-        phoneNumberEditText.addTextChangedListener(phoneWatcher);
+        phoneEditText.addTextChangedListener(phoneWatcher);
 
-        initialFullNameInput = fullNameEditText.getEditableText().toString();
+        initialNameInput = nameEditText.getEditableText().toString();
         initialEmailInput = emailEditText.getEditableText().toString();
-        initialPhoneInput = phoneNumberEditText.getEditableText().toString();
+        initialPhoneInput = phoneEditText.getEditableText().toString();
 
         // Initialize Firestore and UserModel
         db = FirebaseFirestore.getInstance();
@@ -164,11 +164,11 @@ public class AccountFragment extends Fragment {
                 userController.updateName(name);
                 userController.updateEmail(email);
                 userController.updatePhone(phone);
-                fullNameEditText.setText(user.getName());
+                nameEditText.setText(user.getName());
                 emailEditText.setText(user.getEmail());
-                phoneNumberEditText.setText(user.getPhone());
+                phoneEditText.setText(user.getPhone());
 
-                initialFullNameInput = name;
+                initialNameInput = name;
                 initialEmailInput = email;
                 initialPhoneInput = phone;
                 imagePlaceholder.setText(user.getInitials());
@@ -195,7 +195,7 @@ public class AccountFragment extends Fragment {
         });
 
         // Initialize MVC components
-        accountView = new AccountView(user, this);
+        AccountView accountView = new AccountView(user, this);
         userController = new AccountUserController(user);
 
         // Set up the save button click listener
@@ -203,11 +203,11 @@ public class AccountFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 // Update user information via the controller
-                String name = fullNameEditText.getText().toString();
+                String name = nameEditText.getText().toString();
                 String email = emailEditText.getText().toString();
-                String phone = phoneNumberEditText.getText().toString();
+                String phone = phoneEditText.getText().toString();
                 if (name.isEmpty()) {
-                    fullNameInputLayout.setError("Please enter your name");
+                    nameInputLayout.setError("Please enter your name");
                     return;
                 }
                 final String EMAIL_PATTERN = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
@@ -217,11 +217,11 @@ public class AccountFragment extends Fragment {
                     emailInputLayout.setError("Please enter a valid email address");
                     return;
                 }
-                fullNameInputLayout.setError(null);
+                nameInputLayout.setError(null);
                 emailInputLayout.setError(null);
-                fullNameInputLayout.setErrorEnabled(false);
+                nameInputLayout.setErrorEnabled(false);
                 emailInputLayout.setErrorEnabled(false);
-                initialFullNameInput = name;
+                initialNameInput = name;
                 initialEmailInput = email;
                 initialPhoneInput = phone;
                 imagePlaceholder.setText(user.getInitials());
@@ -286,9 +286,9 @@ public class AccountFragment extends Fragment {
         requireActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                fullNameEditText.setText(user.getName());
+                nameEditText.setText(user.getName());
                 emailEditText.setText(user.getEmail());
-                phoneNumberEditText.setText(user.getPhone());
+                phoneEditText.setText(user.getPhone());
             }
         });
     }
@@ -299,13 +299,13 @@ public class AccountFragment extends Fragment {
      * @return true if either of the facility name or address changed from the saved version
      */
     private boolean DidInfoRemainConstant() {
-        return Objects.equals(fullNameEditText.getEditableText().toString(), initialFullNameInput) && Objects.equals(emailEditText.getEditableText().toString(), initialEmailInput) && Objects.equals(phoneNumberEditText.getEditableText().toString(), initialPhoneInput);
+        return Objects.equals(nameEditText.getEditableText().toString(), initialNameInput) && Objects.equals(emailEditText.getEditableText().toString(), initialEmailInput) && Objects.equals(phoneEditText.getEditableText().toString(), initialPhoneInput);
     }
 
     /**
      * Watches the name EditText for changes, and calls to possibly change the save button colour
      */
-    private TextWatcher nameWatcher = new TextWatcher() {
+    private final TextWatcher nameWatcher = new TextWatcher() {
         public void afterTextChanged(Editable s) {}
 
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -318,7 +318,7 @@ public class AccountFragment extends Fragment {
     /**
      * Watches the email EditText for changes, and calls to possibly change the save button colour
      */
-    private TextWatcher emailWatcher = new TextWatcher() {
+    private final TextWatcher emailWatcher = new TextWatcher() {
         public void afterTextChanged(Editable s) {}
 
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -331,7 +331,7 @@ public class AccountFragment extends Fragment {
     /**
      * Watches the phone EditText for changes, and calls to possibly change the save button colour
      */
-    private TextWatcher phoneWatcher = new TextWatcher() {
+    private final TextWatcher phoneWatcher = new TextWatcher() {
         public void afterTextChanged(Editable s) {}
 
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {}

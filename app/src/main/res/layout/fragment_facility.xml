@@ -33,7 +33,7 @@
             android:layout_height="16dp"/>
         <com.google.android.material.textfield.TextInputLayout
             style="?attr/textInputFilledStyle"
-            android:id="@+id/textFieldFullName"
+            android:id="@+id/textFieldName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"

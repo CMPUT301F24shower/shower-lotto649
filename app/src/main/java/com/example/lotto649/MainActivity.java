@@ -114,6 +114,9 @@ public class MainActivity extends AppCompatActivity
      */
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        if (isFinishing() || isDestroyed()) {
+            return false; // Don't perform the transaction if the activity is finishing or destroyed
+        }
         // Handle navigation based on the selected item ID
         if (item.getItemId() == R.id.home) {
             getSupportFragmentManager()
@@ -243,7 +246,7 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * Callback method that is invoked when the user responds to a permission request.
-     * This method handles the result of the {@link Manifest.permission#POST_NOTIFICATIONS} permission
+     * This method handles the result of the {@link android.Manifest.permission#POST_NOTIFICATIONS} permission
      * request, specifically checking if the permission was granted or denied.
      *
      * @param requestCode  The request code passed in {@link ActivityCompat#requestPermissions(Activity, String[], int)}.

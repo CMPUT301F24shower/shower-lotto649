@@ -83,6 +83,7 @@ public class UserModelTest {
         user.setName(newName);
 
         assertEquals(newName, user.getName());
+        verifyFirestoreUpdate("name", newName);
         verify(user).notifyViews();
     }
 

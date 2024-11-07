@@ -53,23 +53,24 @@
             android:layout_width="match_parent"
             android:layout_height="16dp"/>
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="?attr/textInputFilledStyle"
-            android:id="@+id/textFieldFullName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginEnd="25dp"
-            android:hint="Full Name"
+    <com.google.android.material.textfield.TextInputLayout
+        style="?attr/textInputFilledStyle"
+        android:id="@+id/textFieldName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="25dp"
+        android:hint="Full Name"
 
             app:helperTextEnabled="true"
             app:helperText="Required"
             app:endIconMode="custom"
             app:endIconDrawable="@drawable/ic_person_name_foreground">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/nameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
         <View
@@ -89,9 +90,10 @@
             app:endIconDrawable="@drawable/ic_email_foreground">
 
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/emailEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -100,7 +102,7 @@
             android:layout_height="16dp"/>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textFieldPhoneNumber"
+                android:id="@+id/textFieldPhone"
                 style="?attr/textInputFilledStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -114,9 +116,10 @@
                 app:layout_constraintBottom_toTopOf="@+id/account_save_button">
 
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/phoneEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
             </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
