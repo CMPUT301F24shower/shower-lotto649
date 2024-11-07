@@ -65,7 +65,10 @@ public class EventsModel extends AbstractModel {
                     boolean geo = Boolean.TRUE.equals(document.get("geo"));
                     ArrayList<UserModel> waitingList = (ArrayList<UserModel>) document.get("waitingList");
 
-                    myEvents.add(new EventModel(null, title, facilityId, cost, description, numberOfSpots, numberOfMaxEntrants, startDate, endDate, geo, db));
+                    EventModel event = new EventModel(null, title, facilityId, cost, description, numberOfSpots, numberOfMaxEntrants, startDate, endDate, posterImage, geo, qrCode, waitingList, db);
+                    event.setEventId(document.getId());
+                    event.setOrganizerId(organizerId);
+                    myEvents.add(event);
                 }
             }
         }, db);
