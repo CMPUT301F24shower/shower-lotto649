@@ -133,28 +133,19 @@ public class MainActivity extends AppCompatActivity
             MyApp.getInstance().replaceFragment(eventsFragment);
             return true;
         } else if (item.getItemId() == R.id.browseEvents) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, browseEventsFragment)
-                    .commit();
+            MyApp.getInstance().replaceFragment(browseEventsFragment);
+
             return true;
         } else if (item.getItemId() == R.id.browseFacilities) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, browseFacilitiesFragment)
-                    .commit();
+            MyApp.getInstance().replaceFragment(browseFacilitiesFragment);
+
             return true;
         } else if (item.getItemId() == R.id.browseProfiles) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, browseProfilesFragment)
-                    .commit();
+            MyApp.getInstance().replaceFragment(browseProfilesFragment);
+
             return true;
         } else if (item.getItemId() == R.id.admin) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, adminAndUserFragment)
-                    .commit();
+            MyApp.getInstance().replaceFragment(adminAndUserFragment);
             return true;
         } else {
             return false;
