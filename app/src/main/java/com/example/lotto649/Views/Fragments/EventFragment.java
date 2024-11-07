@@ -1,13 +1,19 @@
 package com.example.lotto649.Views.Fragments;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.example.lotto649.Controllers.EventController;
 import com.example.lotto649.Models.EventModel;
@@ -21,16 +27,22 @@ import android.text.TextWatcher;
 import android.app.DatePickerDialog;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class EventFragment extends Fragment {
+    // Constants
+    private static final int REQUEST_IMAGE_PICK = 1;
+
     private EventController eventController;
     private EventModel event;
 
+    private ImageView eventPoster, editEventImage;
     private TextInputLayout titleInputLayout, descriptionInputLayout, lotteryStartDateFieldLayout, lotteryEndDateFieldLayout, spotsInputLayout, maxEntrantsInputLayout, costInputLayout;
     private TextInputEditText titleEditText, descriptionEditText, lotteryStartDateFieldText, lotteryEndDateFieldText, spotsEditText, maxEntrantsEditText, costEditText;
     private CheckBox geoCheck;
@@ -53,7 +65,8 @@ public class EventFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_event, container, false);
 
         // Initialize UI elements
-        View image = view.findViewById(R.id.eventPoster);
+        eventPoster = view.findViewById(R.id.eventPoster);
+        editEventImage = view.findViewById(R.id.editEventImage);
         titleInputLayout = view.findViewById(R.id.eventTitle);
         descriptionInputLayout = view.findViewById(R.id.eventDescription);
         lotteryStartDateFieldLayout = view.findViewById(R.id.eventLotteryStartDate);
@@ -79,6 +92,11 @@ public class EventFragment extends Fragment {
         costEditText = (TextInputEditText) costInputLayout.getEditText();
         cancelButton = view.findViewById(R.id.cancelButton);
         saveButton = view.findViewById(R.id.saveButton);
+
+        // Set default image if needed
+        eventPoster.setImageResource(R.drawable.ic_deafult_event_img_foreground);
+        // Set up edit image icon click listener to open gallery
+        editEventImage.setOnClickListener(v -> openImagePicker());
 
         AtomicReference<Date> startDate = new AtomicReference<>(new Date());
         AtomicReference<Date> endDate = new AtomicReference<>(new Date());
@@ -164,6 +182,28 @@ public class EventFragment extends Fragment {
         });
 
         return view;
+    }
+
+    private void openImagePicker() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, REQUEST_IMAGE_PICK);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_IMAGE_PICK && resultCode == getActivity().RESULT_OK && data != null) {
+            Uri imageUri = data.getData();
+            try {
+                InputStream imageStream = requireContext().getContentResolver().openInputStream(imageUri);
+                Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+                eventPoster.setImageBitmap(selectedImage);
+                // Optionally, save the image to the model/database
+            } catch (Exception e) {
+                Toast.makeText(requireContext(), "Failed to load image", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void showDatePickerDialog(EditText dateToPick, AtomicReference<Date> dateReference, Date startdate) {
