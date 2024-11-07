@@ -10,10 +10,10 @@
         android:id="@+id/camera"
         android:title="Camera"
         android:icon="@drawable/ic_camera_foreground"/>
-    <item
-        android:id="@+id/events"
-        android:title="Events"
-        android:icon="@drawable/ic_facility_foreground"/>
+<!--    <item-->
+<!--        android:id="@+id/events"-->
+<!--        android:title="Events"-->
+<!--        android:icon="@drawable/ic_facility_foreground"/>-->
     <item
         android:id="@+id/facility"
         android:title="Facility"
