@@ -268,4 +268,6 @@ public class ManageProfileTest {
         IdlingRegistry.getInstance().unregister(idlingResource);
 
     }
+
+    // There are no automated tests for uploading images, this requires a human eye to test, and a specific device to select different images, therefore no point in automating
 }
