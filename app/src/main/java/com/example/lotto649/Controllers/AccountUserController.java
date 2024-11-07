@@ -79,6 +79,10 @@ public class AccountUserController extends AbstractController {
      * Save the user to firestore for data retention
      */
     public void saveToFirestore(String name, String email, String phone) {
-        getModel().saveUserToFirestore(name, email, phone);
+        UserModel user = getModel();
+        user.setName(name);
+        user.setEmail(email);
+        user.setPhone(phone);
+        user.saveUserToFirestore();
     }
 }
