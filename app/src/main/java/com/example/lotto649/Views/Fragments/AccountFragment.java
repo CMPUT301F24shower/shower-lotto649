@@ -13,8 +13,12 @@
  */
 package com.example.lotto649.Views.Fragments;
 
+import android.graphics.drawable.RippleDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +40,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,6 +55,7 @@ public class AccountFragment extends Fragment {
     private TextInputLayout fullNameInputLayout, emailInputLayout, phoneNumberInputLayout;
     private TextInputEditText fullNameEditText, emailEditText, phoneNumberEditText;
     private ExtendedFloatingActionButton saveButton;
+    private String initialFullNameInput, initialEmailInput, initialPhoneInput;
 
     /**
      * Required empty public constructor for AccountFragment.
@@ -79,7 +85,15 @@ public class AccountFragment extends Fragment {
         fullNameEditText = (TextInputEditText) fullNameInputLayout.getEditText();
         emailEditText = (TextInputEditText) emailInputLayout.getEditText();
         phoneNumberEditText = (TextInputEditText) phoneNumberInputLayout.getEditText();
-        saveButton = view.findViewById(R.id.extended_fab);
+        saveButton = view.findViewById(R.id.account_save_button);
+
+        fullNameEditText.addTextChangedListener(nameWatcher);
+        emailEditText.addTextChangedListener(emailWatcher);
+        phoneNumberEditText.addTextChangedListener(phoneWatcher);
+
+        initialFullNameInput = fullNameEditText.getEditableText().toString();
+        initialEmailInput = emailEditText.getEditableText().toString();
+        initialPhoneInput = phoneNumberEditText.getEditableText().toString();
 
         // Initialize Firestore and UserModel
         db = FirebaseFirestore.getInstance();
@@ -96,6 +110,11 @@ public class AccountFragment extends Fragment {
                 fullNameEditText.setText(user.getName());
                 emailEditText.setText(user.getEmail());
                 phoneNumberEditText.setText(user.getPhone());
+
+                initialFullNameInput = name;
+                initialEmailInput = email;
+                initialPhoneInput = phone;
+                SetSaveButtonColor(true);
             }
         });
 
@@ -126,6 +145,10 @@ public class AccountFragment extends Fragment {
                 emailInputLayout.setError(null);
                 fullNameInputLayout.setErrorEnabled(false);
                 emailInputLayout.setErrorEnabled(false);
+                initialFullNameInput = name;
+                initialEmailInput = email;
+                initialPhoneInput = phone;
+                SetSaveButtonColor(true);
                 if (!userController.getSavedToFirebase()) {
                     userController.saveToFirestore(name, email, phone);
                 } else {
@@ -177,7 +200,7 @@ public class AccountFragment extends Fragment {
      * @param user The user model containing the details to be displayed
      */
     public void showUserDetails(UserModel user) {
-        // getActivity().runOnUiThread(new Runnable() {
+//         getActivity().runOnUiThread(new Runnable() {
         requireActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -186,5 +209,76 @@ public class AccountFragment extends Fragment {
                 phoneNumberEditText.setText(user.getPhone());
             }
         });
+    }
+
+    /**
+     * Finds if the information in the EditText components is the same as in Firestore or not.
+     *
+     * @return true if either of the facility name or address changed from the saved version
+     */
+    private boolean DidInfoRemainConstant() {
+        return Objects.equals(fullNameEditText.getEditableText().toString(), initialFullNameInput) && Objects.equals(emailEditText.getEditableText().toString(), initialEmailInput) && Objects.equals(phoneNumberEditText.getEditableText().toString(), initialPhoneInput);
+    }
+
+    /**
+     * Watches the name EditText for changes, and calls to possibly change the save button colour
+     */
+    private TextWatcher nameWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {}
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonColor(DidInfoRemainConstant());
+        }
+    };
+
+    /**
+     * Watches the email EditText for changes, and calls to possibly change the save button colour
+     */
+    private TextWatcher emailWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {}
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonColor(DidInfoRemainConstant());
+        }
+    };
+
+    /**
+     * Watches the phone EditText for changes, and calls to possibly change the save button colour
+     */
+    private TextWatcher phoneWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {}
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonColor(DidInfoRemainConstant());
+        }
+    };
+
+    /**
+     * Sets the save button's colour depending on whether information on the page changed.
+     *
+     * @param isEqual if the facility information inputted is the same as in Firestore
+     */
+    private void SetSaveButtonColor(boolean isEqual) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            RippleDrawable saveBackgroundColor = (RippleDrawable) saveButton.getBackground();
+            if (isEqual) {
+                if (saveBackgroundColor.getEffectColor().getDefaultColor() != getResources().getColor(R.color.lightSurfaceContainerHigh, null)) {
+                    saveButton.setBackgroundColor(getResources().getColor(R.color.lightSurfaceContainerHigh, null));
+                    saveButton.setTextColor(getResources().getColor(R.color.lightPrimary, null));
+                }
+            }
+            else {
+                if (saveBackgroundColor.getEffectColor().getDefaultColor() != getResources().getColor(R.color.lightOnSurface, null)) {
+                    saveButton.setBackgroundColor(getResources().getColor(R.color.colorPrimary, null));
+                    saveButton.setTextColor(getResources().getColor(R.color.black, null));
+                }
+            }
+        }
     }
 }
