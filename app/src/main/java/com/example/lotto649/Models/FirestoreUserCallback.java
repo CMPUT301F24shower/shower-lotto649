@@ -18,5 +18,5 @@ public interface FirestoreUserCallback {
      *             from Firestore or created as a new default user.
      *             TODO: This needs updating
      */
-    void onCallback(String name, String email, String phone);
+    void onCallback(String name, String email, String phone, String profileImage);
 }

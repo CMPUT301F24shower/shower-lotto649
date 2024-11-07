@@ -26,6 +26,25 @@ public class UserModel extends AbstractModel {
                                // This is something we should do to establish connection between the 2 model classes
     private boolean admin;
     private String deviceId;
+    private String profileImage;
+
+    /**
+     * Gets the user's profile image uri
+     *
+     * @return the profile image uri
+     */
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    /**
+     * Sets the users profile image uri
+     *
+     * @param profileImage the new profile image uri
+     */
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
 
     // Firestore instance for saving and updating user data
     private FirebaseFirestore db;
@@ -56,6 +75,7 @@ public class UserModel extends AbstractModel {
         this.admin = false;
         this.deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         this.db = db;
+        this.profileImage = "";
     }
 
     /**
@@ -76,6 +96,8 @@ public class UserModel extends AbstractModel {
         this.admin = false;
         this.deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         this.db = db;
+        this.profileImage = "";
+
 //        saveUserToFirestore();
     }
 
@@ -106,6 +128,7 @@ public class UserModel extends AbstractModel {
                         put("entrant", true);
                         put("organizer", false);
                         put("admin", false);
+                        put("profileImage", "");
                 }})  // Saves the current user object to Firestore
                 .addOnSuccessListener(aVoid -> {
                     System.out.println("User saved successfully!");

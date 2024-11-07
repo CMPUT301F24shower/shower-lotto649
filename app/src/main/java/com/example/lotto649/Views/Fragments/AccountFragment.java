@@ -15,14 +15,7 @@ package com.example.lotto649.Views.Fragments;
 
 import static android.app.Activity.RESULT_OK;
 
-import static androidx.core.util.TypedValueCompat.dpToPx;
-
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.drawable.RippleDrawable;
 import android.net.Uri;
 import android.os.Build;
@@ -41,7 +34,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.example.lotto649.Controllers.AccountUserController;
+import com.example.lotto649.FirebaseStorageHelper;
 import com.example.lotto649.Models.FirestoreUserCallback;
 import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.R;
@@ -54,10 +49,9 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -77,7 +71,9 @@ public class AccountFragment extends Fragment {
     private TextView imagePlaceholder;
     private static final int PICK_IMAGE_REQUEST = 1;
     private LinearLayout linearLayout;
+    private boolean hasSetImage;
     ImageView profileImage;
+    Uri currentImageUri;
     /**
      * Required empty public constructor for AccountFragment.
      */
@@ -97,7 +93,8 @@ public class AccountFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_account, container, false);
-
+        hasSetImage = false;
+        currentImageUri = null;
         // Initialize UI components
         fullNameInputLayout = view.findViewById(R.id.textFieldFullName);
         emailInputLayout = view.findViewById(R.id.textFieldEmail);
@@ -114,6 +111,15 @@ public class AccountFragment extends Fragment {
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(450, 450);
         profileImage.setLayoutParams(layoutParams);
         profileImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        profileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+            }
+        });
         imagePlaceholder = view.findViewById(R.id.imagePlaceholder);
         imagePlaceholder.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,7 +129,10 @@ public class AccountFragment extends Fragment {
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
-                linearLayout.addView(profileImage, 2);
+                if (!hasSetImage) {
+                    linearLayout.addView(profileImage, 2);
+                    // TODO need to uncomment this
+                }
             }
         });
 
@@ -143,7 +152,7 @@ public class AccountFragment extends Fragment {
         // Check if the user exists in Firestore, or create a new user
         checkUserInFirestore(new FirestoreUserCallback() {
             @Override
-            public void onCallback(String name, String email, String phone) {
+            public void onCallback(String name, String email, String phone, String profileImageUri) {
                 userController.updateName(name);
                 userController.updateEmail(email);
                 userController.updatePhone(phone);
@@ -157,6 +166,24 @@ public class AccountFragment extends Fragment {
                 initialPhoneInput = phone;
                 imagePlaceholder.setText(getInitials(name));
                 SetSaveButtonColor(true);
+
+                // Update profile Image
+                if (!Objects.equals(profileImageUri, "")) {
+                    StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(profileImageUri);
+                    imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                        currentImageUri = uri;
+//                        profileImage.setImageURI(uri);
+                        Glide.with(getContext()) // or your fragment context if inside a fragment
+                                .load(uri)
+//                                .placeholder(R.drawable.image_placeholder) // Optional placeholder image
+//                                .error(R.drawable.image_error) // Optional error image
+                                .into(profileImage);
+                        linearLayout.removeView(imagePlaceholder);
+                        linearLayout.addView(profileImage, 2);
+                        hasSetImage = true;
+                    });
+                }
+
             }
         });
 
@@ -191,6 +218,23 @@ public class AccountFragment extends Fragment {
                 initialEmailInput = email;
                 initialPhoneInput = phone;
                 imagePlaceholder.setText(getInitials(name));
+                String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+
+                String fileName = deviceId + ".jpg";
+
+                FirebaseStorageHelper.uploadProfileImageToFirebaseStorage(currentImageUri, fileName, new FirebaseStorageHelper.UploadCallback() {
+                    @Override
+                    public void onSuccess(Uri downloadUri) {
+                        // Handle success, e.g., save downloadUri.toString() to a database
+                        Log.d("Upload", "Success! Download URL: " + downloadUri);
+                    }
+
+                    @Override
+                    public void onFailure(String errorMessage) {
+                        // Handle failure, e.g., show a toast or log error
+                        Log.e("Upload", "Failed to upload image: " + errorMessage);
+                    }
+                });
                 SetSaveButtonColor(true);
                 if (!userController.getSavedToFirebase()) {
                     userController.saveToFirestore(name, email, phone);
@@ -223,15 +267,15 @@ public class AccountFragment extends Fragment {
                         // User exists, deserialize to UserModel
                         UserModel user = document.toObject(UserModel.class);
                         if (user != null) {
-                            firestoreUserCallback.onCallback(user.getName(), user.getEmail(), user.getPhone());
+                            firestoreUserCallback.onCallback(user.getName(), user.getEmail(), user.getPhone(), user.getProfileImage());
                         }
                     } else {
                         // No user found, create a new one
-                        firestoreUserCallback.onCallback("", "", "");
+                        firestoreUserCallback.onCallback("", "", "", "");
                     }
                 } else {
                     // Failure, return a new default user
-                    firestoreUserCallback.onCallback("", "", "");
+                    firestoreUserCallback.onCallback("", "", "", "");
                 }
             }
         });
@@ -329,8 +373,9 @@ public class AccountFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            Uri imageUri = data.getData();
-            profileImage.setImageURI(imageUri);
+            currentImageUri = data.getData();
+            profileImage.setImageURI(currentImageUri);
+            SetSaveButtonColor(false);
         }
     }
 
