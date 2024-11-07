@@ -13,7 +13,6 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.MenuItem;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,8 +20,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.lotto649.Models.FirestoreIsAdminCallback;
-import com.example.lotto649.Models.FirestoreUserCallback;
-import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.Views.Fragments.AccountFragment;
 import com.example.lotto649.Views.Fragments.AdminAndUserFragment;
 import com.example.lotto649.Views.Fragments.BrowseEventsFragment;
@@ -34,13 +31,9 @@ import com.example.lotto649.Views.Fragments.HomeFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener {
@@ -175,6 +168,15 @@ public class MainActivity extends AppCompatActivity
 
 
 
+    /**
+     * Checks if the current user has an admin status in the Firestore database.
+     * This method retrieves the device ID, then queries the "users" collection in Firestore
+     * to determine if the user has admin privileges.
+     *
+     * @param firestoreIsAdminCallback A callback interface to handle the result of the admin status check.
+     *                                 The callback will return {@code true} if the user is an admin,
+     *                                 and {@code false} otherwise.
+     */
     private void checkUserAdminStatus(FirestoreIsAdminCallback firestoreIsAdminCallback) {
         String deviceId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
         DocumentReference doc = FirebaseFirestore.getInstance().collection("users").document(deviceId);
@@ -201,6 +203,15 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    /**
+     * Checks if the current user has entrant status in the Firestore database.
+     * This method retrieves the device ID, then queries the "users" collection in Firestore
+     * to determine if the user has entrant privileges.
+     *
+     * @param firestoreIsAdminCallback A callback interface to handle the result of the entrant status check.
+     *                                 The callback will return {@code true} if the user is an entrant,
+     *                                 and {@code false} otherwise.
+     */
     private void checkUserEntrantStatus(FirestoreIsAdminCallback firestoreIsAdminCallback) {
         String deviceId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
         DocumentReference doc = FirebaseFirestore.getInstance().collection("users").document(deviceId);
@@ -211,8 +222,8 @@ public class MainActivity extends AppCompatActivity
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        Boolean isAdmin = document.getBoolean("entrant");
-                        if (isAdmin != null && isAdmin) {
+                        Boolean isEntrant = document.getBoolean("entrant");
+                        if (isEntrant != null && isEntrant) {
                             firestoreIsAdminCallback.onCallback(true);
                         } else {
                             firestoreIsAdminCallback.onCallback(false);
@@ -226,6 +237,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
     }
+
 
     /**
      * Callback method that is invoked when the user responds to a permission request.
