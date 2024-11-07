@@ -8,6 +8,7 @@
  */
 package com.example.lotto649;
 
+import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -226,15 +227,34 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    /**
+     * Callback method that is invoked when the user responds to a permission request.
+     * This method handles the result of the {@link Manifest.permission#POST_NOTIFICATIONS} permission
+     * request, specifically checking if the permission was granted or denied.
+     *
+     * @param requestCode  The request code passed in {@link ActivityCompat#requestPermissions(Activity, String[], int)}.
+     *                     It identifies which permission request is being handled.
+     * @param permissions  An array of permissions that were requested.
+     * @param grantResults An array of permission grant results corresponding to the permissions in the `permissions` array.
+     *                     Each element in the array is either {@link PackageManager#PERMISSION_GRANTED} or
+     *                     {@link PackageManager#PERMISSION_DENIED}.
+     *
+     * If the requestCode matches {@link #REQUEST_CODE_POST_NOTIFICATIONS}, the method checks if the user has granted
+     * or denied the {@link andorid.Manifest.permission#POST_NOTIFICATIONS} permission:
+     * <ul>
+     *     <li>If the permission is granted, proceed with posting notifications.</li>
+     *     <li>If the permission is denied, handle accordingly (e.g., show a message to the user).</li>
+     * </ul>
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CODE_POST_NOTIFICATIONS) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted, post notifications
+                // Granted
             } else {
-                // Permission denied, handle accordingly
+                // NOT granted
             }
         }
     }
