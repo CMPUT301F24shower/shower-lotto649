@@ -9,11 +9,23 @@
  * <p>
  * Code for the bottom navigation bar was adapted from:
  * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
+ * TextWatcher code was adapted from this thread:
+ * https://stackoverflow.com/questions/8543449/how-to-use-the-textwatcher-class-in-android
+ * Code for accessing images, and setting image within the app was adapted from this thread:
+ * https://www.geeksforgeeks.org/how-to-select-an-image-from-gallery-in-android/
+ * Code for accessing firebase was adapted from this thread:
+ * https://stackoverflow.com/questions/61418716/how-to-load-data-quickly-into-app-that-is-fetched-from-firestore
+ * Code for Glide image was adapted from this thread:
+ * https://stackoverflow.com/questions/44761720/save-picture-to-storage-using-glide
  * </p>
  */
 package com.example.lotto649.Views.Fragments;
 
+import static android.app.Activity.RESULT_OK;
+
+import android.content.Intent;
 import android.graphics.drawable.RippleDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -22,11 +34,17 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.example.lotto649.Controllers.AccountUserController;
+import com.example.lotto649.FirebaseStorageHelper;
 import com.example.lotto649.Models.FirestoreUserCallback;
 import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.R;
@@ -39,6 +57,8 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -52,10 +72,16 @@ public class AccountFragment extends Fragment {
     private AccountUserController userController;
     private FirebaseFirestore db;
     private UserModel user;
-    private TextInputLayout fullNameInputLayout, emailInputLayout, phoneNumberInputLayout;
-    private TextInputEditText fullNameEditText, emailEditText, phoneNumberEditText;
+    private TextInputLayout nameInputLayout, emailInputLayout, phoneInputLayout;
+    private TextInputEditText nameEditText, emailEditText, phoneEditText;
     private ExtendedFloatingActionButton saveButton;
-    private String initialFullNameInput, initialEmailInput, initialPhoneInput;
+    private String initialNameInput, initialEmailInput, initialPhoneInput;
+    private TextView imagePlaceholder;
+    private static final int PICK_IMAGE_REQUEST = 1;
+    private LinearLayout linearLayout;
+    private boolean hasSetImage;
+    ImageView profileImage;
+    Uri currentImageUri;
 
     /**
      * Required empty public constructor for AccountFragment.
@@ -76,24 +102,56 @@ public class AccountFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_account, container, false);
-
+        hasSetImage = false;
+        currentImageUri = null;
         // Initialize UI components
-        fullNameInputLayout = view.findViewById(R.id.textFieldFullName);
+        nameInputLayout = view.findViewById(R.id.textFieldName);
         emailInputLayout = view.findViewById(R.id.textFieldEmail);
-        phoneNumberInputLayout = view.findViewById(R.id.textFieldPhoneNumber);
+        phoneInputLayout = view.findViewById(R.id.textFieldPhone);
 
-        fullNameEditText = (TextInputEditText) fullNameInputLayout.getEditText();
+        nameEditText = (TextInputEditText) nameInputLayout.getEditText();
         emailEditText = (TextInputEditText) emailInputLayout.getEditText();
-        phoneNumberEditText = (TextInputEditText) phoneNumberInputLayout.getEditText();
+        phoneEditText = (TextInputEditText) phoneInputLayout.getEditText();
         saveButton = view.findViewById(R.id.account_save_button);
+        linearLayout = view.findViewById(R.id.account_linear_layout);
+        profileImage = new ImageView(getContext());
+        profileImage.setId(View.generateViewId());
+        // TODO: This is hardcoded, but works good on my phone, not sure if this is a good idea or not
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(450, 450);
+        profileImage.setLayoutParams(layoutParams);
+        profileImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        profileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+            }
+        });
+        imagePlaceholder = view.findViewById(R.id.imagePlaceholder);
+        imagePlaceholder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                linearLayout.removeView(imagePlaceholder);
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+                if (!hasSetImage) {
+                    linearLayout.addView(profileImage, 2);
+                }
+            }
+        });
 
-        fullNameEditText.addTextChangedListener(nameWatcher);
+
+        nameEditText.addTextChangedListener(nameWatcher);
         emailEditText.addTextChangedListener(emailWatcher);
-        phoneNumberEditText.addTextChangedListener(phoneWatcher);
+        phoneEditText.addTextChangedListener(phoneWatcher);
 
-        initialFullNameInput = fullNameEditText.getEditableText().toString();
+        initialNameInput = nameEditText.getEditableText().toString();
         initialEmailInput = emailEditText.getEditableText().toString();
-        initialPhoneInput = phoneNumberEditText.getEditableText().toString();
+        initialPhoneInput = phoneEditText.getEditableText().toString();
 
         // Initialize Firestore and UserModel
         db = FirebaseFirestore.getInstance();
@@ -102,24 +160,43 @@ public class AccountFragment extends Fragment {
         // Check if the user exists in Firestore, or create a new user
         checkUserInFirestore(new FirestoreUserCallback() {
             @Override
-            public void onCallback(String name, String email, String phone) {
+            public void onCallback(String name, String email, String phone, String profileImageUri) {
                 userController.updateName(name);
                 userController.updateEmail(email);
                 userController.updatePhone(phone);
-//                userController.update(userModel);
-                fullNameEditText.setText(user.getName());
+                user = userController.getModel();
+                nameEditText.setText(user.getName());
                 emailEditText.setText(user.getEmail());
-                phoneNumberEditText.setText(user.getPhone());
+                phoneEditText.setText(user.getPhone());
 
-                initialFullNameInput = name;
+                initialNameInput = name;
                 initialEmailInput = email;
                 initialPhoneInput = phone;
+                imagePlaceholder.setText(user.getInitials());
                 SetSaveButtonColor(true);
+
+                // Update profile Image
+                if (!Objects.equals(profileImageUri, "")) {
+                    StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(profileImageUri);
+                    imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                        currentImageUri = uri;
+                        Glide.with(getContext())
+                                .load(uri)
+                                .into(profileImage);
+                        linearLayout.removeView(imagePlaceholder);
+                        linearLayout.addView(profileImage, 2);
+                        hasSetImage = true;
+                    })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(getActivity(), "Unable to fetch profile image", Toast.LENGTH_SHORT).show();
+                            });
+                }
+
             }
         });
 
         // Initialize MVC components
-        accountView = new AccountView(user, this);
+        AccountView accountView = new AccountView(user, this);
         userController = new AccountUserController(user);
 
         // Set up the save button click listener
@@ -127,27 +204,32 @@ public class AccountFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 // Update user information via the controller
-                String name = fullNameEditText.getText().toString();
+                String name = nameEditText.getText().toString();
                 String email = emailEditText.getText().toString();
-                String phone = phoneNumberEditText.getText().toString();
+                String phone = phoneEditText.getText().toString();
                 if (name.isEmpty()) {
-                    fullNameInputLayout.setError("Please enter your name");
+                    nameInputLayout.setError("Please enter your name");
                     return;
                 }
                 final String EMAIL_PATTERN = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
                 Pattern pattern = Pattern.compile(EMAIL_PATTERN);
                 Matcher matcher = pattern.matcher(email);
                 if (email.isEmpty() || !matcher.matches()) {
-                    emailInputLayout.setError("Please enter an email address");
+                    emailInputLayout.setError("Please enter a valid email address");
                     return;
                 }
-                fullNameInputLayout.setError(null);
+                nameInputLayout.setError(null);
                 emailInputLayout.setError(null);
-                fullNameInputLayout.setErrorEnabled(false);
+                nameInputLayout.setErrorEnabled(false);
                 emailInputLayout.setErrorEnabled(false);
-                initialFullNameInput = name;
+                initialNameInput = name;
                 initialEmailInput = email;
                 initialPhoneInput = phone;
+                String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+
+                String fileName = deviceId + ".jpg";
+
+                FirebaseStorageHelper.uploadProfileImageToFirebaseStorage(currentImageUri, fileName);
                 SetSaveButtonColor(true);
                 if (!userController.getSavedToFirebase()) {
                     userController.saveToFirestore(name, email, phone);
@@ -156,6 +238,8 @@ public class AccountFragment extends Fragment {
                     userController.updateEmail(email);
                     userController.updatePhone(phone);
                 }
+                user = userController.getModel();
+                imagePlaceholder.setText(user.getInitials()); // TODO, this isnt right
             }
         });
 
@@ -180,15 +264,15 @@ public class AccountFragment extends Fragment {
                         // User exists, deserialize to UserModel
                         UserModel user = document.toObject(UserModel.class);
                         if (user != null) {
-                            firestoreUserCallback.onCallback(user.getName(), user.getEmail(), user.getPhone());
+                            firestoreUserCallback.onCallback(user.getName(), user.getEmail(), user.getPhone(), user.getProfileImage());
                         }
                     } else {
                         // No user found, create a new one
-                        firestoreUserCallback.onCallback("", "", "");
+                        firestoreUserCallback.onCallback("", "", "", "");
                     }
                 } else {
                     // Failure, return a new default user
-                    firestoreUserCallback.onCallback("", "", "");
+                    firestoreUserCallback.onCallback("", "", "", "");
                 }
             }
         });
@@ -204,9 +288,10 @@ public class AccountFragment extends Fragment {
         requireActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                fullNameEditText.setText(user.getName());
+                nameEditText.setText(user.getName());
                 emailEditText.setText(user.getEmail());
-                phoneNumberEditText.setText(user.getPhone());
+                phoneEditText.setText(user.getPhone());
+                imagePlaceholder.setText(user.getInitials());
             }
         });
     }
@@ -217,13 +302,13 @@ public class AccountFragment extends Fragment {
      * @return true if either of the facility name or address changed from the saved version
      */
     private boolean DidInfoRemainConstant() {
-        return Objects.equals(fullNameEditText.getEditableText().toString(), initialFullNameInput) && Objects.equals(emailEditText.getEditableText().toString(), initialEmailInput) && Objects.equals(phoneNumberEditText.getEditableText().toString(), initialPhoneInput);
+        return Objects.equals(nameEditText.getEditableText().toString(), initialNameInput) && Objects.equals(emailEditText.getEditableText().toString(), initialEmailInput) && Objects.equals(phoneEditText.getEditableText().toString(), initialPhoneInput);
     }
 
     /**
      * Watches the name EditText for changes, and calls to possibly change the save button colour
      */
-    private TextWatcher nameWatcher = new TextWatcher() {
+    private final TextWatcher nameWatcher = new TextWatcher() {
         public void afterTextChanged(Editable s) {}
 
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -236,7 +321,7 @@ public class AccountFragment extends Fragment {
     /**
      * Watches the email EditText for changes, and calls to possibly change the save button colour
      */
-    private TextWatcher emailWatcher = new TextWatcher() {
+    private final TextWatcher emailWatcher = new TextWatcher() {
         public void afterTextChanged(Editable s) {}
 
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -249,7 +334,7 @@ public class AccountFragment extends Fragment {
     /**
      * Watches the phone EditText for changes, and calls to possibly change the save button colour
      */
-    private TextWatcher phoneWatcher = new TextWatcher() {
+    private final TextWatcher phoneWatcher = new TextWatcher() {
         public void afterTextChanged(Editable s) {}
 
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -279,6 +364,28 @@ public class AccountFragment extends Fragment {
                     saveButton.setTextColor(getResources().getColor(R.color.black, null));
                 }
             }
+        }
+    }
+
+    /**
+     * Handles the result of an activity that was started for a result, specifically for picking an image.
+     *
+     * <p>This method is called when the user selects an image from the gallery or other image sources.
+     * If the image selection is successful, the selected image's URI is set to the {@code profileImage}
+     * view, and the save button's color is updated to indicate the image has been selected.</p>
+     *
+     * @param requestCode The request code that was passed to the activity when it was started.
+     * @param resultCode  The result code returned by the activity, indicating whether the operation was successful.
+     * @param data        The intent containing the result data, which includes the URI of the selected image.
+     *                    If the operation was successful, this will not be null and will contain the image URI.
+     */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            currentImageUri = data.getData();
+            profileImage.setImageURI(currentImageUri);
+            SetSaveButtonColor(false);
         }
     }
 }

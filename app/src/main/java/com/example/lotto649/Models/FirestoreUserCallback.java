@@ -11,12 +11,15 @@ package com.example.lotto649.Models;
 
 public interface FirestoreUserCallback {
     /**
-     * Called when the Firestore query is completed.
-     * This method provides the {@link UserModel} obtained from Firestore.
+     * Called when the Firestore query for user data is completed.
      *
-     * @param user The UserModel object representing the user data, either retrieved
-     *             from Firestore or created as a new default user.
-     *             TODO: This needs updating
+     * <p>This method provides the user details obtained from Firestore, including the user's
+     * name, email, phone, and profile image URL.</p>
+     *
+     * @param name          The name of the user, retrieved from Firestore or provided as a default.
+     * @param email         The email address of the user, retrieved from Firestore or provided as a default.
+     * @param phone         The phone number of the user, retrieved from Firestore or provided as a default.
+     * @param profileImage  The URL of the user's profile image, retrieved from Firestore or provided as a default.
      */
-    void onCallback(String name, String email, String phone);
+    void onCallback(String name, String email, String phone, String profileImage);
 }
