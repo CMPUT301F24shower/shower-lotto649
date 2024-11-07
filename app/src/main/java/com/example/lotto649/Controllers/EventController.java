@@ -3,6 +3,8 @@ package com.example.lotto649.Controllers;
 import com.example.lotto649.AbstractClasses.AbstractController;
 import com.example.lotto649.Models.EventModel;
 
+import java.util.Date;
+
 public class EventController extends AbstractController {
 
     public EventController(EventModel event) {
@@ -26,11 +28,31 @@ public class EventController extends AbstractController {
         getModel().setNumberOfSpots(spots);
     }
 
+    public void updateNumberOfMaxEntrants(int maxEntrants) {
+        getModel().setNumberOfMaxEntrants(maxEntrants);
+    }
+
+    public void updateStartDate(Date startDate) {
+        getModel().setStartDate(startDate);
+    }
+
+    public void updateEndDate(Date endDate) {
+        getModel().setEndDate(endDate);
+    }
+
     public void updateCost(double cost) {
         getModel().setCost(cost);
     }
 
+    public void updateGeo(boolean geo) {
+        getModel().setGeo(geo);
+    }
+
     public void saveEventToFirestore() {
         getModel().saveEventToFirestore();
+    }
+
+    public void removeEventFromFirestore() {
+        getModel().removeEventFromFirestore();
     }
 }
