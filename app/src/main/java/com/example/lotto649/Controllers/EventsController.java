@@ -22,6 +22,7 @@ public class EventsController extends AbstractController {
     }
 
     public void getMyEvents(EventsModel.MyEventsCallback events) {
+        Log.e("Ohm", "Get Events Contr");
         getModel().getMyEvents(events);
     }
 

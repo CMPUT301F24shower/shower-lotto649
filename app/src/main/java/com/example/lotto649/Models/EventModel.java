@@ -41,13 +41,6 @@ public class EventModel extends AbstractModel implements Serializable {
     private FirebaseFirestore db;
     private boolean savedToFirestore = false;
     private String eventId;
-    public String getEventId() {
-        return eventId;
-    };
-
-    public void setDb(FirebaseFirestore db) {
-        this.db = db;
-    }
 
     /**
      * Callback interface for handling FacilityModel retrieval asynchronously.
@@ -215,7 +208,7 @@ public class EventModel extends AbstractModel implements Serializable {
                 });
     }
 
-    public void setEventId(String eventId){
+    public void setEventId(String event){
         //removeEventFirestore();
         this.eventId = eventId;
         //saveEventToFirestore();

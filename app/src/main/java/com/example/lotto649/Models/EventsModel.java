@@ -1,21 +1,22 @@
 package com.example.lotto649.Models;
 
-import android.util.Log;
+import static androidx.core.content.ContentProviderCompat.requireContext;
+import static java.security.AccessController.getContext;
 
-import androidx.annotation.NonNull;
+import android.content.Context;
+import android.util.Log;
 
 import com.example.lotto649.AbstractClasses.AbstractModel;
 import com.example.lotto649.MyApp;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class EventsModel extends AbstractModel {
     private ArrayList<EventModel> myEvents;
@@ -53,9 +54,9 @@ public class EventsModel extends AbstractModel {
     public void getMyEvents(MyEventsCallback callback) {
         EventsModel.fetchEventsByOrganizerId(new EventsModel.EventFetchCallback() {
             @Override
-            public void onCallback(List<DocumentSnapshot> documents) {
+            public void onCallback(List<DocumentSnapshot> documents)
+            {
                 for (DocumentSnapshot document : documents) {
-                    /*
                     String title = document.getString("title");
                     String facilityId = document.getString("facilityId");
                     String organizerId = document.getString("organizerId");
@@ -69,11 +70,12 @@ public class EventsModel extends AbstractModel {
                     String posterImage = document.getString("posterImage");
                     boolean geo = Boolean.TRUE.equals(document.get("geo"));
                     ArrayList<UserModel> waitingList = (ArrayList<UserModel>) document.get("waitingList");
-                    */
-                    EventModel event = document.toObject(EventModel.class);
+
+                    EventModel event = new EventModel(null, title, facilityId, cost, description, numberOfSpots, numberOfMaxEntrants, startDate, endDate, posterImage, geo, qrCode, waitingList, db);
                     event.setEventId(document.getId());
-                    event.setDb(db);
-                    Log.e("Ohm", "Doc Id " + event.getEventId());
+
+                    Log.e("Ohm", "Doc Id " + document.getId());
+                    event.setOrganizerId(organizerId);
                     myEvents.add(event);
                 }
                 callback.onEventsFetched(myEvents);
