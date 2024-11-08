@@ -39,6 +39,7 @@ public class AdminProfileFragment extends Fragment {
     private LinearLayout linearLayout;
     private ImageView profileImage;
     private Uri profileUri;
+    private String nameText;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -95,7 +96,7 @@ public class AdminProfileFragment extends Fragment {
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
                             DocumentSnapshot doc = task.getResult();
-                            String nameText = doc.getString("name");
+                            nameText = doc.getString("name");
                             String emailText = doc.getString("email");
                             String phoneText = doc.getString("phone");
                             Boolean isAdmin = doc.getBoolean("admin");
@@ -140,6 +141,8 @@ public class AdminProfileFragment extends Fragment {
                                         .addOnFailureListener(e -> {
                                             Toast.makeText(getActivity(), "Unable to fetch profile image", Toast.LENGTH_SHORT).show();
                                         });
+                            } else {
+                                profileUri = null;
                             }
                         }
                     }
@@ -162,6 +165,35 @@ public class AdminProfileFragment extends Fragment {
                                 //     add success log
                             }
                         });
+            }
+        });
+
+        removeImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (profileUri != null) {
+                    StorageReference storageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(profileUri.toString());
+                    storageRef.delete()
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+                                    usersRef
+                                            .document(userDeviceId)
+                                            .update("profileImage", "")
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    //     add success log
+                                                }
+                                            });
+                                    profileUri = null;
+                                    linearLayout.removeView(profileImage);
+                                    linearLayout.addView(imagePlaceholder, 2);
+                                    linearLayout.removeView(profileImage);
+                                    imagePlaceholder.setText(new UserModel(getContext(), nameText, "").getInitials());
+                                }
+                            });
+                }
             }
         });
 
