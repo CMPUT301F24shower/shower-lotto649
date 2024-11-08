@@ -19,15 +19,19 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class EventsModel extends AbstractModel {
-    private AtomicReference<ArrayList<EventModel>> myEvents;
+    private ArrayList<EventModel> myEvents;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     public interface EventFetchCallback {
         void onCallback(List<DocumentSnapshot> events);
     }
 
+    public interface MyEventsCallback {
+        void onEventsFetched(ArrayList<EventModel> events);
+    }
+
     public EventsModel() {
-        myEvents = new AtomicReference<>(new ArrayList<>());
+        myEvents = new ArrayList<>();
     }
 
     public static void fetchEventsByOrganizerId(EventFetchCallback callback, FirebaseFirestore db) {
@@ -47,13 +51,13 @@ public class EventsModel extends AbstractModel {
                 });
     }
 
-    public ArrayList<EventModel> getMyEvents() {
+    public void getMyEvents(MyEventsCallback callback) {
         EventsModel.fetchEventsByOrganizerId(new EventsModel.EventFetchCallback() {
             @Override
-            public void onCallback(List<DocumentSnapshot> documents) {
+            public void onCallback(List<DocumentSnapshot> documents)
+            {
                 Log.e("Ohm", "onCallBack");
 
-                myEvents.set(new ArrayList<>());
                 for (DocumentSnapshot document : documents) {
                     String title = document.getString("title");
                     String facilityId = document.getString("facilityId");
@@ -74,13 +78,11 @@ public class EventsModel extends AbstractModel {
                     EventModel event = new EventModel(null, title, facilityId, cost, description, numberOfSpots, numberOfMaxEntrants, startDate, endDate, posterImage, geo, qrCode, waitingList, db);
                     event.setEventId(document.getId());
                     event.setOrganizerId(organizerId);
-                    myEvents.get().add(event);
-                    Log.e("Ohm", String.valueOf(myEvents.get().size()));
+                    myEvents.add(event);
+                    Log.e("Ohm", String.valueOf(myEvents.size()));
                 }
+                callback.onEventsFetched(myEvents);
             }
         }, db);
-
-        Log.e("Ohm", "Model get events");
-        return myEvents.get();
     }
 }

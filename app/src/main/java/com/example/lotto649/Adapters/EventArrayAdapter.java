@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.R;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -38,14 +39,14 @@ public class EventArrayAdapter extends ArrayAdapter<EventModel> {
         ((TextView) view.findViewById(R.id.eventTitle)).setText(event.getTitle());
         ((TextView) view.findViewById(R.id.eventStatus)).setText("OPEN/PENDING/CLOSED");
         ((TextView) view.findViewById(R.id.eventLocation)).setText(event.getFacilityId());
-        ((TextView) view.findViewById(R.id.eventCost)).setText(String.valueOf(event.getCost()));
+        ((TextView) view.findViewById(R.id.eventCost)).setText("$" + new DecimalFormat("0.00").format(event.getCost()));
         ((TextView) view.findViewById(R.id.eventAvailableSpots)).setText(
                 ((0 < event.getNumberOfMaxEntrants() &&
                 (event.getWaitingList().isEmpty() ? 0 : event.getWaitingList().size()) <= event.getNumberOfMaxEntrants()) ?
-                        String.valueOf(event.getWaitingList().size() - event.getNumberOfMaxEntrants()) + " Spots Available" : "OPEN")
+                        String.valueOf(event.getNumberOfMaxEntrants() - event.getWaitingList().size()) + " Spots Available" : "OPEN")
         );
         ((TextView) view.findViewById(R.id.eventDaysLeft)).setText(
-            String.valueOf(TimeUnit.DAYS.convert(new Date().getTime() - event.getEndDate().getTime(),TimeUnit.MILLISECONDS)) + "Days Left to Enter"
+            String.valueOf(TimeUnit.DAYS.convert(event.getEndDate().getTime() - new Date().getTime(),TimeUnit.MILLISECONDS)) + " Days Left to Enter"
         );
         ((TextView) view.findViewById(R.id.eventDescription)).setText(event.getDescription());
 

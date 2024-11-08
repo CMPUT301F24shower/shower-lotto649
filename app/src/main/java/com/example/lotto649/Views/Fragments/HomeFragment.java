@@ -22,9 +22,12 @@ import androidx.fragment.app.Fragment;
 
 import com.example.lotto649.Adapters.EventArrayAdapter;
 import com.example.lotto649.Controllers.EventsController;
+import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.Models.EventsModel;
 import com.example.lotto649.R;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+
+import java.util.ArrayList;
 
 public class HomeFragment extends Fragment {
     private EventsController eventsController;
@@ -58,16 +61,22 @@ public class HomeFragment extends Fragment {
 
         ListView eventsList = view.findViewById(R.id.event_contents);
 
-        Log.w("Ohm", "Eve cont");
-        Log.w("Ohm", String.valueOf(eventsController.getMyEvents().isEmpty()));
-        Log.w("Ohm", String.valueOf(eventsController.getMyEvents().size()));
+        // Use the asynchronous method and handle data once it's ready
+        eventsController.getMyEvents(new EventsModel.MyEventsCallback() {
+            @Override
+            public void onEventsFetched(ArrayList<EventModel> events) {
+                Log.w("Ohm", "Events fetched: " + events.size());
 
-        eventAdapter = new EventArrayAdapter(getContext(), eventsController.getMyEvents(), new EventArrayAdapter.EventArrayAdapterListener() {
-          @Override
-          public void onEventsWaitListChanged(){};
+                // Initialize and set the adapter with fetched events
+                eventAdapter = new EventArrayAdapter(getContext(), events, new EventArrayAdapter.EventArrayAdapterListener() {
+                    @Override
+                    public void onEventsWaitListChanged() {
+                        // Handle waitlist changes if needed
+                    }
+                });
+                eventsList.setAdapter(eventAdapter);
+            }
         });
-        eventsList.setAdapter(eventAdapter);
-
 
         addButton.setOnClickListener(v -> eventsController.addEvent());
 
