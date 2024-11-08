@@ -29,7 +29,6 @@ import com.example.lotto649.Views.Fragments.BrowseFacilitiesFragment;
 import com.example.lotto649.Views.Fragments.BrowseProfilesFragment;
 import com.example.lotto649.Views.Fragments.CameraFragment;
 //import com.example.lotto649.Views.Fragments.EventsFragment;
-import com.example.lotto649.Views.Fragments.EventFragment;
 import com.example.lotto649.Views.Fragments.FacilityFragment;
 import com.example.lotto649.Views.Fragments.HomeFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -55,15 +54,6 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         // TODO this code is incomplete, just here to fix build errors
-//        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
-//                != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(this,
-//                    new String[]{android.Manifest.permission.POST_NOTIFICATIONS},
-//                    REQUEST_CODE_POST_NOTIFICATIONS);
-//        } else {
-//            // Permission already granted, post notifications
-//        }
-
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.getMenu().clear();
 
@@ -106,11 +96,12 @@ public class MainActivity extends AppCompatActivity
     CameraFragment cameraFragment = new CameraFragment();
     AccountFragment accountFragment = new AccountFragment();
     FacilityFragment facilityFragment = new FacilityFragment();
+//    EventsFragment eventsFragment = new EventsFragment();
+
     BrowseEventsFragment browseEventsFragment = new BrowseEventsFragment();
     BrowseProfilesFragment browseProfilesFragment = new BrowseProfilesFragment();
     BrowseFacilitiesFragment browseFacilitiesFragment = new BrowseFacilitiesFragment();
     AdminAndUserFragment adminAndUserFragment = new AdminAndUserFragment();
-    EventFragment eventFragment = new EventFragment();
 
     /**
      * Handles the selection of items from the BottomNavigationView.
@@ -152,6 +143,19 @@ public class MainActivity extends AppCompatActivity
             MyApp.getInstance().replaceFragment(browseProfilesFragment);
 
             return true;
+        } else if (item.getItemId() == R.id.browseProfiles) {
+            MyApp.getInstance().replaceFragment(browseProfilesFragment);
+
+            return true;
+        } else if (item.getItemId() == R.id.admin) {
+            MyApp.getInstance().replaceFragment(adminAndUserFragment);
+
+            return true;
+//        } else if (item.getItemId() == R.id.event) {
+//            getSupportFragmentManager().beginTransaction()
+//                    .replace(R.id.flFragment, eventFragment)
+//                    .commit();
+//            return true;
         } else if (item.getItemId() == R.id.browseEvents) {
             getSupportFragmentManager()
                     .beginTransaction()

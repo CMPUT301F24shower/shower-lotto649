@@ -7,6 +7,7 @@ import static com.example.lotto649.FirebaseStorageHelper.uploadPosterImageToFire
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -22,6 +23,7 @@ import com.bumptech.glide.Glide;
 import com.example.lotto649.Controllers.EventController;
 import com.example.lotto649.FirebaseStorageHelper;
 import com.example.lotto649.Models.EventModel;
+import com.example.lotto649.Models.QrCodeModel;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
@@ -45,6 +47,10 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Fragment for displaying and editing details of an event.
+ * Allows users to view, modify, and save event information to Firestore.
+ */
 public class EventFragment extends Fragment {
     private EventController eventController;
     private EventModel event;
@@ -66,6 +72,11 @@ public class EventFragment extends Fragment {
     Uri currentImageUri;
     private String profileImageUri;
 
+    /**
+     * Displays details of the provided EventModel in the UI components.
+     *
+     * @param event The EventModel containing event details to display.
+     */
     public void showEventDetails(@NonNull EventModel event) {
         titleEditText.setText(event.getTitle());
         descriptionEditText.setText(event.getDescription());
@@ -79,6 +90,11 @@ public class EventFragment extends Fragment {
         geoCheck.setChecked(event.getGeo());
     }
 
+    /**
+     * Called when the fragment is attached to a context. Initializes the event model if null.
+     *
+     * @param context The context to which the fragment is attached.
+     */
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -89,17 +105,33 @@ public class EventFragment extends Fragment {
         mContext = context;
     }
 
+    /**
+     * Default constructor, indicating that this is a new event.
+     */
     public EventFragment() {
         Log.e("Ohm", "Construct");
         add = true;
     }
 
+    /**
+     * Constructor to edit an existing event.
+     *
+     * @param event The existing EventModel to be edited.
+     */
     public EventFragment(EventModel event) {
         Log.e("Ohm", "Contruct Event");
         add = false;
         this.event = event;
     }
 
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate views in the fragment.
+     * @param container          The parent view that the fragment's UI should be attached to.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state.
+     * @return The View for the fragment's UI, or null.
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_event, container, false);
@@ -278,16 +310,35 @@ public class EventFragment extends Fragment {
             String fileName = event.getEventId() + ".jpg";
             uploadPosterImageToFirebaseStorage(currentImageUri, fileName);
 
+            String data = title + description + spotsStr + maxEntrantsStr + costStr;
+            Bitmap qrCodeBitmap = QrCodeModel.generateForEvent(data);
+            String qrCodeHash = QrCodeModel.generateHash(data);
+
+            eventController.updateQrCode(qrCodeHash);
+
             if (add) {
                 eventController.saveEventToFirestore();
             } else {
                 eventController.returnToEvents();
             }
+
+            QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.flFragment, qrFragment)
+                    .addToBackStack(null)
+                    .commit();
         });
 
         return view;
     }
 
+    /**
+     * Displays a date picker dialog and updates the selected date in the specified EditText field.
+     *
+     * @param dateToPick   The EditText field to update with the selected date.
+     * @param dateReference The AtomicReference to hold the selected date.
+     * @param startdate     The starting date for the date picker.
+     */
     private void showDatePickerDialog(EditText dateToPick, AtomicReference<Date> dateReference, Date startdate) {
         final Calendar calendar = Calendar.getInstance();
         calendar.setTime(startdate);
@@ -312,6 +363,9 @@ public class EventFragment extends Fragment {
         datePickerDialog.show();
     }
 
+    /**
+     * Watches for changes in the cost EditText field to restrict input to two decimal places.
+     */
     private TextWatcher costEditWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
