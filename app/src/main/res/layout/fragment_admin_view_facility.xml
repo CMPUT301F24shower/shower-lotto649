@@ -31,12 +31,13 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_margin="16dp"
-        android:text="Remove Facility &amp; Events From Facility"
+        android:text="Remove Facility &amp;\nEvents From Facility"
         app:icon="@drawable/ic_trash_foreground"
         app:iconSize="40dp"
         android:backgroundTint="@color/lightSurfaceContainerHigh"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:maxLines="2" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

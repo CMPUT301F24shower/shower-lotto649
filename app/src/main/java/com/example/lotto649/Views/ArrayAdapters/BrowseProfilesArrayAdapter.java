@@ -51,6 +51,8 @@ public class BrowseProfilesArrayAdapter extends ArrayAdapter<UserModel> {
         String initials = user.getInitials();
         imagePlaceholder.setText(initials);
         if (!Objects.equals(profileUriString, "")) {
+            profileImage.setVisibility(View.VISIBLE);
+            imagePlaceholder.setVisibility(View.GONE);
             profileUri = Uri.parse(profileUriString);
             StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(profileUriString);
             imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
@@ -62,8 +64,6 @@ public class BrowseProfilesArrayAdapter extends ArrayAdapter<UserModel> {
                 LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(200, 200);
                 profileImage.setLayoutParams(layoutParams);
                 profileImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                profileImage.setVisibility(View.VISIBLE);
-                imagePlaceholder.setVisibility(View.GONE);
             });
         } else {
             profileImage.setVisibility(View.GONE);

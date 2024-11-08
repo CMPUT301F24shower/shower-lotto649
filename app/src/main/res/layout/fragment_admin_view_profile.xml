@@ -99,7 +99,8 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/admin_delete_user" />
+            app:layout_constraintEnd_toStartOf="@+id/admin_delete_user"
+            android:maxLines="2"/>
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/admin_delete_user"
@@ -114,7 +115,8 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/admin_delete_user_image"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            android:maxLines="2" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
