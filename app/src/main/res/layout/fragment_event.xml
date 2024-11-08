@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -7,61 +12,175 @@
     android:layout_height="match_parent"
     tools:context=".Views.Fragments.EventFragment">
 
-    <!-- Title Field -->
+    <!-- Header Event Create -->
     <TextView
-        android:id="@+id/eventFragmentTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Event Details"
-        android:textSize="24sp"
-        android:layout_margin="16dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textFieldTitle"
+        android:id="@+id/eventFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Title"
-        app:layout_constraintTop_toBottomOf="@+id/eventFragmentTitle"
+        android:text="Create a Event"
+        android:textSize="40sp"
+        android:textAlignment="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Event Poster Placeholder -->
+    <ImageView
+    android:id="@+id/eventPoster"
+    android:layout_width="0dp"
+    android:layout_height="200dp"
+    android:background="#D3D3D3"
+    android:contentDescription="Event Image Placeholder"
+    android:layout_margin="16dp"
+    app:layout_constraintTop_toBottomOf="@id/eventFragment"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    android:src="@drawable/ic_deafult_event_img_foreground"/>
+
+    <ImageView
+        android:id="@+id/editEventImage"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="8dp"
+        android:src="@drawable/ic_edit_icon_foreground"
+        android:contentDescription="Edit Image Icon"
+        app:layout_constraintTop_toTopOf="@id/eventPoster"
+        app:layout_constraintEnd_toEndOf="@id/eventPoster"
+        android:clickable="true"
+        android:focusable="true"/>
+
+    <!-- Event Name Field -->
+    <com.google.android.material.textfield.TextInputLayout
+        style="?attr/textInputFilledStyle"
+        android:id="@+id/eventTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Event Name"
+        app:helperTextEnabled="true"
+        app:helperText="Required"
+        app:layout_constraintTop_toBottomOf="@+id/eventPoster"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp">
+        android:layout_margin="16dp"
+        app:endIconMode="custom"
+        app:endIconDrawable="@drawable/text_icon">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text" />
+            android:inputType="text"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Description Field -->
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textFieldDescription"
+        style="?attr/textInputFilledStyle"
+        android:id="@+id/eventDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Description"
-        app:layout_constraintTop_toBottomOf="@+id/textFieldTitle"
+        app:helperTextEnabled="true"
+        app:helperText="Required"
+        app:layout_constraintTop_toBottomOf="@+id/eventTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp">
+        android:layout_margin="16dp"
+        app:endIconMode="custom"
+        app:endIconDrawable="@drawable/more_icon_foreground">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textMultiLine" />
+            android:inputType="textMultiLine"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Number of Spots Field (Integer Only) -->
+    <!-- Lottery Entry Start Date -->
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textFieldSpots"
+        style="?attr/textInputFilledStyle"
+        android:id="@+id/eventLotteryStartDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Number of Spots"
-        app:layout_constraintTop_toBottomOf="@id/textFieldDescription"
+        android:hint="Lottery Entry Start Date"
+        app:helperTextEnabled="true"
+        app:helperText="Required"
+        app:layout_constraintTop_toBottomOf="@id/eventDescription"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp">
+        android:layout_margin="16dp"
+        android:focusable="false"
+        app:endIconMode="custom"
+        app:endIconDrawable="@drawable/calendar_icon_foreground">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:inputType="date"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Lottery Entry End Date -->
+    <com.google.android.material.textfield.TextInputLayout
+        style="?attr/textInputFilledStyle"
+        android:id="@+id/eventLotteryEndDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Lottery Entry End Date"
+        app:helperTextEnabled="true"
+        app:helperText="Required"
+        app:layout_constraintTop_toBottomOf="@id/eventLotteryStartDate"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="16dp"
+        android:focusable="false"
+        app:endIconMode="custom"
+        app:endIconDrawable="@drawable/calendar_icon_foreground">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:inputType="date"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Number of Spots Available -->
+    <com.google.android.material.textfield.TextInputLayout
+        style="?attr/textInputFilledStyle"
+        android:id="@+id/eventSpots"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Number of Spots Available"
+        app:helperTextEnabled="true"
+        app:helperText="Required"
+        app:layout_constraintTop_toBottomOf="@id/eventLotteryEndDate"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="16dp"
+        app:endIconMode="custom"
+        app:endIconDrawable="@drawable/number_icon_foreground">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:maxLength="4"
+            android:digits="0123456789"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Max Number of Entrants -->
+    <com.google.android.material.textfield.TextInputLayout
+        style="?attr/textInputFilledStyle"
+        android:id="@+id/eventMaxEntrants"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Max Number of Entrants"
+        app:helperTextEnabled="true"
+        app:helperText="Optional"
+        app:layout_constraintTop_toBottomOf="@id/eventSpots"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="16dp"
+        app:endIconMode="custom"
+        app:endIconDrawable="@drawable/number_icon_foreground">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
@@ -73,14 +192,19 @@
 
     <!-- Cost Field (Decimal with 2 Digits After Decimal) -->
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textFieldCost"
+        style="?attr/textInputFilledStyle"
+        android:id="@+id/eventCost"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Cost"
-        app:layout_constraintTop_toBottomOf="@id/textFieldSpots"
+        app:helperTextEnabled="true"
+        app:helperText="Optional"
+        app:layout_constraintTop_toBottomOf="@id/eventMaxEntrants"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp">
+        android:layout_margin="16dp"
+        app:endIconMode="custom"
+        app:endIconDrawable="@drawable/ic_person_name_foreground">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
@@ -90,7 +214,28 @@
             android:maxLength="7"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Save Button -->
+    <!-- GeoLocation Checkbox -->
+    <CheckBox
+        android:id="@+id/eventGeolocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Require GeoLocation"
+        app:layout_constraintTop_toBottomOf="@id/eventCost"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/cancelButton"
+        android:layout_margin="16dp"/>
+
+    <!-- Cancel and Save Buttons -->
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/cancelButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/saveButton"
+        android:layout_margin="16dp"/>
+
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/generateQRCodeButton"
         android:layout_width="wrap_content"
@@ -108,12 +253,13 @@
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/saveButton"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Save"
+        android:text="Create"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/cancelButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_margin="16dp" />
+        android:layout_margin="16dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

@@ -22,7 +22,8 @@ public class UserModel extends AbstractModel {
     private String email;
     private String phone;
     private boolean entrant;
-    private boolean organizer;
+    private boolean organizer; // TODO: this logic depends on whether or not there is an associated facility, we would need a call to firebase to verify this
+                               // This is something we should do to establish connection between the 2 model classes
     private boolean admin;
     private String deviceId;
 

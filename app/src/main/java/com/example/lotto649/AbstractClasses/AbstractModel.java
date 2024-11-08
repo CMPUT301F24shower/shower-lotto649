@@ -14,6 +14,7 @@ import java.util.Set;
 public abstract class AbstractModel {
     private final transient Set<AbstractView> views;
 
+
     /**
      * Constructor for the AbstractModel class.
      * Initializes the set of views that will observe this model.
@@ -21,7 +22,7 @@ public abstract class AbstractModel {
     protected AbstractModel() {
         views = new ArraySet<>();
     }
-
+    
     /**
      * Adds a view to the set of views that observe the model.
      * After adding, the view is immediately updated with the current state of the model.
