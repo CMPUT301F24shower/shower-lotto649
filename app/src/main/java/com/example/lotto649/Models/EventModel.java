@@ -7,11 +7,15 @@ import com.example.lotto649.AbstractClasses.AbstractModel;
 import com.example.lotto649.MyApp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.Date;
 
@@ -153,32 +157,44 @@ public class EventModel extends AbstractModel {
 
         ByteArrayOutputStream byteout = new ByteArrayOutputStream();
         qrCode.compress(Bitmap.CompressFormat.PNG, 100, byteout);
-        byte[] qrCodeHashed = byteout.toByteArray();
+        byte[] qrCodeBytes = byteout.toByteArray();
 
-        db.collection("events")
-                .add(new HashMap<String, Object>() {{
-                    put("title", title);
-                    put("facilityId", facilityId);
-                    put("organizerId", organizerId);
-                    put("cost", cost);
-                    put("description", description);
-                    put("numberOfSpots", numberOfSpots);
-                    put("numberOfMaxEntrants", numberOfMaxEntrants);
-                    put("startDate", startDate);
-                    put("endDate", endDate);
-                    put("qrCode", qrCodeHashed);
-                    put("posterImage", posterImage);
-                    put("geo",geo);
-                    put("waitingList", serializeWaitingList());
-                }})
-                .addOnSuccessListener(documentReference -> {
-                    eventId = documentReference.getId();
-                    savedToFirestore = true;
-                    System.out.println("Event saved successfully with ID: " + eventId);
-                })
-                .addOnFailureListener(e -> {
-                    System.err.println("Error saving event: " + e.getMessage());
-                });
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference()
+                .child("qrcodes/" + UUID.randomUUID().toString() + ".png");
+
+        UploadTask uploadTask = storageRef.putBytes(qrCodeBytes);
+        uploadTask.addOnSuccessListener(taskSnapshot ->
+                storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                    String qrCodeUrl = uri.toString();
+
+                    db.collection("events")
+                            .add(new HashMap<String, Object>() {{
+                                put("title", title);
+                                put("facilityId", facilityId);
+                                put("organizerId", organizerId);
+                                put("cost", cost);
+                                put("description", description);
+                                put("numberOfSpots", numberOfSpots);
+                                put("numberOfMaxEntrants", numberOfMaxEntrants);
+                                put("startDate", startDate);
+                                put("endDate", endDate);
+                                put("qrCode", qrCodeUrl);
+                                put("posterImage", posterImage);
+                                put("geo",geo);
+                                put("waitingList", serializeWaitingList());
+                            }})
+                            .addOnSuccessListener(documentReference -> {
+                                eventId = documentReference.getId();
+                                savedToFirestore = true;
+                                System.out.println("Event saved successfully with ID: " + eventId);
+                            })
+                            .addOnFailureListener(e -> {
+                                System.err.println("Error saving event: " + e.getMessage());
+                            });
+
+                })).addOnFailureListener(e -> {
+            System.err.println(("Failed to upload QR Code" + e.getMessage()));
+        });
     }
 
     /**

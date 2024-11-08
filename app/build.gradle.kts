@@ -35,6 +35,7 @@ android {
 dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.7.1"))
     implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-storage-ktx:20.2.1")
     implementation("com.google.android.material:material:1.2.0")
     implementation(libs.appcompat)
     implementation(libs.material)
