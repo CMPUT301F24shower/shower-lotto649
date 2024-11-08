@@ -1,3 +1,10 @@
+/**
+ * Custom Application class for managing the global state of the app, including user data and current activity.
+ *
+ * <p>This class provides access to the global {@link UserModel} instance, manages the
+ * current {@link FragmentActivity} reference, and allows fragment replacement within
+ * the current activity's layout.</p>
+ */
 package com.example.lotto649;
 
 import android.app.Application;
@@ -16,11 +23,19 @@ public class MyApp extends Application {
     private static MyApp instance;
     private WeakReference<FragmentActivity> currentActivity;
 
-
+    /**
+     * Retrieves the singleton instance of MyApp.
+     *
+     * @return The MyApp instance.
+     */
     public static MyApp getInstance() {
         return instance;
     }
 
+    /**
+     * Initializes the MyApp instance and sets up the global {@link UserModel} object.
+     * Called when the application is created.
+     */
     @Override
     public void onCreate() {
         super.onCreate();
@@ -29,23 +44,51 @@ public class MyApp extends Application {
         user = new UserModel(getApplicationContext(), FirebaseFirestore.getInstance());
     }
 
+    /**
+     * Retrieves the global {@link UserModel} instance associated with the application.
+     *
+     * @return The current UserModel instance.
+     */
     public UserModel getUserModel() {
         return user;
     }
 
+    /**
+     * Sets the singleton instance of MyApp.
+     *
+     * @param instance The MyApp instance to set.
+     */
     public static void setInstance(MyApp instance) {
         MyApp.instance = instance;
     }
 
+    /**
+     * Updates the global {@link UserModel} instance.
+     *
+     * @param user The UserModel to set as the global user.
+     */
     public void setUserModel(UserModel user) {
         this.user = user;
     }
 
+    /**
+     * Sets the current activity reference for managing fragment transactions.
+     *
+     * @param activity The FragmentActivity to set as the current activity.
+     */
     // Method to set the current activity
     public void setCurrentActivity(FragmentActivity activity) {
         this.currentActivity = new WeakReference<>(activity);
     }
-    
+
+    /**
+     * Replaces the current fragment in the activity with the specified fragment.
+     *
+     * <p>This method replaces the fragment within the current activity's container,
+     * defined by the R.id.flFragment ID, if the current activity is set.</p>
+     *
+     * @param fragment The fragment to display in the current activity.
+     */
     // Fragment replacement method
     public void replaceFragment(Fragment fragment) {
         if (currentActivity != null) {

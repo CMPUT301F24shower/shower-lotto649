@@ -55,15 +55,6 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         // TODO this code is incomplete, just here to fix build errors
-//        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
-//                != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(this,
-//                    new String[]{android.Manifest.permission.POST_NOTIFICATIONS},
-//                    REQUEST_CODE_POST_NOTIFICATIONS);
-//        } else {
-//            // Permission already granted, post notifications
-//        }
-
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.getMenu().clear();
 
