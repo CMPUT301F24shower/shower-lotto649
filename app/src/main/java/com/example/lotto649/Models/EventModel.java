@@ -1,6 +1,8 @@
 package com.example.lotto649.Models;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+
 import com.example.lotto649.AbstractClasses.AbstractModel;
 import com.example.lotto649.MyApp;
 import com.google.firebase.firestore.DocumentReference;
@@ -29,7 +31,8 @@ public class EventModel extends AbstractModel {
     private Date endDate;
     private Object posterImage; // Placeholder for image class
     private boolean geo;
-    private Object qrCode;
+    private Bitmap qrCode;
+    private String qrCodeData;
 
     private final ArrayList<UserModel> waitingList = new ArrayList<>();
 
@@ -80,7 +83,6 @@ public class EventModel extends AbstractModel {
         clear();
         this.organizerId = MyApp.getInstance().getUserModel().getDeviceId();
         this.db = db;
-        generateQrCode();
         //saveEventToFirestore();
     }
 
@@ -109,7 +111,6 @@ public class EventModel extends AbstractModel {
         this.posterImage = null;
         this.geo = geo;
         this.db = db;
-        generateQrCode();
         saveEventToFirestore();
     }
 
@@ -138,7 +139,7 @@ public class EventModel extends AbstractModel {
         this.posterImage = null;
         this.geo = geo;
         this.db = db;
-        generateQrCode();
+        this.qrCodeData = title + description + numberOfSpots + numberOfMaxEntrants + cost;
         saveEventToFirestore();
     }
 
@@ -453,8 +454,12 @@ public class EventModel extends AbstractModel {
      *
      * @return the QR code path as a string
      */
-    public Object getQrCode() {
+    public Bitmap getQrCode() {
         return qrCode;
+    }
+
+    public void setQrCode(Bitmap qrCode) {
+        this.qrCode = qrCode;
     }
 
     /**
@@ -494,6 +499,6 @@ public class EventModel extends AbstractModel {
      * Generates a QR code for the event (mock implementation).
      */
     private void generateQrCode() {
-        this.qrCode = QrCodeModel.generateForEvent(this);
+        this.qrCode = QrCodeModel.generateForEvent(this.qrCodeData);
     }
 }

@@ -237,21 +237,6 @@
         android:layout_margin="16dp"/>
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/generateQRCodeButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_margin="16dp"
-        android:backgroundTint="@color/lightSurfaceContainerHigh"
-        android:text="Generate QR Code"
-        app:icon="@drawable/ic_check_foreground"
-        app:iconSize="40dp"
-        app:layout_constraintBottom_toBottomOf="@+id/saveButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textFieldCost" />
-
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/saveButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

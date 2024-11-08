@@ -17,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.example.lotto649.Controllers.EventController;
 import com.example.lotto649.Models.EventModel;
+import com.example.lotto649.Models.QrCodeModel;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
@@ -46,7 +47,7 @@ public class EventFragment extends Fragment {
     private TextInputLayout titleInputLayout, descriptionInputLayout, lotteryStartDateFieldLayout, lotteryEndDateFieldLayout, spotsInputLayout, maxEntrantsInputLayout, costInputLayout;
     private TextInputEditText titleEditText, descriptionEditText, lotteryStartDateFieldText, lotteryEndDateFieldText, spotsEditText, maxEntrantsEditText, costEditText;
     private CheckBox geoCheck;
-    private ExtendedFloatingActionButton cancelButton, saveButton, generateQRCodeButton;
+    private ExtendedFloatingActionButton cancelButton, saveButton;
 
     public void showEventDetails(@NonNull EventModel event) {
         titleEditText.setText(event.getTitle());
@@ -92,7 +93,6 @@ public class EventFragment extends Fragment {
         costEditText = (TextInputEditText) costInputLayout.getEditText();
         cancelButton = view.findViewById(R.id.cancelButton);
         saveButton = view.findViewById(R.id.saveButton);
-        generateQRCodeButton = view.findViewById(R.id.generateQRCodeButton);
 
         // Set default image if needed
         eventPoster.setImageResource(R.drawable.ic_deafult_event_img_foreground);
@@ -179,20 +179,20 @@ public class EventFragment extends Fragment {
             eventController.updateEndDate(endDate.get());
             eventController.updateCost(cost);
             eventController.updateGeo(geo);
-            eventController.saveEventToFirestore();
-        });
 
-        generateQRCodeButton.setOnClickListener(v-> {
-            String data = titleEditText.getText().toString() + " " +
-                    descriptionEditText.getText().toString() + " " +
-                    spotsEditText.getText().toString() + " " +
-                    costEditText.getText().toString();
 
-            QrFragment qrFragment = QrFragment.newInstance(data);
+            String data = title + description + spotsStr + maxEntrantsStr + costStr;
+            Bitmap qrCodeBitmap = QrCodeModel.generateForEvent(data);
+
+            QrFragment qrFragment = QrFragment.newInstance(qrCodeBitMap);
             getParentFragmentManager().beginTransaction()
                     .replace(R.id.flFragment, qrFragment)
                     .addToBackStack(null)
                     .commit();
+
+            eventController.updateQrCode(qrCodeBitmap);
+            eventController.saveEventToFirestore();
+
         });
         return view;
     }
