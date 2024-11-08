@@ -5,6 +5,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,7 @@ import android.widget.Toast;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class EventFragment extends Fragment {
@@ -36,13 +38,18 @@ public class EventFragment extends Fragment {
     private TextInputEditText titleEditText, descriptionEditText, lotteryStartDateFieldText, lotteryEndDateFieldText, spotsEditText, maxEntrantsEditText, costEditText;
     private CheckBox geoCheck;
     private ExtendedFloatingActionButton cancelButton, saveButton;
+
+    private AtomicReference<Date> startDate = new AtomicReference<>(new Date());
+    private AtomicReference<Date> endDate = new AtomicReference<>(new Date());
     private boolean add;
 
     public void showEventDetails(@NonNull EventModel event) {
         titleEditText.setText(event.getTitle());
         descriptionEditText.setText(event.getDescription());
         lotteryStartDateFieldText.setText(String.valueOf(event.getStartDate()));
+        startDate.set(event.getStartDate());
         lotteryEndDateFieldText.setText(String.valueOf(event.getEndDate()));
+        endDate.set(event.getEndDate());
         spotsEditText.setText(String.valueOf(event.getNumberOfSpots()));
         maxEntrantsEditText.setText(String.valueOf(event.getNumberOfMaxEntrants()));
         costEditText.setText(String.valueOf(event.getCost()));
@@ -52,15 +59,20 @@ public class EventFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        this.event = new EventModel(context, FirebaseFirestore.getInstance());
+        Log.e("Ohm", "onAttach");
+        if (Objects.isNull(event)) {
+            this.event = new EventModel(context, FirebaseFirestore.getInstance());
+        }
     }
 
     public EventFragment() {
+        Log.e("Ohm", "Construct");
         add = true;
     }
 
     public EventFragment(EventModel event) {
-        add = true;
+        Log.e("Ohm", "Contruct Event");
+        add = false;
         this.event = event;
     }
 
@@ -97,9 +109,8 @@ public class EventFragment extends Fragment {
         saveButton = view.findViewById(R.id.saveButton);
 
         showEventDetails(event);
+        Log.e("Ohm", "TEST");
 
-        AtomicReference<Date> startDate = new AtomicReference<>(new Date());
-        AtomicReference<Date> endDate = new AtomicReference<>(new Date());
         lotteryStartDateFieldText.setOnClickListener(v -> {
             showDatePickerDialog(lotteryStartDateFieldText, startDate, startDate.get());
         });
@@ -118,6 +129,8 @@ public class EventFragment extends Fragment {
         cancelButton.setOnClickListener(v -> {
             if (!add) {
                 eventController.removeEventFromFirestore();
+            } else {
+                eventController.returnToEvents();
             }
         });
 
@@ -182,6 +195,8 @@ public class EventFragment extends Fragment {
 
             if (add) {
                 eventController.saveEventToFirestore();
+            } else {
+                eventController.returnToEvents();
             }
         });
 

@@ -58,4 +58,8 @@ public class EventController extends AbstractController {
         getModel().removeEventFromFirestore();
         MyApp.getInstance().replaceFragment(new HomeFragment());
     }
+
+    public void returnToEvents() {
+        MyApp.getInstance().replaceFragment(new HomeFragment());
+    }
 }
