@@ -28,6 +28,7 @@ import com.example.lotto649.Views.Fragments.BrowseEventsFragment;
 import com.example.lotto649.Views.Fragments.BrowseFacilitiesFragment;
 import com.example.lotto649.Views.Fragments.BrowseProfilesFragment;
 import com.example.lotto649.Views.Fragments.CameraFragment;
+//import com.example.lotto649.Views.Fragments.EventsFragment;
 import com.example.lotto649.Views.Fragments.EventFragment;
 import com.example.lotto649.Views.Fragments.FacilityFragment;
 import com.example.lotto649.Views.Fragments.HomeFragment;
@@ -69,6 +70,10 @@ public class MainActivity extends AppCompatActivity
         // Set the listener for navigation item selection
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
 
+        // Set the default selected item to "account"
+        bottomNavigationView.setSelectedItemId(R.id.account);
+        MyApp.getInstance().setCurrentActivity(this);
+        MyApp.getInstance().replaceFragment(accountFragment);
         checkUserAdminStatus(new FirestoreIsAdminCallback() {
             @Override
             public void onCallback(boolean isAdmin) {
@@ -107,7 +112,6 @@ public class MainActivity extends AppCompatActivity
     AdminAndUserFragment adminAndUserFragment = new AdminAndUserFragment();
     EventFragment eventFragment = new EventFragment();
 
-
     /**
      * Handles the selection of items from the BottomNavigationView.
      * Replaces the current fragment in the fragment container with the selected fragment.
@@ -122,33 +126,31 @@ public class MainActivity extends AppCompatActivity
         }
         // Handle navigation based on the selected item ID
         if (item.getItemId() == R.id.home) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, homeFragment)
-                    .commit();
+            MyApp.getInstance().replaceFragment(homeFragment);
             return true;
         } else if (item.getItemId() == R.id.camera) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, cameraFragment)
-                    .commit();
+            MyApp.getInstance().replaceFragment(cameraFragment);
             return true;
         } else if (item.getItemId() == R.id.account) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, accountFragment)
-                    .commit();
+            MyApp.getInstance().replaceFragment(accountFragment);
             return true;
         } else if (item.getItemId() == R.id.facility) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, facilityFragment)
-                    .commit();
+            MyApp.getInstance().replaceFragment(facilityFragment);
             return true;
-        } else if (item.getItemId() == R.id.event) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.flFragment, eventFragment)
-                    .commit();
+//        } else if (item.getItemId() == R.id.events) {
+//            MyApp.getInstance().replaceFragment(eventsFragment);
+//            return true;
+        } else if (item.getItemId() == R.id.browseEvents) {
+            MyApp.getInstance().replaceFragment(browseEventsFragment);
+
+            return true;
+        } else if (item.getItemId() == R.id.browseFacilities) {
+            MyApp.getInstance().replaceFragment(browseFacilitiesFragment);
+
+            return true;
+        } else if (item.getItemId() == R.id.browseProfiles) {
+            MyApp.getInstance().replaceFragment(browseProfilesFragment);
+
             return true;
         } else if (item.getItemId() == R.id.browseEvents) {
             getSupportFragmentManager()

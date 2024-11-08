@@ -2,6 +2,9 @@ package com.example.lotto649.Controllers;
 
 import com.example.lotto649.AbstractClasses.AbstractController;
 import com.example.lotto649.Models.EventModel;
+import com.example.lotto649.MyApp;
+import com.example.lotto649.Views.Fragments.HomeFragment;
+//import com.example.lotto649.Views.Fragments.EventsFragment;
 
 import java.util.Date;
 
@@ -28,9 +31,7 @@ public class EventController extends AbstractController {
         getModel().setNumberOfSpots(spots);
     }
 
-    public void updateNumberOfMaxEntrants(int maxEntrants) {
-        getModel().setNumberOfMaxEntrants(maxEntrants);
-    }
+    public void updateNumberOfMaxEntrants(int maxEntrants) { getModel().setNumberOfMaxEntrants(maxEntrants); }
 
     public void updateStartDate(Date startDate) {
         getModel().setStartDate(startDate);
@@ -48,11 +49,21 @@ public class EventController extends AbstractController {
         getModel().setGeo(geo);
     }
 
+    public void updatePoster(String posterUri) {
+        getModel().setPosterImage(posterUri);
+    }
+
     public void saveEventToFirestore() {
         getModel().saveEventToFirestore();
+        MyApp.getInstance().replaceFragment(new HomeFragment());
     }
 
     public void removeEventFromFirestore() {
         getModel().removeEventFromFirestore();
+        MyApp.getInstance().replaceFragment(new HomeFragment());
+    }
+
+    public void returnToEvents() {
+        MyApp.getInstance().replaceFragment(new HomeFragment());
     }
 }
