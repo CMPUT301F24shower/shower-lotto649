@@ -17,22 +17,53 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Model class for managing a collection of events.
+ * Interacts with Firebase Firestore to fetch and manage event data.
+ */
 public class EventsModel extends AbstractModel {
     private ArrayList<EventModel> myEvents;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+    /**
+     * Callback interface for fetching event documents.
+     */
     public interface EventFetchCallback {
+
+        /**
+         * Called when events are fetched from Firestore.
+         *
+         * @param events List of DocumentSnapshot objects representing events.
+         */
         void onCallback(List<DocumentSnapshot> events);
     }
 
+    /**
+     * Callback interface for retrieving the current user's events.
+     */
     public interface MyEventsCallback {
+
+        /**
+         * Called when the user's events have been fetched.
+         *
+         * @param events ArrayList of EventModel instances representing the user's events.
+         */
         void onEventsFetched(ArrayList<EventModel> events);
     }
 
+    /**
+     * Constructs an EventsModel with an empty list of events.
+     */
     public EventsModel() {
         myEvents = new ArrayList<>();
     }
 
+    /**
+     * Fetches events associated with the current organizer (by organizer ID) from Firestore.
+     *
+     * @param callback Callback to handle the fetched events.
+     * @param db       FirebaseFirestore instance for database operations.
+     */
     public static void fetchEventsByOrganizerId(EventFetchCallback callback, FirebaseFirestore db) {
         String organizerId = MyApp.getInstance().getUserModel().getDeviceId();
 
@@ -50,26 +81,16 @@ public class EventsModel extends AbstractModel {
                 });
     }
 
+    /**
+     * Retrieves the events for the current user (organizer) and updates the myEvents list.
+     *
+     * @param callback Callback to handle the user's events once fetched.
+     */
     public void getMyEvents(MyEventsCallback callback) {
         EventsModel.fetchEventsByOrganizerId(new EventsModel.EventFetchCallback() {
             @Override
             public void onCallback(List<DocumentSnapshot> documents) {
                 for (DocumentSnapshot document : documents) {
-                    /*
-                    String title = document.getString("title");
-                    String facilityId = document.getString("facilityId");
-                    String organizerId = document.getString("organizerId");
-                    double cost = document.getDouble("cost") != null ? document.getDouble("cost") : 0.0;
-                    String description = document.getString("description");
-                    int numberOfSpots = document.getLong("numberOfSpots") != null ? document.getLong("numberOfSpots").intValue() : 0;
-                    int numberOfMaxEntrants = document.getLong("numberOfMaxEntrants") != null ? document.getLong("numberOfMaxEntrants").intValue() : 0;
-                    Date startDate = document.getDate("startDate");
-                    Date endDate = document.getDate("endDate");
-                    Object qrCode = document.get("qrCode");
-                    String posterImage = document.getString("posterImage");
-                    boolean geo = Boolean.TRUE.equals(document.get("geo"));
-                    ArrayList<UserModel> waitingList = (ArrayList<UserModel>) document.get("waitingList");
-                    */
                     EventModel event = document.toObject(EventModel.class);
                     event.setEventId(document.getId());
                     event.setDb(db);
