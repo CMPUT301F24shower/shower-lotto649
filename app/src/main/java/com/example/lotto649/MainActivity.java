@@ -29,7 +29,6 @@ import com.example.lotto649.Views.Fragments.BrowseFacilitiesFragment;
 import com.example.lotto649.Views.Fragments.BrowseProfilesFragment;
 import com.example.lotto649.Views.Fragments.CameraFragment;
 //import com.example.lotto649.Views.Fragments.EventsFragment;
-import com.example.lotto649.Views.Fragments.EventFragment;
 import com.example.lotto649.Views.Fragments.FacilityFragment;
 import com.example.lotto649.Views.Fragments.HomeFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -106,11 +105,12 @@ public class MainActivity extends AppCompatActivity
     CameraFragment cameraFragment = new CameraFragment();
     AccountFragment accountFragment = new AccountFragment();
     FacilityFragment facilityFragment = new FacilityFragment();
+//    EventsFragment eventsFragment = new EventsFragment();
+
     BrowseEventsFragment browseEventsFragment = new BrowseEventsFragment();
     BrowseProfilesFragment browseProfilesFragment = new BrowseProfilesFragment();
     BrowseFacilitiesFragment browseFacilitiesFragment = new BrowseFacilitiesFragment();
     AdminAndUserFragment adminAndUserFragment = new AdminAndUserFragment();
-    EventFragment eventFragment = new EventFragment();
 
     /**
      * Handles the selection of items from the BottomNavigationView.
@@ -152,6 +152,19 @@ public class MainActivity extends AppCompatActivity
             MyApp.getInstance().replaceFragment(browseProfilesFragment);
 
             return true;
+        } else if (item.getItemId() == R.id.browseProfiles) {
+            MyApp.getInstance().replaceFragment(browseProfilesFragment);
+
+            return true;
+        } else if (item.getItemId() == R.id.admin) {
+            MyApp.getInstance().replaceFragment(adminAndUserFragment);
+
+            return true;
+//        } else if (item.getItemId() == R.id.event) {
+//            getSupportFragmentManager().beginTransaction()
+//                    .replace(R.id.flFragment, eventFragment)
+//                    .commit();
+//            return true;
         } else if (item.getItemId() == R.id.browseEvents) {
             getSupportFragmentManager()
                     .beginTransaction()

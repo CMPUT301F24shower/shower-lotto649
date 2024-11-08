@@ -7,6 +7,7 @@ import static com.example.lotto649.FirebaseStorageHelper.uploadPosterImageToFire
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -22,6 +23,7 @@ import com.bumptech.glide.Glide;
 import com.example.lotto649.Controllers.EventController;
 import com.example.lotto649.FirebaseStorageHelper;
 import com.example.lotto649.Models.EventModel;
+import com.example.lotto649.Models.QrCodeModel;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
@@ -278,11 +280,23 @@ public class EventFragment extends Fragment {
             String fileName = event.getEventId() + ".jpg";
             uploadPosterImageToFirebaseStorage(currentImageUri, fileName);
 
+            String data = title + description + spotsStr + maxEntrantsStr + costStr;
+            Bitmap qrCodeBitmap = QrCodeModel.generateForEvent(data);
+            String qrCodeHash = QrCodeModel.generateHash(data);
+
+            eventController.updateQrCode(qrCodeHash);
+
             if (add) {
                 eventController.saveEventToFirestore();
             } else {
                 eventController.returnToEvents();
             }
+
+            QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.flFragment, qrFragment)
+                    .addToBackStack(null)
+                    .commit();
         });
 
         return view;
