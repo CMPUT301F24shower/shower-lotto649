@@ -31,6 +31,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
@@ -184,7 +185,7 @@ public class EventFragment extends Fragment {
             String data = title + description + spotsStr + maxEntrantsStr + costStr;
             Bitmap qrCodeBitmap = QrCodeModel.generateForEvent(data);
 
-            QrFragment qrFragment = QrFragment.newInstance(qrCodeBitMap);
+            QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
             getParentFragmentManager().beginTransaction()
                     .replace(R.id.flFragment, qrFragment)
                     .addToBackStack(null)

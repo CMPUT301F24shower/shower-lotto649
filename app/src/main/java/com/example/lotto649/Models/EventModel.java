@@ -8,6 +8,7 @@ import com.example.lotto649.MyApp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -150,6 +151,10 @@ public class EventModel extends AbstractModel {
     public void saveEventToFirestore() {
         if (savedToFirestore) return;
 
+        ByteArrayOutputStream byteout = new ByteArrayOutputStream();
+        qrCode.compress(Bitmap.CompressFormat.PNG, 100, byteout);
+        byte[] qrCodeHashed = byteout.toByteArray();
+
         db.collection("events")
                 .add(new HashMap<String, Object>() {{
                     put("title", title);
@@ -161,7 +166,7 @@ public class EventModel extends AbstractModel {
                     put("numberOfMaxEntrants", numberOfMaxEntrants);
                     put("startDate", startDate);
                     put("endDate", endDate);
-                    put("qrCode", qrCode);
+                    put("qrCode", qrCodeHashed);
                     put("posterImage", posterImage);
                     put("geo",geo);
                     put("waitingList", serializeWaitingList());
