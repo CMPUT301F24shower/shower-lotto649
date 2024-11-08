@@ -12,7 +12,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.lang.ref.WeakReference;
 
 public class MyApp extends Application {
-    private UserModel userModel;
+    private UserModel user;
     private static MyApp instance;
     private WeakReference<FragmentActivity> currentActivity;
 
@@ -26,11 +26,19 @@ public class MyApp extends Application {
         super.onCreate();
         instance = this;
         // Use getApplicationContext() instead of getContext()
-        userModel = new UserModel(getApplicationContext(), FirebaseFirestore.getInstance());
+        user = new UserModel(getApplicationContext(), FirebaseFirestore.getInstance());
     }
 
     public UserModel getUserModel() {
-        return userModel;
+        return user;
+    }
+
+    public static void setInstance(MyApp instance) {
+        MyApp.instance = instance;
+    }
+
+    public void setUserModel(UserModel user) {
+        this.user = user;
     }
 
     // Method to set the current activity
