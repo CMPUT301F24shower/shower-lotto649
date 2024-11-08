@@ -18,7 +18,7 @@ import java.util.List;
 
 public class EventsModel extends AbstractModel {
     private ArrayList<EventModel> myEvents;
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final FirebaseFirestore db;
 
     public interface EventFetchCallback {
         void onCallback(List<DocumentSnapshot> events);
@@ -30,6 +30,12 @@ public class EventsModel extends AbstractModel {
 
     public EventsModel() {
         myEvents = new ArrayList<>();
+        this.db = FirebaseFirestore.getInstance();
+    }
+
+    public EventsModel(FirebaseFirestore db) {
+        myEvents = new ArrayList<>();
+        this.db = db;
     }
 
     public static void fetchEventsByOrganizerId(EventFetchCallback callback, FirebaseFirestore db) {
