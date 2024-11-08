@@ -27,7 +27,7 @@ public class EventModel extends AbstractModel {
     private int numberOfMaxEntrants;
     private Date startDate;
     private Date endDate;
-    private Object posterImage; // Placeholder for image class
+    private String posterImage; // Placeholder for image class
     private boolean geo;
     private Object qrCode;
 
@@ -62,7 +62,7 @@ public class EventModel extends AbstractModel {
         this.numberOfMaxEntrants = -1;
         this.startDate = new Date();
         this.endDate =  new Date();
-        this.posterImage = null;
+        this.posterImage = "";
         this.geo = false;
     }
 
@@ -106,7 +106,7 @@ public class EventModel extends AbstractModel {
         this.numberOfMaxEntrants = -1;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.posterImage = null;
+        this.posterImage = "";
         this.geo = geo;
         this.db = db;
         generateQrCode();
@@ -135,7 +135,7 @@ public class EventModel extends AbstractModel {
         this.numberOfMaxEntrants = numberOfMaxEntrants;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.posterImage = null;
+        this.posterImage = "";
         this.geo = geo;
         this.db = db;
         generateQrCode();
@@ -411,9 +411,9 @@ public class EventModel extends AbstractModel {
     /**
      * Retrieves the poster image associated with the event.
      *
-     * @return the poster image as an object
+     * @return the poster image
      */
-    public Object getPosterImage() {
+    public String getPosterImage() {
         return posterImage;
     }
 
@@ -422,7 +422,7 @@ public class EventModel extends AbstractModel {
      *
      * @param posterImage the new poster image
      */
-    public void setPosterImage(Object posterImage) {
+    public void setPosterImage(String posterImage) {
         this.posterImage = posterImage;
         updateFirestore("posterImage", posterImage);
         notifyViews();

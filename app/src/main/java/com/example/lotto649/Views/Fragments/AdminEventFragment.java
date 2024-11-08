@@ -1,15 +1,20 @@
 package com.example.lotto649.Views.Fragments;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
+import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -17,14 +22,21 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class AdminEventFragment extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
     private String firestoreEventId;
+    private ImageView posterImage;
+    private Uri posterUri;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -65,6 +77,7 @@ public class AdminEventFragment extends Fragment {
         TextView dates = view.findViewById(R.id.admin_event_dates);
         TextView geoLocation = view.findViewById(R.id.admin_event_geo);
         TextView description = view.findViewById(R.id.admin_event_description);
+        posterImage = view.findViewById(R.id.admin_event_poster);
         Button deleteImageButton = view.findViewById(R.id.admin_delete_event_image);
         Button deleteQRButton = view.findViewById(R.id.admin_delete_event_qr);
         Button deleteEventButton = view.findViewById(R.id.admin_delete_event);
@@ -85,11 +98,12 @@ public class AdminEventFragment extends Fragment {
                                 spotsAvailText = Integer.toString(maxNum - ((List<String>) doc.get("waitingList")).size()) + " Spots Available";
                             }
                             String numAttendeesText = Integer.toString(((Long) doc.get("numberOfSpots")).intValue()) + " Attendees";
+                            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
                             Date startDate = doc.getDate("startDate");
                             Date endDate = doc.getDate("endDate");
-                            String datesText = "Enter between " + startDate.toString() + " - " + endDate.toString();
+                            String datesText = "Enter between " + df.format(startDate) + " - " + df.format(endDate);
                             Boolean isGeo = doc.getBoolean("geo");
-                            String geoLocationText = isGeo ? "" : "Requires GeoLocation Tracking";
+                            String geoLocationText = isGeo ? "Requires GeoLocation Tracking" : "";
                             String descriptionText = doc.getString("description");
                             name.setText(nameText);
                             // TODO: set to actual event status
@@ -99,8 +113,29 @@ public class AdminEventFragment extends Fragment {
                             spotsAvail.setText(spotsAvailText);
                             numAttendees.setText(numAttendeesText);
                             dates.setText(datesText);
-                            geoLocation.setText(geoLocationText);
+                            if (isGeo) {
+                                geoLocation.setVisibility(View.VISIBLE);
+                                geoLocation.setText(geoLocationText);
+                            } else {
+                                geoLocation.setVisibility(View.GONE);
+                            }
                             description.setText(descriptionText);
+
+                        //     poster
+                            String posterUriString = doc.getString("posterImage");
+                            if (!Objects.equals(posterUriString, "")) {
+                                posterUri = Uri.parse(posterUriString);
+                                StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(posterUriString);
+                                imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                                    posterUri = uri;
+                                    Glide.with(getContext())
+                                            .load(uri)
+                                            .into(posterImage);
+                                    posterImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                                });
+                            } else {
+                                posterUri = null;
+                            }
                         }
                     }
                 });
@@ -122,6 +157,32 @@ public class AdminEventFragment extends Fragment {
                                 //     add success log
                             }
                         });
+            }
+        });
+
+        deleteImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (posterUri != null) {
+                    StorageReference storageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(posterUri.toString());
+                    storageRef.delete()
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+                                    eventsRef
+                                            .document(firestoreEventId)
+                                            .update("posterImage", "")
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    //     add success log
+                                                }
+                                            });
+                                    posterUri = null;
+                                    posterImage.setImageResource(R.drawable.ic_person_foreground);
+                                }
+                            });
+                }
             }
         });
 
