@@ -471,7 +471,7 @@ public class EventModel extends AbstractModel implements Serializable {
      */
     public void setPosterImage(String posterImage) {
         this.posterImage = posterImage;
-        updateFirestore("posterImage", posterImage);
+        // updateFirestore("posterImage", posterImage);
         notifyViews();
     }
 

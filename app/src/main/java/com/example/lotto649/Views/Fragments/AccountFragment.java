@@ -23,6 +23,7 @@ package com.example.lotto649.Views.Fragments;
 
 import static android.app.Activity.RESULT_OK;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.RippleDrawable;
 import android.net.Uri;
@@ -83,12 +84,23 @@ public class AccountFragment extends Fragment {
     private boolean hasSetImage;
     ImageView profileImage;
     Uri currentImageUri;
+    private Context mContext;
 
     /**
      * Required empty public constructor for AccountFragment.
      */
     public AccountFragment() {
         // Required empty public constructor
+    }
+
+    /**
+     * Attaches the fragment to the app, and sets the context
+     * @param context the given context
+     */
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mContext = context;
     }
 
     /**
@@ -156,7 +168,7 @@ public class AccountFragment extends Fragment {
 
         // Initialize Firestore and UserModel
         db = FirebaseFirestore.getInstance();
-        user = new UserModel(getContext(), FirebaseFirestore.getInstance());
+        user = new UserModel(mContext, FirebaseFirestore.getInstance());
 
         // Check if the user exists in Firestore, or create a new user
         checkUserInFirestore(new FirestoreUserCallback() {
@@ -181,7 +193,7 @@ public class AccountFragment extends Fragment {
                     StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(profileImageUri);
                     imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                         currentImageUri = uri;
-                        Glide.with(getContext())
+                        Glide.with(mContext)
                                 .load(uri)
                                 .into(profileImage);
                         linearLayout.removeView(imagePlaceholder);

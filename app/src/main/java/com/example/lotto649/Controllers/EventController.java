@@ -49,6 +49,10 @@ public class EventController extends AbstractController {
         getModel().setGeo(geo);
     }
 
+    public void updatePoster(String posterUri) {
+        getModel().setPosterImage(posterUri);
+    }
+
     public void saveEventToFirestore() {
         getModel().saveEventToFirestore();
         MyApp.getInstance().replaceFragment(new HomeFragment());

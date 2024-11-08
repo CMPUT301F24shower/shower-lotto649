@@ -45,5 +45,35 @@ public class FirebaseStorageHelper {
             });
         });
     }
+
+
+
+    /**
+     * Uploads a poster image to Firebase Storage.
+     *
+     * <p>This method uploads an image file to Firebase Storage, stores it in the "posterImages"
+     * directory with the specified file name, and updates the Firestore "events" collection with
+     * the URL of the uploaded image. The Firestore document is identified by removing the ".jpg"
+     * extension from the provided file name.</p>
+     *
+     * @param imageUri   The Uri of the image to upload.
+     * @param fileName   The name to use for the image file in Firebase Storage (e.g., "user123.jpg").
+     */
+    public static void uploadPosterImageToFirebaseStorage(Uri imageUri, String fileName) {
+        if (imageUri == null) {
+            return;
+        }
+
+        FirebaseStorage storage = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app");
+        StorageReference storageRef = storage.getReference().child("posterImages/" + fileName);
+        UploadTask uploadTask = storageRef.putFile(imageUri);
+        uploadTask.addOnSuccessListener(taskSnapshot -> {
+            storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                String imageUrlString = uri.toString();
+                FirebaseFirestore.getInstance().collection("events").document(fileName.replace(".jpg", ""))
+                        .update("posterImage", imageUrlString);
+            });
+        });
+    }
 }
 
