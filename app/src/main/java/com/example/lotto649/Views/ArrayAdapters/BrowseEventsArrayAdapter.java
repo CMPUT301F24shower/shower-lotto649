@@ -1,3 +1,8 @@
+/**
+ * This is an array adapter for the admin view
+ * for browsing events. It maps an ArrayList of EventModels
+ * to a ListView to display the needed information
+ */
 package com.example.lotto649.Views.ArrayAdapters;
 
 import android.content.Context;
@@ -24,12 +29,29 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Objects;
 
+/**
+ * This is an array adapter for the admin view
+ * for browsing events. It maps an ArrayList of EventModels
+ * to a ListView to display the needed information
+ */
 public class BrowseEventsArrayAdapter extends ArrayAdapter<EventModel> {
     private Uri posterUri;
+
+    /**
+     * Constructor for the array adapter
+     * @param context the context of the adapter
+     * @param events the user models to be adapted
+     */
     public BrowseEventsArrayAdapter(Context context, ArrayList<EventModel> events) {
         super(context, 0, events);
     }
 
+    /**
+     * Gets the list view item and displays information
+     * @param position the position in the ListView that the adapter is for
+     * @param convertView gives the ability to reuse an old view
+     * @param parent the parent of the adapter
+     */
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {

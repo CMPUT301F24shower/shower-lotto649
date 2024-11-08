@@ -1,3 +1,8 @@
+/**
+ * A fragment to display a given profile's information.
+ * This is used by an admin user to manage a profile.
+ * This fragment is reached through a list of profiles in the admin view.
+ */
 package com.example.lotto649.Views.Fragments;
 
 import android.net.Uri;
@@ -32,6 +37,11 @@ import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 import java.util.Objects;
 
+/**
+ * A fragment to display a given profile's information.
+ * This is used by an admin user to manage a profile.
+ * This fragment is reached through a list of profiles in the admin view.
+ */
 public class AdminProfileFragment extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference usersRef;

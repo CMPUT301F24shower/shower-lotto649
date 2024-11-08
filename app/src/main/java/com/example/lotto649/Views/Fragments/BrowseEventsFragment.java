@@ -36,6 +36,17 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.Date;
 
+/**
+ * BrowseEventsFragment class represents a fragment for the admin to browse all events in the application.
+ * <p>
+ * This fragment shows a list view of every event, selecting the event will show its full details and allow for it to be deleted.
+ * This page is only accessible to users with 'admin' status
+ * </p>
+ * <p>
+ * Code for the bottom navigation bar was adapted from:
+ * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
+ * </p>
+ */
 public class BrowseEventsFragment extends Fragment {
     private ArrayList<String> eventIdList;
     private ArrayList<EventModel> dataList;

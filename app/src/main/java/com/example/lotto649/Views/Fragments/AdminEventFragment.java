@@ -1,3 +1,8 @@
+/**
+ * A fragment to display a given event's information.
+ * This is used by an admin user to manage an event.
+ * This fragment is reached through a list of events in the admin view.
+ */
 package com.example.lotto649.Views.Fragments;
 
 import android.net.Uri;
@@ -31,6 +36,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * A fragment to display a given event's information.
+ * This is used by an admin user to manage an event.
+ * This fragment is reached through a list of events in the admin view.
+ */
 public class AdminEventFragment extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference eventsRef;

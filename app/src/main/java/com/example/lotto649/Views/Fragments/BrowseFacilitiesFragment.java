@@ -38,6 +38,17 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
+/**
+ * BrowseFacilitiesFragment class represents a fragment for the admin to browse all facilities in the application.
+ * <p>
+ * This fragment shows a list view of every facility, selecting the event will show its full details and allow for it to be deleted.
+ * This page is only accessible to users with 'admin' status
+ * </p>
+ * <p>
+ * Code for the bottom navigation bar was adapted from:
+ * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
+ * </p>
+ */
 public class BrowseFacilitiesFragment extends Fragment {
     private ArrayList<FacilityModel> dataList;
     private ListView browseFacilityList;
@@ -74,22 +85,6 @@ public class BrowseFacilitiesFragment extends Fragment {
 
         // fill dataList from Firestore
         dataList = new ArrayList<FacilityModel>();
-        // db.collection("facilities")
-        //         .get()
-        //         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-        //             @Override
-        //             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-        //                 if (task.isSuccessful()) {
-        //                     for (QueryDocumentSnapshot doc : task.getResult()) {
-        //                         String deviceIdText = doc.getId();
-        //                         String nameText = doc.getString("facility");
-        //                         String addressText = doc.getString("address");
-        //                         dataList.add(new FacilityModel(deviceIdText, nameText, addressText));
-        //                     }
-        //                     facilitiesAdapter.notifyDataSetChanged();
-        //                 }
-        //             }
-        //         });
 
         browseFacilityList = view.findViewById(R.id.browse_facilities_list);
         facilitiesAdapter = new BrowseFacilitiesArrayAdapter(view.getContext(), dataList);

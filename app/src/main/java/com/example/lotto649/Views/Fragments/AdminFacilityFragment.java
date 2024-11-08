@@ -1,3 +1,8 @@
+/**
+ * A fragment to display a given facility's information.
+ * This is used by an admin user to manage a facility.
+ * This fragment is reached through a list of facilities in the admin view.
+ */
 package com.example.lotto649.Views.Fragments;
 
 import android.os.Bundle;
@@ -19,6 +24,11 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+/**
+ * A fragment to display a given facility's information.
+ * This is used by an admin user to manage a facility.
+ * This fragment is reached through a list of facilities in the admin view.
+ */
 public class AdminFacilityFragment extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference facilitiesRef;

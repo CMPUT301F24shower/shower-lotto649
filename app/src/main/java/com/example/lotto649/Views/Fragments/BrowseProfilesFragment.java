@@ -40,6 +40,21 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
+/**
+ * BrowseProfilesFragment class represents a fragment for the admin to browse all profiles in the application.
+ * <p>
+ * This fragment shows a list view of every profile, selecting the event will show its full details and allow for it to be deleted.
+ * This page is only accessible to users with 'admin' status
+ * </p>
+ * <p>
+ * Code for the bottom navigation bar was adapted from:
+ * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
+ * </p>
+ * <p>
+ * Code for creating context from:
+ * https://stackoverflow.com/questions/47987649/why-getcontext-in-fragment-sometimes-returns-null
+ * </p>
+ */
 public class BrowseProfilesFragment extends Fragment {
     private ArrayList<String> deviceIdList;
     private ArrayList<UserModel> dataList;
@@ -47,7 +62,6 @@ public class BrowseProfilesFragment extends Fragment {
     private BrowseProfilesArrayAdapter profilesAdapter;
     private FirebaseFirestore db;
     private CollectionReference userRef;
-    // https://stackoverflow.com/questions/47987649/why-getcontext-in-fragment-sometimes-returns-null
     private Context mContext;
 
     /**
@@ -60,7 +74,10 @@ public class BrowseProfilesFragment extends Fragment {
         // Required empty public constructor
     }
 
-    // Initialise it from onAttach()
+    /**
+     * Attaches the fragment to the app, and sets the context
+     * @param context the given context
+     */
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -87,23 +104,6 @@ public class BrowseProfilesFragment extends Fragment {
         // fill dataList from Firestore
         dataList = new ArrayList<UserModel>();
         deviceIdList = new ArrayList<String>();
-        // db.collection("users")
-        //         .get()
-        //         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-        //             @Override
-        //             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-        //                 if (task.isSuccessful()) {
-        //                     for (QueryDocumentSnapshot doc : task.getResult()) {
-        //                         String deviceIdText = doc.getId();
-        //                         String nameText = doc.getString("name");
-        //                         String emailText = doc.getString("email");
-        //                         String phoneText = doc.getString("phone");
-        //                         dataList.add(new UserModel(getContext(), nameText, emailText, phoneText, null));
-        //                         deviceIdList.add(deviceIdText);
-        //                     }
-        //                 }
-        //             }
-        //         });
 
         browseProfilesList = view.findViewById(R.id.browse_profiles_list);
         profilesAdapter = new BrowseProfilesArrayAdapter(view.getContext(), dataList);

@@ -1,3 +1,8 @@
+/**
+ * This is an array adapter for the admin view
+ * for browsing user profiles. It maps an ArrayList of UserModels
+ * to a ListView to display the needed information
+ */
 package com.example.lotto649.Views.ArrayAdapters;
 
 import android.content.Context;
@@ -24,13 +29,29 @@ import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 import java.util.Objects;
 
+/**
+ * This is an array adapter for the admin view
+ * for browsing user profiles. It maps an ArrayList of UserModels
+ * to a ListView to display the needed information
+ */
 public class BrowseProfilesArrayAdapter extends ArrayAdapter<UserModel> {
     private Uri profileUri;
 
+    /**
+     * Constructor for the array adapter
+     * @param context the context of the adapter
+     * @param users the user models to be adapted
+     */
     public BrowseProfilesArrayAdapter(Context context, ArrayList<UserModel> users) {
         super(context, 0, users);
     }
 
+    /**
+     * Gets the list view item and displays information
+     * @param position the position in the ListView that the adapter is for
+     * @param convertView gives the ability to reuse an old view
+     * @param parent the parent of the adapter
+     */
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
