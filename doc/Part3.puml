@@ -46,9 +46,7 @@ interface FirestoreIsAdminCallback {
     + onCallback(isAdmin: boolean): void
 }
 class QrCodeModel extends AbstractModel {
-    - static Bitmap bitmap
-    + static Bitmap generateForEvent(data: String): Bitmap
-    + static String generateHash(input: String): String
+    + static generateForEvent(event: EventModel): Object
 }
 
 class UserModel extends AbstractModel {
@@ -266,29 +264,35 @@ class FacilityFragment {
     - addressWatcher: TextWatcher
 }
 class BrowseEventsFragment {
-    + BrowseEventsFragment() : Public empty constructor for fragment instantiation
-    + View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) : Creates and inflates fragment view
-    --
-    "Represents a fragment for browsing events functionality."
-    "Inflates layout defined in fragment_browse_events.xml"
-    "Part of bottom navigation bar implementation"
+  - ArrayList<String> eventIdList
+  - ArrayList<EventModel> dataList
+  - ListView browseEventsList
+  - BrowseEventsArrayAdapter eventsAdapter
+  - FirebaseFirestore db
+  - CollectionReference eventsRef
+  + BrowseEventsFragment()
+  + onCreateView(LayoutInflater, ViewGroup, Bundle): View
 }
 class BrowseProfilesFragment {
-    + BrowseProfilesFragment() : Public empty constructor for fragment instantiation
-    + View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) : Creates and inflates fragment view
-    --
-    "Represents a fragment for browsing profiles functionality."
-    "Inflates layout defined in fragment_browse_profiles.xml"
-    "Part of bottom navigation bar implementation"
+  - ArrayList<String> deviceIdList
+  - ArrayList<UserModel> dataList
+  - ListView browseProfilesList
+  - BrowseProfilesArrayAdapter profilesAdapter
+  - FirebaseFirestore db
+  - CollectionReference userRef
+  - Context mContext
+  + BrowseProfilesFragment()
+  + onAttach(Context): void
+  + onCreateView(LayoutInflater, ViewGroup, Bundle): View
 }
 class BrowseFacilitiesFragment {
-    + BrowseFacilitiesFragment() : Public empty constructor for fragment instantiation
-    + View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) : Creates and inflates fragment view
-    --
-    "Represents a fragment for browsing facilities functionality."
-    "Inflates layout defined in fragment_browse_facilities.xml"
-    "Part of bottom navigation bar implementation"
-    "Code for bottom navigation bar adapted from GeeksforGeeks"
+  - ArrayList<FacilityModel> dataList
+  - ListView browseFacilityList
+  - BrowseFacilitiesArrayAdapter facilitiesAdapter
+  - FirebaseFirestore db
+  - CollectionReference facilitiesRef
+  + BrowseFacilitiesFragment()
+  + onCreateView(LayoutInflater, ViewGroup, Bundle): View
 }
 class AdminAndUserFragment {
     + AdminAndUserFragment() : Public empty constructor for fragment instantiation
@@ -444,12 +448,8 @@ EventsController --> "1" MyApp : Accesses for fragment replacements
 EventsController --> "1" EventFragment : Navigates to the event fragment for adding or editing events
 EventView --> EventFragment : uses
 EventView --> EventModel : observes
-EventView --> AbstractView : extends
-EventView --> AbstractModel : updates
 AccountView --> AccountFragment : uses
 AccountView --> UserModel : observes
-AccountView --> AbstractView : extends
-AccountView --> AbstractModel : updates
 FacilityView --> FacilityFragment : uses
 FacilityView --> FacilityModel : observes
 
@@ -518,10 +518,26 @@ BrowseProfilesArrayAdapter --> UserModel : Displays data from
 EventsModel --> "1" EventFetchCallback : Uses
 EventsModel --> "1" MyEventsCallback : Uses
 MyEventsCallback --> "1" EventModel : Returns
+BrowseEventsFragment -down-> BrowseEventsArrayAdapter : uses
+BrowseEventsFragment -down-> AdminEventFragment : creates
+BrowseEventsArrayAdapter -down-> EventModel : displays
+BrowseFacilitiesFragment -down-> BrowseFacilitiesArrayAdapter : uses
+BrowseFacilitiesFragment -down-> AdminFacilityFragment : creates
+BrowseFacilitiesArrayAdapter -down-> FacilityModel : displays
 
+BrowseProfilesFragment -down-> BrowseProfilesArrayAdapter : uses
+BrowseProfilesFragment -down-> AdminProfileFragment : creates
+BrowseProfilesArrayAdapter -down-> UserModel : displays
+
+note right of MainActivity
+  Initializes the app and manages the menu bar that inflates fragments for every screen
+  This also manages what options are in the menu bar based on the users status
+end note
+note right of UserModel
+    User is stored to firebase based on deviceId
+end note
 note right of FacilityModel
-  This class manages the event UI.
-  It allows users to create, edit, and
-  view event details.
+    Facility is stored to firebase based on deviceId
+    This provides link between Facility and User
 end note
 @enduml
