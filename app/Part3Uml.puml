@@ -1,0 +1,527 @@
+@startuml
+title MainActivity Class Diagram
+
+class MainActivity {
+    - BottomNavigationView bottomNavigationView
+    - HomeFragment homeFragment
+    - CameraFragment cameraFragment
+    - AccountFragment accountFragment
+    - FacilityFragment facilityFragment
+    - BrowseEventsFragment browseEventsFragment
+    - BrowseProfilesFragment browseProfilesFragment
+    - BrowseFacilitiesFragment browseFacilitiesFragment
+    - AdminAndUserFragment adminAndUserFragment
+
+    + onCreate(Bundle savedInstanceState)
+    + onNavigationItemSelected(MenuItem item) : boolean
+    - checkUserAdminStatus(FirestoreIsAdminCallback firestoreIsAdminCallback)
+    - checkUserEntrantStatus(FirestoreIsAdminCallback firestoreIsAdminCallback)
+}
+class MyApp {
+    - userModel: UserModel
+    - instance: MyApp
+    - currentActivity: WeakReference<FragmentActivity>
+    + getInstance(): MyApp
+    + onCreate(): void
+    + getUserModel(): UserModel
+    + setCurrentActivity(activity: FragmentActivity): void
+    + replaceFragment(fragment: Fragment): void
+}
+
+MyApp --> UserModel : holds
+MainActivity ..> FirestoreIsAdminCallback : uses
+MainActivity --> HomeFragment : contains
+MainActivity --> CameraFragment : contains
+MainActivity --> AccountFragment : contains
+MainActivity --> FacilityFragment : contains
+MainActivity --> BrowseEventsFragment : contains
+MainActivity --> BrowseProfilesFragment : contains
+MainActivity --> BrowseFacilitiesFragment : contains
+MainActivity --> AdminAndUserFragment : contains
+
+interface FirestoreUserCallback {
+    + onCallback(name: String, email: String, phone: String): void
+}
+interface FirestoreIsAdminCallback {
+    + onCallback(isAdmin: boolean): void
+}
+class QrCodeModel extends AbstractModel {
+    - static Bitmap bitmap
+    + static Bitmap generateForEvent(data: String): Bitmap
+    + static String generateHash(input: String): String
+}
+
+class UserModel extends AbstractModel {
+    - String name
+    - String email
+    - String phone
+    - boolean entrant
+    - boolean organizer
+    - boolean admin
+    - String deviceId
+    - FirebaseFirestore db
+    - boolean savedToFirestore
+    + UserModel()
+    + UserModel(Context context, FirebaseFirestore db)
+    + UserModel(Context context, String name, String email, String phone, FirebaseFirestore db)
+    + UserModel(Context context, String name, String email)
+    + void saveUserToFirestore(String name, String email, String phone)
+    + void updateFirestore(String field, Object value)
+    + String getName()
+    + void setName(String name)
+    + String getEmail()
+    + void setEmail(String email)
+    + String getPhone()
+    + void setPhone(String phone)
+    + void setEntrant(Boolean bool)
+    + Boolean getEntrant()
+    + void setOrganizer(Boolean bool)
+    + Boolean getOrganizer()
+    + void setAdmin(Boolean bool)
+    + Boolean getAdmin()
+    + String getDeviceId()
+    + boolean getSavedToFirestore()
+    + void setSavedToFirestore()
+}
+UserModel --> "1" EventModel : uses
+UserModel --> "1" FacilityModel : possibly interacts with
+UserModel --> "1" QrCodeModel : interacts with
+class EventModel extends AbstractModel {
+    - String title
+        - String facilityId
+        - String organizerId
+        - double cost
+        - String description
+        - int numberOfSpots
+        - int numberOfMaxEntrants
+        - Date startDate
+        - Date endDate
+        - String posterImage
+        - boolean geo
+        - Object qrCode
+        - ArrayList<UserModel> waitingList
+        - FirebaseFirestore db
+        - boolean savedToFirestore
+        - String eventId
+        + EventModel()
+        + EventModel(Context context, FirebaseFirestore db)
+        + EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots, Date startDate, Date endDate, boolean geo, FirebaseFirestore db)
+        + EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots, int numberOfMaxEntrants, Date startDate, Date endDate, boolean geo, FirebaseFirestore db)
+        + EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots, int numberOfMaxEntrants, Date startDate, Date endDate, Object posterImage, boolean geo, Object qrCode, ArrayList<UserModel> waitingList, FirebaseFirestore db)
+        + void saveEventToFirestore()
+        + boolean getSavedToFirestore()
+        + void setSavedToFirestore(boolean savedToFirestore)
+        + void removeEventFromFirestore()
+        + void setEventId(String eventId)
+        + void updateFirestore(String field, Object value)
+        + void fetchFacility(FacilityCallback callback)
+        + String getTitle()
+        + void setTitle(String title)
+        + String getFacilityId()
+        + void setFacilityId(String facilityId)
+        + String getOrganizerId()
+        + void setOrganizerId(String organizerId)
+        + double getCost()
+        + void setCost(double cost)
+        + String getDescription()
+        + void setDescription(String description)
+        + int getNumberOfSpots()
+        + void setNumberOfSpots(int numberOfSpots)
+        + int getNumberOfMaxEntrants()
+        + void setNumberOfMaxEntrants(int numberOfMaxEntrants)
+        + Date getStartDate()
+        + void setStartDate(Date startDate)
+        + Date getEndDate()
+        + void setEndDate(Date endDate)
+        + String getPosterImage()
+        + void setPosterImage(String posterImage)
+        + boolean getGeo()
+        + void setGeo(boolean geo)
+        + Object getQrCode()
+        + void setQrCode(Object qrCode)
+        + ArrayList<UserModel> getWaitingList()
+        + boolean addToWaitingList(UserModel entrant)
+        + List<String> serializeWaitingList()
+        + void generateQrCode()
+        + void writeObject(ObjectOutputStream out) throws IOException
+        + void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
+}
+
+interface FacilityCallback {
+    + void onCallback(FacilityModel facility)
+}
+class EventsModel extends AbstractModel {
+    - ArrayList<EventModel> myEvents
+    - FirebaseFirestore db
+    + EventsModel()
+    + void getMyEvents(MyEventsCallback callback)
+    + static void fetchEventsByOrganizerId(EventFetchCallback callback, FirebaseFirestore db)
+}
+class EventFetchCallback {
+    + onCallback(events: List<DocumentSnapshot>)
+}
+
+class MyEventsCallback {
+    + onEventsFetched(events: ArrayList<EventModel>)
+}
+
+class FacilityModel extends AbstractModel {
+    - String facilityName
+    - String address
+    - String deviceId
+    + FacilityModel(deviceId: String)
+    + FacilityModel(deviceId: String, facilityName: String)
+    + FacilityModel(deviceId: String, facilityName: String, address: String)
+    + getFacilityName(): String
+    + setFacilityName(facilityName: String): void
+    + getAddress(): String
+    + setAddress(address: String): void
+    + getDeviceId(): String
+}
+interface AdminInterface {
+    + remove(db: FirebaseFirestore, event: EventModel): void
+    + removeImage(db: FirebaseFirestore, event: EventModel): void
+    + remove(db: FirebaseFirestore, user: UserModel): void
+    + removeImage(db: FirebaseFirestore, user: UserModel): void
+    + remove(db: FirebaseFirestore, facility: FacilityModel): void
+    + removeImage(db: FirebaseFirestore, facility: FacilityModel): void
+    + remove(qrCode: QrCodeModel): void
+    + browseEvents(db: FirebaseFirestore): ArrayList<EventModel>
+    + browseProfiles(db: FirebaseFirestore): ArrayList<UserModel>
+    + browseImages(db: FirebaseFirestore): ArrayList<Object>
+}
+AdminInterface --> EventModel : Uses
+AdminInterface --> UserModel : Uses
+AdminInterface --> FacilityModel : Uses
+AdminInterface --> QrCodeModel : Uses
+
+FacilityModel --> MyApp : Uses
+MyApp --> UserModel : Uses
+FacilityModel --> UserModel : Dependent on deviceId
+EventsModel --> "1" EventFetchCallback : Uses
+EventsModel --> "1" MyEventsCallback : Uses
+MyEventsCallback --> "1" EventModel : Returns
+EventModel --|> AbstractModel
+EventModel "1" *-- "0..*" UserModel : waitingList
+EventModel "1" *-- "1" QrCodeModel : qrCode
+
+class HomeFragment {
+    - eventsController: EventsController
+    - addButton: ExtendedFloatingActionButton
+    - eventAdapter: EventArrayAdapter
+    - events: EventsModel
+    + HomeFragment()
+    + onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle): View
+}
+class CameraFragment {
+     + CameraFragment() : Public empty constructor for fragment instantiation
+     + View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) : Creates and inflates fragment view
+     --
+     "Represents a fragment for camera-related functionality."
+     "Inflates layout defined in fragment_camera.xml"
+     "Part of bottom navigation bar implementation"
+     "Code for bottom navigation bar adapted from GeeksforGeeks"
+ }
+class AccountFragment {
+        - AccountView accountView
+        - AccountUserController userController
+        - FirebaseFirestore db
+        - UserModel user
+        - TextInputLayout fullNameInputLayout
+        - TextInputLayout emailInputLayout
+        - TextInputLayout phoneNumberInputLayout
+        - TextInputEditText fullNameEditText
+        - TextInputEditText emailEditText
+        - TextInputEditText phoneNumberEditText
+        - ExtendedFloatingActionButton saveButton
+        - String initialFullNameInput
+        - String initialEmailInput
+        - String initialPhoneInput
+
+        + AccountFragment()
+        + View onCreateView(LayoutInflater, ViewGroup, Bundle)
+        + void checkUserInFirestore(FirestoreUserCallback)
+        + void showUserDetails(UserModel)
+        + boolean DidInfoRemainConstant()
+        + void SetSaveButtonColor(boolean)
+    }
+class FacilityFragment {
+    - facilityView: FacilityView
+    - facility: FacilityModel
+    - facilityController: FacilityController
+    - deviceId: String
+    - db: FirebaseFirestore
+    - facilitiesRef: CollectionReference
+    - nameInput: TextInputEditText
+    - addressInput: TextInputEditText
+    - save: Button
+    - initialFacilityNameInput: String
+    - initialAddressInput: String
+    + FacilityFragment()
+    + onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle): View
+    + showFacilityDetails(facility: FacilityModel)
+    - DidInfoRemainConstant(): boolean
+    - SetSaveButtonColor(isEqual: boolean)
+    - facilityNameWatcher: TextWatcher
+    - addressWatcher: TextWatcher
+}
+class BrowseEventsFragment {
+    + BrowseEventsFragment() : Public empty constructor for fragment instantiation
+    + View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) : Creates and inflates fragment view
+    --
+    "Represents a fragment for browsing events functionality."
+    "Inflates layout defined in fragment_browse_events.xml"
+    "Part of bottom navigation bar implementation"
+}
+class BrowseProfilesFragment {
+    + BrowseProfilesFragment() : Public empty constructor for fragment instantiation
+    + View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) : Creates and inflates fragment view
+    --
+    "Represents a fragment for browsing profiles functionality."
+    "Inflates layout defined in fragment_browse_profiles.xml"
+    "Part of bottom navigation bar implementation"
+}
+class BrowseFacilitiesFragment {
+    + BrowseFacilitiesFragment() : Public empty constructor for fragment instantiation
+    + View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) : Creates and inflates fragment view
+    --
+    "Represents a fragment for browsing facilities functionality."
+    "Inflates layout defined in fragment_browse_facilities.xml"
+    "Part of bottom navigation bar implementation"
+    "Code for bottom navigation bar adapted from GeeksforGeeks"
+}
+class AdminAndUserFragment {
+    + AdminAndUserFragment() : Public empty constructor for fragment instantiation
+    + View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) : Creates and inflates fragment view
+    --
+    "Represents a fragment for admin and user functionality."
+    "Inflates layout defined in fragment_admin_and_user.xml"
+    "Part of bottom navigation bar implementation"
+}
+class EventFragment {
+- EventController eventController
+    - EventModel event
+    - Context mContext
+    - TextInputLayout titleInputLayout
+    - TextInputLayout descriptionInputLayout
+    - TextInputLayout lotteryStartDateFieldLayout
+    - TextInputLayout lotteryEndDateFieldLayout
+    - TextInputLayout spotsInputLayout
+    - TextInputLayout maxEntrantsInputLayout
+    - TextInputLayout costInputLayout
+    - TextInputEditText titleEditText
+    - TextInputEditText descriptionEditText
+    - TextInputEditText lotteryStartDateFieldText
+    - TextInputEditText lotteryEndDateFieldText
+    - TextInputEditText spotsEditText
+    - TextInputEditText maxEntrantsEditText
+    - TextInputEditText costEditText
+    - CheckBox geoCheck
+    - ExtendedFloatingActionButton cancelButton
+    - ExtendedFloatingActionButton saveButton
+    - AtomicReference<Date> startDate
+    - AtomicReference<Date> endDate
+    - boolean add
+    - ImageView profileImage
+    - ImageView defaultImage
+    - Uri currentImageUri
+    - String profileImageUri
+    + EventFragment()
+    + EventFragment(EventModel event)
+    + void showEventDetails(EventModel event)
+    + void onAttach(Context context)
+    + View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    - void showDatePickerDialog(EditText dateToPick, AtomicReference<Date> dateReference, Date startdate)
+    - TextWatcher costEditWatcher
+    - void onActivityResult(int requestCode, int resultCode, Intent data)
+    }
+EventFragment o-- EventController : has-a
+EventFragment o-- EventModel : has-a
+AccountFragment *-- UserModel
+AccountFragment *-- FirestoreUserCallback
+FacilityFragment --> FacilityView : uses
+FacilityFragment --> FacilityModel : has
+FacilityFragment --> FacilityController : uses
+HomeFragment --> EventsController : uses
+HomeFragment --> EventArrayAdapter : uses
+HomeFragment --> EventsModel : has
+HomeFragment --> EventModel : uses
+
+class AccountUserController extends AbstractController {
+    - UserModel userModel
+
+    + AccountUserController(UserModel user)
+
+    + UserModel getModel()
+    + void updateName(String name)
+    + void updateEmail(String email)
+    + void updatePhone(String phone)
+    + boolean getSavedToFirebase()
+    + void saveToFirestore(String name, String email, String phone)
+}
+
+AccountUserController --> "1" UserModel : Manages the state of
+
+class AccountView extends AbstractView {
+    - accountFragment: AccountFragment
+    - user: UserModel
+    + AccountView(user: UserModel, accountFragment: AccountFragment)
+    + getModel(): UserModel
+    + update(whoUpdatedMe: AbstractModel)
+}
+class EventView extends AbstractView {
+    - eventFragment: EventFragment
+    + EventView(event: EventModel, fragment: EventFragment)
+    + getModel(): EventModel
+    + update(whoUpdatedMe: AbstractModel)
+}
+class FacilityView extends AbstractView {
+    - facilityFragment: FacilityFragment
+    - facility: FacilityModel
+    + FacilityView(facility: FacilityModel, facilityFragment: FacilityFragment)
+    + getModel(): FacilityModel
+    + update(whoUpdatedMe: AbstractModel)
+}
+class EventController extends AbstractController {
+    ' Attributes
+    - EventModel eventModel
+
+    ' Constructors
+    + EventController(EventModel event)
+
+    ' Methods
+    + EventModel getModel()
+    + void updateTitle(String title)
+    + void updateDescription(String description)
+    + void updateNumberOfSpots(int spots)
+    + void updateNumberOfMaxEntrants(int maxEntrants)
+    + void updateStartDate(Date startDate)
+    + void updateEndDate(Date endDate)
+    + void updateCost(double cost)
+    + void updateGeo(boolean geo)
+    + void saveEventToFirestore()
+    + void removeEventFromFirestore()
+    + void returnToEvents()
+}
+
+' Dependencies and Relationships to other models and components
+EventController --> "1" EventModel : Manages the state of
+EventController --> "1" MyApp : Accesses for fragment replacements
+EventController --> "1" HomeFragment : Navigates to after saving/removing event
+class EventsController extends AbstractController {
+    ' Attributes
+    - EventsModel eventsModel
+
+    ' Constructors
+    + EventsController(EventsModel events)
+
+    + EventsModel getModel()
+    + void getMyEvents(EventsModel.MyEventsCallback events)
+    + void addEvent()
+    + void editEvent(EventModel event)
+
+}
+
+class FacilityController extends AbstractController {
+    - FirebaseFirestore db
+    - CollectionReference facilitiesRef
+    + FacilityController(FacilityModel facility, FirebaseFirestore db)
+
+    ' Methods
+    + FacilityModel getModel()
+    + void updateFacilityName(String name)
+    + void updateAddress(String address)
+    + void saveToFirestore()
+}
+
+' Dependencies and Relationships to other models and components
+FacilityController --> "1" FacilityModel : Manages the state of
+
+' Dependencies and Relationships to other models and components
+EventsController --> "1" EventsModel : Manages the state of
+EventsController --> "1" EventModel : Edits a specific event
+EventsController --> "1" MyApp : Accesses for fragment replacements
+EventsController --> "1" EventFragment : Navigates to the event fragment for adding or editing events
+EventView --> EventFragment : uses
+EventView --> EventModel : observes
+EventView --> AbstractView : extends
+EventView --> AbstractModel : updates
+AccountView --> AccountFragment : uses
+AccountView --> UserModel : observes
+AccountView --> AbstractView : extends
+AccountView --> AbstractModel : updates
+FacilityView --> FacilityFragment : uses
+FacilityView --> FacilityModel : observes
+
+abstract class AbstractView {
+    - model: AbstractModel
+    + startObserving(model: AbstractModel)
+    + closeView()
+    + update(whoUpdatedMe: AbstractModel)
+    + getModel(): AbstractModel
+}
+abstract class AbstractController {
+    - model: AbstractModel
+    + AbstractController(model: AbstractModel)
+    + getModel(): AbstractModel
+}
+abstract class AbstractModel {
+    - views: Set<AbstractView>
+    + addView(view: AbstractView)
+    + removeView(view: AbstractView)
+    + notifyViews()
+}
+
+AbstractModel --> AbstractView : notifies
+AbstractModel "1" o-- "0..*" AbstractView : maintains observers
+AbstractController --> AbstractModel : manages
+AbstractView --> AbstractModel : observes
+
+class EventArrayAdapter {
+    - listener: EventArrayAdapterListener
+    + EventArrayAdapter(context: Context, events: ArrayList<EventModel>, listener: EventArrayAdapterListener)
+    + getView(position: int, convertView: View, parent: ViewGroup): View
+}
+
+interface EventArrayAdapterListener {
+    + onEventsWaitListChanged()
+}
+
+
+
+AccountFragment *-- AccountUserController
+AccountFragment *-- AccountView
+AccountFragment o-- FirestoreUserCallback
+AccountFragment *-- UserModel : user
+AccountFragment --> AccountUserController : userController
+AccountFragment --> AccountView : accountView
+
+class BrowseEventsArrayAdapter {
+    - Uri posterUri
+    + BrowseEventsArrayAdapter(Context context, ArrayList<EventModel> events)
+    + View getView(int position, View convertView, ViewGroup parent)
+}
+BrowseEventsArrayAdapter --> EventModel : Displays data from
+
+class BrowseFacilitiesArrayAdapter {
+    + BrowseFacilitiesArrayAdapter(Context context, ArrayList<FacilityModel> facilities)
+    + View getView(int position, View convertView, ViewGroup parent)
+}
+BrowseFacilitiesArrayAdapter --> FacilityModel : Displays data from
+
+class BrowseProfilesArrayAdapter {
+    + BrowseProfilesArrayAdapter(Context context, ArrayList<UserModel> users)
+    + View getView(int position, View convertView, ViewGroup parent)
+}
+
+BrowseProfilesArrayAdapter --> UserModel : Displays data from
+EventsModel --> "1" EventFetchCallback : Uses
+EventsModel --> "1" MyEventsCallback : Uses
+MyEventsCallback --> "1" EventModel : Returns
+
+note right of FacilityModel
+  This class manages the event UI.
+  It allows users to create, edit, and
+  view event details.
+end note
+@enduml
