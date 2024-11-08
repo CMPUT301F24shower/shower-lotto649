@@ -33,7 +33,7 @@ public class EventModel extends AbstractModel implements Serializable {
     private int numberOfMaxEntrants;
     private Date startDate;
     private Date endDate;
-    private Object posterImage; // Placeholder for image class
+    private String posterImage; // Placeholder for image class
     private boolean geo;
     private String qrCode;
     private String qrCodeData;
@@ -75,7 +75,7 @@ public class EventModel extends AbstractModel implements Serializable {
         this.numberOfMaxEntrants = -1;
         this.startDate = new Date();
         this.endDate =  new Date();
-        this.posterImage = null;
+        this.posterImage = "";
         this.geo = false;
         this.waitingList = new ArrayList<>();
     }
@@ -442,9 +442,9 @@ public class EventModel extends AbstractModel implements Serializable {
     /**
      * Retrieves the poster image associated with the event.
      *
-     * @return the poster image as an object
+     * @return the poster image
      */
-    public Object getPosterImage() {
+    public String getPosterImage() {
         return posterImage;
     }
 
@@ -453,7 +453,7 @@ public class EventModel extends AbstractModel implements Serializable {
      *
      * @param posterImage the new poster image
      */
-    public void setPosterImage(Object posterImage) {
+    public void setPosterImage(String posterImage) {
         this.posterImage = posterImage;
         updateFirestore("posterImage", posterImage);
         notifyViews();

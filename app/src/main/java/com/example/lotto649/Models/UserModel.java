@@ -26,6 +26,7 @@ public class UserModel extends AbstractModel {
                                // This is something we should do to establish connection between the 2 model classes
     private boolean admin;
     private String deviceId;
+    private String profileImage;
 
     // Firestore instance for saving and updating user data
     private FirebaseFirestore db;
@@ -56,6 +57,7 @@ public class UserModel extends AbstractModel {
         this.admin = false;
         this.deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         this.db = db;
+        this.profileImage = "";
     }
 
     /**
@@ -76,6 +78,8 @@ public class UserModel extends AbstractModel {
         this.admin = false;
         this.deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         this.db = db;
+        this.profileImage = "";
+
 //        saveUserToFirestore();
     }
 
@@ -95,7 +99,7 @@ public class UserModel extends AbstractModel {
      * This method is called during initialization to persist the user data.
      * Users are default set to entrants
      */
-    public void saveUserToFirestore(String name, String email, String phone) {
+    public void saveUserToFirestore() {
         if (savedToFirestore) return;
         db.collection("users")
                 .document(deviceId)
@@ -103,9 +107,10 @@ public class UserModel extends AbstractModel {
                         put("name", name);
                         put("email", email);
                         put("phone", phone);
-                        put("entrant", true);
-                        put("organizer", false);
-                        put("admin", false);
+                        put("entrant", entrant);
+                        put("organizer", organizer);
+                        put("admin", admin);
+                        put("profileImage", profileImage);
                 }})  // Saves the current user object to Firestore
                 .addOnSuccessListener(aVoid -> {
                     System.out.println("User saved successfully!");
@@ -283,5 +288,43 @@ public class UserModel extends AbstractModel {
         // Once a user has been saved to firestore they should not be removed at any point
         savedToFirestore = true;
     }
+
     // No setter for device ID, as it is immutable after being set
+
+    /**
+     * Get the users initials for the generated profile pic should they not have an image saved
+     * @return The users initials
+     */
+    public String getInitials() {
+        if (name == null || name.isEmpty()) {
+            return "";
+        }
+        StringBuilder initials = new StringBuilder();
+        String[] nameParts = name.split(" ");
+
+        for (String part : nameParts) {
+            if (!part.isEmpty()) {
+                initials.append(part.charAt(0));
+            }
+        }
+        return initials.toString().toUpperCase();
+    }
+
+    /**
+     * Gets the user's profile image uri
+     *
+     * @return the profile image uri
+     */
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    /**
+     * Sets the users profile image uri
+     *
+     * @param profileImage the new profile image uri
+     */
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
 }

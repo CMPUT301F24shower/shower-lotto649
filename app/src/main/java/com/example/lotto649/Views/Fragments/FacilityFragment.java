@@ -39,6 +39,8 @@ import java.util.Objects;
  * model, and controller in a Model-View-Controller (MVC) pattern.
  * Code for the bottom navigation bar was adapted from:
  * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
+ * TextWatcher code was adapted from this thread:
+ * https://stackoverflow.com/questions/8543449/how-to-use-the-textwatcher-class-in-android
  */
 public class FacilityFragment extends Fragment {
     private FacilityView facilityView;
