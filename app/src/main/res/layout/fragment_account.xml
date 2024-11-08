@@ -9,7 +9,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
     <LinearLayout
-        android:id="@+id/account_linear_layout"
+        android:id="@+id/facility_inputs_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -24,117 +24,80 @@
             android:layout_height="wrap_content"
             android:text="Account"
             android:textSize="40sp" />
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="16dp"/>
-
-<!--        <ImageView-->
-<!--            android:id="@+id/profileImage"-->
-<!--            android:src="@drawable/ic_person_foreground"-->
-<!--            android:contentDescription="Icon description"-->
-<!--            android:layout_width="150dp"-->
-<!--            android:layout_height="150dp"-->
-<!--            android:scaleType="centerCrop"-->
-<!--            android:layout_gravity="center"-->
-<!--            android:background="@color/white"/>-->
-        <TextView
-            android:id="@+id/imagePlaceholder"
-            android:src="@drawable/ic_person_foreground"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:scaleType="centerCrop"
-            android:layout_gravity="center"
-            android:background="@drawable/name_bg"
-            android:textColor="@color/white"
-            android:gravity="center"
-            android:textSize="48sp"
-            android:text="" />
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="16dp"/>
 
     <com.google.android.material.textfield.TextInputLayout
         style="?attr/textInputFilledStyle"
-        android:id="@+id/textFieldName"
+        android:id="@+id/textFieldFullName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="25dp"
         android:hint="Full Name"
-
-            app:helperTextEnabled="true"
-            app:helperText="Required"
-            app:endIconMode="custom"
-            app:endIconDrawable="@drawable/ic_person_name_foreground">
+        app:helperTextEnabled="true"
+        app:helperText="Required"
+        app:endIconMode="custom"
+        app:endIconDrawable="@drawable/ic_person_name_foreground">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/nameEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        </com.google.android.material.textfield.TextInputLayout>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="16dp"/>
-        <com.google.android.material.textfield.TextInputLayout
-            style="?attr/textInputFilledStyle"
-            android:id="@+id/textFieldEmail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginEnd="24dp"
-            android:hint="Email"
-            app:helperTextEnabled="true"
-            app:helperText="Required"
-            app:endIconMode="custom"
-            app:endIconDrawable="@drawable/ic_email_foreground">
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="?attr/textInputFilledStyle"
+        android:id="@+id/textFieldEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:hint="Email"
+        app:helperTextEnabled="true"
+        app:helperText="Required"
+        app:endIconMode="custom"
+        app:endIconDrawable="@drawable/ic_email_foreground">
 
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/emailEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-            </com.google.android.material.textfield.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="16dp"/>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textFieldPhone"
-                style="?attr/textInputFilledStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:layout_marginEnd="24dp"
-                android:hint="Phone Number"
-                app:helperText="Optional"
-                app:helperTextEnabled="true"
-                app:endIconMode="custom"
-                app:endIconDrawable="@drawable/ic_phone_foreground"
-                app:layout_constraintBottom_toTopOf="@+id/account_save_button">
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textFieldPhoneNumber"
+        style="?attr/textInputFilledStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:hint="Phone Number"
+        app:helperText="Optional"
+        app:helperTextEnabled="true"
+        app:endIconMode="custom"
+        app:endIconDrawable="@drawable/ic_phone_foreground"
+        app:layout_constraintBottom_toTopOf="@+id/account_save_button">
 
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/phoneEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-            </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
-            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-                android:id="@+id/account_save_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:layout_margin="16dp"
-                android:textColor="@color/lightPrimary"
-                android:text="Save"
-                android:backgroundTint="@color/lightSurfaceContainerHigh"
-                app:icon="@drawable/ic_check_foreground"
-                app:iconSize="40dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/account_save_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/lightSurfaceContainerHigh"
+        android:text="Save"
+        android:textColor="@color/lightPrimary"
+        app:icon="@drawable/ic_check_foreground"
+        app:iconSize="40dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

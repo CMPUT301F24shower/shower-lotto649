@@ -1,20 +1,21 @@
 package com.example.lotto649.Models;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 
 import com.example.lotto649.AbstractClasses.AbstractModel;
 import com.example.lotto649.MyApp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
-import java.io.Serializable;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.Date;
 
@@ -23,7 +24,7 @@ import java.util.Date;
  * cost, description, number of spots, event type, and poster image.
  * This model class also handles saving and updating event data in Firestore.
  */
-public class EventModel extends AbstractModel implements Serializable {
+public class EventModel extends AbstractModel {
     private String title;
     private String facilityId;
     private String organizerId;
@@ -35,19 +36,14 @@ public class EventModel extends AbstractModel implements Serializable {
     private Date endDate;
     private Object posterImage; // Placeholder for image class
     private boolean geo;
-    private Object qrCode;
-    private ArrayList<UserModel> waitingList;
+    private Bitmap qrCode;
+    private String qrCodeData;
+
+    private final ArrayList<UserModel> waitingList = new ArrayList<>();
 
     private FirebaseFirestore db;
     private boolean savedToFirestore = false;
     private String eventId;
-    public String getEventId() {
-        return eventId;
-    };
-
-    public void setDb(FirebaseFirestore db) {
-        this.db = db;
-    }
 
     /**
      * Callback interface for handling FacilityModel retrieval asynchronously.
@@ -76,7 +72,6 @@ public class EventModel extends AbstractModel implements Serializable {
         this.endDate =  new Date();
         this.posterImage = null;
         this.geo = false;
-        this.waitingList = new ArrayList<>();
     }
 
     /**
@@ -93,7 +88,6 @@ public class EventModel extends AbstractModel implements Serializable {
         clear();
         this.organizerId = MyApp.getInstance().getUserModel().getDeviceId();
         this.db = db;
-        //generateQrCode();
         //saveEventToFirestore();
     }
 
@@ -109,16 +103,20 @@ public class EventModel extends AbstractModel implements Serializable {
      * @param numberOfSpots the number of spots available for the event
      * @param db the Firestore database instance
      */
-    public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots,
-                      Date startDate, Date endDate, boolean geo, FirebaseFirestore db) {
-        this(context, title, facilityId, cost, description, numberOfSpots,
-                -1, startDate, endDate, null, geo, null, new ArrayList<UserModel>(), db);
-    }
-
-    public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots,
-                      int numberOfMaxEntrants, Date startDate, Date endDate, boolean geo, FirebaseFirestore db) {
-        this(context, title, facilityId, cost, description, numberOfSpots,
-                numberOfMaxEntrants, startDate, endDate, null, geo, null, new ArrayList<UserModel>(), db);
+    public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots, Date startDate, Date endDate, boolean geo, FirebaseFirestore db) {
+        this.title = title;
+        this.facilityId = facilityId;
+        this.organizerId = MyApp.getInstance().getUserModel().getDeviceId();
+        this.cost = cost;
+        this.description = description;
+        this.numberOfSpots = numberOfSpots;
+        this.numberOfMaxEntrants = -1;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.posterImage = null;
+        this.geo = geo;
+        this.db = db;
+        saveEventToFirestore();
     }
 
     /**
@@ -133,9 +131,7 @@ public class EventModel extends AbstractModel implements Serializable {
      * @param numberOfSpots the number of spots available for the event
      * @param db the Firestore database instance
      */
-    public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots,
-                      int numberOfMaxEntrants, Date startDate, Date endDate, Object posterImage, boolean geo, Object qrCode,
-                      ArrayList<UserModel> waitingList, FirebaseFirestore db) {
+    public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots, int numberOfMaxEntrants, Date startDate, Date endDate, boolean geo, FirebaseFirestore db) {
         this.title = title;
         this.facilityId = facilityId;
         this.organizerId = MyApp.getInstance().getUserModel().getDeviceId();
@@ -145,12 +141,11 @@ public class EventModel extends AbstractModel implements Serializable {
         this.numberOfMaxEntrants = numberOfMaxEntrants;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.posterImage = posterImage;
+        this.posterImage = null;
         this.geo = geo;
         this.db = db;
-        this.qrCode = qrCode;
-        this.waitingList = waitingList;
-        //saveEventToFirestore();
+        this.qrCodeData = title + description + numberOfSpots + numberOfMaxEntrants + cost;
+        saveEventToFirestore();
     }
 
     /**
@@ -160,31 +155,46 @@ public class EventModel extends AbstractModel implements Serializable {
     public void saveEventToFirestore() {
         if (savedToFirestore) return;
 
-        db.collection("events")
-                .add(new HashMap<String, Object>() {{
-                    put("title", title);
-                    put("facilityId", facilityId);
-                    put("organizerId", organizerId);
-                    put("cost", cost);
-                    put("description", description);
-                    put("numberOfSpots", numberOfSpots);
-                    put("numberOfMaxEntrants", numberOfMaxEntrants);
-                    put("startDate", startDate);
-                    put("endDate", endDate);
-                    put("qrCode", qrCode);
-                    put("posterImage", posterImage);
-                    put("geo",geo);
-                    put("waitingList", serializeWaitingList());
-                }})
-                .addOnSuccessListener(documentReference -> {
-                    eventId = documentReference.getId();
-                    savedToFirestore = true;
-                    setQrCode(qrCode);
-                    System.out.println("Event saved successfully with ID: " + eventId);
-                })
-                .addOnFailureListener(e -> {
-                    System.err.println("Error saving event: " + e.getMessage());
-                });
+        FirebaseStorage storage = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app");
+        StorageReference storageRef = storage.getReference().child("qrcodes/" + eventId + ".png");
+
+        ByteArrayOutputStream byteout = new ByteArrayOutputStream();
+        qrCode.compress(Bitmap.CompressFormat.PNG, 100, byteout);
+        byte[] qrCodeBytes = byteout.toByteArray();
+
+        UploadTask uploadTask = storageRef.putBytes(qrCodeBytes);
+        uploadTask.addOnSuccessListener(taskSnapshot ->
+                storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                    String qrCodeUrl = uri.toString();
+
+                    db.collection("events")
+                            .add(new HashMap<String, Object>() {{
+                                put("title", title);
+                                put("facilityId", facilityId);
+                                put("organizerId", organizerId);
+                                put("cost", cost);
+                                put("description", description);
+                                put("numberOfSpots", numberOfSpots);
+                                put("numberOfMaxEntrants", numberOfMaxEntrants);
+                                put("startDate", startDate);
+                                put("endDate", endDate);
+                                put("qrCode", qrCodeUrl);
+                                put("posterImage", posterImage);
+                                put("geo",geo);
+                                put("waitingList", serializeWaitingList());
+                            }})
+                            .addOnSuccessListener(documentReference -> {
+                                eventId = documentReference.getId();
+                                savedToFirestore = true;
+                                System.out.println("Event saved successfully with ID: " + eventId);
+                            })
+                            .addOnFailureListener(e -> {
+                                System.err.println("Error saving event: " + e.getMessage());
+                            });
+
+                })).addOnFailureListener(e -> {
+            System.err.println(("Failed to upload QR Code" + e.getMessage()));
+        });
     }
 
     /**
@@ -192,16 +202,13 @@ public class EventModel extends AbstractModel implements Serializable {
      * If the event has already been removed, this method does nothing.
      */
     public void removeEventFromFirestore() {
-        removeEventFirestore();
         clear();
-        notifyViews();
-    }
 
-    private void removeEventFirestore(){
         if (eventId == null || eventId.isEmpty()) {
             System.err.println("Event ID is not set. Cannot delete event.");
             return;
         }
+
         db.collection("events")
                 .document(eventId)
                 .delete()
@@ -213,13 +220,10 @@ public class EventModel extends AbstractModel implements Serializable {
                 .addOnFailureListener(e -> {
                     System.err.println("Error removing event: " + e.getMessage());
                 });
+
+        notifyViews();
     }
 
-    public void setEventId(String eventId){
-        //removeEventFirestore();
-        this.eventId = eventId;
-        //saveEventToFirestore();
-    }
 
     /**
      * Updates a specific field in Firestore for this event.
@@ -306,18 +310,6 @@ public class EventModel extends AbstractModel implements Serializable {
     public String getOrganizerId() {
         return organizerId;
     }
-
-    /**
-     * Sets the organizer ID associated with this event and updates Firestore.
-     *
-     * @param organizerId the new organizer ID
-     */
-    public void setOrganizerId(String organizerId) {
-        this.organizerId = organizerId;
-        updateFirestore("organizerId", organizerId);
-        notifyViews();
-    }
-
     /**
      * Retrieves the cost of the event.
      *
@@ -483,19 +475,12 @@ public class EventModel extends AbstractModel implements Serializable {
      *
      * @return the QR code path as a string
      */
-    public Object getQrCode() {
+    public Bitmap getQrCode() {
         return qrCode;
     }
 
-    /**
-     * Sets the QR code for the event and updates Firestore.
-     *
-     * @param qrCode the QR code setting
-     */
-    public void setQrCode(Object qrCode) {
+    public void setQrCode(Bitmap qrCode) {
         this.qrCode = qrCode;
-        updateFirestore("qrCode", qrCode);
-        notifyViews();
     }
 
     /**
@@ -527,7 +512,7 @@ public class EventModel extends AbstractModel implements Serializable {
      */
     private List<String> serializeWaitingList() {
         return waitingList.stream()
-                .map(UserModel::getDeviceId)
+                .map(UserModel::getDeviceId) // Assuming UserModel has a getDeviceId() method
                 .collect(Collectors.toList());
     }
 
@@ -535,29 +520,6 @@ public class EventModel extends AbstractModel implements Serializable {
      * Generates a QR code for the event (mock implementation).
      */
     private void generateQrCode() {
-        this.qrCode = QrCodeModel.generateForEvent(this);
-    }
-
-    /**
-     * Serializes the EventModel by writing the eventId first, then the rest of the fields.
-     *
-     * @param out the output stream to write data to
-     * @throws IOException if any I/O error occurs
-     */
-    private void writeObject(ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject(); // Default serialization
-        out.writeObject(eventId); // Serialize eventId as unique identifier
-    }
-
-    /**
-     * Deserializes the EventModel by reading the eventId first, then the rest of the fields.
-     *
-     * @param in the input stream to read data from
-     * @throws IOException if any I/O error occurs
-     * @throws ClassNotFoundException if the class is not found
-     */
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject(); // Default deserialization
-        eventId = (String) in.readObject(); // Deserialize eventId
+        this.qrCode = QrCodeModel.generateForEvent(this.qrCodeData);
     }
 }
