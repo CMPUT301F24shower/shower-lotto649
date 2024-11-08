@@ -30,8 +30,7 @@ public class EventModel extends AbstractModel {
     private Object posterImage; // Placeholder for image class
     private boolean geo;
     private Object qrCode;
-
-    private final ArrayList<UserModel> waitingList = new ArrayList<>();
+    private ArrayList<UserModel> waitingList;
 
     private FirebaseFirestore db;
     private boolean savedToFirestore = false;
@@ -96,21 +95,16 @@ public class EventModel extends AbstractModel {
      * @param numberOfSpots the number of spots available for the event
      * @param db the Firestore database instance
      */
-    public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots, Date startDate, Date endDate, boolean geo, FirebaseFirestore db) {
-        this.title = title;
-        this.facilityId = facilityId;
-        this.organizerId = MyApp.getInstance().getUserModel().getDeviceId();
-        this.cost = cost;
-        this.description = description;
-        this.numberOfSpots = numberOfSpots;
-        this.numberOfMaxEntrants = -1;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.posterImage = null;
-        this.geo = geo;
-        this.db = db;
-        generateQrCode();
-        saveEventToFirestore();
+    public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots,
+                      Date startDate, Date endDate, boolean geo, FirebaseFirestore db) {
+        this(context, title, facilityId, cost, description, numberOfSpots,
+                -1, startDate, endDate, null, geo, null, new ArrayList<UserModel>(), db);
+    }
+
+    public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots,
+                      int numberOfMaxEntrants, Date startDate, Date endDate, boolean geo, FirebaseFirestore db) {
+        this(context, title, facilityId, cost, description, numberOfSpots,
+                numberOfMaxEntrants, startDate, endDate, null, geo, null, new ArrayList<UserModel>(), db);
     }
 
     /**
@@ -125,7 +119,9 @@ public class EventModel extends AbstractModel {
      * @param numberOfSpots the number of spots available for the event
      * @param db the Firestore database instance
      */
-    public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots, int numberOfMaxEntrants, Date startDate, Date endDate, boolean geo, FirebaseFirestore db) {
+    public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots,
+                      int numberOfMaxEntrants, Date startDate, Date endDate, Object posterImage, boolean geo, Object qrCode,
+                      ArrayList<UserModel> waitingList, FirebaseFirestore db) {
         this.title = title;
         this.facilityId = facilityId;
         this.organizerId = MyApp.getInstance().getUserModel().getDeviceId();
@@ -135,11 +131,12 @@ public class EventModel extends AbstractModel {
         this.numberOfMaxEntrants = numberOfMaxEntrants;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.posterImage = null;
+        this.posterImage = posterImage;
         this.geo = geo;
         this.db = db;
-        generateQrCode();
-        saveEventToFirestore();
+        this.qrCode = qrCode;
+        this.waitingList = waitingList;
+        //saveEventToFirestore();
     }
 
     /**
@@ -180,13 +177,16 @@ public class EventModel extends AbstractModel {
      * If the event has already been removed, this method does nothing.
      */
     public void removeEventFromFirestore() {
+        removeEventFirestore();
         clear();
+        notifyViews();
+    }
 
+    private void removeEventFirestore(){
         if (eventId == null || eventId.isEmpty()) {
             System.err.println("Event ID is not set. Cannot delete event.");
             return;
         }
-
         db.collection("events")
                 .document(eventId)
                 .delete()
@@ -198,10 +198,13 @@ public class EventModel extends AbstractModel {
                 .addOnFailureListener(e -> {
                     System.err.println("Error removing event: " + e.getMessage());
                 });
-
-        notifyViews();
     }
 
+    public void setEventId(String event){
+        removeEventFirestore();
+        this.eventId = eventId;
+        saveEventToFirestore();
+    }
 
     /**
      * Updates a specific field in Firestore for this event.
@@ -288,6 +291,18 @@ public class EventModel extends AbstractModel {
     public String getOrganizerId() {
         return organizerId;
     }
+
+    /**
+     * Sets the organizer ID associated with this event and updates Firestore.
+     *
+     * @param organizerId the new organizer ID
+     */
+    public void setOrganizerId(String organizerId) {
+        this.organizerId = organizerId;
+        updateFirestore("organizerId", organizerId);
+        notifyViews();
+    }
+
     /**
      * Retrieves the cost of the event.
      *
@@ -486,7 +501,7 @@ public class EventModel extends AbstractModel {
      */
     private List<String> serializeWaitingList() {
         return waitingList.stream()
-                .map(UserModel::getDeviceId) // Assuming UserModel has a getDeviceId() method
+                .map(UserModel::getDeviceId)
                 .collect(Collectors.toList());
     }
 
