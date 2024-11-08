@@ -80,7 +80,11 @@ public class AccountUserControllerTest {
         String phone = "1234567";
         accountUserController.saveToFirestore(name, email, phone);
 
-        verify(mockUserModel).saveUserToFirestore(name, email, phone); // Verify that saveUserToFirestore was called
+        verify(mockUserModel).setName(name);
+        verify(mockUserModel).setEmail(email);
+        verify(mockUserModel).setPhone(phone);
+
+        verify(mockUserModel).saveUserToFirestore(); // Verify that saveUserToFirestore was called
     }
 }
 

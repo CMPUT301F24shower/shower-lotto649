@@ -33,7 +33,7 @@ public class EventModel extends AbstractModel implements Serializable {
     private int numberOfMaxEntrants;
     private Date startDate;
     private Date endDate;
-    private Object posterImage; // Placeholder for image class
+    private String posterImage; // Placeholder for image class
     private boolean geo;
     private Object qrCode;
     private ArrayList<UserModel> waitingList;
@@ -74,7 +74,7 @@ public class EventModel extends AbstractModel implements Serializable {
         this.numberOfMaxEntrants = -1;
         this.startDate = new Date();
         this.endDate =  new Date();
-        this.posterImage = null;
+        this.posterImage = "";
         this.geo = false;
         this.waitingList = new ArrayList<>();
     }
@@ -145,12 +145,13 @@ public class EventModel extends AbstractModel implements Serializable {
         this.numberOfMaxEntrants = numberOfMaxEntrants;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.posterImage = posterImage;
+        this.posterImage = "";
         this.geo = geo;
         this.db = db;
+        // generateQrCode();
+        // saveEventToFirestore();
         this.qrCode = qrCode;
         this.waitingList = waitingList;
-        //saveEventToFirestore();
     }
 
     /**
@@ -160,37 +161,6 @@ public class EventModel extends AbstractModel implements Serializable {
     public void saveEventToFirestore() {
         if (savedToFirestore) return;
 
-        db.collection("events")
-                .add(new HashMap<String, Object>() {{
-                    put("title", title);
-                    put("facilityId", facilityId);
-                    put("organizerId", organizerId);
-                    put("cost", cost);
-                    put("description", description);
-                    put("numberOfSpots", numberOfSpots);
-                    put("numberOfMaxEntrants", numberOfMaxEntrants);
-                    put("startDate", startDate);
-                    put("endDate", endDate);
-                    put("qrCode", qrCode);
-                    put("posterImage", posterImage);
-                    put("geo",geo);
-                    put("waitingList", serializeWaitingList());
-                }})
-                .addOnSuccessListener(documentReference -> {
-                    eventId = documentReference.getId();
-                    savedToFirestore = true;
-                    setQrCode(qrCode);
-                    System.out.println("Event saved successfully with ID: " + eventId);
-                })
-                .addOnFailureListener(e -> {
-                    System.err.println("Error saving event: " + e.getMessage());
-                });
-    }
-
-    public void saveEventToFirestore(String title, String facilityId, double cost, String description, int numberOfSpots,
-                                     int numberOfMaxEntrants, Date startDate, Date endDate, Object posterImage, boolean geo, Object qrCode,
-                                     ArrayList<UserModel> waitingList) {
-        if (savedToFirestore) return;
         db.collection("events")
                 .add(new HashMap<String, Object>() {{
                     put("title", title);
@@ -248,6 +218,7 @@ public class EventModel extends AbstractModel implements Serializable {
             System.err.println("Event ID is not set. Cannot delete event.");
             return;
         }
+
         db.collection("events")
                 .document(eventId)
                 .delete()
@@ -487,9 +458,9 @@ public class EventModel extends AbstractModel implements Serializable {
     /**
      * Retrieves the poster image associated with the event.
      *
-     * @return the poster image as an object
+     * @return the poster image
      */
-    public Object getPosterImage() {
+    public String getPosterImage() {
         return posterImage;
     }
 
@@ -498,7 +469,7 @@ public class EventModel extends AbstractModel implements Serializable {
      *
      * @param posterImage the new poster image
      */
-    public void setPosterImage(Object posterImage) {
+    public void setPosterImage(String posterImage) {
         this.posterImage = posterImage;
         updateFirestore("posterImage", posterImage);
         notifyViews();

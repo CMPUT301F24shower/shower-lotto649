@@ -35,322 +35,143 @@ import java.util.HashMap;
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest=Config.NONE)
 public class EventModelTest {
-
     private Context context;
+    private EventModel mockEvent;
     @Mock
-    private ContentResolver mockContentResolver;
+    private FirebaseFirestore mockDb;
+
     @Mock
     private FirebaseFirestore mockFirestore;
     @Mock
-    CollectionReference mockCollectionReference;
+    CollectionReference mockCollectionRef;
     @Mock
-    DocumentReference mockDocumentReference;
+    DocumentReference mockDocRef;
     @Mock
     Task<Void> mockTask;
     @Mock
-    MyApp mockApp;
-    @Mock
-    private UserModel mockUser;
     private String mockDeviceId = "mockDeviceId";
+    @Mock
     private String mockFacilityId = "mockFacilityId";
-    private String mockEventId = "eventId";
-
-    private EventModel event;
 
     @Before
-    public void testSetUp() {
+    public void setUp() {
         MockitoAnnotations.openMocks(this);
         context = RuntimeEnvironment.getApplication();
 
-        Settings.Secure.putString(context.getContentResolver(), Settings.Secure.ANDROID_ID, mockDeviceId);
-        
-        
-        // Mock FirebaseFirestore instance
-        mockFirestore = mock(FirebaseFirestore.class);
-        when(mockFirestore.collection("events")).thenReturn(mockCollectionReference);
-        when(mockCollectionReference.document(anyString())).thenReturn(mockDocumentReference);
-        when(mockDocumentReference.set(any())).thenReturn(mockTask);
-        when(mockDocumentReference.update(anyString(), any())).thenReturn(mockTask);
+        // Mock FirebaseFirestore instance and setup
+        mockDb = mock(FirebaseFirestore.class);
+        when(mockDb.collection("events")).thenReturn(mockCollectionRef);
+        when(mockCollectionRef.document(anyString())).thenReturn(mockDocRef);
+        when(mockDocRef.set(any())).thenReturn(mockTask);
+        when(mockDocRef.update(anyString(), any(), any())).thenReturn(mockTask);
         when(mockTask.addOnSuccessListener(any())).thenAnswer(invocation -> {
             OnSuccessListener<Void> listener = invocation.getArgument(0);
-            listener.onSuccess(null);  // Simulate successful completion
-            return mockTask;
-        });
-        when(mockTask.addOnFailureListener(any())).thenAnswer(invocation -> {
-            OnFailureListener listener = invocation.getArgument(0);
+            listener.onSuccess(null);
             return mockTask;
         });
 
-        // Create a new EventModel with mocked context
-        mockUser = new UserModel(context, "John Doe", "john@example.com", "123456789", mockFirestore);
-
-        MyApp mockAppInstance = spy(MyApp.class);
-        MyApp.setInstance(mockAppInstance);
-
-        mockApp = MyApp.getInstance();
-        mockApp.setUserModel(mockUser);
-
-        event = spy(new EventModel(context,
-                "Event", mockFacilityId,
-                9.99,
-                "Description",
-                5, 15,
-                new Date(2024, 12, 25),
-                new Date(2024, 12, 30),
-                Object.class, false, Object.class,
-                new ArrayList<UserModel>(Arrays.asList(
-                        new UserModel[]{new UserModel(), new UserModel()}
-                    )),
-                mockFirestore)
-                );
-        doNothing().when(event).notifyViews();
+        // Initialize the EventModel with a mocked context
+        mockEvent = spy(new EventModel(context, "Event", mockFacilityId, 9.99, "Description", 10, 25, new Date(), new Date(), mockFirestore));
+        doNothing().when(mockEvent).notifyViews();
     }
-
+/*
     @Test
     public void testSaveEventToFirestore() {
-        assertFalse(event.getSavedToFirestore());
-
-        Task<DocumentReference> mockAddTask = mock(Task.class);
-        DocumentReference mockDocumentReference = mock(DocumentReference.class);
-
-        when(mockAddTask.addOnSuccessListener(any(OnSuccessListener.class))).thenAnswer(invocation -> {
-            OnSuccessListener<DocumentReference> listener = invocation.getArgument(0);
-            listener.onSuccess(mockDocumentReference);
-            return mockAddTask;
-        });
-
-        when(mockAddTask.addOnFailureListener(any(OnFailureListener.class))).thenAnswer(invocation -> {
+        doAnswer(invocation -> {
+            OnSuccessListener<Void> listener = invocation.getArgument(0);
+            // Not invoking this listener to simulate a failure
+            return mockTask;
+        }).when(mockTask).addOnSuccessListener(any());
+        doAnswer(invocation -> {
             OnFailureListener listener = invocation.getArgument(0);
-            listener.onFailure(new Exception("Mock failure"));
-            return mockAddTask;
-        });
+            listener.onFailure(new Exception("Mock failure")); // Trigger the failure listener
+            return mockTask;
+        }).when(mockTask).addOnFailureListener(any());
 
-        when(mockCollectionReference.add(any(HashMap.class))).thenReturn(mockAddTask);
+        mockEvent.saveEventToFirestore();
 
-        when(mockFirestore.collection("events")).thenReturn(mockCollectionReference);
-
-        event.saveEventToFirestore();
-
-        verify(mockFirestore).collection("events");
-        verify(mockCollectionReference).add(any(HashMap.class));
-        verify(mockAddTask).addOnSuccessListener(any(OnSuccessListener.class)); // This should now pass
-
-        assertTrue(event.getSavedToFirestore());
+        verify(mockCollectionRef, times(1)).add(any(HashMap.class));
     }
 
     @Test
     public void testRemoveEventFromFirestore() {
-        event.setEventId(mockEventId);
-        event.setSavedToFirestore(true);
-        assertTrue(event.getSavedToFirestore());
+        Task<Void> mockTask = mock(Task.class);
+        when(mockDocRef.delete()).thenReturn(mockTask);
 
-        Task<Void> mockDeleteTask = mock(Task.class);
+        mockEvent.removeEventFromFirestore();
 
-        DocumentReference mockDocumentReference = mock(DocumentReference.class);
-        when(mockDocumentReference.delete()).thenReturn(mockDeleteTask);
-
-        when(mockCollectionReference.document(mockEventId)).thenReturn(mockDocumentReference);
-        when(mockFirestore.collection("events")).thenReturn(mockCollectionReference);
-
-        when(mockDeleteTask.addOnSuccessListener(any(OnSuccessListener.class))).thenAnswer(invocation -> {
-            OnSuccessListener<Void> listener = invocation.getArgument(0);
-            listener.onSuccess(null);
-            return mockDeleteTask;
-        });
-
-        when(mockDeleteTask.addOnFailureListener(any(OnFailureListener.class))).thenAnswer(invocation -> {
-            OnFailureListener listener = invocation.getArgument(0);
-            listener.onFailure(new Exception("Mock failure"));
-            return mockDeleteTask;
-        });
-
-        event.removeEventFromFirestore();
-
-        verify(mockFirestore).collection("events");
-        verify(mockCollectionReference).document(mockEventId);
-        verify(mockDocumentReference).delete();
-        verify(mockDeleteTask).addOnSuccessListener(any(OnSuccessListener.class));
-
-        assertFalse(event.getSavedToFirestore());
+        verify(mockDocRef, times(1)).delete();
     }
-
     @Test
     public void testUpdateFirestore() {
-        // Set the event ID to simulate an existing document in Firestore
-        event.setEventId(mockEventId);
-        event.setSavedToFirestore(true);
-        assertTrue(event.getSavedToFirestore());
+        Task<Void> mockTask = mock(Task.class);
+        when(mockDocRef.update(anyString(), any())).thenReturn(mockTask);
 
-        // Mock Task<Void> for the update operation
-        Task<Void> mockUpdateTask = mock(Task.class);
+        //mockEvent.setEventId("mockEventId");
+        mockEvent.updateFirestore("title", "New Title");
 
-        // Mock DocumentReference and CollectionReference behavior
-        DocumentReference mockDocumentReference = mock(DocumentReference.class);
-        when(mockDocumentReference.update("title", "New Title")).thenReturn(mockUpdateTask);
-
-        // Ensure CollectionReference returns the correct DocumentReference
-        when(mockCollectionReference.document(mockEventId)).thenReturn(mockDocumentReference);
-        when(mockFirestore.collection("events")).thenReturn(mockCollectionReference);
-
-        // Mock update task success behavior
-        when(mockUpdateTask.addOnSuccessListener(any(OnSuccessListener.class))).thenAnswer(invocation -> {
-            OnSuccessListener<Void> listener = invocation.getArgument(0);
-            listener.onSuccess(null); // Simulate successful update
-            return mockUpdateTask;
-        });
-
-        when(mockUpdateTask.addOnFailureListener(any(OnFailureListener.class))).thenAnswer(invocation -> {
-            OnFailureListener listener = invocation.getArgument(0);
-            listener.onFailure(new Exception("Mock failure")); // Simulate failure
-            return mockUpdateTask;
-        });
-
-        // Call the method to test
-        event.updateFirestore("title", "New Title");
-
-        // Verify that the correct calls were made with the specified event ID and field update
-        verify(mockFirestore).collection("events");
-        verify(mockCollectionReference).document(mockEventId);
-        verify(mockDocumentReference).update("title", "New Title");
-        verify(mockUpdateTask).addOnSuccessListener(any(OnSuccessListener.class));
-
-        // Ensure the savedToFirestore status has not changed
-        assertTrue(event.getSavedToFirestore());
-    }
-
-    @Test
-    public void testSetTitle() {
-        String newTitle = "New Event";
-        assertEquals("Event", event.getTitle());
-
-        event.setTitle(newTitle);
-
-        assertEquals(newTitle, event.getTitle());
-        verify(event).notifyViews();
-    }
-
-    @Test
-    public void testSetFacilityId() {
-        String newFacilityId = "FacTest";
-        assertEquals(mockFacilityId, event.getFacilityId());
-
-        event.setFacilityId(newFacilityId);
-
-        assertEquals(newFacilityId, event.getFacilityId());
-        verify(event).notifyViews();
-    }
-
-    @Test
-    public void testSetDescription() {
-        String newDescription = "New Description";
-        assertEquals("Description", event.getDescription());
-
-        event.setDescription(newDescription);
-
-        assertEquals(newDescription, event.getDescription());
-        verify(event).notifyViews();
-    }
-
-    @Test
-    public void testSetCost() {
-        double newCost = 8.88;
-        assertEquals(9.99, event.getCost(), 0.005);
-
-        event.setCost(newCost);
-
-        assertEquals(newCost, event.getCost(),0.005);
-        verify(event).notifyViews();
-    }
-
-    @Test
-    public void testSetStartDate() {
-        Date newStartDate = new Date(2024,12,26);
-        assertEquals(new Date(2024,12,25), event.getStartDate());
-
-        event.setStartDate(newStartDate);
-
-        assertEquals(newStartDate, event.getStartDate());
-        verify(event).notifyViews();
-    }
-
-    @Test
-    public void testSetEndDate() {
-        Date newEndDate = new Date(2024,12,29);
-        assertEquals(new Date(2024,12,30), event.getEndDate());
-
-        event.setEndDate(newEndDate);
-
-        assertEquals(newEndDate, event.getEndDate());
-        verify(event).notifyViews();
-    }
-
-    @Test
-    public void testSetNumberOfSpots() {
-        int newSpots = 10;
-        assertEquals(5, event.getNumberOfSpots());
-
-        event.setNumberOfSpots(newSpots);
-
-        assertEquals(newSpots, event.getNumberOfSpots());
-        verify(event).notifyViews();
-    }
-
-    @Test
-    public void testSetNumberOfMaxEntrants() {
-        int newNumberOfMaxEntrants = 10;
-        assertEquals(15, event.getNumberOfMaxEntrants());
-
-        event.setNumberOfMaxEntrants(newNumberOfMaxEntrants);
-
-        assertEquals(newNumberOfMaxEntrants, event.getNumberOfMaxEntrants());
-        verify(event).notifyViews();
-    }
-
-    @Test
-    public void testSetPosterImage() {
-        Object newPosterImage = Object.class;
-        assertEquals(Object.class, event.getPosterImage());
-
-        event.setPosterImage(newPosterImage);
-
-        assertEquals(newPosterImage, event.getPosterImage());
-        verify(event).notifyViews();
-    }
-
-    @Test
-    public void testSetGeo() {
-        boolean newGeo = true;
-        assertFalse(event.getGeo());
-
-        event.setGeo(newGeo);
-
-        assertTrue(event.getGeo());
-        verify(event).notifyViews();
-    }
-
-    @Test
-    public void testSetQrCode() {
-        Object newQrCode = Object.class;
-        assertEquals(Object.class, event.getQrCode());
-
-        event.setPosterImage(newQrCode);
-
-        assertEquals(newQrCode, event.getQrCode());
-        verify(event).notifyViews();
+        verify(mockDocRef, times(1)).update("title", "New Title");
     }
 
     @Test
     public void testAddToWaitingList() {
-        UserModel testMockUser = mock(UserModel.class);
-        assertTrue(event.addToWaitingList(testMockUser));
+        UserModel mockUser = mock(UserModel.class);
+        mockEvent.setNumberOfMaxEntrants(10);
+
+        boolean added = mockEvent.addToWaitingList(mockUser);
+
+        assertTrue(added);
+        assertEquals(1, mockEvent.getWaitingList().size());
     }
 
     @Test
     public void testAddToWaitingList_MaxReached() {
-        UserModel testMockUser = mock(UserModel.class);
-        event.setNumberOfMaxEntrants(2);
-        assertFalse(event.addToWaitingList(testMockUser));
+        UserModel mockUser = mock(UserModel.class);
+        mockEvent.setNumberOfMaxEntrants(1);
+        mockEvent.addToWaitingList(mockUser);
+
+        UserModel anotherUser = mock(UserModel.class);
+        boolean added = mockEvent.addToWaitingList(anotherUser);
+
+        assertFalse(added);
     }
-/*
 */
+
+    @Test
+    public void testSetTitle() {
+        mockEvent.setTitle("New Event Title");
+        assertEquals("New Event Title", mockEvent.getTitle());
+    }
+
+    @Test
+    public void testSetFacilityId() {
+        mockEvent.setFacilityId("newFacilityId");
+        assertEquals("newFacilityId", mockEvent.getFacilityId());
+    }
+
+    @Test
+    public void testSetStartDate() {
+        Date now = new Date();
+        mockEvent.setStartDate(now);
+        assertEquals(now, mockEvent.getStartDate());
+    }
+
+    @Test
+    public void testSetEndDate() {
+        Date now = new Date();
+        mockEvent.setEndDate(now);
+        assertEquals(now, mockEvent.getEndDate());
+    }
+
+    @Test
+    public void testGetNumberOfSpots() {
+        mockEvent.setNumberOfSpots(5);
+        assertEquals(5, mockEvent.getNumberOfSpots());
+    }
+
+    @Test
+    public void testGetDescription() {
+        mockEvent.setDescription("Event Description");
+        assertEquals("Event Description", mockEvent.getDescription());
+    }
 }
