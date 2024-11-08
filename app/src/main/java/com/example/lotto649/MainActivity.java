@@ -154,11 +154,13 @@ public class MainActivity extends AppCompatActivity
             return true;
         } else if (item.getItemId() == R.id.admin) {
             MyApp.getInstance().replaceFragment(adminAndUserFragment);
-        } else if (item.getItemId() == R.id.event) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.flFragment, eventFragment)
-                    .commit();
+
             return true;
+//        } else if (item.getItemId() == R.id.event) {
+//            getSupportFragmentManager().beginTransaction()
+//                    .replace(R.id.flFragment, eventFragment)
+//                    .commit();
+//            return true;
         } else if (item.getItemId() == R.id.browseEvents) {
             getSupportFragmentManager()
                     .beginTransaction()

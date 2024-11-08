@@ -135,7 +135,7 @@ public class EventModel extends AbstractModel implements Serializable {
      * @param db the Firestore database instance
      */
     public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots,
-                      int numberOfMaxEntrants, Date startDate, Date endDate, Object posterImage, boolean geo, String qrCodeUrl,
+                      int numberOfMaxEntrants, Date startDate, Date endDate, String posterImage, boolean geo, String qrCodeUrl,
                       ArrayList<UserModel> waitingList, FirebaseFirestore db) {
         this.title = title;
         this.facilityId = facilityId;
