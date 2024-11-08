@@ -35,17 +35,27 @@ public class EventFragment extends Fragment {
     private TextInputEditText titleEditText, descriptionEditText, lotteryStartDateFieldText, lotteryEndDateFieldText, spotsEditText, maxEntrantsEditText, costEditText;
     private CheckBox geoCheck;
     private ExtendedFloatingActionButton cancelButton, saveButton;
+    private boolean add;
 
     public void showEventDetails(@NonNull EventModel event) {
         titleEditText.setText(event.getTitle());
         descriptionEditText.setText(event.getDescription());
+        lotteryStartDateFieldText.setText(String.valueOf(event.getStartDate()));
+        lotteryEndDateFieldText.setText(String.valueOf(event.getEndDate()));
         spotsEditText.setText(String.valueOf(event.getNumberOfSpots()));
         maxEntrantsEditText.setText(String.valueOf(event.getNumberOfMaxEntrants()));
         costEditText.setText(String.valueOf(event.getCost()));
+        geoCheck.setChecked(event.getGeo());
     }
 
     public EventFragment() {
-        // Required empty constructor
+        add = true;
+        this.event = new EventModel(requireContext(), FirebaseFirestore.getInstance());
+    }
+
+    public EventFragment(EventModel event) {
+        add = true;
+        this.event = event;
     }
 
     @Override
@@ -80,6 +90,8 @@ public class EventFragment extends Fragment {
         cancelButton = view.findViewById(R.id.cancelButton);
         saveButton = view.findViewById(R.id.saveButton);
 
+        showEventDetails(event);
+
         AtomicReference<Date> startDate = new AtomicReference<>(new Date());
         AtomicReference<Date> endDate = new AtomicReference<>(new Date());
         lotteryStartDateFieldText.setOnClickListener(v -> {
@@ -89,17 +101,18 @@ public class EventFragment extends Fragment {
             showDatePickerDialog(lotteryEndDateFieldText, endDate, startDate.get());
         });
 
+
         // Inside onCreateView() after initializing costEditText
         costEditText.addTextChangedListener(costEditWatcher);
-        // Initialize MVC components
-        event = new EventModel(requireContext(), FirebaseFirestore.getInstance());
 
         eventController = new EventController(event);
 
+
         // Set up the cancel button click listener
         cancelButton.setOnClickListener(v -> {
-            eventController.removeEventFromFirestore();
-
+            if (!add) {
+                eventController.removeEventFromFirestore();
+            }
         });
 
         // Set up the save button click listener
@@ -160,7 +173,10 @@ public class EventFragment extends Fragment {
             eventController.updateEndDate(endDate.get());
             eventController.updateCost(cost);
             eventController.updateGeo(geo);
-            eventController.saveEventToFirestore();
+
+            if (add) {
+                eventController.saveEventToFirestore();
+            }
         });
 
         return view;

@@ -30,4 +30,9 @@ public class EventsController extends AbstractController {
         EventFragment eventFragment = new EventFragment();
         MyApp.getInstance().replaceFragment(eventFragment);
     }
+
+    public void editEvent(EventModel event) {
+        EventFragment eventFragment = new EventFragment(event);
+        MyApp.getInstance().replaceFragment(eventFragment);
+    }
 }
