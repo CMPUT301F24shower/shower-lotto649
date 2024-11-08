@@ -35,7 +35,8 @@ public class EventModel extends AbstractModel implements Serializable {
     private Date endDate;
     private Object posterImage; // Placeholder for image class
     private boolean geo;
-    private Object qrCode;
+    private String qrCode;
+    private String qrCodeData;
     private ArrayList<UserModel> waitingList;
 
     private FirebaseFirestore db;
@@ -134,7 +135,7 @@ public class EventModel extends AbstractModel implements Serializable {
      * @param db the Firestore database instance
      */
     public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots,
-                      int numberOfMaxEntrants, Date startDate, Date endDate, Object posterImage, boolean geo, Object qrCode,
+                      int numberOfMaxEntrants, Date startDate, Date endDate, Object posterImage, boolean geo, String qrCodeUrl,
                       ArrayList<UserModel> waitingList, FirebaseFirestore db) {
         this.title = title;
         this.facilityId = facilityId;
@@ -148,7 +149,7 @@ public class EventModel extends AbstractModel implements Serializable {
         this.posterImage = posterImage;
         this.geo = geo;
         this.db = db;
-        this.qrCode = qrCode;
+        this.qrCodeData = title + description + numberOfSpots + numberOfMaxEntrants + cost;
         this.waitingList = waitingList;
         //saveEventToFirestore();
     }
@@ -483,7 +484,7 @@ public class EventModel extends AbstractModel implements Serializable {
      *
      * @return the QR code path as a string
      */
-    public Object getQrCode() {
+    public String getQrCode() {
         return qrCode;
     }
 
@@ -492,10 +493,10 @@ public class EventModel extends AbstractModel implements Serializable {
      *
      * @param qrCode the QR code setting
      */
-    public void setQrCode(Object qrCode) {
+    public void setQrCode(String qrCode) {
         this.qrCode = qrCode;
-        updateFirestore("qrCode", qrCode);
-        notifyViews();
+//        updateFirestore("qrCode", qrCode);
+//        notifyViews();
     }
 
     /**
@@ -535,7 +536,7 @@ public class EventModel extends AbstractModel implements Serializable {
      * Generates a QR code for the event (mock implementation).
      */
     private void generateQrCode() {
-        this.qrCode = QrCodeModel.generateForEvent(this);
+        this.qrCode = QrCodeModel.generateHash(this.qrCode);
     }
 
     /**

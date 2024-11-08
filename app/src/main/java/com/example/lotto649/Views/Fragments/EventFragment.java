@@ -2,6 +2,7 @@ package com.example.lotto649.Views.Fragments;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
@@ -13,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import com.example.lotto649.Controllers.EventController;
 import com.example.lotto649.Models.EventModel;
+import com.example.lotto649.Models.QrCodeModel;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
@@ -193,11 +195,23 @@ public class EventFragment extends Fragment {
             eventController.updateCost(cost);
             eventController.updateGeo(geo);
 
+            String data = title + description + spotsStr + maxEntrantsStr + costStr;
+            Bitmap qrCodeBitmap = QrCodeModel.generateForEvent(data);
+            String qrCodeHash = QrCodeModel.generateHash(data);
+
+            eventController.updateQrCode(qrCodeHash);
+
             if (add) {
                 eventController.saveEventToFirestore();
             } else {
                 eventController.returnToEvents();
             }
+
+            QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.flFragment, qrFragment)
+                    .addToBackStack(null)
+                    .commit();
         });
 
         return view;
