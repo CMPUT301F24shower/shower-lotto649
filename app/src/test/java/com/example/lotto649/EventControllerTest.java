@@ -105,3 +105,4 @@ public class EventControllerTest {
         verify(eventController).returnToEvents();
     }
 }
+
