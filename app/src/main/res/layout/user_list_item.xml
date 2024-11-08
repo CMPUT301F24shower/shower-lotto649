@@ -3,12 +3,45 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    
-    <ImageView
-        android:id="@+id/user_image"
+
+    <LinearLayout
+        android:id="@+id/profile_picture_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="Profile Image" />
+        android:orientation="vertical"
+        android:gravity="center" >
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="16dp"/>
+
+        <ImageView
+            android:id="@+id/profile_image"
+            android:src="@drawable/ic_person_foreground"
+            android:contentDescription="Icon description"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:scaleType="centerCrop"
+            android:layout_gravity="center"
+            android:background="@color/white" />
+
+        <TextView
+            android:id="@+id/profile_image_placeholder"
+            android:src="@drawable/ic_person_foreground"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:scaleType="centerCrop"
+            android:layout_gravity="center"
+            android:background="@drawable/name_bg"
+            android:textColor="@color/white"
+            android:gravity="center"
+            android:textSize="24sp"
+            android:text="" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="16dp"/>
+
+    </LinearLayout>
 
     <LinearLayout
         android:orientation="vertical"

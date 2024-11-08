@@ -1,15 +1,21 @@
 package com.example.lotto649.Views.Fragments;
 
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.R;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -20,12 +26,19 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class AdminProfileFragment extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference usersRef;
+    private TextView imagePlaceholder;
+    private LinearLayout linearLayout;
+    private ImageView profileImage;
+    private Uri profileUri;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -64,6 +77,15 @@ public class AdminProfileFragment extends Fragment {
         TextView roles = view.findViewById(R.id.admin_user_roles);
         Button removeImage = view.findViewById(R.id.admin_delete_user_image);
         Button removeUser = view.findViewById(R.id.admin_delete_user);
+        profileImage = new ImageView(getContext());
+        profileImage.setId(View.generateViewId());
+        // TODO: This is hardcoded, but works good on my phone, not sure if this is a good idea or not
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(450, 450);
+        profileImage.setLayoutParams(layoutParams);
+        profileImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        linearLayout = view.findViewById(R.id.admin_profile_picture_layout);
+        imagePlaceholder = view.findViewById(R.id.admin_profile_image_placeholder);
+
 
         db.collection("users")
                 .document(userDeviceId)
@@ -93,8 +115,32 @@ public class AdminProfileFragment extends Fragment {
                             String rolesText = rolesBuilder.toString().substring(0, rolesBuilder.toString().length() - 2);
                             name.setText(nameText);
                             email.setText(emailText);
-                            phone.setText(phoneText);
+                            if (phoneText.isEmpty()) {
+                                phone.setVisibility(View.GONE);
+                            } else {
+                                phone.setVisibility(View.VISIBLE);
+                                phone.setText(phoneText);
+                            }
                             roles.setText(rolesText);
+
+                        //     getting profile image
+                            imagePlaceholder.setText(new UserModel(getContext(), nameText, emailText).getInitials());
+                            String profileUriString = doc.getString("profileImage");
+                            if (!Objects.equals(profileUriString, "")) {
+                                profileUri = Uri.parse(profileUriString);
+                                StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(profileUriString);
+                                imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                                            profileUri = uri;
+                                            Glide.with(getContext())
+                                                    .load(uri)
+                                                    .into(profileImage);
+                                            linearLayout.removeView(imagePlaceholder);
+                                            linearLayout.addView(profileImage, 2);
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Toast.makeText(getActivity(), "Unable to fetch profile image", Toast.LENGTH_SHORT).show();
+                                        });
+                            }
                         }
                     }
                 });

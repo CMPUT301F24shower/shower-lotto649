@@ -12,6 +12,7 @@
 package com.example.lotto649.Views.Fragments;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -111,7 +112,9 @@ public class BrowseProfilesFragment extends Fragment {
                         String nameText = doc.getString("name");
                         String emailText = doc.getString("email");
                         String phoneText = doc.getString("phone");
-                        dataList.add(new UserModel(getContext(), nameText, emailText, phoneText, null));
+                        UserModel newUser = new UserModel(getContext(), nameText, emailText, phoneText, null);
+                        newUser.setProfileImage(doc.getString("profileImage"));
+                        dataList.add(newUser);
                         deviceIdList.add(deviceIdText);
                     }
                     profilesAdapter.notifyDataSetChanged();
