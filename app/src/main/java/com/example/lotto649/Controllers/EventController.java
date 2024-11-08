@@ -31,7 +31,9 @@ public class EventController extends AbstractController {
         getModel().setNumberOfSpots(spots);
     }
 
-    public void updateNumberOfMaxEntrants(int maxEntrants) { getModel().setNumberOfMaxEntrants(maxEntrants); }
+    public void updateNumberOfMaxEntrants(int maxEntrants) {
+        getModel().setNumberOfMaxEntrants(maxEntrants);
+    }
 
     public void updateStartDate(Date startDate) {
         getModel().setStartDate(startDate);
