@@ -1,5 +1,6 @@
 package com.example.lotto649.Views.Fragments;
 
+import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -48,9 +49,14 @@ public class EventFragment extends Fragment {
         geoCheck.setChecked(event.getGeo());
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.event = new EventModel(context, FirebaseFirestore.getInstance());
+    }
+
     public EventFragment() {
         add = true;
-        this.event = new EventModel(requireContext(), FirebaseFirestore.getInstance());
     }
 
     public EventFragment(EventModel event) {
