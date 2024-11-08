@@ -34,8 +34,21 @@
         android:layout_margin="16dp"
         app:layout_constraintTop_toBottomOf="@id/eventFragment"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        android:src="@drawable/ic_default_event_img_foreground"/>
 
+    <ImageView
+        android:id="@+id/editEventImage"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="8dp"
+        android:src="@drawable/ic_edit_icon_foreground"
+        android:contentDescription="Edit Image Icon"
+        app:layout_constraintTop_toTopOf="@id/eventPoster"
+        app:layout_constraintEnd_toEndOf="@id/eventPoster"
+        android:clickable="true"
+        android:focusable="true"/>
     <!-- Event Name Field -->
     <com.google.android.material.textfield.TextInputLayout
         style="?attr/textInputFilledStyle"
