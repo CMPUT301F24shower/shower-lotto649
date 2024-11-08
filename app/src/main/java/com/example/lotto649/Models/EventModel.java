@@ -155,12 +155,12 @@ public class EventModel extends AbstractModel {
     public void saveEventToFirestore() {
         if (savedToFirestore) return;
 
+        FirebaseStorage storage = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app");
+        StorageReference storageRef = storage.getReference().child("qrcodes/" + eventId + ".png");
+
         ByteArrayOutputStream byteout = new ByteArrayOutputStream();
         qrCode.compress(Bitmap.CompressFormat.PNG, 100, byteout);
         byte[] qrCodeBytes = byteout.toByteArray();
-
-        StorageReference storageRef = FirebaseStorage.getInstance().getReference()
-                .child("qrcodes/" + UUID.randomUUID().toString() + ".png");
 
         UploadTask uploadTask = storageRef.putBytes(qrCodeBytes);
         uploadTask.addOnSuccessListener(taskSnapshot ->

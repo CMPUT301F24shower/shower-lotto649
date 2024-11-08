@@ -185,14 +185,16 @@ public class EventFragment extends Fragment {
             String data = title + description + spotsStr + maxEntrantsStr + costStr;
             Bitmap qrCodeBitmap = QrCodeModel.generateForEvent(data);
 
+            eventController.updateQrCode(qrCodeBitmap);
+            eventController.saveEventToFirestore();
+
             QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
             getParentFragmentManager().beginTransaction()
                     .replace(R.id.flFragment, qrFragment)
                     .addToBackStack(null)
                     .commit();
 
-            eventController.updateQrCode(qrCodeBitmap);
-            eventController.saveEventToFirestore();
+
 
         });
         return view;
