@@ -28,6 +28,7 @@ import com.example.lotto649.Views.Fragments.BrowseEventsFragment;
 import com.example.lotto649.Views.Fragments.BrowseFacilitiesFragment;
 import com.example.lotto649.Views.Fragments.BrowseProfilesFragment;
 import com.example.lotto649.Views.Fragments.CameraFragment;
+import com.example.lotto649.Views.Fragments.EventFragment;
 import com.example.lotto649.Views.Fragments.FacilityFragment;
 import com.example.lotto649.Views.Fragments.HomeFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -104,6 +105,8 @@ public class MainActivity extends AppCompatActivity
     BrowseProfilesFragment browseProfilesFragment = new BrowseProfilesFragment();
     BrowseFacilitiesFragment browseFacilitiesFragment = new BrowseFacilitiesFragment();
     AdminAndUserFragment adminAndUserFragment = new AdminAndUserFragment();
+    EventFragment eventFragment = new EventFragment();
+
 
     /**
      * Handles the selection of items from the BottomNavigationView.
@@ -140,6 +143,11 @@ public class MainActivity extends AppCompatActivity
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.flFragment, facilityFragment)
+                    .commit();
+            return true;
+        } else if (item.getItemId() == R.id.event) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.flFragment, eventFragment)
                     .commit();
             return true;
         } else if (item.getItemId() == R.id.browseEvents) {
