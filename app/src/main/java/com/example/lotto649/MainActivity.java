@@ -4,16 +4,22 @@
  * <p>
  * Code adapted from the following source for implementing a bottom navigation bar:
  * <a href="https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/">GeeksforGeeks: Bottom Navigation Bar in Android</a>
+ * Notification permission code was adapted from this thread:
+ * https://stackoverflow.com/questions/44305206/ask-permission-for-push-notification
  * </p>
  */
 package com.example.lotto649;
 
+import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.lotto649.Models.FirestoreIsAdminCallback;
 import com.example.lotto649.Views.Fragments.AccountFragment;
@@ -34,11 +40,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener {
-
-    /**
-     * BottomNavigationView that allows navigation between fragments.
-     */
     BottomNavigationView bottomNavigationView;
+    private static final int REQUEST_CODE_POST_NOTIFICATIONS = 1;
 
     /**
      * Initializes the activity, setting up the bottom navigation view and its listener.
@@ -50,6 +53,15 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // TODO this code is incomplete, just here to fix build errors
+//        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
+//                != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(this,
+//                    new String[]{android.Manifest.permission.POST_NOTIFICATIONS},
+//                    REQUEST_CODE_POST_NOTIFICATIONS);
+//        } else {
+//            // Permission already granted, post notifications
+//        }
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.getMenu().clear();
@@ -109,6 +121,9 @@ public class MainActivity extends AppCompatActivity
      */
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        if (isFinishing() || isDestroyed()) {
+            return false; // Don't perform the transaction if the activity is finishing or destroyed
+        }
         // Handle navigation based on the selected item ID
         if (item.getItemId() == R.id.home) {
             MyApp.getInstance().replaceFragment(homeFragment);
@@ -147,6 +162,15 @@ public class MainActivity extends AppCompatActivity
 
 
 
+    /**
+     * Checks if the current user has an admin status in the Firestore database.
+     * This method retrieves the device ID, then queries the "users" collection in Firestore
+     * to determine if the user has admin privileges.
+     *
+     * @param firestoreIsAdminCallback A callback interface to handle the result of the admin status check.
+     *                                 The callback will return {@code true} if the user is an admin,
+     *                                 and {@code false} otherwise.
+     */
     private void checkUserAdminStatus(FirestoreIsAdminCallback firestoreIsAdminCallback) {
         String deviceId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
         DocumentReference doc = FirebaseFirestore.getInstance().collection("users").document(deviceId);
@@ -173,6 +197,15 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    /**
+     * Checks if the current user has entrant status in the Firestore database.
+     * This method retrieves the device ID, then queries the "users" collection in Firestore
+     * to determine if the user has entrant privileges.
+     *
+     * @param firestoreIsAdminCallback A callback interface to handle the result of the entrant status check.
+     *                                 The callback will return {@code true} if the user is an entrant,
+     *                                 and {@code false} otherwise.
+     */
     private void checkUserEntrantStatus(FirestoreIsAdminCallback firestoreIsAdminCallback) {
         String deviceId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
         DocumentReference doc = FirebaseFirestore.getInstance().collection("users").document(deviceId);
@@ -183,8 +216,8 @@ public class MainActivity extends AppCompatActivity
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        Boolean isAdmin = document.getBoolean("entrant");
-                        if (isAdmin != null && isAdmin) {
+                        Boolean isEntrant = document.getBoolean("entrant");
+                        if (isEntrant != null && isEntrant) {
                             firestoreIsAdminCallback.onCallback(true);
                         } else {
                             firestoreIsAdminCallback.onCallback(false);
@@ -197,6 +230,39 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+    }
+
+
+    /**
+     * Callback method that is invoked when the user responds to a permission request.
+     * This method handles the result of the {@link android.Manifest.permission#POST_NOTIFICATIONS} permission
+     * request, specifically checking if the permission was granted or denied.
+     *
+     * @param requestCode  The request code passed in {@link ActivityCompat#requestPermissions(Activity, String[], int)}.
+     *                     It identifies which permission request is being handled.
+     * @param permissions  An array of permissions that were requested.
+     * @param grantResults An array of permission grant results corresponding to the permissions in the `permissions` array.
+     *                     Each element in the array is either {@link PackageManager#PERMISSION_GRANTED} or
+     *                     {@link PackageManager#PERMISSION_DENIED}.
+     *
+     * If the requestCode matches {@link #REQUEST_CODE_POST_NOTIFICATIONS}, the method checks if the user has granted
+     * or denied the {@link andorid.Manifest.permission#POST_NOTIFICATIONS} permission:
+     * <ul>
+     *     <li>If the permission is granted, proceed with posting notifications.</li>
+     *     <li>If the permission is denied, handle accordingly (e.g., show a message to the user).</li>
+     * </ul>
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CODE_POST_NOTIFICATIONS) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Granted
+            } else {
+                // NOT granted
+            }
+        }
     }
 
 }
