@@ -19,7 +19,7 @@
     <item
         android:id="@+id/facility"
         android:title="Facility"
-        android:icon="@drawable/ic_map_pin_foreground"/>
+        android:icon="@drawable/facility_icon"/>
     <item
         android:id="@+id/account"
         android:title="Account"
