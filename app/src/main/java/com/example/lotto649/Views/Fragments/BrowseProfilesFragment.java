@@ -11,6 +11,7 @@
  */
 package com.example.lotto649.Views.Fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -46,6 +47,8 @@ public class BrowseProfilesFragment extends Fragment {
     private BrowseProfilesArrayAdapter profilesAdapter;
     private FirebaseFirestore db;
     private CollectionReference userRef;
+    // https://stackoverflow.com/questions/47987649/why-getcontext-in-fragment-sometimes-returns-null
+    private Context mContext;
 
     /**
      * Public empty constructor for BrowseFacilitiesFragment.
@@ -55,6 +58,13 @@ public class BrowseProfilesFragment extends Fragment {
      */
     public BrowseProfilesFragment() {
         // Required empty public constructor
+    }
+
+    // Initialise it from onAttach()
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mContext = context;
     }
 
     /**
@@ -112,7 +122,7 @@ public class BrowseProfilesFragment extends Fragment {
                         String nameText = doc.getString("name");
                         String emailText = doc.getString("email");
                         String phoneText = doc.getString("phone");
-                        UserModel newUser = new UserModel(getContext(), nameText, emailText, phoneText, null);
+                        UserModel newUser = new UserModel(mContext, nameText, emailText, phoneText, null);
                         newUser.setProfileImage(doc.getString("profileImage"));
                         dataList.add(newUser);
                         deviceIdList.add(deviceIdText);
