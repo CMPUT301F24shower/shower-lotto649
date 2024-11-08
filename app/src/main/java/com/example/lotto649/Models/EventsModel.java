@@ -4,6 +4,7 @@ import static androidx.core.content.ContentProviderCompat.requireContext;
 import static java.security.AccessController.getContext;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.lotto649.AbstractClasses.AbstractModel;
 import com.example.lotto649.MyApp;
@@ -15,9 +16,10 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class EventsModel extends AbstractModel {
-    private ArrayList<EventModel> myEvents;
+    private AtomicReference<ArrayList<EventModel>> myEvents;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     public interface EventFetchCallback {
@@ -25,7 +27,7 @@ public class EventsModel extends AbstractModel {
     }
 
     public EventsModel() {
-        // No initialization required
+        myEvents = new AtomicReference<>(new ArrayList<>());
     }
 
     public static void fetchEventsByOrganizerId(EventFetchCallback callback, FirebaseFirestore db) {
@@ -49,7 +51,9 @@ public class EventsModel extends AbstractModel {
         EventsModel.fetchEventsByOrganizerId(new EventsModel.EventFetchCallback() {
             @Override
             public void onCallback(List<DocumentSnapshot> documents) {
-                myEvents = new ArrayList<>();
+                Log.e("Ohm", "onCallBack");
+
+                myEvents.set(new ArrayList<>());
                 for (DocumentSnapshot document : documents) {
                     String title = document.getString("title");
                     String facilityId = document.getString("facilityId");
@@ -65,14 +69,18 @@ public class EventsModel extends AbstractModel {
                     boolean geo = Boolean.TRUE.equals(document.get("geo"));
                     ArrayList<UserModel> waitingList = (ArrayList<UserModel>) document.get("waitingList");
 
+                    Log.e("Ohm", title);
+
                     EventModel event = new EventModel(null, title, facilityId, cost, description, numberOfSpots, numberOfMaxEntrants, startDate, endDate, posterImage, geo, qrCode, waitingList, db);
                     event.setEventId(document.getId());
                     event.setOrganizerId(organizerId);
-                    myEvents.add(event);
+                    myEvents.get().add(event);
+                    Log.e("Ohm", String.valueOf(myEvents.get().size()));
                 }
             }
         }, db);
 
-        return myEvents;
+        Log.e("Ohm", "Model get events");
+        return myEvents.get();
     }
 }

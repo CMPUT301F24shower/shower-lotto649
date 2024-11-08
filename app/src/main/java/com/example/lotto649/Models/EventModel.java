@@ -63,6 +63,7 @@ public class EventModel extends AbstractModel {
         this.endDate =  new Date();
         this.posterImage = null;
         this.geo = false;
+        this.waitingList = new ArrayList<>();
     }
 
     /**
@@ -201,9 +202,9 @@ public class EventModel extends AbstractModel {
     }
 
     public void setEventId(String event){
-        removeEventFirestore();
+        //removeEventFirestore();
         this.eventId = eventId;
-        saveEventToFirestore();
+        //saveEventToFirestore();
     }
 
     /**

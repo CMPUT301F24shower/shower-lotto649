@@ -27,7 +27,7 @@
 
     <!-- ListView to Events -->
     <ListView
-        android:id="@+id/event_content"
+        android:id="@+id/event_contents"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
