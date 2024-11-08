@@ -22,6 +22,7 @@ public class FacilityController extends AbstractController {
     private FirebaseFirestore db;
     private CollectionReference facilitiesRef;
 
+
     /**
      * Constructor for the FacilityController class. Takes in a FacilityModel to change.
      * Also takes a Firestore instance and gets the facilities collection.

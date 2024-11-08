@@ -96,7 +96,7 @@ public class EventModelTest {
                 5, 15,
                 new Date(2024, 12, 25),
                 new Date(2024, 12, 30),
-                Object.class, false, Object.class,
+                String.class, false, String.class,
                 new ArrayList<UserModel>(Arrays.asList(
                         new UserModel[]{new UserModel(), new UserModel()}
                     )),
@@ -307,8 +307,8 @@ public class EventModelTest {
 
     @Test
     public void testSetPosterImage() {
-        Object newPosterImage = Object.class;
-        assertEquals(Object.class, event.getPosterImage());
+        String newPosterImage = "newPosterImage";
+        assertEquals(String.class, event.getPosterImage());
 
         event.setPosterImage(newPosterImage);
 
@@ -329,8 +329,8 @@ public class EventModelTest {
 
     @Test
     public void testSetQrCode() {
-        Object newQrCode = Object.class;
-        assertEquals(Object.class, event.getQrCode());
+        String newQrCode = "newQrCode";
+        assertEquals(String.class, event.getQrCode());
 
         event.setPosterImage(newQrCode);
 
