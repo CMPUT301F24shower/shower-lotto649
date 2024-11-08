@@ -51,6 +51,10 @@ public class EventController extends AbstractController {
         getModel().setGeo(geo);
     }
 
+    public void updatePoster(String posterUri) {
+        getModel().setPosterImage(posterUri);
+    }
+
     public void updateQrCode(String qrCodeHash){
         getModel().setQrCode(qrCodeHash);
     }

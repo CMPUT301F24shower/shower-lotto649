@@ -21,7 +21,7 @@ import android.widget.ListView;
 
 import androidx.fragment.app.Fragment;
 
-import com.example.lotto649.Adapters.EventArrayAdapter;
+import com.example.lotto649.Views.ArrayAdapters.EventArrayAdapter;
 import com.example.lotto649.Controllers.EventsController;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.Models.EventsModel;

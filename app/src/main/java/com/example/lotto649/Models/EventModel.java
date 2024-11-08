@@ -150,8 +150,8 @@ public class EventModel extends AbstractModel implements Serializable {
         this.geo = geo;
         this.db = db;
         this.qrCodeData = title + description + numberOfSpots + numberOfMaxEntrants + cost;
+        this.qrCode = qrCode;
         this.waitingList = waitingList;
-        //saveEventToFirestore();
     }
 
     /**
@@ -186,6 +186,21 @@ public class EventModel extends AbstractModel implements Serializable {
                 .addOnFailureListener(e -> {
                     System.err.println("Error saving event: " + e.getMessage());
                 });
+        }
+    /**
+     * Retrieves if saved to firestore.
+     *
+     * @return if saved to firestore as a boolean
+     */
+    public boolean getSavedToFirestore() { return savedToFirestore; }
+
+    /**
+     * Sets the Firestore save status.
+     *
+     * @param savedToFirestore the new Firestore save status
+     */
+    public void setSavedToFirestore(boolean savedToFirestore) {
+        this.savedToFirestore = savedToFirestore;
     }
 
     /**
@@ -455,7 +470,7 @@ public class EventModel extends AbstractModel implements Serializable {
      */
     public void setPosterImage(String posterImage) {
         this.posterImage = posterImage;
-        updateFirestore("posterImage", posterImage);
+        // updateFirestore("posterImage", posterImage);
         notifyViews();
     }
 

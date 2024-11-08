@@ -18,11 +18,13 @@
  * Code for Glide image was adapted from this thread:
  * https://stackoverflow.com/questions/44761720/save-picture-to-storage-using-glide
  * </p>
+ * KNOWN ISSUE: removing profile image from profile page after just uploading image fails
  */
 package com.example.lotto649.Views.Fragments;
 
 import static android.app.Activity.RESULT_OK;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.RippleDrawable;
 import android.net.Uri;
@@ -51,6 +53,7 @@ import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.R;
 import com.example.lotto649.Views.AccountView;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -76,6 +79,7 @@ public class AccountFragment extends Fragment {
     private TextInputLayout nameInputLayout, emailInputLayout, phoneInputLayout;
     private TextInputEditText nameEditText, emailEditText, phoneEditText;
     private ExtendedFloatingActionButton saveButton;
+    private ExtendedFloatingActionButton deleteImageButton;
     private String initialNameInput, initialEmailInput, initialPhoneInput;
     private TextView imagePlaceholder;
     private static final int PICK_IMAGE_REQUEST = 1;
@@ -83,12 +87,23 @@ public class AccountFragment extends Fragment {
     private boolean hasSetImage;
     ImageView profileImage;
     Uri currentImageUri;
+    private Context mContext;
 
     /**
      * Required empty public constructor for AccountFragment.
      */
     public AccountFragment() {
         // Required empty public constructor
+    }
+
+    /**
+     * Attaches the fragment to the app, and sets the context
+     * @param context the given context
+     */
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mContext = context;
     }
 
     /**
@@ -114,6 +129,7 @@ public class AccountFragment extends Fragment {
         emailEditText = (TextInputEditText) emailInputLayout.getEditText();
         phoneEditText = (TextInputEditText) phoneInputLayout.getEditText();
         saveButton = view.findViewById(R.id.account_save_button);
+        deleteImageButton = view.findViewById(R.id.account_delete_image);
         linearLayout = view.findViewById(R.id.account_linear_layout);
         profileImage = new ImageView(getContext());
         profileImage.setId(View.generateViewId());
@@ -156,7 +172,7 @@ public class AccountFragment extends Fragment {
 
         // Initialize Firestore and UserModel
         db = FirebaseFirestore.getInstance();
-        user = new UserModel(getContext(), FirebaseFirestore.getInstance());
+        user = new UserModel(mContext, FirebaseFirestore.getInstance());
 
         // Check if the user exists in Firestore, or create a new user
         checkUserInFirestore(new FirestoreUserCallback() {
@@ -181,7 +197,7 @@ public class AccountFragment extends Fragment {
                     StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(profileImageUri);
                     imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                         currentImageUri = uri;
-                        Glide.with(getContext())
+                        Glide.with(mContext)
                                 .load(uri)
                                 .into(profileImage);
                         linearLayout.removeView(imagePlaceholder);
@@ -241,6 +257,38 @@ public class AccountFragment extends Fragment {
                 }
                 user = userController.getModel();
                 imagePlaceholder.setText(user.getInitials()); // TODO, this isnt right
+            }
+        });
+
+
+        deleteImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (currentImageUri != null) {
+                    Log.e("JASON TEST", currentImageUri.toString());
+                    StorageReference storageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(currentImageUri.toString());
+                    storageRef.delete()
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+                                    db.collection("users")
+                                            .document(Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID))
+                                            .update("profileImage", "")
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    //     add success log
+                                                }
+                                            });
+                                    hasSetImage = false;
+                                    currentImageUri = null;
+                                    linearLayout.removeView(profileImage);
+                                    linearLayout.addView(imagePlaceholder, 2);
+                                    linearLayout.removeView(profileImage);
+                                    imagePlaceholder.setText(new UserModel(getContext(), initialNameInput, "").getInitials());
+                                }
+                            });
+                }
             }
         });
 

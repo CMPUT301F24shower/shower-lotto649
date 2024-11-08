@@ -1,9 +1,15 @@
 package com.example.lotto649.Views.Fragments;
 
+import static android.app.Activity.RESULT_OK;
+
+import static com.example.lotto649.FirebaseStorageHelper.uploadPosterImageToFirebaseStorage;
+
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.util.Log;
@@ -12,7 +18,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+
+import com.bumptech.glide.Glide;
 import com.example.lotto649.Controllers.EventController;
+import com.example.lotto649.FirebaseStorageHelper;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.Models.QrCodeModel;
 import com.example.lotto649.MyApp;
@@ -21,10 +30,16 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
 import android.text.TextWatcher;
 import android.app.DatePickerDialog;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Calendar;
@@ -35,6 +50,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class EventFragment extends Fragment {
     private EventController eventController;
     private EventModel event;
+    private Context mContext;
 
     private TextInputLayout titleInputLayout, descriptionInputLayout, lotteryStartDateFieldLayout, lotteryEndDateFieldLayout, spotsInputLayout, maxEntrantsInputLayout, costInputLayout;
     private TextInputEditText titleEditText, descriptionEditText, lotteryStartDateFieldText, lotteryEndDateFieldText, spotsEditText, maxEntrantsEditText, costEditText;
@@ -44,6 +60,13 @@ public class EventFragment extends Fragment {
     private AtomicReference<Date> startDate = new AtomicReference<>(new Date());
     private AtomicReference<Date> endDate = new AtomicReference<>(new Date());
     private boolean add;
+
+    private static final int PICK_IMAGE_REQUEST = 1;
+    private boolean hasSetImage;
+    ImageView profileImage;
+    ImageView defaultImage;
+    Uri currentImageUri;
+    private String profileImageUri;
 
     public void showEventDetails(@NonNull EventModel event) {
         titleEditText.setText(event.getTitle());
@@ -65,6 +88,7 @@ public class EventFragment extends Fragment {
         if (Objects.isNull(event)) {
             this.event = new EventModel(context, FirebaseFirestore.getInstance());
         }
+        mContext = context;
     }
 
     public EventFragment() {
@@ -82,8 +106,8 @@ public class EventFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_event, container, false);
 
-        // Initialize UI elements
-        View image = view.findViewById(R.id.eventPoster);
+        hasSetImage = false;
+        currentImageUri = null;
         titleInputLayout = view.findViewById(R.id.eventTitle);
         descriptionInputLayout = view.findViewById(R.id.eventDescription);
         lotteryStartDateFieldLayout = view.findViewById(R.id.eventLotteryStartDate);
@@ -92,6 +116,39 @@ public class EventFragment extends Fragment {
         maxEntrantsInputLayout = view.findViewById(R.id.eventMaxEntrants);
         costInputLayout = view.findViewById(R.id.eventCost);
         geoCheck = view.findViewById(R.id.eventGeolocation);
+
+        profileImage = view.findViewById(R.id.event_poster);
+        defaultImage = view.findViewById(R.id.event_poster_placeholder);
+        profileImage.setVisibility(View.GONE);
+        defaultImage.setVisibility(View.VISIBLE);
+
+        // TODO: This is hardcoded, but works good on my phone, not sure if this is a good idea or not
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(750, 450);
+        profileImage.setLayoutParams(layoutParams);
+        profileImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        profileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+            }
+        });
+
+        defaultImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                profileImage.setVisibility(View.VISIBLE);
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+                if (!hasSetImage) {
+                    defaultImage.setVisibility(View.GONE);
+                }
+            }
+        });
 
         // Make the fields non-editable (only clickable to show date picker)
         lotteryStartDateFieldLayout.setFocusable(false);
@@ -109,6 +166,27 @@ public class EventFragment extends Fragment {
         costEditText = (TextInputEditText) costInputLayout.getEditText();
         cancelButton = view.findViewById(R.id.cancelButton);
         saveButton = view.findViewById(R.id.saveButton);
+
+
+        profileImageUri = event.getPosterImage();
+        // Update profile Image
+        if (!Objects.equals(profileImageUri, "")) {
+            StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(profileImageUri);
+            imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                        currentImageUri = uri;
+                        Glide.with(mContext)
+                                .load(uri)
+                                .into(profileImage);
+                        defaultImage.setVisibility(View.GONE);
+                        profileImage.setVisibility(View.VISIBLE);
+                        hasSetImage = true;
+                    })
+                    .addOnFailureListener(e -> {
+                        defaultImage.setVisibility(View.VISIBLE);
+                        profileImage.setVisibility(View.GONE);
+                        Toast.makeText(getActivity(), "Unable to fetch profile image", Toast.LENGTH_SHORT).show();
+                    });
+        }
 
         showEventDetails(event);
         Log.e("Ohm", "TEST");
@@ -194,6 +272,13 @@ public class EventFragment extends Fragment {
             eventController.updateEndDate(endDate.get());
             eventController.updateCost(cost);
             eventController.updateGeo(geo);
+            if (currentImageUri == null) {
+                eventController.updatePoster("");
+            } else {
+                eventController.updatePoster(currentImageUri.toString());
+            }
+            String fileName = event.getEventId() + ".jpg";
+            uploadPosterImageToFirebaseStorage(currentImageUri, fileName);
 
             String data = title + description + spotsStr + maxEntrantsStr + costStr;
             Bitmap qrCodeBitmap = QrCodeModel.generateForEvent(data);
@@ -261,4 +346,26 @@ public class EventFragment extends Fragment {
             }
         }
     };
+
+
+    /**
+     * Handles the result of an activity that was started for a result, specifically for picking an image.
+     *
+     * <p>This method is called when the user selects an image from the gallery or other image sources.
+     * If the image selection is successful, the selected image's URI is set to the {@code profileImage}
+     * view, and the save button's color is updated to indicate the image has been selected.</p>
+     *
+     * @param requestCode The request code that was passed to the activity when it was started.
+     * @param resultCode  The result code returned by the activity, indicating whether the operation was successful.
+     * @param data        The intent containing the result data, which includes the URI of the selected image.
+     *                    If the operation was successful, this will not be null and will contain the image URI.
+     */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            currentImageUri = data.getData();
+            profileImage.setImageURI(currentImageUri);
+        }
+    }
 }

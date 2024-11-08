@@ -1,31 +1,39 @@
-/*
 package com.example.lotto649;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
+import android.content.ContentResolver;
 import android.content.Context;
 import android.provider.Settings;
 
 import com.example.lotto649.Models.EventModel;
-import com.example.lotto649.Models.FacilityModel;
 import com.example.lotto649.Models.UserModel;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.OnSuccessListener;
-
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
+import org.robolectric.annotation.Config;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 
+
+@RunWith(RobolectricTestRunner.class)
+@Config(manifest=Config.NONE)
 public class EventModelTest {
     private Context context;
     private EventModel mockEvent;
@@ -63,68 +71,8 @@ public class EventModelTest {
         });
 
         // Initialize the EventModel with a mocked context
-        mockEvent = spy(new EventModel(context, "Event", mockFacilityId, 9.99, "Description", 10, 25, new Date(), new Date(), mockFirestore));
+        mockEvent = spy(new EventModel(context, "Event", mockFacilityId, 9.99, "Description", 10, 25, new Date(), new Date(), false, mockFirestore));
         doNothing().when(mockEvent).notifyViews();
-    }
-    @Test
-    public void testSaveEventToFirestore() {
-        doAnswer(invocation -> {
-            OnSuccessListener<Void> listener = invocation.getArgument(0);
-            // Not invoking this listener to simulate a failure
-            return mockTask;
-        }).when(mockTask).addOnSuccessListener(any());
-        doAnswer(invocation -> {
-            OnFailureListener listener = invocation.getArgument(0);
-            listener.onFailure(new Exception("Mock failure")); // Trigger the failure listener
-            return mockTask;
-        }).when(mockTask).addOnFailureListener(any());
-
-        mockEvent.saveEventToFirestore();
-
-        verify(mockCollectionRef, times(1)).add(any(HashMap.class));
-    }
-
-    @Test
-    public void testRemoveEventFromFirestore() {
-        Task<Void> mockTask = mock(Task.class);
-        when(mockDocRef.delete()).thenReturn(mockTask);
-
-        mockEvent.removeEventFromFirestore();
-
-        verify(mockDocRef, times(1)).delete();
-    }
-    @Test
-    public void testUpdateFirestore() {
-        Task<Void> mockTask = mock(Task.class);
-        when(mockDocRef.update(anyString(), any())).thenReturn(mockTask);
-
-        //mockEvent.setEventId("mockEventId");
-        mockEvent.updateFirestore("title", "New Title");
-
-        verify(mockDocRef, times(1)).update("title", "New Title");
-    }
-
-    @Test
-    public void testAddToWaitingList() {
-        UserModel mockUser = mock(UserModel.class);
-        mockEvent.setNumberOfMaxEntrants(10);
-
-        boolean added = mockEvent.addToWaitingList(mockUser);
-
-        assertTrue(added);
-        assertEquals(1, mockEvent.getWaitingList().size());
-    }
-
-    @Test
-    public void testAddToWaitingList_MaxReached() {
-        UserModel mockUser = mock(UserModel.class);
-        mockEvent.setNumberOfMaxEntrants(1);
-        mockEvent.addToWaitingList(mockUser);
-
-        UserModel anotherUser = mock(UserModel.class);
-        boolean added = mockEvent.addToWaitingList(anotherUser);
-
-        assertFalse(added);
     }
 
     @Test
@@ -165,4 +113,3 @@ public class EventModelTest {
         assertEquals("Event Description", mockEvent.getDescription());
     }
 }
-*/

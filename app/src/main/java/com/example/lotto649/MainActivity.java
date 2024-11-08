@@ -152,6 +152,10 @@ public class MainActivity extends AppCompatActivity
             MyApp.getInstance().replaceFragment(browseProfilesFragment);
 
             return true;
+        } else if (item.getItemId() == R.id.browseProfiles) {
+            MyApp.getInstance().replaceFragment(browseProfilesFragment);
+
+            return true;
         } else if (item.getItemId() == R.id.admin) {
             MyApp.getInstance().replaceFragment(adminAndUserFragment);
 
