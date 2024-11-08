@@ -96,7 +96,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="16dp"/>
 
-    <!-- Event Days Left -->
+    <!-- Event Description -->
     <TextView
         android:id="@+id/eventDescription"
         android:layout_width="0dp"

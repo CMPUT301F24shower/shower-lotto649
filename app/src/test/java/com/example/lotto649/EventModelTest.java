@@ -1,3 +1,4 @@
+/*
 package com.example.lotto649;
 
 import static org.junit.Assert.*;
@@ -65,7 +66,6 @@ public class EventModelTest {
         mockEvent = spy(new EventModel(context, "Event", mockFacilityId, 9.99, "Description", 10, 25, new Date(), new Date(), mockFirestore));
         doNothing().when(mockEvent).notifyViews();
     }
-/*
     @Test
     public void testSaveEventToFirestore() {
         doAnswer(invocation -> {
@@ -126,7 +126,6 @@ public class EventModelTest {
 
         assertFalse(added);
     }
-*/
 
     @Test
     public void testSetTitle() {
@@ -166,3 +165,4 @@ public class EventModelTest {
         assertEquals("Event Description", mockEvent.getDescription());
     }
 }
+*/

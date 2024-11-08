@@ -1,10 +1,16 @@
 package com.example.lotto649.Models;
 
 import android.content.Context;
+
 import com.example.lotto649.AbstractClasses.AbstractModel;
 import com.example.lotto649.MyApp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.io.Serializable;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,7 +23,7 @@ import java.util.Date;
  * cost, description, number of spots, event type, and poster image.
  * This model class also handles saving and updating event data in Firestore.
  */
-public class EventModel extends AbstractModel {
+public class EventModel extends AbstractModel implements Serializable {
     private String title;
     private String facilityId;
     private String organizerId;
@@ -63,6 +69,7 @@ public class EventModel extends AbstractModel {
         this.endDate =  new Date();
         this.posterImage = null;
         this.geo = false;
+        this.waitingList = new ArrayList<>();
     }
 
     /**
@@ -79,7 +86,7 @@ public class EventModel extends AbstractModel {
         clear();
         this.organizerId = MyApp.getInstance().getUserModel().getDeviceId();
         this.db = db;
-        generateQrCode();
+        //generateQrCode();
         //saveEventToFirestore();
     }
 
@@ -165,6 +172,7 @@ public class EventModel extends AbstractModel {
                 .addOnSuccessListener(documentReference -> {
                     eventId = documentReference.getId();
                     savedToFirestore = true;
+                    setQrCode(qrCode);
                     System.out.println("Event saved successfully with ID: " + eventId);
                 })
                 .addOnFailureListener(e -> {
@@ -201,9 +209,9 @@ public class EventModel extends AbstractModel {
     }
 
     public void setEventId(String event){
-        removeEventFirestore();
+        //removeEventFirestore();
         this.eventId = eventId;
-        saveEventToFirestore();
+        //saveEventToFirestore();
     }
 
     /**
@@ -473,6 +481,17 @@ public class EventModel extends AbstractModel {
     }
 
     /**
+     * Sets the QR code for the event and updates Firestore.
+     *
+     * @param qrCode the QR code setting
+     */
+    public void setQrCode(Object qrCode) {
+        this.qrCode = qrCode;
+        updateFirestore("qrCode", qrCode);
+        notifyViews();
+    }
+
+    /**
      * Retrieves the list of users on the waiting list for this event.
      *
      * @return an ArrayList of UserModel objects representing the waiting list
@@ -510,5 +529,28 @@ public class EventModel extends AbstractModel {
      */
     private void generateQrCode() {
         this.qrCode = QrCodeModel.generateForEvent(this);
+    }
+
+    /**
+     * Serializes the EventModel by writing the eventId first, then the rest of the fields.
+     *
+     * @param out the output stream to write data to
+     * @throws IOException if any I/O error occurs
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject(); // Default serialization
+        out.writeObject(eventId); // Serialize eventId as unique identifier
+    }
+
+    /**
+     * Deserializes the EventModel by reading the eventId first, then the rest of the fields.
+     *
+     * @param in the input stream to read data from
+     * @throws IOException if any I/O error occurs
+     * @throws ClassNotFoundException if the class is not found
+     */
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject(); // Default deserialization
+        eventId = (String) in.readObject(); // Deserialize eventId
     }
 }

@@ -1,9 +1,8 @@
 package com.example.lotto649.Controllers;
 
-import androidx.fragment.app.FragmentActivity;
+import android.util.Log;
 
 import com.example.lotto649.AbstractClasses.AbstractController;
-import com.example.lotto649.AbstractClasses.AbstractModel;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.Models.EventsModel;
 import com.example.lotto649.MyApp;
@@ -22,8 +21,9 @@ public class EventsController extends AbstractController {
         return (EventsModel) super.getModel();
     }
 
-    public ArrayList<EventModel> getMyEvents() {
-        return getModel().getMyEvents();
+    public void getMyEvents(EventsModel.MyEventsCallback events) {
+        Log.e("Ohm", "Get Events Contr");
+        getModel().getMyEvents(events);
     }
 
     public void addEvent() {
@@ -31,4 +31,8 @@ public class EventsController extends AbstractController {
         MyApp.getInstance().replaceFragment(eventFragment);
     }
 
+    public void editEvent(EventModel event) {
+        EventFragment eventFragment = new EventFragment(event);
+        MyApp.getInstance().replaceFragment(eventFragment);
+    }
 }

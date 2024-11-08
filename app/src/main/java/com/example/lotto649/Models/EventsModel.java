@@ -4,6 +4,7 @@ import static androidx.core.content.ContentProviderCompat.requireContext;
 import static java.security.AccessController.getContext;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.lotto649.AbstractClasses.AbstractModel;
 import com.example.lotto649.MyApp;
@@ -15,6 +16,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class EventsModel extends AbstractModel {
     private ArrayList<EventModel> myEvents;
@@ -24,8 +26,12 @@ public class EventsModel extends AbstractModel {
         void onCallback(List<DocumentSnapshot> events);
     }
 
+    public interface MyEventsCallback {
+        void onEventsFetched(ArrayList<EventModel> events);
+    }
+
     public EventsModel() {
-        // No initialization required
+        myEvents = new ArrayList<>();
     }
 
     public static void fetchEventsByOrganizerId(EventFetchCallback callback, FirebaseFirestore db) {
@@ -45,11 +51,11 @@ public class EventsModel extends AbstractModel {
                 });
     }
 
-    public ArrayList<EventModel> getMyEvents() {
+    public void getMyEvents(MyEventsCallback callback) {
         EventsModel.fetchEventsByOrganizerId(new EventsModel.EventFetchCallback() {
             @Override
-            public void onCallback(List<DocumentSnapshot> documents) {
-                myEvents = new ArrayList<>();
+            public void onCallback(List<DocumentSnapshot> documents)
+            {
                 for (DocumentSnapshot document : documents) {
                     String title = document.getString("title");
                     String facilityId = document.getString("facilityId");
@@ -67,12 +73,13 @@ public class EventsModel extends AbstractModel {
 
                     EventModel event = new EventModel(null, title, facilityId, cost, description, numberOfSpots, numberOfMaxEntrants, startDate, endDate, posterImage, geo, qrCode, waitingList, db);
                     event.setEventId(document.getId());
+
+                    Log.e("Ohm", "Doc Id " + document.getId());
                     event.setOrganizerId(organizerId);
                     myEvents.add(event);
                 }
+                callback.onEventsFetched(myEvents);
             }
         }, db);
-
-        return myEvents;
     }
 }
