@@ -199,21 +199,13 @@ public class AdminEventFragment extends Fragment {
         deleteQRButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                StorageReference storageReference = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app")
-                        .getReferenceFromUrl("qrcodes/" + firestoreEventId + ".png");
-                storageReference.delete()
+                eventsRef
+                        .document(firestoreEventId)
+                        .update("qrCode", "")
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
-                            public void onSuccess(Void unused) {
-                                eventsRef
-                                        .document(firestoreEventId)
-                                        .update("qrCode", "")
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                //add success log
-                                            }
-                                        });
+                            public void onSuccess(Void aVoid) {
+                                //add success log
                             }
                         });
             }
