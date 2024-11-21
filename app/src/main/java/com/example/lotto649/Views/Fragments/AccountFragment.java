@@ -210,7 +210,7 @@ public class AccountFragment extends Fragment {
                 initialEmailInput = email;
                 initialPhoneInput = phone;
                 imagePlaceholder.setText(user.getInitials());
-                SetSaveButtonColor(true);
+                SetSaveButtonVisibility(true);
 
                 // Update profile Image
                 if (!Objects.equals(profileImageUri, "")) {
@@ -269,7 +269,7 @@ public class AccountFragment extends Fragment {
                 String fileName = deviceId + ".jpg";
                 // https://stackoverflow.com/questions/1068760/can-i-pass-parameters-by-reference-in-java
                 FirebaseStorageHelper.uploadProfileImageToFirebaseStorage(currentImageUri, fileName, currentImageUriString, imageAbleToBeDeleted);
-                SetSaveButtonColor(true);
+                SetSaveButtonVisibility(true);
                 if (!userController.getSavedToFirebase()) {
                     userController.saveToFirestore(name, email, phone, currentImageUriString.get());
                 } else {
@@ -399,7 +399,7 @@ public class AccountFragment extends Fragment {
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SetSaveButtonColor(DidInfoRemainConstant());
+            SetSaveButtonVisibility(DidInfoRemainConstant());
         }
     };
 
@@ -412,7 +412,7 @@ public class AccountFragment extends Fragment {
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SetSaveButtonColor(DidInfoRemainConstant());
+            SetSaveButtonVisibility(DidInfoRemainConstant());
         }
     };
 
@@ -425,7 +425,7 @@ public class AccountFragment extends Fragment {
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SetSaveButtonColor(DidInfoRemainConstant());
+            SetSaveButtonVisibility(DidInfoRemainConstant());
         }
     };
 
@@ -434,21 +434,13 @@ public class AccountFragment extends Fragment {
      *
      * @param isEqual if the facility information inputted is the same as in Firestore
      */
-    private void SetSaveButtonColor(boolean isEqual) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            RippleDrawable saveBackgroundColor = (RippleDrawable) saveButton.getBackground();
-            if (isEqual) {
-                if (saveBackgroundColor.getEffectColor().getDefaultColor() != getResources().getColor(R.color.lightSurfaceContainerHigh, null)) {
-                    saveButton.setBackgroundColor(getResources().getColor(R.color.lightSurfaceContainerHigh, null));
-                    saveButton.setTextColor(getResources().getColor(R.color.lightPrimary, null));
-                }
-            }
-            else {
-                if (saveBackgroundColor.getEffectColor().getDefaultColor() != getResources().getColor(R.color.lightOnSurface, null)) {
-                    saveButton.setBackgroundColor(getResources().getColor(R.color.colorPrimary, null));
-                    saveButton.setTextColor(getResources().getColor(R.color.black, null));
-                }
-            }
+    private void SetSaveButtonVisibility(boolean isEqual) {
+        if (isEqual) {
+            saveButton.setVisibility(View.GONE);
+            nameInputLayout.setError(null);
+            emailInputLayout.setError(null);
+        } else {
+            saveButton.setVisibility(View.VISIBLE);
         }
     }
 
@@ -472,7 +464,7 @@ public class AccountFragment extends Fragment {
             profileImage.setImageURI(currentImageUri);
             imageAbleToBeDeleted.setValue(Boolean.TRUE);
             hasSetImage = true;
-            SetSaveButtonColor(false);
+            SetSaveButtonVisibility(false);
         } else {
             if (!hasSetImage) {
                 Log.e("JASON TEST", "REMOVING IMAGE");
