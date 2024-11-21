@@ -130,11 +130,16 @@ public class FacilityFragment extends Fragment {
             public void onClick(View view) {
                 // reset error message
                 nameInput.setError(null);
+                addressInput.setError(null);
                 String facilityName = nameInput.getEditableText().toString();
                 String address = addressInput.getEditableText().toString();
                 // If no facility name given, error
                 if (facilityName.isEmpty()) {
                     nameInput.setError("Please enter a facility name");
+                    return;
+                }
+                if (address.isEmpty()) {
+                    addressInput.setError("Please enter an address");
                     return;
                 }
                 facilityController.updateFacilityName(facilityName);

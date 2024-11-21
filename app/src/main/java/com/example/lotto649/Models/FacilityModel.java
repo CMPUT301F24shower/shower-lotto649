@@ -28,19 +28,6 @@ public class FacilityModel extends AbstractModel {
     }
 
     /**
-     * Constructor to create a new facility with a deviceId and facility name.
-     * Address is set to "".
-     *
-     * @param deviceId the deviceId of the organizer that created the facility
-     * @param facilityName the name of the facility being created
-     */
-    public FacilityModel(String deviceId, String facilityName) {
-        this.facilityName = facilityName;
-        this.deviceId = deviceId;
-        this.address = "";
-    }
-
-    /**
      * Constructor to create a new facility with a deviceId, facility name, and optional address.
      *
      * @param deviceId the deviceId of the organizer that created the facility
