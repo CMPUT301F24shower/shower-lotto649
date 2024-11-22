@@ -78,11 +78,13 @@ public class AccountUserControllerTest {
         String name = "Tester";
         String email = "test@example.com";
         String phone = "1234567";
-        accountUserController.saveToFirestore(name, email, phone);
+        String profileImage = "imageUriString";
+        accountUserController.saveToFirestore(name, email, phone, profileImage);
 
         verify(mockUserModel).setName(name);
         verify(mockUserModel).setEmail(email);
         verify(mockUserModel).setPhone(phone);
+        verify(mockUserModel).setProfileImage(profileImage);
 
         verify(mockUserModel).saveUserToFirestore(); // Verify that saveUserToFirestore was called
     }
