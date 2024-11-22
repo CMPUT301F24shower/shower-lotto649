@@ -19,6 +19,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import com.bumptech.glide.Glide;
 import com.example.lotto649.Models.UserModel;
@@ -50,6 +52,13 @@ public class AdminProfileFragment extends Fragment {
     private ImageView profileImage;
     private Uri profileUri;
     private String nameText;
+    private MutableLiveData<Boolean> imageAbleToBeDeleted;
+    TextView name;
+    TextView email;
+    TextView phone;
+    TextView roles;
+    Button removeImage;
+    Button removeUser;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -78,16 +87,29 @@ public class AdminProfileFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_admin_view_profile, container, false);
 
+        imageAbleToBeDeleted = new MutableLiveData<Boolean>(Boolean.FALSE);
+        // https://stackoverflow.com/questions/14457711/android-listening-for-variable-changes
+        imageAbleToBeDeleted.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean changedValue) {
+                if (Objects.equals(changedValue, Boolean.TRUE)) {
+                    removeImage.setVisibility(View.VISIBLE);
+                } else {
+                    removeImage.setVisibility(View.GONE);
+                }
+            }
+        });
+
         // initialize Firestore
         db = FirebaseFirestore.getInstance();
         usersRef = db.collection("users");
 
-        TextView name = view.findViewById(R.id.admin_user_name);
-        TextView email = view.findViewById(R.id.admin_user_email);
-        TextView phone = view.findViewById(R.id.admin_user_phone);
-        TextView roles = view.findViewById(R.id.admin_user_roles);
-        Button removeImage = view.findViewById(R.id.admin_delete_user_image);
-        Button removeUser = view.findViewById(R.id.admin_delete_user);
+        name = view.findViewById(R.id.admin_user_name);
+        email = view.findViewById(R.id.admin_user_email);
+        phone = view.findViewById(R.id.admin_user_phone);
+        roles = view.findViewById(R.id.admin_user_roles);
+        removeImage = view.findViewById(R.id.admin_delete_user_image);
+        removeUser = view.findViewById(R.id.admin_delete_user);
         profileImage = new ImageView(getContext());
         profileImage.setId(View.generateViewId());
         // TODO: This is hardcoded, but works good on my phone, not sure if this is a good idea or not
@@ -138,6 +160,7 @@ public class AdminProfileFragment extends Fragment {
                             imagePlaceholder.setText(new UserModel(getContext(), nameText, emailText).getInitials());
                             String profileUriString = doc.getString("profileImage");
                             if (!Objects.equals(profileUriString, "")) {
+                                imageAbleToBeDeleted.setValue(Boolean.TRUE);
                                 profileUri = Uri.parse(profileUriString);
                                 StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(profileUriString);
                                 imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
@@ -153,6 +176,7 @@ public class AdminProfileFragment extends Fragment {
                                         });
                             } else {
                                 profileUri = null;
+                                imageAbleToBeDeleted.setValue(Boolean.FALSE);
                             }
                         }
                     }
@@ -200,6 +224,7 @@ public class AdminProfileFragment extends Fragment {
                                     linearLayout.removeView(profileImage);
                                     linearLayout.addView(imagePlaceholder, 2);
                                     linearLayout.removeView(profileImage);
+                                    imageAbleToBeDeleted.setValue(Boolean.FALSE);
                                     imagePlaceholder.setText(new UserModel(getContext(), nameText, "").getInitials());
                                 }
                             });
