@@ -100,13 +100,17 @@ public class EventFragment extends Fragment {
             titleEditText.setText(event.getTitle());
             descriptionEditText.setText(event.getDescription());
             Date sd = event.getStartDate();
+            String sdHourText = String.format("%02d", sd.getHours());
+            String sdMinuteText = String.format("%02d", sd.getMinutes());
             lotteryStartDateFieldText.setText(
-                    (sd.getYear() + 1900) + "-" + (sd.getMonth() + 1) + "-" + sd.getDate() + " (" + sd.getHours() + ":" + sd.getMinutes() + " MST)"
+                    (sd.getYear() + 1900) + "-" + (sd.getMonth() + 1) + "-" + sd.getDate() + " (" + sdHourText + ":" + sdMinuteText + " MST)"
             );
             startDate.set(sd);
             Date ed = event.getEndDate();
+            String edHourText = String.format("%02d", ed.getHours());
+            String edMinuteText = String.format("%02d", ed.getMinutes());
             lotteryEndDateFieldText.setText(
-                    (ed.getYear() + 1900) + "-" + (ed.getMonth() + 1) + "-" + ed.getDate() + " (" + ed.getHours() + ":" + ed.getMinutes() + " MST)"
+                    (ed.getYear() + 1900) + "-" + (ed.getMonth() + 1) + "-" + ed.getDate() + " (" + edHourText + ":" + edMinuteText + " MST)"
             );
             endDate.set(ed);
             spotsEditText.setText(String.valueOf(event.getNumberOfSpots()));
@@ -459,7 +463,10 @@ public class EventFragment extends Fragment {
         // Launch Time Picker Dialog
         TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(),
                 (view, hourOfDay, minuteOfDay) -> {
-            dateToPick.setText(dateToPick.getText().toString() + " (" + hourOfDay + ":" + minute + " MST)");
+            String hourText = String.format("%02d", hourOfDay);
+            String minuteText = String.format("%02d", minuteOfDay);
+
+            dateToPick.setText(dateToPick.getText().toString() + " (" + hourText + ":" + minuteText + " MST)");
 
             // Update the date reference with the selected date
                 Calendar setCal = Calendar.getInstance();
