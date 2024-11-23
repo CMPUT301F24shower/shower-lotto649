@@ -373,15 +373,19 @@ public class AccountFragment extends Fragment {
      */
     public void showUserDetails(UserModel user) {
 //         getActivity().runOnUiThread(new Runnable() {
-        requireActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                nameEditText.setText(user.getName());
-                emailEditText.setText(user.getEmail());
-                phoneEditText.setText(user.getPhone());
-                imagePlaceholder.setText(user.getInitials());
-            }
-        });
+//         requireActivity().runOnUiThread(new Runnable() {
+//             @Override
+//             public void run() {
+//                 nameEditText.setText(user.getName());
+//                 emailEditText.setText(user.getEmail());
+//                 phoneEditText.setText(user.getPhone());
+//                 imagePlaceholder.setText(user.getInitials());
+//             }
+//         });
+        nameEditText.setText(user.getName());
+        emailEditText.setText(user.getEmail());
+        phoneEditText.setText(user.getPhone());
+        imagePlaceholder.setText(user.getInitials());
     }
 
     /**
