@@ -402,12 +402,6 @@ public class EventFragment extends Fragment {
                 eventController.updatePoster(currentImageUriString.get());
             }
 
-            String data = title + description + spotsStr + maxEntrantsStr;
-            Bitmap qrCodeBitmap = QrCodeModel.generateForEvent(data);
-            String qrCodeHash = QrCodeModel.generateHash(data);
-
-            eventController.updateQrCode(qrCodeHash);
-
             if (isAddingFirstTime) {
                 eventController.saveEventToFirestore();
             } else {
@@ -416,7 +410,13 @@ public class EventFragment extends Fragment {
 
             setInitialValues();
 
+            // only add QR code information for the first time the event is created
             if (isAddingFirstTime) {
+                String data = title + description + spotsStr + maxEntrantsStr;
+                Bitmap qrCodeBitmap = QrCodeModel.generateForEvent(data);
+                String qrCodeHash = QrCodeModel.generateHash(data);
+
+                eventController.updateQrCode(qrCodeHash);
                 QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
                 getParentFragmentManager().beginTransaction()
                         .replace(R.id.flFragment, qrFragment)
