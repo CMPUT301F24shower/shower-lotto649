@@ -109,7 +109,7 @@ public class FacilityFragment extends Fragment {
                         facility.setAddress(addressText);
                         initialFacilityNameInput = nameText;
                         initialAddressInput = addressText;
-                        SetSaveButtonColor(true);
+                        SetSaveButtonVisibility(true);
                         Log.d("Firestore", String.format("deviceId %s got name=%s, address=%s ", deviceId, nameText, addressText));
                     } else {
                         Log.d("Firestore", "No such document");
@@ -130,6 +130,7 @@ public class FacilityFragment extends Fragment {
             public void onClick(View view) {
                 // reset error message
                 nameInput.setError(null);
+                addressInput.setError(null);
                 String facilityName = nameInput.getEditableText().toString();
                 String address = addressInput.getEditableText().toString();
                 // If no facility name given, error
@@ -137,12 +138,16 @@ public class FacilityFragment extends Fragment {
                     nameInput.setError("Please enter a facility name");
                     return;
                 }
+                if (address.isEmpty()) {
+                    addressInput.setError("Please enter an address");
+                    return;
+                }
                 facilityController.updateFacilityName(facilityName);
                 facilityController.updateAddress(address);
                 facilityController.saveToFirestore();
                 initialFacilityNameInput = facilityName;
                 initialAddressInput = address;
-                SetSaveButtonColor(true);
+                SetSaveButtonVisibility(true);
             }
         });
 
@@ -178,21 +183,13 @@ public class FacilityFragment extends Fragment {
      *
      * @param isEqual if the facility information inputted is the same as in Firestore
      */
-    private void SetSaveButtonColor(boolean isEqual) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            RippleDrawable saveBackgroundColor = (RippleDrawable) save.getBackground();
-            if (isEqual) {
-                if (saveBackgroundColor.getEffectColor().getDefaultColor() != getResources().getColor(R.color.lightSurfaceContainerHigh, null)) {
-                    save.setBackgroundColor(getResources().getColor(R.color.lightSurfaceContainerHigh, null));
-                    save.setTextColor(getResources().getColor(R.color.lightPrimary, null));
-                }
-            }
-            else {
-                if (saveBackgroundColor.getEffectColor().getDefaultColor() != getResources().getColor(R.color.lightOnSurface, null)) {
-                    save.setBackgroundColor(getResources().getColor(R.color.colorPrimary, null));
-                    save.setTextColor(getResources().getColor(R.color.black, null));
-                }
-            }
+    private void SetSaveButtonVisibility(boolean isEqual) {
+        if (isEqual) {
+            save.setVisibility(View.GONE);
+            nameInput.setError(null);
+            addressInput.setError(null);
+        } else {
+            save.setVisibility(View.VISIBLE);
         }
     }
 
@@ -205,7 +202,7 @@ public class FacilityFragment extends Fragment {
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SetSaveButtonColor(DidInfoRemainConstant());
+            SetSaveButtonVisibility(DidInfoRemainConstant());
         }
     };
 
@@ -218,7 +215,7 @@ public class FacilityFragment extends Fragment {
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SetSaveButtonColor(DidInfoRemainConstant());
+            SetSaveButtonVisibility(DidInfoRemainConstant());
         }
     };
 }

@@ -17,6 +17,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import com.bumptech.glide.Glide;
 import com.example.lotto649.Models.UserModel;
@@ -46,7 +48,20 @@ public class AdminEventFragment extends Fragment {
     private CollectionReference eventsRef;
     private String firestoreEventId;
     private ImageView posterImage;
+    TextView name;
+    TextView status;
+    TextView location;
+    TextView spotsAvail;
+    TextView numAttendees;
+    TextView dates;
+    TextView geoLocation;
+    TextView description;
+    Button deleteImageButton;
+    Button deleteQRButton;
+    Button deleteEventButton;
     private Uri posterUri;
+    private MutableLiveData<Boolean> imageAbleToBeDeleted;
+    private MutableLiveData<Boolean> qrCodeAbleToBeDeleted;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -75,22 +90,48 @@ public class AdminEventFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_admin_view_event, container, false);
 
+        imageAbleToBeDeleted = new MutableLiveData<Boolean>(Boolean.FALSE);
+        // https://stackoverflow.com/questions/14457711/android-listening-for-variable-changes
+        imageAbleToBeDeleted.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean changedValue) {
+                if (Objects.equals(changedValue, Boolean.TRUE)) {
+                    deleteImageButton.setVisibility(View.VISIBLE);
+                } else {
+                    deleteImageButton.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        qrCodeAbleToBeDeleted = new MutableLiveData<Boolean>(Boolean.FALSE);
+        // https://stackoverflow.com/questions/14457711/android-listening-for-variable-changes
+        qrCodeAbleToBeDeleted.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean changedValue) {
+                if (Objects.equals(changedValue, Boolean.TRUE)) {
+                    deleteQRButton.setVisibility(View.VISIBLE);
+                } else {
+                    deleteQRButton.setVisibility(View.GONE);
+                }
+            }
+        });
+
         // initialize Firestore
         db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
 
-        TextView name = view.findViewById(R.id.admin_event_name);
-        TextView status = view.findViewById(R.id.admin_event_status);
-        TextView location = view.findViewById(R.id.admin_event_location);
-        TextView spotsAvail = view.findViewById(R.id.admin_event_spots);
-        TextView numAttendees = view.findViewById(R.id.admin_event_attendees);
-        TextView dates = view.findViewById(R.id.admin_event_dates);
-        TextView geoLocation = view.findViewById(R.id.admin_event_geo);
-        TextView description = view.findViewById(R.id.admin_event_description);
+        name = view.findViewById(R.id.admin_event_name);
+        status = view.findViewById(R.id.admin_event_status);
+        location = view.findViewById(R.id.admin_event_location);
+        spotsAvail = view.findViewById(R.id.admin_event_spots);
+        numAttendees = view.findViewById(R.id.admin_event_attendees);
+        dates = view.findViewById(R.id.admin_event_dates);
+        geoLocation = view.findViewById(R.id.admin_event_geo);
+        description = view.findViewById(R.id.admin_event_description);
+        deleteImageButton = view.findViewById(R.id.admin_delete_event_image);
+        deleteQRButton = view.findViewById(R.id.admin_delete_event_qr);
+        deleteEventButton = view.findViewById(R.id.admin_delete_event);
         posterImage = view.findViewById(R.id.admin_event_poster);
-        Button deleteImageButton = view.findViewById(R.id.admin_delete_event_image);
-        Button deleteQRButton = view.findViewById(R.id.admin_delete_event_qr);
-        Button deleteEventButton = view.findViewById(R.id.admin_delete_event);
 
         eventsRef.document(firestoreEventId)
                 .get()
@@ -131,9 +172,17 @@ public class AdminEventFragment extends Fragment {
                             }
                             description.setText(descriptionText);
 
+                            String qrCode = doc.getString("qrCode");
+                            if (qrCode == null || qrCode.isEmpty()) {
+                                qrCodeAbleToBeDeleted.setValue(Boolean.FALSE);
+                            } else {
+                                qrCodeAbleToBeDeleted.setValue(Boolean.TRUE);
+                            }
+
                         //     poster
                             String posterUriString = doc.getString("posterImage");
                             if (!Objects.equals(posterUriString, "")) {
+                                imageAbleToBeDeleted.setValue(Boolean.TRUE);
                                 posterUri = Uri.parse(posterUriString);
                                 StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(posterUriString);
                                 imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
@@ -145,6 +194,7 @@ public class AdminEventFragment extends Fragment {
                                 });
                             } else {
                                 posterUri = null;
+                                imageAbleToBeDeleted.setValue(Boolean.FALSE);
                             }
                         }
                     }
@@ -188,6 +238,7 @@ public class AdminEventFragment extends Fragment {
                                                     //     add success log
                                                 }
                                             });
+                                    imageAbleToBeDeleted.setValue(Boolean.FALSE);
                                     posterUri = null;
                                     posterImage.setImageResource(R.drawable.ic_person_foreground);
                                 }
@@ -199,21 +250,14 @@ public class AdminEventFragment extends Fragment {
         deleteQRButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                StorageReference storageReference = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app")
-                        .getReferenceFromUrl("qrcodes/" + firestoreEventId + ".png");
-                storageReference.delete()
+                eventsRef
+                        .document(firestoreEventId)
+                        .update("qrCode", "")
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
-                            public void onSuccess(Void unused) {
-                                eventsRef
-                                        .document(firestoreEventId)
-                                        .update("qrCode", "")
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                //add success log
-                                            }
-                                        });
+                            public void onSuccess(Void aVoid) {
+                                qrCodeAbleToBeDeleted.setValue(Boolean.FALSE);
+                                //add success log
                             }
                         });
             }

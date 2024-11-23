@@ -9,11 +9,20 @@
 package com.example.lotto649;
 
 import android.net.Uri;
+import android.util.Log;
+
+import androidx.lifecycle.MutableLiveData;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class FirebaseStorageHelper {
 
@@ -29,19 +38,23 @@ public class FirebaseStorageHelper {
      * @param imageUri   The Uri of the image to upload.
      * @param fileName   The name to use for the image file in Firebase Storage (e.g., "user123.jpg").
      */
-    public static void uploadProfileImageToFirebaseStorage(Uri imageUri, String fileName) {
+    public static void uploadProfileImageToFirebaseStorage(Uri imageUri, String fileName, AtomicReference<String> currentImageUriString, MutableLiveData<Boolean> imageAbleToBeDeleted) {
+        Log.e("JASON TEST", "uploadProfileImageToFirebaseStorage");
         if (imageUri == null) {
             return;
         }
+        imageAbleToBeDeleted.setValue(Boolean.FALSE);
 
         FirebaseStorage storage = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app");
         StorageReference storageRef = storage.getReference().child("profileImages/" + fileName);
         UploadTask uploadTask = storageRef.putFile(imageUri);
         uploadTask.addOnSuccessListener(taskSnapshot -> {
             storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                String imageUrlString = uri.toString();
+                String uriString = uri.toString();
+                currentImageUriString.set(uriString);
+                imageAbleToBeDeleted.setValue(Boolean.TRUE);
                 FirebaseFirestore.getInstance().collection("users").document(fileName.replace(".jpg", ""))
-                        .update("profileImage", imageUrlString);
+                        .update("profileImage", uriString);
             });
         });
     }
@@ -59,19 +72,22 @@ public class FirebaseStorageHelper {
      * @param imageUri   The Uri of the image to upload.
      * @param fileName   The name to use for the image file in Firebase Storage (e.g., "user123.jpg").
      */
-    public static void uploadPosterImageToFirebaseStorage(Uri imageUri, String fileName) {
+    public static void uploadPosterImageToFirebaseStorage(Uri imageUri, String fileName, AtomicReference<String> currentImageUriString, MutableLiveData<Boolean> imageAbleToBeDeleted) {
         if (imageUri == null) {
             return;
         }
+        imageAbleToBeDeleted.setValue(Boolean.FALSE);
 
         FirebaseStorage storage = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app");
         StorageReference storageRef = storage.getReference().child("posterImages/" + fileName);
         UploadTask uploadTask = storageRef.putFile(imageUri);
         uploadTask.addOnSuccessListener(taskSnapshot -> {
             storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                String imageUrlString = uri.toString();
+                String uriString = uri.toString();
+                imageAbleToBeDeleted.setValue(Boolean.TRUE);
+                currentImageUriString.set(uriString);
                 FirebaseFirestore.getInstance().collection("events").document(fileName.replace(".jpg", ""))
-                        .update("posterImage", imageUrlString);
+                        .update("posterImage", uriString);
             });
         });
     }

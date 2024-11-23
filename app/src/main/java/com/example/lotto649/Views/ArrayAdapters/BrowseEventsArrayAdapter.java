@@ -7,6 +7,7 @@ package com.example.lotto649.Views.ArrayAdapters;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -90,7 +91,7 @@ public class BrowseEventsArrayAdapter extends ArrayAdapter<EventModel> {
 
 
         String posterUriString = event.getPosterImage();
-        if (!Objects.equals(posterUriString, "")) {
+        if (posterUriString != null && !Objects.equals(posterUriString, "")) {
             posterUri = Uri.parse(posterUriString);
             StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(posterUriString);
             imageRef.getDownloadUrl().addOnSuccessListener(uri -> {

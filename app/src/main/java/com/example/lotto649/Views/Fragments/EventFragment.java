@@ -18,6 +18,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import com.bumptech.glide.Glide;
 import com.example.lotto649.Controllers.EventController;
@@ -70,7 +72,8 @@ public class EventFragment extends Fragment {
     ImageView profileImage;
     ImageView defaultImage;
     Uri currentImageUri;
-    private String profileImageUri;
+    private AtomicReference<String> currentImageUriString;
+    private MutableLiveData<Boolean> imageAbleToBeDeleted;
 
     /**
      * Displays details of the provided EventModel in the UI components.
@@ -135,6 +138,8 @@ public class EventFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_event, container, false);
+        currentImageUriString = new AtomicReference<String>("");
+        imageAbleToBeDeleted = new MutableLiveData<Boolean>(Boolean.FALSE);
 
         hasSetImage = false;
         currentImageUri = null;
@@ -198,12 +203,13 @@ public class EventFragment extends Fragment {
         saveButton = view.findViewById(R.id.saveButton);
 
 
-        profileImageUri = event.getPosterImage();
+        currentImageUriString.set(event.getPosterImage());
         // Update profile Image
-        if (!Objects.equals(profileImageUri, "")) {
-            StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(profileImageUri);
+        if (!Objects.equals(currentImageUriString.get(), "")) {
+            StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(currentImageUriString.get());
             imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                         currentImageUri = uri;
+                        currentImageUriString.set(currentImageUri.toString());
                         Glide.with(mContext)
                                 .load(uri)
                                 .into(profileImage);
@@ -302,13 +308,14 @@ public class EventFragment extends Fragment {
             eventController.updateEndDate(endDate.get());
             eventController.updateCost(cost);
             eventController.updateGeo(geo);
-            if (currentImageUri == null) {
+            String fileName = event.getEventId() + ".jpg";
+            uploadPosterImageToFirebaseStorage(currentImageUri, fileName, currentImageUriString, imageAbleToBeDeleted);
+
+            if (currentImageUriString.get().isEmpty()) {
                 eventController.updatePoster("");
             } else {
-                eventController.updatePoster(currentImageUri.toString());
+                eventController.updatePoster(currentImageUriString.get());
             }
-            String fileName = event.getEventId() + ".jpg";
-            uploadPosterImageToFirebaseStorage(currentImageUri, fileName);
 
             String data = title + description + spotsStr + maxEntrantsStr + costStr;
             Bitmap qrCodeBitmap = QrCodeModel.generateForEvent(data);

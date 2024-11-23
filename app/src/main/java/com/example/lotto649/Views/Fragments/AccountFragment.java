@@ -44,6 +44,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import com.bumptech.glide.Glide;
 import com.example.lotto649.Controllers.AccountUserController;
@@ -65,6 +67,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -87,6 +90,8 @@ public class AccountFragment extends Fragment {
     private boolean hasSetImage;
     ImageView profileImage;
     Uri currentImageUri;
+    private AtomicReference<String> currentImageUriString;
+    private MutableLiveData<Boolean> imageAbleToBeDeleted;
     private Context mContext;
 
     /**
@@ -120,6 +125,21 @@ public class AccountFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_account, container, false);
         hasSetImage = false;
         currentImageUri = null;
+        currentImageUriString = new AtomicReference<String>("");
+        imageAbleToBeDeleted = new MutableLiveData<Boolean>(Boolean.FALSE);
+        // https://stackoverflow.com/questions/14457711/android-listening-for-variable-changes
+        imageAbleToBeDeleted.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean changedValue) {
+                if (Objects.equals(changedValue, Boolean.TRUE)) {
+                    deleteImageButton.setVisibility(View.VISIBLE);
+                } else {
+                    deleteImageButton.setVisibility(View.GONE);
+                }
+            }
+        });
+
+
         // Initialize UI components
         nameInputLayout = view.findViewById(R.id.textFieldName);
         emailInputLayout = view.findViewById(R.id.textFieldEmail);
@@ -190,13 +210,15 @@ public class AccountFragment extends Fragment {
                 initialEmailInput = email;
                 initialPhoneInput = phone;
                 imagePlaceholder.setText(user.getInitials());
-                SetSaveButtonColor(true);
+                SetSaveButtonVisibility(true);
 
                 // Update profile Image
                 if (!Objects.equals(profileImageUri, "")) {
                     StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(profileImageUri);
                     imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                         currentImageUri = uri;
+                        currentImageUriString.set(profileImageUri);
+                        imageAbleToBeDeleted.setValue(Boolean.TRUE);
                         Glide.with(mContext)
                                 .load(uri)
                                 .into(profileImage);
@@ -245,15 +267,16 @@ public class AccountFragment extends Fragment {
                 String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
 
                 String fileName = deviceId + ".jpg";
-
-                FirebaseStorageHelper.uploadProfileImageToFirebaseStorage(currentImageUri, fileName);
-                SetSaveButtonColor(true);
+                // https://stackoverflow.com/questions/1068760/can-i-pass-parameters-by-reference-in-java
+                FirebaseStorageHelper.uploadProfileImageToFirebaseStorage(currentImageUri, fileName, currentImageUriString, imageAbleToBeDeleted);
+                SetSaveButtonVisibility(true);
                 if (!userController.getSavedToFirebase()) {
-                    userController.saveToFirestore(name, email, phone);
+                    userController.saveToFirestore(name, email, phone, currentImageUriString.get());
                 } else {
                     userController.updateName(name);
                     userController.updateEmail(email);
                     userController.updatePhone(phone);
+                    userController.updateImage(currentImageUriString.get());
                 }
                 user = userController.getModel();
                 imagePlaceholder.setText(user.getInitials()); // TODO, this isnt right
@@ -264,30 +287,43 @@ public class AccountFragment extends Fragment {
         deleteImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (currentImageUri != null) {
-                    Log.e("JASON TEST", currentImageUri.toString());
-                    StorageReference storageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(currentImageUri.toString());
+                if (currentImageUri != null && !currentImageUriString.get().isEmpty()) {
+                    Log.e("JASON TEST", "IF 1: " + currentImageUriString.get());
+                    StorageReference storageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(currentImageUriString.get());
                     storageRef.delete()
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void unused) {
+                                    Log.e("JASON TEST", "ON SUCCESS 1");
                                     db.collection("users")
                                             .document(Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID))
                                             .update("profileImage", "")
                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void aVoid) {
-                                                    //     add success log
+                                                    Log.e("JASON TEST", "ON SUCCESS 2");
                                                 }
                                             });
                                     hasSetImage = false;
                                     currentImageUri = null;
+                                    userController.updateImage("");
+                                    currentImageUriString.set("");
+                                    imageAbleToBeDeleted.setValue(Boolean.FALSE);
                                     linearLayout.removeView(profileImage);
                                     linearLayout.addView(imagePlaceholder, 2);
-                                    linearLayout.removeView(profileImage);
                                     imagePlaceholder.setText(new UserModel(getContext(), initialNameInput, "").getInitials());
                                 }
                             });
+                } else if (currentImageUri != null && currentImageUriString.get().isEmpty()) {
+                    Log.e("JASON TEST", "IF 2: " + currentImageUriString.get());
+                    hasSetImage = false;
+                    currentImageUri = null;
+                    userController.updateImage("");
+                    currentImageUriString.set("");
+                    imageAbleToBeDeleted.setValue(Boolean.FALSE);
+                    linearLayout.removeView(profileImage);
+                    linearLayout.addView(imagePlaceholder, 2);
+                    imagePlaceholder.setText(new UserModel(getContext(), initialNameInput, "").getInitials());
                 }
             }
         });
@@ -363,7 +399,7 @@ public class AccountFragment extends Fragment {
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SetSaveButtonColor(DidInfoRemainConstant());
+            SetSaveButtonVisibility(DidInfoRemainConstant());
         }
     };
 
@@ -376,7 +412,7 @@ public class AccountFragment extends Fragment {
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SetSaveButtonColor(DidInfoRemainConstant());
+            SetSaveButtonVisibility(DidInfoRemainConstant());
         }
     };
 
@@ -389,7 +425,7 @@ public class AccountFragment extends Fragment {
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SetSaveButtonColor(DidInfoRemainConstant());
+            SetSaveButtonVisibility(DidInfoRemainConstant());
         }
     };
 
@@ -398,21 +434,13 @@ public class AccountFragment extends Fragment {
      *
      * @param isEqual if the facility information inputted is the same as in Firestore
      */
-    private void SetSaveButtonColor(boolean isEqual) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            RippleDrawable saveBackgroundColor = (RippleDrawable) saveButton.getBackground();
-            if (isEqual) {
-                if (saveBackgroundColor.getEffectColor().getDefaultColor() != getResources().getColor(R.color.lightSurfaceContainerHigh, null)) {
-                    saveButton.setBackgroundColor(getResources().getColor(R.color.lightSurfaceContainerHigh, null));
-                    saveButton.setTextColor(getResources().getColor(R.color.lightPrimary, null));
-                }
-            }
-            else {
-                if (saveBackgroundColor.getEffectColor().getDefaultColor() != getResources().getColor(R.color.lightOnSurface, null)) {
-                    saveButton.setBackgroundColor(getResources().getColor(R.color.colorPrimary, null));
-                    saveButton.setTextColor(getResources().getColor(R.color.black, null));
-                }
-            }
+    private void SetSaveButtonVisibility(boolean isEqual) {
+        if (isEqual) {
+            saveButton.setVisibility(View.GONE);
+            nameInputLayout.setError(null);
+            emailInputLayout.setError(null);
+        } else {
+            saveButton.setVisibility(View.VISIBLE);
         }
     }
 
@@ -434,7 +462,17 @@ public class AccountFragment extends Fragment {
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             currentImageUri = data.getData();
             profileImage.setImageURI(currentImageUri);
-            SetSaveButtonColor(false);
+            imageAbleToBeDeleted.setValue(Boolean.TRUE);
+            hasSetImage = true;
+            SetSaveButtonVisibility(false);
+        } else {
+            if (!hasSetImage) {
+                Log.e("JASON TEST", "REMOVING IMAGE");
+                linearLayout.removeView(profileImage);
+                linearLayout.addView(imagePlaceholder, 2);
+                imagePlaceholder.setText(new UserModel(getContext(), initialNameInput, "").getInitials());
+                imageAbleToBeDeleted.setValue(Boolean.FALSE);
+            }
         }
     }
 }
