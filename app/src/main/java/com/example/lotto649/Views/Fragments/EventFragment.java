@@ -415,7 +415,6 @@ public class EventFragment extends Fragment {
             }
 
             setInitialValues();
-            SetSaveButtonVisibility(true);
 
             if (isAddingFirstTime) {
                 QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
@@ -424,6 +423,7 @@ public class EventFragment extends Fragment {
                         .addToBackStack(null)
                         .commit();
             }
+            isAddingFirstTime = false;
         });
 
         return view;
@@ -589,6 +589,7 @@ public class EventFragment extends Fragment {
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             currentImageUri = data.getData();
             posterImage.setImageURI(currentImageUri);
+            saveButtonShow.setValue(Boolean.TRUE);
         }
     }
 }
