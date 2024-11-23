@@ -83,6 +83,14 @@ public class EventArrayAdapter extends ArrayAdapter<EventModel> {
             String.valueOf(TimeUnit.DAYS.convert(event.getEndDate().getTime() - new Date().getTime(),TimeUnit.MILLISECONDS)) + " Days Left to Enter"
         );
 
+        // Show geolocation requirement, if any
+        if (event.getGeo()) {
+            ((TextView) view.findViewById(R.id.geolocationRequirement)).setVisibility(View.VISIBLE);
+            ((TextView) view.findViewById(R.id.geolocationRequirement)).setText("Requires GeoLocation Tracking");
+        } else {
+            ((TextView) view.findViewById(R.id.geolocationRequirement)).setVisibility(View.GONE);
+        }
+
         // Set the event description
         ((TextView) view.findViewById(R.id.eventDescription)).setText(event.getDescription());
 
