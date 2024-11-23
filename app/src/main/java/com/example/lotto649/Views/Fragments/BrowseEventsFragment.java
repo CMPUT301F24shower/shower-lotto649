@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.lotto649.Models.EventModel;
+import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.R;
 import com.example.lotto649.Views.ArrayAdapters.BrowseEventsArrayAdapter;
 import com.google.firebase.firestore.CollectionReference;
@@ -107,8 +108,12 @@ public class BrowseEventsFragment extends Fragment {
                         int numberOfMaxEntrants = ((Long) doc.get("numberOfMaxEntrants")).intValue();
                         Date startDate = doc.getDate("startDate");
                         Date endDate = doc.getDate("endDate");
+                        String posterImageUriString = doc.getString("posterImage");
+                        String qrCodeHash = doc.getString("qrCode");
                         boolean geo = doc.getBoolean("geo");
-                        dataList.add(new EventModel(getContext(), title, facilityId, 0, description, numberOfSpots, numberOfMaxEntrants, startDate, endDate, geo, null));
+                        dataList.add( new EventModel(getContext(), title, facilityId, 0, description, numberOfSpots,
+                        numberOfMaxEntrants, startDate, endDate, posterImageUriString, geo, qrCodeHash,
+                                null, null));
                         eventIdList.add(eventId);
                     }
                     eventsAdapter.notifyDataSetChanged();

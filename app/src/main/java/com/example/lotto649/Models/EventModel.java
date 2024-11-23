@@ -33,7 +33,7 @@ public class EventModel extends AbstractModel implements Serializable {
     private int numberOfMaxEntrants;
     private Date startDate;
     private Date endDate;
-    private String posterImage; // Placeholder for image class
+    private String posterImage;
     private boolean geo;
     private String qrCode;
     private String qrCodeData;

@@ -23,10 +23,9 @@ import androidx.lifecycle.Observer;
 
 import com.bumptech.glide.Glide;
 import com.example.lotto649.Controllers.EventController;
-import com.example.lotto649.FirebaseStorageHelper;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.Models.QrCodeModel;
-import com.example.lotto649.MyApp;
+import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.R;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -41,7 +40,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Calendar;
@@ -65,15 +63,15 @@ public class EventFragment extends Fragment {
 
     private AtomicReference<Date> startDate = new AtomicReference<>(new Date());
     private AtomicReference<Date> endDate = new AtomicReference<>(new Date());
-    private boolean add;
+    private boolean isAddingFirstTime;
 
     private static final int PICK_IMAGE_REQUEST = 1;
     private boolean hasSetImage;
-    ImageView profileImage;
+    ImageView posterImage;
     ImageView defaultImage;
     Uri currentImageUri;
     private AtomicReference<String> currentImageUriString;
-    private MutableLiveData<Boolean> imageAbleToBeDeleted;
+    private MutableLiveData<Boolean> posterLoadedInFirestore;
 
     /**
      * Displays details of the provided EventModel in the UI components.
@@ -113,7 +111,7 @@ public class EventFragment extends Fragment {
      */
     public EventFragment() {
         Log.e("Ohm", "Construct");
-        add = true;
+        isAddingFirstTime = true;
     }
 
     /**
@@ -123,8 +121,27 @@ public class EventFragment extends Fragment {
      */
     public EventFragment(EventModel event) {
         Log.e("Ohm", "Contruct Event");
-        add = false;
+        isAddingFirstTime = false;
         this.event = event;
+    }
+
+    private void getPosterFromFirebase() {
+        StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(currentImageUriString.get());
+        imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+            currentImageUri = uri;
+            currentImageUriString.set(currentImageUri.toString());
+            Glide.with(mContext)
+                    .load(uri)
+                    .into(posterImage);
+            defaultImage.setVisibility(View.GONE);
+            posterImage.setVisibility(View.VISIBLE);
+            hasSetImage = true;
+        }).addOnFailureListener(e -> {
+            defaultImage.setVisibility(View.VISIBLE);
+            posterImage.setVisibility(View.GONE);
+            hasSetImage = false;
+            Toast.makeText(getActivity(), "Unable to fetch profile image", Toast.LENGTH_SHORT).show();
+        });
     }
 
     /**
@@ -139,7 +156,19 @@ public class EventFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_event, container, false);
         currentImageUriString = new AtomicReference<String>("");
-        imageAbleToBeDeleted = new MutableLiveData<Boolean>(Boolean.FALSE);
+        posterLoadedInFirestore = new MutableLiveData<Boolean>(Boolean.FALSE);
+        posterLoadedInFirestore.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean changedValue) {
+                if (Objects.equals(changedValue, Boolean.TRUE)) {
+                    getPosterFromFirebase();
+                } else {
+                    defaultImage.setVisibility(View.VISIBLE);
+                    posterImage.setVisibility(View.GONE);
+                    hasSetImage = false;
+                }
+            }
+        });
 
         hasSetImage = false;
         currentImageUri = null;
@@ -152,16 +181,16 @@ public class EventFragment extends Fragment {
         costInputLayout = view.findViewById(R.id.eventCost);
         geoCheck = view.findViewById(R.id.eventGeolocation);
 
-        profileImage = view.findViewById(R.id.event_poster);
+        posterImage = view.findViewById(R.id.event_poster);
         defaultImage = view.findViewById(R.id.event_poster_placeholder);
-        profileImage.setVisibility(View.GONE);
+        posterImage.setVisibility(View.GONE);
         defaultImage.setVisibility(View.VISIBLE);
 
         // TODO: This is hardcoded, but works good on my phone, not sure if this is a good idea or not
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(750, 450);
-        profileImage.setLayoutParams(layoutParams);
-        profileImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        profileImage.setOnClickListener(new View.OnClickListener() {
+        posterImage.setLayoutParams(layoutParams);
+        posterImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        posterImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
@@ -174,7 +203,7 @@ public class EventFragment extends Fragment {
         defaultImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                profileImage.setVisibility(View.VISIBLE);
+                posterImage.setVisibility(View.VISIBLE);
                 Intent intent = new Intent();
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -206,22 +235,7 @@ public class EventFragment extends Fragment {
         currentImageUriString.set(event.getPosterImage());
         // Update profile Image
         if (!Objects.equals(currentImageUriString.get(), "")) {
-            StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(currentImageUriString.get());
-            imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                        currentImageUri = uri;
-                        currentImageUriString.set(currentImageUri.toString());
-                        Glide.with(mContext)
-                                .load(uri)
-                                .into(profileImage);
-                        defaultImage.setVisibility(View.GONE);
-                        profileImage.setVisibility(View.VISIBLE);
-                        hasSetImage = true;
-                    })
-                    .addOnFailureListener(e -> {
-                        defaultImage.setVisibility(View.VISIBLE);
-                        profileImage.setVisibility(View.GONE);
-                        Toast.makeText(getActivity(), "Unable to fetch profile image", Toast.LENGTH_SHORT).show();
-                    });
+            getPosterFromFirebase();
         }
 
         showEventDetails(event);
@@ -243,11 +257,12 @@ public class EventFragment extends Fragment {
 
         // Set up the cancel button click listener
         cancelButton.setOnClickListener(v -> {
-            if (!add) {
-                eventController.removeEventFromFirestore();
-            } else {
-                eventController.returnToEvents();
-            }
+            // if (!isAddingFirstTime) {
+            //     eventController.removeEventFromFirestore();
+            // } else {
+            //     eventController.returnToEvents();
+            // }
+            eventController.returnToEvents();
         });
 
         // Set up the save button click listener
@@ -309,7 +324,7 @@ public class EventFragment extends Fragment {
             eventController.updateCost(cost);
             eventController.updateGeo(geo);
             String fileName = event.getEventId() + ".jpg";
-            uploadPosterImageToFirebaseStorage(currentImageUri, fileName, currentImageUriString, imageAbleToBeDeleted);
+            uploadPosterImageToFirebaseStorage(currentImageUri, fileName, currentImageUriString, posterLoadedInFirestore);
 
             if (currentImageUriString.get().isEmpty()) {
                 eventController.updatePoster("");
@@ -323,7 +338,7 @@ public class EventFragment extends Fragment {
 
             eventController.updateQrCode(qrCodeHash);
 
-            if (add) {
+            if (isAddingFirstTime) {
                 eventController.saveEventToFirestore();
             } else {
                 eventController.returnToEvents();
@@ -412,7 +427,7 @@ public class EventFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             currentImageUri = data.getData();
-            profileImage.setImageURI(currentImageUri);
+            posterImage.setImageURI(currentImageUri);
         }
     }
 }

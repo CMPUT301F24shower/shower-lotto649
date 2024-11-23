@@ -19,8 +19,8 @@
         <!-- Event Poster Placeholder -->
         <ImageView
             android:id="@+id/list_event_poster_placeholder"
-            android:layout_width="75dp"
-            android:layout_height="75dp"
+            android:layout_width="300dp"
+            android:layout_height="150dp"
             android:background="#D3D3D3"
             android:contentDescription="Event Image Placeholder"
             android:layout_margin="16dp"
@@ -29,8 +29,8 @@
         <!-- Real Event Poster -->
         <ImageView
             android:id="@+id/list_event_poster"
-            android:layout_width="75dp"
-            android:layout_height="75dp"
+            android:layout_width="300dp"
+            android:layout_height="150dp"
             android:background="#D3D3D3"
             android:contentDescription="Event Image"
             android:layout_margin="16dp"/>
