@@ -18,16 +18,25 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import android.content.Context;
 import android.net.Uri;
 import android.provider.Settings;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.matcher.BoundedMatcher;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.work.Configuration;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
+import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -43,39 +52,17 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 
 @RunWith(AndroidJUnit4.class)
 public class AdminManageProfileTest {
-
-    public static void uploadProfileImageToFirebaseStorage(Uri imageUri, String fileName, AtomicReference<String> currentImageUriString) {
-        if (imageUri == null) {
-            return;
-        }
-
-        FirebaseStorage storage = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app");
-        StorageReference storageRef = storage.getReference().child("profileImages/" + fileName);
-        UploadTask uploadTask = storageRef.putFile(imageUri);
-        uploadTask.addOnSuccessListener(taskSnapshot -> {
-            storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                String uriString = uri.toString();
-                currentImageUriString.set(uriString);
-            });
-        });
-        try {
-            Log.e("JASON TEST", "GOING TO AWAIT TASK");
-            com.google.android.gms.tasks.Tasks.await(uploadTask);
-            Log.e("JASON TEST", "DONE AWAITING TASK");
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
@@ -171,13 +158,77 @@ public class AdminManageProfileTest {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         //     create admin profile to test with
         String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+        AtomicReference<String> currentImageUriString = new AtomicReference<String>("");
+
+        CountDownLatch countDown = new CountDownLatch(1);
 
         Uri imageUri = Uri.parse("https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/1920px-Google_2015_logo.svg.png");
 
-        AtomicReference<String> currentImageUriString = new AtomicReference<String>("");
 
-        uploadProfileImageToFirebaseStorage(imageUri, "testFile", currentImageUriString);
 
+        class UploadWorker extends Worker {
+
+            public UploadWorker(Context context, WorkerParameters params) {
+                super(context, params);
+            }
+
+            public void uploadProfileImageToFirebaseStorage(Uri imageUri, String fileName, AtomicReference<String> currentImageUriString, CountDownLatch countDown) {
+                Log.e("JASON TEST", imageUri.toString());
+                Log.e("JASON TEST", fileName);
+                Log.e("JASON TEST", currentImageUriString.get());
+                Log.e("JASON TEST", Long.toString(countDown.getCount()));
+                if (imageUri == null) {
+                    return;
+                }
+
+                FirebaseStorage storage = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app");
+                StorageReference storageRef = storage.getReference().child("profileImages/" + fileName);
+                UploadTask uploadTask = storageRef.putFile(imageUri);
+                uploadTask.addOnSuccessListener(taskSnapshot -> {
+                    storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                        String uriString = uri.toString();
+                        currentImageUriString.set(uriString);
+                        countDown.countDown();
+                    });
+                });
+            }
+
+            @NonNull
+            @Override
+            public Result doWork() {
+                Log.e("JASON TEST", "inside do work");
+                try {
+                    Log.e("JASON TEST", "beginning work");
+                    uploadProfileImageToFirebaseStorage(imageUri, "testFile", currentImageUriString, countDown);
+                    Log.e("JASON TEST", "now we wait");
+                    countDown.await();
+                    Log.e("JASON TEST", "done waiting!");
+                    return Result.success();
+                } catch (Throwable e) {
+                    return Result.failure();
+                }
+            }
+
+        }
+        // https://stackoverflow.com/questions/55875198/illegalstateexception-workmanager-is-already-initialized
+        // https://developer.android.com/develop/background-work/background-tasks/persistent/getting-started?_gl=1*1k0epcv*_up*MQ..*_ga*MzI5ODk3NTI0LjE3MzIzOTY5MjM.*_ga_6HH9YJMN9M*MTczMjM5NjkyMy4xLjAuMTczMjM5NzE1OS4wLjAuMTE4NTQ1NTUwMA..
+        Log.e("JASON TEST", "initialize work manager");
+        // WorkManager.initialize(
+        //         MyApp.getInstance().getBaseContext(),
+        //         new Configuration.Builder()
+        //                 .setExecutor(Executors.newFixedThreadPool(1))
+        //                 .build());
+        Log.e("JASON TEST", "upload work request");
+        WorkRequest uploadWorkRequest =
+                new OneTimeWorkRequest.Builder(UploadWorker.class)
+                        .build();
+        Log.e("JASON TEST", "queue work");
+        WorkManager
+                .getInstance(getContext())
+                .enqueue(uploadWorkRequest);
+
+
+        Log.e("JASON TEST", "moving on");
         DocumentReference userRef = db.collection("users").document(deviceId);
         userRef.set(new HashMap<String, Object>() {{
             put("name", "John Tester");

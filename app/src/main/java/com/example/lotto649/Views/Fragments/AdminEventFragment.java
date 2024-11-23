@@ -22,10 +22,12 @@ import androidx.lifecycle.Observer;
 
 import com.bumptech.glide.Glide;
 import com.example.lotto649.Models.UserModel;
+import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -59,6 +61,7 @@ public class AdminEventFragment extends Fragment {
     Button deleteImageButton;
     Button deleteQRButton;
     Button deleteEventButton;
+    ExtendedFloatingActionButton backButton;
     private Uri posterUri;
     private MutableLiveData<Boolean> imageAbleToBeDeleted;
     private MutableLiveData<Boolean> qrCodeAbleToBeDeleted;
@@ -132,6 +135,7 @@ public class AdminEventFragment extends Fragment {
         deleteQRButton = view.findViewById(R.id.admin_delete_event_qr);
         deleteEventButton = view.findViewById(R.id.admin_delete_event);
         posterImage = view.findViewById(R.id.admin_event_poster);
+        backButton = view.findViewById(R.id.back_button);
 
         eventsRef.document(firestoreEventId)
                 .get()
@@ -201,6 +205,13 @@ public class AdminEventFragment extends Fragment {
                         }
                     }
                 });
+
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MyApp.getInstance().replaceFragment(new BrowseEventsFragment());
+            }
+        });
 
         deleteEventButton.setOnClickListener(new View.OnClickListener() {
             @Override

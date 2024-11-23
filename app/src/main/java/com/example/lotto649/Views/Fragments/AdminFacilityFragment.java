@@ -17,10 +17,13 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.lotto649.Models.EventModel;
+import com.example.lotto649.MyApp;
+import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -76,6 +79,7 @@ public class AdminFacilityFragment extends Fragment {
         TextView name = view.findViewById(R.id.admin_facility_name);
         TextView address  = view.findViewById(R.id.admin_facility_address);
         Button deleteButton = view.findViewById(R.id.admin_delete_facility);
+        ExtendedFloatingActionButton backButton = view.findViewById(R.id.back_button);
 
         facilitiesRef.document(userDeviceId)
                 .get()
@@ -91,6 +95,13 @@ public class AdminFacilityFragment extends Fragment {
                         }
                     }
                 });
+
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MyApp.getInstance().replaceFragment(new BrowseFacilitiesFragment());
+            }
+        });
 
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override

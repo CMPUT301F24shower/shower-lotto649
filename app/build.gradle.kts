@@ -60,4 +60,8 @@ dependencies {
     implementation("com.google.zxing:core:3.5.0")
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation("com.google.firebase:firebase-storage-ktx:20.2.1")
+    implementation("androidx.work:work-runtime:2.9.1")
+    androidTestImplementation("androidx.work:work-runtime:2.9.1")
+    implementation("androidx.concurrent:concurrent-futures:1.1.0")
+    implementation("com.google.guava:guava:31.0.1-android")
 }

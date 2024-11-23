@@ -24,10 +24,12 @@ import androidx.lifecycle.Observer;
 
 import com.bumptech.glide.Glide;
 import com.example.lotto649.Models.UserModel;
+import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -59,6 +61,7 @@ public class AdminProfileFragment extends Fragment {
     TextView roles;
     Button removeImage;
     Button removeUser;
+    ExtendedFloatingActionButton backButton;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -118,6 +121,7 @@ public class AdminProfileFragment extends Fragment {
         profileImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
         linearLayout = view.findViewById(R.id.admin_profile_picture_layout);
         imagePlaceholder = view.findViewById(R.id.admin_profile_image_placeholder);
+        backButton = view.findViewById(R.id.back_button);
 
 
         db.collection("users")
@@ -181,6 +185,13 @@ public class AdminProfileFragment extends Fragment {
                         }
                     }
                 });
+
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MyApp.getInstance().replaceFragment(new BrowseProfilesFragment());
+            }
+        });
 
         removeUser.setOnClickListener(new View.OnClickListener() {
             @Override

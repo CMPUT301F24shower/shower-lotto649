@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity
                     removeBottomNavMenuUserAndAdminItems();
                     bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_admin);
                     // Set the default selected item to "home"
-                    bottomNavigationView.setSelectedItemId(R.id.home);
+                    bottomNavigationView.setSelectedItemId(R.id.browseProfiles);
                 } else {
                     removeBottomNavMenuItems();
                     removeBottomNavMenuAdminItems();
