@@ -274,45 +274,64 @@ public class EventFragment extends Fragment {
             String costStr = costEditText.getText().toString();
             boolean geo = geoCheck.isChecked();
 
-            int spots;
+            int spots = 0;
             int maxEntrants = -1;
             double cost = 0.00;
 
+            boolean hasError = false;
+
             if (title.isBlank()) {
-                titleInputLayout.setHelperTextColor(ColorStateList.valueOf(Color.parseColor("#FF0000")));
-                return;
+                titleInputLayout.setError("Please enter your event title");
+                hasError = true;
+            } else {
+                titleInputLayout.setError(null);
             }
             if (description.isBlank()) {
-                descriptionInputLayout.setHelperTextColor(ColorStateList.valueOf(Color.parseColor("#FF0000")));
-                return;
+                descriptionInputLayout.setError("Please enter your event description");
+                hasError = true;
+            } else {
+                descriptionInputLayout.setError(null);
             }
             if (lotteryStartDateFieldText.getText().toString().isBlank()) {
-                lotteryStartDateFieldLayout.setHelperTextColor(ColorStateList.valueOf(Color.parseColor("#FF0000")));
-                return;
+                lotteryStartDateFieldLayout.setError("Please enter your event lottery start date");
+                hasError = true;
+            } else {
+                lotteryStartDateFieldLayout.setError(null);
             }
             if (lotteryEndDateFieldText.getText().toString().isBlank()) {
-                lotteryEndDateFieldLayout.setHelperTextColor(ColorStateList.valueOf(Color.parseColor("#FF0000")));
-                return;
+                lotteryEndDateFieldLayout.setError("Please enter your event lottery end date");
+                hasError = true;
+            } else {
+                lotteryEndDateFieldLayout.setError(null);
             }
             if (startDate.get().before(new Date())) {
-                Toast.makeText(requireContext(), "Start date can't be in the past.", Toast.LENGTH_SHORT).show();
-                return;
+                lotteryStartDateFieldLayout.setError("Start date can't be in the past");
+                hasError = true;
+            } else {
+                lotteryStartDateFieldLayout.setError(null);
             }
             if (!endDate.get().equals(startDate.get()) && endDate.get().before(startDate.get())) {
-                Toast.makeText(requireContext(), "End date must be greater than or equal to start date.", Toast.LENGTH_SHORT).show();
-                return;
+                lotteryEndDateFieldLayout.setError("End date must be greater than or equal to start date");
+                hasError = true;
+            } else {
+                lotteryEndDateFieldLayout.setError(null);
             }
             if (spotsStr.isBlank()) {
-                spotsInputLayout.setHelperTextColor(ColorStateList.valueOf(Color.parseColor("#FF0000")));
-                return;
+                spotsInputLayout.setError("Please enter valid number of attendees of your event");
+                hasError = true;
             } else {
                 spots = Integer.parseInt(spotsStr);
+                spotsInputLayout.setError(null);
             }
             if (!maxEntrantsStr.isBlank()) {
                 maxEntrants = Integer.parseInt(maxEntrantsStr);
             }
             if (!costStr.isBlank()) {
                 cost = Double.parseDouble(costStr);
+            }
+
+            if (hasError) {
+                return;
             }
 
             eventController.updateTitle(title);
