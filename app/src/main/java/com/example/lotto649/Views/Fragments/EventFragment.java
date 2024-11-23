@@ -41,6 +41,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -62,6 +63,7 @@ public class EventFragment extends Fragment {
 
     private TextInputLayout titleInputLayout, descriptionInputLayout, lotteryStartDateFieldLayout, lotteryEndDateFieldLayout, spotsInputLayout, maxEntrantsInputLayout;
     private TextInputEditText titleEditText, descriptionEditText, lotteryStartDateFieldText, lotteryEndDateFieldText, spotsEditText, maxEntrantsEditText;
+    private String initialTitle, initialDescription, initialStartDate, initialEndDate, initialAttendees, initialMaxEntrants;
     private CheckBox geoCheck;
     private ExtendedFloatingActionButton cancelButton, saveButton;
 
@@ -76,6 +78,7 @@ public class EventFragment extends Fragment {
     Uri currentImageUri;
     private AtomicReference<String> currentImageUriString;
     private MutableLiveData<Boolean> posterLoadedInFirestore;
+    private MutableLiveData<Boolean> saveButtonShow;
 
     /**
      * Displays details of the provided EventModel in the UI components.
@@ -114,6 +117,15 @@ public class EventFragment extends Fragment {
             }
             geoCheck.setChecked(event.getGeo());
         }
+    }
+
+    public void setInitialValues() {
+        initialTitle = titleEditText.getText().toString();
+        initialDescription = descriptionEditText.getText().toString();
+        initialStartDate = lotteryStartDateFieldText.getText().toString();
+        initialEndDate = lotteryEndDateFieldText.getText().toString();
+        initialAttendees = spotsEditText.getText().toString();
+        initialMaxEntrants = maxEntrantsEditText.getText().toString();
     }
 
     /**
@@ -254,6 +266,10 @@ public class EventFragment extends Fragment {
         cancelButton = view.findViewById(R.id.cancelButton);
         saveButton = view.findViewById(R.id.saveButton);
 
+        if (!isAddingFirstTime) {
+            saveButton.setText("Save");
+            ((TextView) view.findViewById(R.id.eventFragment)).setText("Edit Event");
+        }
 
         currentImageUriString.set(event.getPosterImage());
         // Update profile Image
@@ -261,7 +277,31 @@ public class EventFragment extends Fragment {
             getPosterFromFirebase();
         }
 
+        saveButtonShow = new MutableLiveData<Boolean>(Boolean.FALSE);
+        saveButtonShow.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean changedValue) {
+                if (isAddingFirstTime) {
+                    saveButton.setVisibility(View.VISIBLE);
+                } else {
+                    if (Objects.equals(changedValue, Boolean.TRUE)) {
+                        saveButton.setVisibility(View.VISIBLE);
+                    } else {
+                        saveButton.setVisibility(View.GONE);
+                    }
+                }
+            }
+        });
+
         showEventDetails(event);
+        setInitialValues();
+
+        titleEditText.addTextChangedListener(titleWatcher);
+        descriptionEditText.addTextChangedListener(descriptionWatcher);
+        lotteryStartDateFieldText.addTextChangedListener(startDateWatcher);
+        lotteryEndDateFieldText.addTextChangedListener(endDateWatcher);
+        spotsEditText.addTextChangedListener(attendeesWatcher);
+        maxEntrantsEditText.addTextChangedListener(maxSizeWatcher);
 
         lotteryStartDateFieldText.setOnClickListener(v -> {
             showDatePickerDialog(lotteryStartDateFieldText, startDate, startDate.get());
@@ -372,6 +412,9 @@ public class EventFragment extends Fragment {
                     .replace(R.id.flFragment, qrFragment)
                     .addToBackStack(null)
                     .commit();
+
+            setInitialValues();
+            SetSaveButtonVisibility(true);
         });
 
         return view;
@@ -428,6 +471,91 @@ public class EventFragment extends Fragment {
                 dateReference.set(setCal.getTime());
             }, hour, minute, true);
         timePickerDialog.show();
+    }
+
+
+    private boolean DidInfoRemainConstant() {
+        return Objects.equals(titleEditText.getEditableText().toString(), initialTitle)
+                && Objects.equals(descriptionEditText.getEditableText().toString(), initialDescription)
+                && Objects.equals(lotteryStartDateFieldText.getEditableText().toString(), initialStartDate)
+                && Objects.equals(lotteryEndDateFieldText.getEditableText().toString(), initialEndDate)
+                && Objects.equals(spotsEditText.getEditableText().toString(), initialAttendees)
+                && Objects.equals(maxEntrantsEditText.getEditableText().toString(), initialMaxEntrants);
+    }
+
+    private final TextWatcher titleWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {}
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
+
+    private final TextWatcher descriptionWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {}
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
+
+    private final TextWatcher startDateWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {}
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
+
+    private final TextWatcher endDateWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {}
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
+
+    private final TextWatcher attendeesWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {}
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
+
+    private final TextWatcher maxSizeWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {}
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
+
+
+    private void SetSaveButtonVisibility(boolean isEqual) {
+        if (isEqual) {
+            saveButtonShow.setValue(Boolean.FALSE);
+            titleInputLayout.setError(null);
+            descriptionInputLayout.setError(null);
+            lotteryStartDateFieldLayout.setError(null);
+            lotteryEndDateFieldLayout.setError(null);
+            spotsInputLayout.setError(null);
+            maxEntrantsInputLayout.setError(null);
+        } else {
+            saveButtonShow.setValue(Boolean.TRUE);
+        }
     }
 
 
