@@ -375,7 +375,10 @@ public class EventFragment extends Fragment {
                 spots = Integer.parseInt(spotsStr);
                 spotsInputLayout.setError(null);
             }
-            if (!maxEntrantsStr.isBlank()) {
+            if (maxEntrantsStr.equals("0")){
+                maxEntrantsInputLayout.setError("Please enter a positive number");
+                hasError = true;
+            } else if (!maxEntrantsStr.isBlank()) {
                 maxEntrants = Integer.parseInt(maxEntrantsStr);
             }
 
@@ -411,14 +414,16 @@ public class EventFragment extends Fragment {
                 eventController.returnToEvents();
             }
 
-            QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
-            getParentFragmentManager().beginTransaction()
-                    .replace(R.id.flFragment, qrFragment)
-                    .addToBackStack(null)
-                    .commit();
-
             setInitialValues();
             SetSaveButtonVisibility(true);
+
+            if (isAddingFirstTime) {
+                QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
+                getParentFragmentManager().beginTransaction()
+                        .replace(R.id.flFragment, qrFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
         });
 
         return view;
