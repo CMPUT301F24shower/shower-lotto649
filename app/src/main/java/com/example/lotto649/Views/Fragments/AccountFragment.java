@@ -280,6 +280,7 @@ public class AccountFragment extends Fragment {
                 }
                 user = userController.getModel();
                 imagePlaceholder.setText(user.getInitials()); // TODO, this isnt right
+                saveButton.setText("Save");
             }
         });
 
@@ -349,10 +350,12 @@ public class AccountFragment extends Fragment {
                         // User exists, deserialize to UserModel
                         UserModel user = document.toObject(UserModel.class);
                         if (user != null) {
+                            saveButton.setText("Save");
                             firestoreUserCallback.onCallback(user.getName(), user.getEmail(), user.getPhone(), user.getProfileImage());
                         }
                     } else {
                         // No user found, create a new one
+                        saveButton.setText("Create");
                         firestoreUserCallback.onCallback("", "", "", "");
                     }
                 } else {

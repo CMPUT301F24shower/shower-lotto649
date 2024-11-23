@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -49,6 +50,7 @@ public class FacilityFragment extends Fragment {
     private String deviceId;
     private FirebaseFirestore db;
     private CollectionReference facilitiesRef;
+    private TextView pageTitle;
     private TextInputEditText nameInput;
     private TextInputEditText addressInput;
     private Button save;
@@ -81,6 +83,7 @@ public class FacilityFragment extends Fragment {
         nameInput = view.findViewById(R.id.inputFacilityName);
         addressInput = view.findViewById(R.id.inputAddress);
         save = view.findViewById(R.id.facility_save_button);
+        pageTitle = view.findViewById(R.id.facilityFragment);
 
         // add text watchers to inputs
         nameInput.addTextChangedListener(facilityNameWatcher);
@@ -109,9 +112,13 @@ public class FacilityFragment extends Fragment {
                         facility.setAddress(addressText);
                         initialFacilityNameInput = nameText;
                         initialAddressInput = addressText;
+                        pageTitle.setText("Edit Facility Information");
+                        save.setText("Save");
                         SetSaveButtonVisibility(true);
                         Log.d("Firestore", String.format("deviceId %s got name=%s, address=%s ", deviceId, nameText, addressText));
                     } else {
+                        pageTitle.setText("Create a Facility");
+                        save.setText("Create");
                         Log.d("Firestore", "No such document");
                     }
                 } else {
@@ -147,6 +154,8 @@ public class FacilityFragment extends Fragment {
                 facilityController.saveToFirestore();
                 initialFacilityNameInput = facilityName;
                 initialAddressInput = address;
+                pageTitle.setText("Edit Facility Information");
+                save.setText("Save");
                 SetSaveButtonVisibility(true);
             }
         });
