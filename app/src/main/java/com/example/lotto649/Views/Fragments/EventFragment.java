@@ -4,6 +4,7 @@ import static android.app.Activity.RESULT_OK;
 
 import static com.example.lotto649.FirebaseStorageHelper.uploadPosterImageToFirebaseStorage;
 
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -40,11 +41,14 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
+import java.sql.Time;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
+import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -92,10 +96,16 @@ public class EventFragment extends Fragment {
         } else {
             titleEditText.setText(event.getTitle());
             descriptionEditText.setText(event.getDescription());
-            lotteryStartDateFieldText.setText(String.valueOf(event.getStartDate()));
-            startDate.set(event.getStartDate());
-            lotteryEndDateFieldText.setText(String.valueOf(event.getEndDate()));
-            endDate.set(event.getEndDate());
+            Date sd = event.getStartDate();
+            lotteryStartDateFieldText.setText(
+                    (sd.getYear() + 1900) + "-" + (sd.getMonth() + 1) + "-" + sd.getDate() + " (" + sd.getHours() + ":" + sd.getMinutes() + " MST)"
+            );
+            startDate.set(sd);
+            Date ed = event.getEndDate();
+            lotteryEndDateFieldText.setText(
+                    (ed.getYear() + 1900) + "-" + (ed.getMonth() + 1) + "-" + ed.getDate() + " (" + ed.getHours() + ":" + ed.getMinutes() + " MST)"
+            );
+            endDate.set(ed);
             spotsEditText.setText(String.valueOf(event.getNumberOfSpots()));
             if (event.getNumberOfMaxEntrants() == -1) {
                 maxEntrantsEditText.setText("");
@@ -391,11 +401,33 @@ public class EventFragment extends Fragment {
                     String selectedDate = selectedYear + "-" + (selectedMonth + 1) + "-" + selectedDay;
                     dateToPick.setText(selectedDate);
 
-                    // Update the date reference with the selected date
-                    dateReference.set(selectedCalendar.getTime());
+                    timePicker(dateToPick, dateReference, selectedYear, selectedMonth, selectedDay);
                 }, year, month, day);
 
         datePickerDialog.show();
+    }
+
+    // https://stackoverflow.com/questions/38604157/android-date-time-picker-in-one-dialog
+    private void timePicker(EditText dateToPick, AtomicReference<Date> dateReference, int year, int month, int day) {
+        final Calendar calendar = Calendar.getInstance();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+
+        // Launch Time Picker Dialog
+        TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(),
+                (view, hourOfDay, minuteOfDay) -> {
+            dateToPick.setText(dateToPick.getText().toString() + " (" + hourOfDay + ":" + minute + " MST)");
+
+            // Update the date reference with the selected date
+                Calendar setCal = Calendar.getInstance();
+                setCal.set(Calendar.YEAR, year);
+                setCal.set(Calendar.MONTH, month);
+                setCal.set(Calendar.DAY_OF_MONTH, day);
+                setCal.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                setCal.set(Calendar.MINUTE, minuteOfDay);
+                dateReference.set(setCal.getTime());
+            }, hour, minute, true);
+        timePickerDialog.show();
     }
 
 
