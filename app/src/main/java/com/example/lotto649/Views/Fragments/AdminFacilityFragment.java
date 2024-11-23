@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.MyApp;
+import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
