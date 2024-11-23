@@ -88,15 +88,6 @@ public class EventController extends AbstractController {
     }
 
     /**
-     * Updates the cost of the event.
-     *
-     * @param cost The new cost for the event.
-     */
-    public void updateCost(double cost) {
-        getModel().setCost(cost);
-    }
-
-    /**
      * Updates the geographic requirement (geo-location) for the event.
      *
      * @param geo The new geographic requirement status.

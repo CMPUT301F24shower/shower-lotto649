@@ -4,6 +4,7 @@ import static android.app.Activity.RESULT_OK;
 
 import static com.example.lotto649.FirebaseStorageHelper.uploadPosterImageToFirebaseStorage;
 
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -23,10 +24,9 @@ import androidx.lifecycle.Observer;
 
 import com.bumptech.glide.Glide;
 import com.example.lotto649.Controllers.EventController;
-import com.example.lotto649.FirebaseStorageHelper;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.Models.QrCodeModel;
-import com.example.lotto649.MyApp;
+import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.R;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -42,11 +42,14 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
+import java.sql.Time;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
+import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -58,22 +61,24 @@ public class EventFragment extends Fragment {
     private EventModel event;
     private Context mContext;
 
-    private TextInputLayout titleInputLayout, descriptionInputLayout, lotteryStartDateFieldLayout, lotteryEndDateFieldLayout, spotsInputLayout, maxEntrantsInputLayout, costInputLayout;
-    private TextInputEditText titleEditText, descriptionEditText, lotteryStartDateFieldText, lotteryEndDateFieldText, spotsEditText, maxEntrantsEditText, costEditText;
+    private TextInputLayout titleInputLayout, descriptionInputLayout, lotteryStartDateFieldLayout, lotteryEndDateFieldLayout, spotsInputLayout, maxEntrantsInputLayout;
+    private TextInputEditText titleEditText, descriptionEditText, lotteryStartDateFieldText, lotteryEndDateFieldText, spotsEditText, maxEntrantsEditText;
+    private String initialTitle, initialDescription, initialStartDate, initialEndDate, initialAttendees, initialMaxEntrants;
     private CheckBox geoCheck;
     private ExtendedFloatingActionButton cancelButton, saveButton;
 
     private AtomicReference<Date> startDate = new AtomicReference<>(new Date());
     private AtomicReference<Date> endDate = new AtomicReference<>(new Date());
-    private boolean add;
+    private boolean isAddingFirstTime;
 
     private static final int PICK_IMAGE_REQUEST = 1;
     private boolean hasSetImage;
-    ImageView profileImage;
+    ImageView posterImage;
     ImageView defaultImage;
     Uri currentImageUri;
     private AtomicReference<String> currentImageUriString;
-    private MutableLiveData<Boolean> imageAbleToBeDeleted;
+    private MutableLiveData<Boolean> posterLoadedInFirestore;
+    private MutableLiveData<Boolean> saveButtonShow;
 
     /**
      * Displays details of the provided EventModel in the UI components.
@@ -81,16 +86,50 @@ public class EventFragment extends Fragment {
      * @param event The EventModel containing event details to display.
      */
     public void showEventDetails(@NonNull EventModel event) {
-        titleEditText.setText(event.getTitle());
-        descriptionEditText.setText(event.getDescription());
-        lotteryStartDateFieldText.setText(String.valueOf(event.getStartDate()));
-        startDate.set(event.getStartDate());
-        lotteryEndDateFieldText.setText(String.valueOf(event.getEndDate()));
-        endDate.set(event.getEndDate());
-        spotsEditText.setText(String.valueOf(event.getNumberOfSpots()));
-        maxEntrantsEditText.setText(String.valueOf(event.getNumberOfMaxEntrants()));
-        costEditText.setText(String.valueOf(event.getCost()));
-        geoCheck.setChecked(event.getGeo());
+        if (isAddingFirstTime) {
+            titleEditText.setText("");
+            descriptionEditText.setText("");
+            lotteryStartDateFieldText.setText("");
+            startDate.set(new Date());
+            lotteryEndDateFieldText.setText("");
+            endDate.set(new Date());
+            spotsEditText.setText("");
+            maxEntrantsEditText.setText("");
+            geoCheck.setChecked(false);
+        } else {
+            titleEditText.setText(event.getTitle());
+            descriptionEditText.setText(event.getDescription());
+            Date sd = event.getStartDate();
+            String sdHourText = String.format("%02d", sd.getHours());
+            String sdMinuteText = String.format("%02d", sd.getMinutes());
+            lotteryStartDateFieldText.setText(
+                    (sd.getYear() + 1900) + "-" + (sd.getMonth() + 1) + "-" + sd.getDate() + " (" + sdHourText + ":" + sdMinuteText + " MST)"
+            );
+            startDate.set(sd);
+            Date ed = event.getEndDate();
+            String edHourText = String.format("%02d", ed.getHours());
+            String edMinuteText = String.format("%02d", ed.getMinutes());
+            lotteryEndDateFieldText.setText(
+                    (ed.getYear() + 1900) + "-" + (ed.getMonth() + 1) + "-" + ed.getDate() + " (" + edHourText + ":" + edMinuteText + " MST)"
+            );
+            endDate.set(ed);
+            spotsEditText.setText(String.valueOf(event.getNumberOfSpots()));
+            if (event.getNumberOfMaxEntrants() == -1) {
+                maxEntrantsEditText.setText("");
+            } else {
+                maxEntrantsEditText.setText(String.valueOf(event.getNumberOfMaxEntrants()));
+            }
+            geoCheck.setChecked(event.getGeo());
+        }
+    }
+
+    public void setInitialValues() {
+        initialTitle = titleEditText.getText().toString();
+        initialDescription = descriptionEditText.getText().toString();
+        initialStartDate = lotteryStartDateFieldText.getText().toString();
+        initialEndDate = lotteryEndDateFieldText.getText().toString();
+        initialAttendees = spotsEditText.getText().toString();
+        initialMaxEntrants = maxEntrantsEditText.getText().toString();
     }
 
     /**
@@ -113,7 +152,7 @@ public class EventFragment extends Fragment {
      */
     public EventFragment() {
         Log.e("Ohm", "Construct");
-        add = true;
+        isAddingFirstTime = true;
     }
 
     /**
@@ -123,8 +162,27 @@ public class EventFragment extends Fragment {
      */
     public EventFragment(EventModel event) {
         Log.e("Ohm", "Contruct Event");
-        add = false;
+        isAddingFirstTime = false;
         this.event = event;
+    }
+
+    private void getPosterFromFirebase() {
+        StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(currentImageUriString.get());
+        imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+            currentImageUri = uri;
+            currentImageUriString.set(currentImageUri.toString());
+            Glide.with(mContext)
+                    .load(uri)
+                    .into(posterImage);
+            defaultImage.setVisibility(View.GONE);
+            posterImage.setVisibility(View.VISIBLE);
+            hasSetImage = true;
+        }).addOnFailureListener(e -> {
+            defaultImage.setVisibility(View.VISIBLE);
+            posterImage.setVisibility(View.GONE);
+            hasSetImage = false;
+            Toast.makeText(getActivity(), "Unable to fetch profile image", Toast.LENGTH_SHORT).show();
+        });
     }
 
     /**
@@ -139,7 +197,19 @@ public class EventFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_event, container, false);
         currentImageUriString = new AtomicReference<String>("");
-        imageAbleToBeDeleted = new MutableLiveData<Boolean>(Boolean.FALSE);
+        posterLoadedInFirestore = new MutableLiveData<Boolean>(Boolean.FALSE);
+        posterLoadedInFirestore.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean changedValue) {
+                if (Objects.equals(changedValue, Boolean.TRUE)) {
+                    getPosterFromFirebase();
+                } else {
+                    defaultImage.setVisibility(View.VISIBLE);
+                    posterImage.setVisibility(View.GONE);
+                    hasSetImage = false;
+                }
+            }
+        });
 
         hasSetImage = false;
         currentImageUri = null;
@@ -149,19 +219,18 @@ public class EventFragment extends Fragment {
         lotteryEndDateFieldLayout = view.findViewById(R.id.eventLotteryEndDate);
         spotsInputLayout = view.findViewById(R.id.eventSpots);
         maxEntrantsInputLayout = view.findViewById(R.id.eventMaxEntrants);
-        costInputLayout = view.findViewById(R.id.eventCost);
         geoCheck = view.findViewById(R.id.eventGeolocation);
 
-        profileImage = view.findViewById(R.id.event_poster);
+        posterImage = view.findViewById(R.id.event_poster);
         defaultImage = view.findViewById(R.id.event_poster_placeholder);
-        profileImage.setVisibility(View.GONE);
+        posterImage.setVisibility(View.GONE);
         defaultImage.setVisibility(View.VISIBLE);
 
         // TODO: This is hardcoded, but works good on my phone, not sure if this is a good idea or not
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(750, 450);
-        profileImage.setLayoutParams(layoutParams);
-        profileImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        profileImage.setOnClickListener(new View.OnClickListener() {
+        posterImage.setLayoutParams(layoutParams);
+        posterImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        posterImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
@@ -174,7 +243,7 @@ public class EventFragment extends Fragment {
         defaultImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                profileImage.setVisibility(View.VISIBLE);
+                posterImage.setVisibility(View.VISIBLE);
                 Intent intent = new Intent();
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -198,34 +267,45 @@ public class EventFragment extends Fragment {
         lotteryEndDateFieldText = (TextInputEditText) lotteryEndDateFieldLayout.getEditText();
         spotsEditText = (TextInputEditText) spotsInputLayout.getEditText();
         maxEntrantsEditText = (TextInputEditText) maxEntrantsInputLayout.getEditText();
-        costEditText = (TextInputEditText) costInputLayout.getEditText();
         cancelButton = view.findViewById(R.id.cancelButton);
         saveButton = view.findViewById(R.id.saveButton);
 
+        if (!isAddingFirstTime) {
+            saveButton.setText("Save");
+            ((TextView) view.findViewById(R.id.eventFragment)).setText("Edit Event");
+        }
 
         currentImageUriString.set(event.getPosterImage());
         // Update profile Image
         if (!Objects.equals(currentImageUriString.get(), "")) {
-            StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(currentImageUriString.get());
-            imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                        currentImageUri = uri;
-                        currentImageUriString.set(currentImageUri.toString());
-                        Glide.with(mContext)
-                                .load(uri)
-                                .into(profileImage);
-                        defaultImage.setVisibility(View.GONE);
-                        profileImage.setVisibility(View.VISIBLE);
-                        hasSetImage = true;
-                    })
-                    .addOnFailureListener(e -> {
-                        defaultImage.setVisibility(View.VISIBLE);
-                        profileImage.setVisibility(View.GONE);
-                        Toast.makeText(getActivity(), "Unable to fetch profile image", Toast.LENGTH_SHORT).show();
-                    });
+            getPosterFromFirebase();
         }
 
+        saveButtonShow = new MutableLiveData<Boolean>(Boolean.FALSE);
+        saveButtonShow.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean changedValue) {
+                if (isAddingFirstTime) {
+                    saveButton.setVisibility(View.VISIBLE);
+                } else {
+                    if (Objects.equals(changedValue, Boolean.TRUE)) {
+                        saveButton.setVisibility(View.VISIBLE);
+                    } else {
+                        saveButton.setVisibility(View.GONE);
+                    }
+                }
+            }
+        });
+
         showEventDetails(event);
-        Log.e("Ohm", "TEST");
+        setInitialValues();
+
+        titleEditText.addTextChangedListener(titleWatcher);
+        descriptionEditText.addTextChangedListener(descriptionWatcher);
+        lotteryStartDateFieldText.addTextChangedListener(startDateWatcher);
+        lotteryEndDateFieldText.addTextChangedListener(endDateWatcher);
+        spotsEditText.addTextChangedListener(attendeesWatcher);
+        maxEntrantsEditText.addTextChangedListener(maxSizeWatcher);
 
         lotteryStartDateFieldText.setOnClickListener(v -> {
             showDatePickerDialog(lotteryStartDateFieldText, startDate, startDate.get());
@@ -234,20 +314,12 @@ public class EventFragment extends Fragment {
             showDatePickerDialog(lotteryEndDateFieldText, endDate, startDate.get());
         });
 
-
-        // Inside onCreateView() after initializing costEditText
-        costEditText.addTextChangedListener(costEditWatcher);
-
         eventController = new EventController(event);
 
 
         // Set up the cancel button click listener
         cancelButton.setOnClickListener(v -> {
-            if (!add) {
-                eventController.removeEventFromFirestore();
-            } else {
-                eventController.returnToEvents();
-            }
+            eventController.returnToEvents();
         });
 
         // Set up the save button click listener
@@ -256,48 +328,62 @@ public class EventFragment extends Fragment {
             String description = descriptionEditText.getText().toString();
             String spotsStr = spotsEditText.getText().toString();
             String maxEntrantsStr = maxEntrantsEditText.getText().toString();
-            String costStr = costEditText.getText().toString();
             boolean geo = geoCheck.isChecked();
 
-            int spots;
+            int spots = 0;
             int maxEntrants = -1;
-            double cost = 0.00;
+
+            boolean hasError = false;
 
             if (title.isBlank()) {
-                titleInputLayout.setHelperTextColor(ColorStateList.valueOf(Color.parseColor("#FF0000")));
-                return;
+                titleInputLayout.setError("Please enter your event title");
+                hasError = true;
+            } else {
+                titleInputLayout.setError(null);
             }
             if (description.isBlank()) {
-                descriptionInputLayout.setHelperTextColor(ColorStateList.valueOf(Color.parseColor("#FF0000")));
-                return;
+                descriptionInputLayout.setError("Please enter your event description");
+                hasError = true;
+            } else {
+                descriptionInputLayout.setError(null);
             }
             if (lotteryStartDateFieldText.getText().toString().isBlank()) {
-                lotteryStartDateFieldLayout.setHelperTextColor(ColorStateList.valueOf(Color.parseColor("#FF0000")));
-                return;
+                lotteryStartDateFieldLayout.setError("Please enter your event lottery start date");
+                hasError = true;
+            } else if (startDate.get().before(new Date())) {
+                lotteryStartDateFieldLayout.setError("Start date can't be in the past");
+                hasError = true;
+            } else {
+                lotteryStartDateFieldLayout.setError(null);
             }
             if (lotteryEndDateFieldText.getText().toString().isBlank()) {
-                lotteryEndDateFieldLayout.setHelperTextColor(ColorStateList.valueOf(Color.parseColor("#FF0000")));
-                return;
-            }
-            if (startDate.get().before(new Date())) {
-                Toast.makeText(requireContext(), "Start date can't be in the past.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (!endDate.get().equals(startDate.get()) && endDate.get().before(startDate.get())) {
-                Toast.makeText(requireContext(), "End date must be greater than or equal to start date.", Toast.LENGTH_SHORT).show();
-                return;
+                lotteryEndDateFieldLayout.setError("Please enter your event lottery end date");
+                hasError = true;
+            } else if (!endDate.get().equals(startDate.get()) && endDate.get().before(startDate.get())) {
+                lotteryEndDateFieldLayout.setError("End date must be greater than or equal to start date");
+                hasError = true;
+            } else {
+                lotteryEndDateFieldLayout.setError(null);
             }
             if (spotsStr.isBlank()) {
-                spotsInputLayout.setHelperTextColor(ColorStateList.valueOf(Color.parseColor("#FF0000")));
-                return;
+                spotsInputLayout.setError("Please enter valid number of attendees of your event");
+                hasError = true;
+            } else if (spotsStr.equals("0")){
+                spotsInputLayout.setError("Please enter a positive number");
+                hasError = true;
             } else {
                 spots = Integer.parseInt(spotsStr);
+                spotsInputLayout.setError(null);
             }
-            if (!maxEntrantsStr.isBlank()) {
+            if (maxEntrantsStr.equals("0")){
+                maxEntrantsInputLayout.setError("Please enter a positive number");
+                hasError = true;
+            } else if (!maxEntrantsStr.isBlank()) {
                 maxEntrants = Integer.parseInt(maxEntrantsStr);
             }
-            if (!costStr.isBlank()) {
-                cost = Double.parseDouble(costStr);
+
+            if (hasError) {
+                return;
             }
 
             eventController.updateTitle(title);
@@ -306,10 +392,9 @@ public class EventFragment extends Fragment {
             eventController.updateNumberOfMaxEntrants(maxEntrants);
             eventController.updateStartDate(startDate.get());
             eventController.updateEndDate(endDate.get());
-            eventController.updateCost(cost);
             eventController.updateGeo(geo);
             String fileName = event.getEventId() + ".jpg";
-            uploadPosterImageToFirebaseStorage(currentImageUri, fileName, currentImageUriString, imageAbleToBeDeleted);
+            uploadPosterImageToFirebaseStorage(currentImageUri, fileName, currentImageUriString, posterLoadedInFirestore);
 
             if (currentImageUriString.get().isEmpty()) {
                 eventController.updatePoster("");
@@ -317,23 +402,28 @@ public class EventFragment extends Fragment {
                 eventController.updatePoster(currentImageUriString.get());
             }
 
-            String data = title + description + spotsStr + maxEntrantsStr + costStr;
+            String data = title + description + spotsStr + maxEntrantsStr;
             Bitmap qrCodeBitmap = QrCodeModel.generateForEvent(data);
             String qrCodeHash = QrCodeModel.generateHash(data);
 
             eventController.updateQrCode(qrCodeHash);
 
-            if (add) {
+            if (isAddingFirstTime) {
                 eventController.saveEventToFirestore();
             } else {
                 eventController.returnToEvents();
             }
 
-            QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
-            getParentFragmentManager().beginTransaction()
-                    .replace(R.id.flFragment, qrFragment)
-                    .addToBackStack(null)
-                    .commit();
+            setInitialValues();
+
+            if (isAddingFirstTime) {
+                QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
+                getParentFragmentManager().beginTransaction()
+                        .replace(R.id.flFragment, qrFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+            isAddingFirstTime = false;
         });
 
         return view;
@@ -363,36 +453,122 @@ public class EventFragment extends Fragment {
                     String selectedDate = selectedYear + "-" + (selectedMonth + 1) + "-" + selectedDay;
                     dateToPick.setText(selectedDate);
 
-                    // Update the date reference with the selected date
-                    dateReference.set(selectedCalendar.getTime());
+                    timePicker(dateToPick, dateReference, selectedYear, selectedMonth, selectedDay);
                 }, year, month, day);
 
         datePickerDialog.show();
     }
 
-    /**
-     * Watches for changes in the cost EditText field to restrict input to two decimal places.
-     */
-    private TextWatcher costEditWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+    // https://stackoverflow.com/questions/38604157/android-date-time-picker-in-one-dialog
+    private void timePicker(EditText dateToPick, AtomicReference<Date> dateReference, int year, int month, int day) {
+        final Calendar calendar = Calendar.getInstance();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
 
-        @Override
+        // Launch Time Picker Dialog
+        TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(),
+                (view, hourOfDay, minuteOfDay) -> {
+            String hourText = String.format("%02d", hourOfDay);
+            String minuteText = String.format("%02d", minuteOfDay);
 
-        public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            dateToPick.setText(dateToPick.getText().toString() + " (" + hourText + ":" + minuteText + " MST)");
 
-        @Override
-        public void afterTextChanged(Editable editable) {
-            String input = editable.toString();
-            // Check if the input has more than 2 decimal places
-            if (input.contains(".")) {
-                int decimalIndex = input.indexOf(".");
-                if (input.length() - decimalIndex > 3) {
-                    editable.delete(decimalIndex + 3, input.length());
-                }
-            }
+            // Update the date reference with the selected date
+                Calendar setCal = Calendar.getInstance();
+                setCal.set(Calendar.YEAR, year);
+                setCal.set(Calendar.MONTH, month);
+                setCal.set(Calendar.DAY_OF_MONTH, day);
+                setCal.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                setCal.set(Calendar.MINUTE, minuteOfDay);
+                dateReference.set(setCal.getTime());
+            }, hour, minute, true);
+        timePickerDialog.show();
+    }
+
+
+    private boolean DidInfoRemainConstant() {
+        return Objects.equals(titleEditText.getEditableText().toString(), initialTitle)
+                && Objects.equals(descriptionEditText.getEditableText().toString(), initialDescription)
+                && Objects.equals(lotteryStartDateFieldText.getEditableText().toString(), initialStartDate)
+                && Objects.equals(lotteryEndDateFieldText.getEditableText().toString(), initialEndDate)
+                && Objects.equals(spotsEditText.getEditableText().toString(), initialAttendees)
+                && Objects.equals(maxEntrantsEditText.getEditableText().toString(), initialMaxEntrants);
+    }
+
+    private final TextWatcher titleWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {}
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
         }
     };
+
+    private final TextWatcher descriptionWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {}
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
+
+    private final TextWatcher startDateWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {}
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
+
+    private final TextWatcher endDateWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {}
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
+
+    private final TextWatcher attendeesWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {}
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
+
+    private final TextWatcher maxSizeWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {}
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
+
+
+    private void SetSaveButtonVisibility(boolean isEqual) {
+        if (isEqual) {
+            saveButtonShow.setValue(Boolean.FALSE);
+            titleInputLayout.setError(null);
+            descriptionInputLayout.setError(null);
+            lotteryStartDateFieldLayout.setError(null);
+            lotteryEndDateFieldLayout.setError(null);
+            spotsInputLayout.setError(null);
+            maxEntrantsInputLayout.setError(null);
+        } else {
+            saveButtonShow.setValue(Boolean.TRUE);
+        }
+    }
 
 
     /**
@@ -412,7 +588,8 @@ public class EventFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             currentImageUri = data.getData();
-            profileImage.setImageURI(currentImageUri);
+            posterImage.setImageURI(currentImageUri);
+            saveButtonShow.setValue(Boolean.TRUE);
         }
     }
 }

@@ -5,99 +5,116 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
-        android:id="@+id/admin_event_poster_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_percent="0.75"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" >
 
-        <View
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="16dp"/>
-
-        <ImageView
-            android:id="@+id/admin_event_poster"
-            android:src="@drawable/ic_person_foreground"
-            android:contentDescription="Icon description"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:scaleType="centerCrop"
-            android:layout_gravity="center"
-            android:background="@color/white" />
+            android:orientation="vertical"
+            android:gravity="start"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" >
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="16dp"/>
+            <LinearLayout
+                android:id="@+id/admin_event_poster_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center" >
 
-    </LinearLayout>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="16dp"/>
 
-    <TextView
-        android:id="@+id/admin_event_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="40sp"
-        app:layout_constraintTop_toBottomOf="@+id/admin_event_poster_layout"
-        app:layout_constraintStart_toStartOf="parent" />
+                <ImageView
+                    android:id="@+id/admin_event_poster"
+                    android:src="@drawable/ic_default_event_img_foreground"
+                    android:contentDescription="Icon description"
+                    android:layout_width="300dp"
+                    android:layout_height="150dp"
+                    android:scaleType="centerCrop"
+                    android:layout_gravity="center"
+                    android:background="@color/white" />
 
-    <TextView
-        android:id="@+id/admin_event_status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="25sp"
-        app:layout_constraintTop_toBottomOf="@+id/admin_event_name"
-        app:layout_constraintStart_toStartOf="parent" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="16dp"/>
 
-    <TextView
-        android:id="@+id/admin_event_location"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="25sp"
-        app:layout_constraintTop_toBottomOf="@+id/admin_event_status"
-        app:layout_constraintStart_toStartOf="parent" />
+            </LinearLayout>
 
-    <TextView
-        android:id="@+id/admin_event_spots"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="25sp"
-        app:layout_constraintTop_toBottomOf="@+id/admin_event_location"
-        app:layout_constraintStart_toStartOf="parent" />
+            <TextView
+                android:id="@+id/admin_event_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="40sp"
+                app:layout_constraintTop_toBottomOf="@+id/admin_event_poster_layout"
+                app:layout_constraintStart_toStartOf="parent" />
 
-    <TextView
-        android:id="@+id/admin_event_attendees"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="25sp"
-        app:layout_constraintTop_toBottomOf="@+id/admin_event_spots"
-        app:layout_constraintStart_toStartOf="parent" />
+            <TextView
+                android:id="@+id/admin_event_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="25sp"
+                app:layout_constraintTop_toBottomOf="@+id/admin_event_name"
+                app:layout_constraintStart_toStartOf="parent" />
 
-    <TextView
-        android:id="@+id/admin_event_dates"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="25sp"
-        app:layout_constraintTop_toBottomOf="@+id/admin_event_attendees"
-        app:layout_constraintStart_toStartOf="parent" />
+            <TextView
+                android:id="@+id/admin_event_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="25sp"
+                app:layout_constraintTop_toBottomOf="@+id/admin_event_status"
+                app:layout_constraintStart_toStartOf="parent" />
 
-    <TextView
-        android:id="@+id/admin_event_geo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="25sp"
-        app:layout_constraintTop_toBottomOf="@+id/admin_event_dates"
-        app:layout_constraintStart_toStartOf="parent" />
+            <TextView
+                android:id="@+id/admin_event_spots"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="25sp"
+                app:layout_constraintTop_toBottomOf="@+id/admin_event_location"
+                app:layout_constraintStart_toStartOf="parent" />
 
-    <TextView
-        android:id="@+id/admin_event_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="25sp"
-        app:layout_constraintTop_toBottomOf="@+id/admin_event_geo"
-        app:layout_constraintStart_toStartOf="parent" />
+            <TextView
+                android:id="@+id/admin_event_attendees"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="25sp"
+                app:layout_constraintTop_toBottomOf="@+id/admin_event_spots"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/admin_event_dates"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="25sp"
+                app:layout_constraintTop_toBottomOf="@+id/admin_event_attendees"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/admin_event_geo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="25sp"
+                app:layout_constraintTop_toBottomOf="@+id/admin_event_dates"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/admin_event_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="25sp"
+                app:layout_constraintTop_toBottomOf="@+id/admin_event_geo"
+                app:layout_constraintStart_toStartOf="parent" />
+        </LinearLayout>
+
+    </ScrollView>
 
 
     <androidx.constraintlayout.widget.ConstraintLayout

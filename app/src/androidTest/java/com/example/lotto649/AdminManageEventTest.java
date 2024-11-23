@@ -59,7 +59,6 @@ public class AdminManageEventTest {
         //     create example event
         HashMap<String, Object> data = new HashMap<>();
         Date testDate = new Date();
-        data.put("cost", 0);
         data.put("description", "");
         data.put("endDate", testDate);
         data.put("facilityId", "");
@@ -103,7 +102,6 @@ public class AdminManageEventTest {
                         DocumentSnapshot document = task.getResult();
                         assertNotNull("Document should not be null", document);
                         if (document.exists()) {
-                            assertEquals(0, ((Long) document.get("cost")).intValue());
                             assertEquals("", document.getString("description"));
                             assertEquals(testDate, document.getDate("endDate"));
                             assertEquals("", document.getString("facilityId"));

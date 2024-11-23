@@ -190,6 +190,8 @@ public class AdminEventFragment extends Fragment {
                                     Glide.with(getContext())
                                             .load(uri)
                                             .into(posterImage);
+                                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(900, 450);
+                                    posterImage.setLayoutParams(layoutParams);
                                     posterImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
                                 });
                             } else {
@@ -240,7 +242,7 @@ public class AdminEventFragment extends Fragment {
                                             });
                                     imageAbleToBeDeleted.setValue(Boolean.FALSE);
                                     posterUri = null;
-                                    posterImage.setImageResource(R.drawable.ic_person_foreground);
+                                    posterImage.setImageResource(R.drawable.ic_default_event_img_foreground);
                                 }
                             });
                 }
