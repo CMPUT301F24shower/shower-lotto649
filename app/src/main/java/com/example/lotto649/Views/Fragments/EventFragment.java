@@ -56,8 +56,8 @@ public class EventFragment extends Fragment {
     private EventModel event;
     private Context mContext;
 
-    private TextInputLayout titleInputLayout, descriptionInputLayout, lotteryStartDateFieldLayout, lotteryEndDateFieldLayout, spotsInputLayout, maxEntrantsInputLayout, costInputLayout;
-    private TextInputEditText titleEditText, descriptionEditText, lotteryStartDateFieldText, lotteryEndDateFieldText, spotsEditText, maxEntrantsEditText, costEditText;
+    private TextInputLayout titleInputLayout, descriptionInputLayout, lotteryStartDateFieldLayout, lotteryEndDateFieldLayout, spotsInputLayout, maxEntrantsInputLayout;
+    private TextInputEditText titleEditText, descriptionEditText, lotteryStartDateFieldText, lotteryEndDateFieldText, spotsEditText, maxEntrantsEditText;
     private CheckBox geoCheck;
     private ExtendedFloatingActionButton cancelButton, saveButton;
 
@@ -79,16 +79,31 @@ public class EventFragment extends Fragment {
      * @param event The EventModel containing event details to display.
      */
     public void showEventDetails(@NonNull EventModel event) {
-        titleEditText.setText(event.getTitle());
-        descriptionEditText.setText(event.getDescription());
-        lotteryStartDateFieldText.setText(String.valueOf(event.getStartDate()));
-        startDate.set(event.getStartDate());
-        lotteryEndDateFieldText.setText(String.valueOf(event.getEndDate()));
-        endDate.set(event.getEndDate());
-        spotsEditText.setText(String.valueOf(event.getNumberOfSpots()));
-        maxEntrantsEditText.setText(String.valueOf(event.getNumberOfMaxEntrants()));
-        costEditText.setText(String.valueOf(event.getCost()));
-        geoCheck.setChecked(event.getGeo());
+        if (isAddingFirstTime) {
+            titleEditText.setText("");
+            descriptionEditText.setText("");
+            lotteryStartDateFieldText.setText("");
+            startDate.set(new Date());
+            lotteryEndDateFieldText.setText("");
+            endDate.set(new Date());
+            spotsEditText.setText("");
+            maxEntrantsEditText.setText("");
+            geoCheck.setChecked(false);
+        } else {
+            titleEditText.setText(event.getTitle());
+            descriptionEditText.setText(event.getDescription());
+            lotteryStartDateFieldText.setText(String.valueOf(event.getStartDate()));
+            startDate.set(event.getStartDate());
+            lotteryEndDateFieldText.setText(String.valueOf(event.getEndDate()));
+            endDate.set(event.getEndDate());
+            spotsEditText.setText(String.valueOf(event.getNumberOfSpots()));
+            if (event.getNumberOfMaxEntrants() == -1) {
+                maxEntrantsEditText.setText("");
+            } else {
+                maxEntrantsEditText.setText(String.valueOf(event.getNumberOfMaxEntrants()));
+            }
+            geoCheck.setChecked(event.getGeo());
+        }
     }
 
     /**
@@ -178,7 +193,6 @@ public class EventFragment extends Fragment {
         lotteryEndDateFieldLayout = view.findViewById(R.id.eventLotteryEndDate);
         spotsInputLayout = view.findViewById(R.id.eventSpots);
         maxEntrantsInputLayout = view.findViewById(R.id.eventMaxEntrants);
-        costInputLayout = view.findViewById(R.id.eventCost);
         geoCheck = view.findViewById(R.id.eventGeolocation);
 
         posterImage = view.findViewById(R.id.event_poster);
@@ -227,7 +241,6 @@ public class EventFragment extends Fragment {
         lotteryEndDateFieldText = (TextInputEditText) lotteryEndDateFieldLayout.getEditText();
         spotsEditText = (TextInputEditText) spotsInputLayout.getEditText();
         maxEntrantsEditText = (TextInputEditText) maxEntrantsInputLayout.getEditText();
-        costEditText = (TextInputEditText) costInputLayout.getEditText();
         cancelButton = view.findViewById(R.id.cancelButton);
         saveButton = view.findViewById(R.id.saveButton);
 
@@ -239,7 +252,6 @@ public class EventFragment extends Fragment {
         }
 
         showEventDetails(event);
-        Log.e("Ohm", "TEST");
 
         lotteryStartDateFieldText.setOnClickListener(v -> {
             showDatePickerDialog(lotteryStartDateFieldText, startDate, startDate.get());
@@ -248,20 +260,11 @@ public class EventFragment extends Fragment {
             showDatePickerDialog(lotteryEndDateFieldText, endDate, startDate.get());
         });
 
-
-        // Inside onCreateView() after initializing costEditText
-        costEditText.addTextChangedListener(costEditWatcher);
-
         eventController = new EventController(event);
 
 
         // Set up the cancel button click listener
         cancelButton.setOnClickListener(v -> {
-            // if (!isAddingFirstTime) {
-            //     eventController.removeEventFromFirestore();
-            // } else {
-            //     eventController.returnToEvents();
-            // }
             eventController.returnToEvents();
         });
 
@@ -271,12 +274,10 @@ public class EventFragment extends Fragment {
             String description = descriptionEditText.getText().toString();
             String spotsStr = spotsEditText.getText().toString();
             String maxEntrantsStr = maxEntrantsEditText.getText().toString();
-            String costStr = costEditText.getText().toString();
             boolean geo = geoCheck.isChecked();
 
             int spots = 0;
             int maxEntrants = -1;
-            double cost = 0.00;
 
             boolean hasError = false;
 
@@ -295,22 +296,16 @@ public class EventFragment extends Fragment {
             if (lotteryStartDateFieldText.getText().toString().isBlank()) {
                 lotteryStartDateFieldLayout.setError("Please enter your event lottery start date");
                 hasError = true;
+            } else if (startDate.get().before(new Date())) {
+                lotteryStartDateFieldLayout.setError("Start date can't be in the past");
+                hasError = true;
             } else {
                 lotteryStartDateFieldLayout.setError(null);
             }
             if (lotteryEndDateFieldText.getText().toString().isBlank()) {
                 lotteryEndDateFieldLayout.setError("Please enter your event lottery end date");
                 hasError = true;
-            } else {
-                lotteryEndDateFieldLayout.setError(null);
-            }
-            if (startDate.get().before(new Date())) {
-                lotteryStartDateFieldLayout.setError("Start date can't be in the past");
-                hasError = true;
-            } else {
-                lotteryStartDateFieldLayout.setError(null);
-            }
-            if (!endDate.get().equals(startDate.get()) && endDate.get().before(startDate.get())) {
+            } else if (!endDate.get().equals(startDate.get()) && endDate.get().before(startDate.get())) {
                 lotteryEndDateFieldLayout.setError("End date must be greater than or equal to start date");
                 hasError = true;
             } else {
@@ -319,15 +314,15 @@ public class EventFragment extends Fragment {
             if (spotsStr.isBlank()) {
                 spotsInputLayout.setError("Please enter valid number of attendees of your event");
                 hasError = true;
+            } else if (spotsStr.equals("0")){
+                spotsInputLayout.setError("Please enter a positive number");
+                hasError = true;
             } else {
                 spots = Integer.parseInt(spotsStr);
                 spotsInputLayout.setError(null);
             }
             if (!maxEntrantsStr.isBlank()) {
                 maxEntrants = Integer.parseInt(maxEntrantsStr);
-            }
-            if (!costStr.isBlank()) {
-                cost = Double.parseDouble(costStr);
             }
 
             if (hasError) {
@@ -340,7 +335,6 @@ public class EventFragment extends Fragment {
             eventController.updateNumberOfMaxEntrants(maxEntrants);
             eventController.updateStartDate(startDate.get());
             eventController.updateEndDate(endDate.get());
-            eventController.updateCost(cost);
             eventController.updateGeo(geo);
             String fileName = event.getEventId() + ".jpg";
             uploadPosterImageToFirebaseStorage(currentImageUri, fileName, currentImageUriString, posterLoadedInFirestore);
@@ -351,7 +345,7 @@ public class EventFragment extends Fragment {
                 eventController.updatePoster(currentImageUriString.get());
             }
 
-            String data = title + description + spotsStr + maxEntrantsStr + costStr;
+            String data = title + description + spotsStr + maxEntrantsStr;
             Bitmap qrCodeBitmap = QrCodeModel.generateForEvent(data);
             String qrCodeHash = QrCodeModel.generateHash(data);
 
@@ -403,30 +397,6 @@ public class EventFragment extends Fragment {
 
         datePickerDialog.show();
     }
-
-    /**
-     * Watches for changes in the cost EditText field to restrict input to two decimal places.
-     */
-    private TextWatcher costEditWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-
-        @Override
-
-        public void onTextChanged(CharSequence s, int start, int before, int count) { }
-
-        @Override
-        public void afterTextChanged(Editable editable) {
-            String input = editable.toString();
-            // Check if the input has more than 2 decimal places
-            if (input.contains(".")) {
-                int decimalIndex = input.indexOf(".");
-                if (input.length() - decimalIndex > 3) {
-                    editable.delete(decimalIndex + 3, input.length());
-                }
-            }
-        }
-    };
 
 
     /**

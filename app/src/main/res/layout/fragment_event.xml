@@ -81,9 +81,9 @@
         android:id="@+id/eventDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Description"
+        android:hint="Event Description"
         app:helperTextEnabled="true"
-        app:helperText="Required"
+        app:helperText="Required - please include any important information about the event, including cost, dates/times, description of the event, etc."
         app:layout_constraintTop_toBottomOf="@+id/eventTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -151,7 +151,7 @@
         android:id="@+id/eventSpots"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Number of Spots Available"
+        android:hint="Total Number of Possible Attendees"
         app:helperTextEnabled="true"
         app:helperText="Required"
         app:layout_constraintTop_toBottomOf="@id/eventLotteryEndDate"
@@ -175,7 +175,7 @@
         android:id="@+id/eventMaxEntrants"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Max Number of Entrants"
+        android:hint="Max Size of Waiting List for Lottery"
         app:helperTextEnabled="true"
         app:helperText="Optional"
         app:layout_constraintTop_toBottomOf="@id/eventSpots"
@@ -193,37 +193,13 @@
             android:digits="0123456789"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Cost Field (Decimal with 2 Digits After Decimal) -->
-    <com.google.android.material.textfield.TextInputLayout
-        style="?attr/textInputFilledStyle"
-        android:id="@+id/eventCost"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Cost"
-        app:helperTextEnabled="true"
-        app:helperText="Optional"
-        app:layout_constraintTop_toBottomOf="@id/eventMaxEntrants"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp"
-        app:endIconMode="custom"
-        app:endIconDrawable="@drawable/ic_person_name_foreground">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="numberDecimal"
-            android:digits="0123456789."
-            android:maxLength="7"/>
-    </com.google.android.material.textfield.TextInputLayout>
-
     <!-- GeoLocation Checkbox -->
     <CheckBox
         android:id="@+id/eventGeolocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Require GeoLocation"
-        app:layout_constraintTop_toBottomOf="@id/eventCost"
+        app:layout_constraintTop_toBottomOf="@id/eventMaxEntrants"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@id/cancelButton"
         android:layout_margin="16dp"/>

@@ -20,14 +20,13 @@ import java.util.Date;
 
 /**
  * EventModel represents an event in the application with attributes such as title, location,
- * cost, description, number of spots, event type, and poster image.
+ * description, number of spots, event type, and poster image.
  * This model class also handles saving and updating event data in Firestore.
  */
 public class EventModel extends AbstractModel implements Serializable {
     private String title;
     private String facilityId;
     private String organizerId;
-    private double cost;
     private String description;
     private int numberOfSpots;
     private int numberOfMaxEntrants;
@@ -69,7 +68,6 @@ public class EventModel extends AbstractModel implements Serializable {
     private void clear(){
         this.title = "";
         this.facilityId = "";
-        this.cost = 0;
         this.description = "";
         this.numberOfSpots = 0;
         this.numberOfMaxEntrants = -1;
@@ -83,7 +81,7 @@ public class EventModel extends AbstractModel implements Serializable {
     /**
      * Constructs a new EventModel with the specified context and Firestore database instance.
      * <p>
-     * This constructor initializes the event's title, facility ID, cost, description, number of spots,
+     * This constructor initializes the event's title, facility ID, description, number of spots,
      * event type, and poster image with default values. It also generates a QR code for the event and
      * saves the event data to Firestore.
      *
@@ -105,20 +103,19 @@ public class EventModel extends AbstractModel implements Serializable {
      * @param context the application context
      * @param title the title of the event
      * @param facilityId the ID of the FacilityModel document representing the event location
-     * @param cost the cost to attend the event
      * @param description a description of the event
      * @param numberOfSpots the number of spots available for the event
      * @param db the Firestore database instance
      */
-    public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots,
+    public EventModel(Context context, String title, String facilityId, String description, int numberOfSpots,
                       Date startDate, Date endDate, boolean geo, FirebaseFirestore db) {
-        this(context, title, facilityId, cost, description, numberOfSpots,
+        this(context, title, facilityId, description, numberOfSpots,
                 -1, startDate, endDate, null, geo, null, new ArrayList<UserModel>(), db);
     }
 
-    public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots,
+    public EventModel(Context context, String title, String facilityId, String description, int numberOfSpots,
                       int numberOfMaxEntrants, Date startDate, Date endDate, boolean geo, FirebaseFirestore db) {
-        this(context, title, facilityId, cost, description, numberOfSpots,
+        this(context, title, facilityId, description, numberOfSpots,
                 numberOfMaxEntrants, startDate, endDate, null, geo, null, new ArrayList<UserModel>(), db);
     }
 
@@ -129,18 +126,16 @@ public class EventModel extends AbstractModel implements Serializable {
      * @param context the application context
      * @param title the title of the event
      * @param facilityId the ID of the FacilityModel document representing the event location
-     * @param cost the cost to attend the event
      * @param description a description of the event
      * @param numberOfSpots the number of spots available for the event
      * @param db the Firestore database instance
      */
-    public EventModel(Context context, String title, String facilityId, double cost, String description, int numberOfSpots,
+    public EventModel(Context context, String title, String facilityId, String description, int numberOfSpots,
                       int numberOfMaxEntrants, Date startDate, Date endDate, String posterImage, boolean geo, String qrCodeUrl,
                       ArrayList<UserModel> waitingList, FirebaseFirestore db) {
         this.title = title;
         this.facilityId = facilityId;
         this.organizerId = MyApp.getInstance().getUserModel().getDeviceId();
-        this.cost = cost;
         this.description = description;
         this.numberOfSpots = numberOfSpots;
         this.numberOfMaxEntrants = numberOfMaxEntrants;
@@ -149,7 +144,7 @@ public class EventModel extends AbstractModel implements Serializable {
         this.posterImage = posterImage;
         this.geo = geo;
         this.db = db;
-        this.qrCodeData = title + description + numberOfSpots + numberOfMaxEntrants + cost;
+        this.qrCodeData = title + description + numberOfSpots + numberOfMaxEntrants;
         this.qrCode = qrCode;
         this.waitingList = waitingList;
     }
@@ -166,7 +161,6 @@ public class EventModel extends AbstractModel implements Serializable {
                     put("title", title);
                     put("facilityId", facilityId);
                     put("organizerId", organizerId);
-                    put("cost", cost);
                     put("description", description);
                     put("numberOfSpots", numberOfSpots);
                     put("numberOfMaxEntrants", numberOfMaxEntrants);
@@ -331,26 +325,6 @@ public class EventModel extends AbstractModel implements Serializable {
     public void setOrganizerId(String organizerId) {
         this.organizerId = organizerId;
         updateFirestore("organizerId", organizerId);
-        notifyViews();
-    }
-
-    /**
-     * Retrieves the cost of the event.
-     *
-     * @return the cost as a double
-     */
-    public double getCost() {
-        return cost;
-    }
-
-    /**
-     * Sets the cost of the event and updates Firestore.
-     *
-     * @param cost the new cost for the event
-     */
-    public void setCost(double cost) {
-        this.cost = cost;
-        updateFirestore("cost", cost);
         notifyViews();
     }
 
