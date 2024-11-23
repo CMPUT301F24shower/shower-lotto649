@@ -16,6 +16,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -23,6 +24,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 /**
  * A fragment to display a given facility's information.
@@ -32,6 +38,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class AdminFacilityFragment extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference facilitiesRef;
+    private CollectionReference eventsRef;
     private String userDeviceId;
 
     /**
@@ -64,6 +71,7 @@ public class AdminFacilityFragment extends Fragment {
         // initialize Firestore
         db = FirebaseFirestore.getInstance();
         facilitiesRef = db.collection("facilities");
+        eventsRef = db.collection("events");
 
         TextView name = view.findViewById(R.id.admin_facility_name);
         TextView address  = view.findViewById(R.id.admin_facility_address);
@@ -87,6 +95,8 @@ public class AdminFacilityFragment extends Fragment {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                deleteEventsFromFacility(userDeviceId);
+
                 facilitiesRef
                         .document(userDeviceId)
                         .delete()
@@ -106,5 +116,28 @@ public class AdminFacilityFragment extends Fragment {
 
 
         return view;
+    }
+
+    private void deleteEventsFromFacility(String facilityOwner) {
+        Query eventsInFacility = eventsRef.whereEqualTo("organizerId", facilityOwner);
+
+        eventsInFacility.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        deletePosterFromEvent(document.getString("posterImage"));
+                        document.getReference().delete();
+                    }
+                }
+            }
+        });
+    }
+
+    private void deletePosterFromEvent(String posterString) {
+        if (!posterString.isEmpty()) {
+            StorageReference storageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(posterString);
+            storageRef.delete();
+        }
     }
 }

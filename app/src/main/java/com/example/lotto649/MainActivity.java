@@ -14,12 +14,16 @@ import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import com.example.lotto649.Models.FirestoreIsAdminCallback;
 import com.example.lotto649.Views.Fragments.AccountFragment;
@@ -38,10 +42,13 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.Objects;
+
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener {
     BottomNavigationView bottomNavigationView;
     private static final int REQUEST_CODE_POST_NOTIFICATIONS = 1;
+    private MutableLiveData<Integer> whichMenuToShow;
 
     /**
      * Initializes the activity, setting up the bottom navigation view and its listener.
@@ -61,9 +68,37 @@ public class MainActivity extends AppCompatActivity
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
 
         // Set the default selected item to "account"
-        bottomNavigationView.setSelectedItemId(R.id.account);
         MyApp.getInstance().setCurrentActivity(this);
         MyApp.getInstance().replaceFragment(accountFragment);
+        bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu);
+        bottomNavigationView.setSelectedItemId(R.id.account);
+
+        whichMenuToShow = new MutableLiveData<Integer>(1);
+        whichMenuToShow.observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer changedValue) {
+                if (changedValue.intValue() == 1) {
+                    removeBottomNavMenuAdminItems();
+                    removeBottomNavMenuUserAndAdminItems();
+                    bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu);
+                    // Set the default selected item to "home"
+                    bottomNavigationView.setSelectedItemId(R.id.home);
+                } else if (changedValue.intValue() == 2) {
+                    removeBottomNavMenuItems();
+                    removeBottomNavMenuUserAndAdminItems();
+                    bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_admin);
+                    // Set the default selected item to "home"
+                    bottomNavigationView.setSelectedItemId(R.id.home);
+                } else {
+                    removeBottomNavMenuItems();
+                    removeBottomNavMenuAdminItems();
+                    bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_user_and_admin);
+                    // Set the default selected item to "browseProfiles"
+                    bottomNavigationView.setSelectedItemId(R.id.home);
+                }
+            }
+        });
+
         checkUserAdminStatus(new FirestoreIsAdminCallback() {
             @Override
             public void onCallback(boolean isAdmin) {
@@ -72,20 +107,14 @@ public class MainActivity extends AppCompatActivity
                         @Override
                         public void onCallback(boolean isEntrant) {
                             if (isEntrant) {
-                                bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_user_and_admin);
-                                // Set the default selected item to "browseProfiles"
-                                bottomNavigationView.setSelectedItemId(R.id.home);
+                                whichMenuToShow.setValue(3);
                             } else {
-                                bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_admin);
-                                // Set the default selected item to "home"
-                                bottomNavigationView.setSelectedItemId(R.id.home);
+                                whichMenuToShow.setValue(2);
                             }
                         }
                     });
                 } else {
-                    bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu);
-                    // Set the default selected item to "home"
-                    bottomNavigationView.setSelectedItemId(R.id.home);
+                    whichMenuToShow.setValue(1);
                 }
             }
         });
@@ -96,7 +125,6 @@ public class MainActivity extends AppCompatActivity
     CameraFragment cameraFragment = new CameraFragment();
     AccountFragment accountFragment = new AccountFragment();
     FacilityFragment facilityFragment = new FacilityFragment();
-//    EventsFragment eventsFragment = new EventsFragment();
 
     BrowseEventsFragment browseEventsFragment = new BrowseEventsFragment();
     BrowseProfilesFragment browseProfilesFragment = new BrowseProfilesFragment();
@@ -128,9 +156,6 @@ public class MainActivity extends AppCompatActivity
         } else if (item.getItemId() == R.id.facility) {
             MyApp.getInstance().replaceFragment(facilityFragment);
             return true;
-//        } else if (item.getItemId() == R.id.events) {
-//            MyApp.getInstance().replaceFragment(eventsFragment);
-//            return true;
         } else if (item.getItemId() == R.id.browseEvents) {
             MyApp.getInstance().replaceFragment(browseEventsFragment);
 
@@ -151,38 +176,42 @@ public class MainActivity extends AppCompatActivity
             MyApp.getInstance().replaceFragment(adminAndUserFragment);
 
             return true;
-//        } else if (item.getItemId() == R.id.event) {
-//            getSupportFragmentManager().beginTransaction()
-//                    .replace(R.id.flFragment, eventFragment)
-//                    .commit();
-//            return true;
         } else if (item.getItemId() == R.id.browseEvents) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, browseEventsFragment)
-                    .commit();
+            MyApp.getInstance().replaceFragment(browseEventsFragment);
             return true;
         } else if (item.getItemId() == R.id.browseFacilities) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, browseFacilitiesFragment)
-                    .commit();
+            MyApp.getInstance().replaceFragment(browseFacilitiesFragment);
             return true;
         } else if (item.getItemId() == R.id.browseProfiles) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, browseProfilesFragment)
-                    .commit();
+            MyApp.getInstance().replaceFragment(browseProfilesFragment);
             return true;
         } else if (item.getItemId() == R.id.admin) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.flFragment, adminAndUserFragment)
-                    .commit();
+            MyApp.getInstance().replaceFragment(adminAndUserFragment);
             return true;
         } else {
             return false;
         }
+    }
+
+    private void removeBottomNavMenuItems() {
+        bottomNavigationView.getMenu().removeItem(R.id.home);
+        bottomNavigationView.getMenu().removeItem(R.id.camera);
+        bottomNavigationView.getMenu().removeItem(R.id.facility);
+        bottomNavigationView.getMenu().removeItem(R.id.account);
+    }
+
+    private void removeBottomNavMenuAdminItems() {
+        bottomNavigationView.getMenu().removeItem(R.id.browseProfiles);
+        bottomNavigationView.getMenu().removeItem(R.id.browseFacilities);
+        bottomNavigationView.getMenu().removeItem(R.id.browseEvents);
+    }
+
+    private void removeBottomNavMenuUserAndAdminItems() {
+        bottomNavigationView.getMenu().removeItem(R.id.home);
+        bottomNavigationView.getMenu().removeItem(R.id.camera);
+        bottomNavigationView.getMenu().removeItem(R.id.facility);
+        bottomNavigationView.getMenu().removeItem(R.id.account);
+        bottomNavigationView.getMenu().removeItem(R.id.admin);
     }
 
 

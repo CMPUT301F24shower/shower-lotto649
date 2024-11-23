@@ -18,9 +18,13 @@ import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 
+import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class AdminAndUserFragment extends Fragment {
+    private ExtendedFloatingActionButton profiles, facilities, events;
 
     /**
      * Public empty constructor for AdminAndUserFragment.
@@ -44,6 +48,33 @@ public class AdminAndUserFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_admin_and_user, container, false);
+        View view = inflater.inflate(R.layout.fragment_admin_and_user, container, false);
+
+        profiles = view.findViewById(R.id.admin_button_profiles);
+        facilities = view.findViewById(R.id.admin_button_facilities);
+        events = view.findViewById(R.id.admin_button_events);
+
+        profiles.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MyApp.getInstance().replaceFragment(new BrowseProfilesFragment());
+            }
+        });
+
+        facilities.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MyApp.getInstance().replaceFragment(new BrowseFacilitiesFragment());
+            }
+        });
+
+        events.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MyApp.getInstance().replaceFragment(new BrowseEventsFragment());
+            }
+        });
+
+        return view;
     }
 }
