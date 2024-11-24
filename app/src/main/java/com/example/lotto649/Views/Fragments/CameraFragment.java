@@ -20,6 +20,8 @@ import androidx.fragment.app.Fragment;
 
 import com.example.lotto649.R;
 
+
+// TODO this class can likely be deleted, along with the entire page
 public class CameraFragment extends Fragment {
 
     /**

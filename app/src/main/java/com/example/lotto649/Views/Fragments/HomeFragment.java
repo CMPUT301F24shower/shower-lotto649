@@ -68,14 +68,17 @@ public class HomeFragment extends Fragment {
             public void onEventsFetched(ArrayList<EventModel> events) {
                 Log.w("Ohm", "Events fetched: " + events.size());
 
-                // Initialize and set the adapter with fetched events
-                eventAdapter = new EventArrayAdapter(getContext(), events, new EventArrayAdapter.EventArrayAdapterListener() {
-                    @Override
-                    public void onEventsWaitListChanged() {
-                        // Handle waitlist changes if needed
-                    }
-                });
-                eventsList.setAdapter(eventAdapter);
+                // TODO test that this doesnt introduce any bugs - so far so good
+                if (isAdded()) {
+                    // Initialize and set the adapter with fetched events
+                    eventAdapter = new EventArrayAdapter(requireContext(), events, new EventArrayAdapter.EventArrayAdapterListener() {
+                        @Override
+                        public void onEventsWaitListChanged() {
+                            // Handle waitlist changes if needed
+                        }
+                    });
+                    eventsList.setAdapter(eventAdapter);
+                }
             }
         });
 

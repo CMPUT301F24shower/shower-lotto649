@@ -7,6 +7,8 @@ package com.example.lotto649.Views.Fragments;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +32,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -37,7 +40,9 @@ import com.google.firebase.storage.StorageReference;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -50,18 +55,11 @@ public class JoinEventFragment extends Fragment {
     private CollectionReference eventsRef;
     private String firestoreEventId;
     private ImageView posterImage;
-    TextView name;
-    TextView status;
-    TextView location;
-    TextView spotsAvail;
-    TextView numAttendees;
-    TextView dates;
-    TextView geoLocation;
-    TextView description;
+    TextView name, status, location, spotsAvail, numAttendees, dates, geoLocation, description;
+    Button joinButton, unjoinButton;
     ExtendedFloatingActionButton backButton;
     private Uri posterUri;
-    private MutableLiveData<Boolean> imageAbleToBeDeleted;
-    private MutableLiveData<Boolean> qrCodeAbleToBeDeleted;
+    private MutableLiveData<Boolean> imageAbleToBeDeleted, qrCodeAbleToBeDeleted;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -90,34 +88,6 @@ public class JoinEventFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_join_event, container, false);
 
-        imageAbleToBeDeleted = new MutableLiveData<Boolean>(Boolean.FALSE);
-        // https://stackoverflow.com/questions/14457711/android-listening-for-variable-changes
-        imageAbleToBeDeleted.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean changedValue) {
-//                if (Objects.equals(changedValue, Boolean.TRUE)) {
-//                    deleteImageButton.setVisibility(View.VISIBLE);
-//                } else {
-//                    deleteImageButton.setVisibility(View.GONE);
-//                }
-                ;
-            }
-        });
-
-        qrCodeAbleToBeDeleted = new MutableLiveData<Boolean>(Boolean.FALSE);
-        // https://stackoverflow.com/questions/14457711/android-listening-for-variable-changes
-        qrCodeAbleToBeDeleted.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean changedValue) {
-//                if (Objects.equals(changedValue, Boolean.TRUE)) {
-//                    deleteQRButton.setVisibility(View.VISIBLE);
-//                } else {
-//                    deleteQRButton.setVisibility(View.GONE);
-//                }
-                ;
-            }
-        });
-
         // initialize Firestore
         db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
@@ -132,6 +102,9 @@ public class JoinEventFragment extends Fragment {
         description = view.findViewById(R.id.admin_event_description);
         posterImage = view.findViewById(R.id.admin_event_poster);
         backButton = view.findViewById(R.id.back_button);
+
+        joinButton = view.findViewById(R.id.join_event_wait_list);
+        unjoinButton = view.findViewById(R.id.unjoin_event_wait_list);
 
         eventsRef.document(firestoreEventId)
                 .get()
@@ -172,31 +145,24 @@ public class JoinEventFragment extends Fragment {
                             }
                             description.setText(descriptionText);
 
-                            String qrCode = doc.getString("qrCode");
-                            if (qrCode == null || qrCode.isEmpty()) {
-                                qrCodeAbleToBeDeleted.setValue(Boolean.FALSE);
-                            } else {
-                                qrCodeAbleToBeDeleted.setValue(Boolean.TRUE);
-                            }
-
                             //     poster
                             String posterUriString = doc.getString("posterImage");
                             if (!Objects.equals(posterUriString, "")) {
-                                imageAbleToBeDeleted.setValue(Boolean.TRUE);
                                 posterUri = Uri.parse(posterUriString);
                                 StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(posterUriString);
                                 imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                                     posterUri = uri;
-                                    Glide.with(getContext())
-                                            .load(uri)
-                                            .into(posterImage);
+                                    if (isAdded()) {
+                                        Glide.with(getContext())
+                                                .load(uri)
+                                                .into(posterImage);
+                                    }
                                     LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(900, 450);
                                     posterImage.setLayoutParams(layoutParams);
                                     posterImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
                                 });
                             } else {
                                 posterUri = null;
-                                imageAbleToBeDeleted.setValue(Boolean.FALSE);
                             }
                         }
                     }
@@ -209,70 +175,45 @@ public class JoinEventFragment extends Fragment {
             }
         });
 
-//        deleteEventButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                eventsRef
-//                        .document(firestoreEventId)
-//                        .delete()
-//                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                            @Override
-//                            public void onSuccess(Void aVoid) {
-//                                BrowseEventsFragment frag = new BrowseEventsFragment();
-//                                getActivity().getSupportFragmentManager().beginTransaction()
-//                                        .replace(R.id.flFragment, frag, null)
-//                                        .addToBackStack(null)
-//                                        .commit();
-//                                //     add success log
-//                            }
-//                        });
-//            }
-//        });
-//
-//        deleteImageButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (posterUri != null) {
-//                    StorageReference storageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(posterUri.toString());
-//                    storageRef.delete()
-//                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                                @Override
-//                                public void onSuccess(Void unused) {
-//                                    eventsRef
-//                                            .document(firestoreEventId)
-//                                            .update("posterImage", "")
-//                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                                                @Override
-//                                                public void onSuccess(Void aVoid) {
-//                                                    //     add success log
-//                                                }
-//                                            });
-//                                    imageAbleToBeDeleted.setValue(Boolean.FALSE);
-//                                    posterUri = null;
-//                                    posterImage.setImageResource(R.drawable.ic_default_event_img_foreground);
-//                                }
-//                            });
-//                }
-//            }
-//        });
-//
-//        deleteQRButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                eventsRef
-//                        .document(firestoreEventId)
-//                        .update("qrCode", "")
-//                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                            @Override
-//                            public void onSuccess(Void aVoid) {
-//                                qrCodeAbleToBeDeleted.setValue(Boolean.FALSE);
-//                                //add success log
-//                            }
-//                        });
-//            }
-//        });
+        joinButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+                Map<String, Object> signUp = new HashMap<>();
+                signUp.put("eventId", firestoreEventId);
+                signUp.put("userId", deviceId);
+                signUp.put("timestamp", FieldValue.serverTimestamp());
+                // TODO add geolocation data here
+                db.collection("signUps").document(firestoreEventId+"_"+deviceId).set(signUp);
+                // TODO this could maybe be on success
+                joinButton.setVisibility(View.GONE);
+                unjoinButton.setVisibility(View.VISIBLE);
+            }
+        });
 
+        unjoinButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+                // TODO add geolocation data here
+                db.collection("signUps").document(firestoreEventId+"_"+deviceId).delete();
+                joinButton.setVisibility(View.VISIBLE);
+                unjoinButton.setVisibility(View.GONE);
+            }
+        });
 
+        String signUpId = firestoreEventId + "_" + Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+        db.collection("signUps").document(signUpId)
+                .get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists()) {
+                        joinButton.setVisibility(View.GONE);
+                        unjoinButton.setVisibility(View.VISIBLE);
+                    } else {
+                        joinButton.setVisibility(View.VISIBLE);
+                        unjoinButton.setVisibility(View.GONE);
+                    }
+                });
         return view;
     }
 }

@@ -95,7 +95,13 @@ public class MyApp extends Application {
     // Fragment replacement method
     public void replaceFragment(Fragment fragment) {
         if (currentActivity != null) {
-            currentActivity.get().getSupportFragmentManager().beginTransaction()
+            FragmentManager fragmentManager = currentActivity.get().getSupportFragmentManager();
+
+            // Clear the back stack
+            fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+            // Replace the fragment
+            fragmentManager.beginTransaction()
                     .replace(R.id.flFragment, fragment)
                     .commit();
         }

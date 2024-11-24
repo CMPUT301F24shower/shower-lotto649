@@ -159,99 +159,47 @@ public class MainActivity extends AppCompatActivity
         }
         // Handle navigation based on the selected item ID
         if (item.getItemId() == R.id.home) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            while (fragmentManager.getBackStackEntryCount() > 0) {
-                fragmentManager.popBackStackImmediate();
-            }
             MyApp.getInstance().replaceFragment(homeFragment);
             return true;
         } else if (item.getItemId() == R.id.camera) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            while (fragmentManager.getBackStackEntryCount() > 0) {
-                fragmentManager.popBackStackImmediate();
-            }
             MyApp.getInstance().replaceFragment(cameraFragment);
             return true;
         } else if (item.getItemId() == R.id.account) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            while (fragmentManager.getBackStackEntryCount() > 0) {
-                fragmentManager.popBackStackImmediate();
-            }
             MyApp.getInstance().replaceFragment(accountFragment);
             return true;
         } else if (item.getItemId() == R.id.facility) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            while (fragmentManager.getBackStackEntryCount() > 0) {
-                fragmentManager.popBackStackImmediate();
-            }
             MyApp.getInstance().replaceFragment(facilityFragment);
             return true;
         } else if (item.getItemId() == R.id.browseEvents) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            while (fragmentManager.getBackStackEntryCount() > 0) {
-                fragmentManager.popBackStackImmediate();
-            }
             MyApp.getInstance().replaceFragment(browseEventsFragment);
 
             return true;
         } else if (item.getItemId() == R.id.browseFacilities) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            while (fragmentManager.getBackStackEntryCount() > 0) {
-                fragmentManager.popBackStackImmediate();
-            }
             MyApp.getInstance().replaceFragment(browseFacilitiesFragment);
 
             return true;
         } else if (item.getItemId() == R.id.browseProfiles) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            while (fragmentManager.getBackStackEntryCount() > 0) {
-                fragmentManager.popBackStackImmediate();
-            }
             MyApp.getInstance().replaceFragment(browseProfilesFragment);
 
             return true;
         } else if (item.getItemId() == R.id.browseProfiles) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            while (fragmentManager.getBackStackEntryCount() > 0) {
-                fragmentManager.popBackStackImmediate();
-            }
             MyApp.getInstance().replaceFragment(browseProfilesFragment);
 
             return true;
         } else if (item.getItemId() == R.id.admin) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            while (fragmentManager.getBackStackEntryCount() > 0) {
-                fragmentManager.popBackStackImmediate();
-            }
             MyApp.getInstance().replaceFragment(adminAndUserFragment);
 
             return true;
         } else if (item.getItemId() == R.id.browseEvents) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            while (fragmentManager.getBackStackEntryCount() > 0) {
-                fragmentManager.popBackStackImmediate();
-            }
             MyApp.getInstance().replaceFragment(browseEventsFragment);
             return true;
         } else if (item.getItemId() == R.id.browseFacilities) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            while (fragmentManager.getBackStackEntryCount() > 0) {
-                fragmentManager.popBackStackImmediate();
-            }
             MyApp.getInstance().replaceFragment(browseFacilitiesFragment);
             return true;
         } else if (item.getItemId() == R.id.browseProfiles) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            while (fragmentManager.getBackStackEntryCount() > 0) {
-                fragmentManager.popBackStackImmediate();
-            }
             MyApp.getInstance().replaceFragment(browseProfilesFragment);
             return true;
         } else if (item.getItemId() == R.id.admin) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            while (fragmentManager.getBackStackEntryCount() > 0) {
-                fragmentManager.popBackStackImmediate();
-            }
             MyApp.getInstance().replaceFragment(adminAndUserFragment);
             return true;
         } else {
@@ -281,6 +229,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void handleDeeplink() {
+        // TODO this should not happen if the user is not an entrant
         Intent intent = getIntent();
         if (intent != null && intent.getData() != null) {
             String url = getIntent().getData().toString();
