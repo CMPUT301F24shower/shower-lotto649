@@ -52,6 +52,7 @@ dependencies {
     testImplementation("org.mockito:mockito-core:3.12.4")
     testImplementation("org.robolectric:robolectric:4.9")
     testImplementation("com.google.firebase:firebase-firestore:24.x.x")
+    implementation("com.google.firebase:firebase-dynamic-links-ktx:21.0.0")
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
