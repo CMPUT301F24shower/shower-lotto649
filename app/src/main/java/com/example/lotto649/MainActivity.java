@@ -13,6 +13,7 @@ package com.example.lotto649;
 import static android.app.PendingIntent.getActivity;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
@@ -39,6 +41,7 @@ import com.example.lotto649.Views.Fragments.CameraFragment;
 //import com.example.lotto649.Views.Fragments.EventsFragment;
 import com.example.lotto649.Views.Fragments.FacilityFragment;
 import com.example.lotto649.Views.Fragments.HomeFragment;
+import com.example.lotto649.Views.Fragments.JoinEventFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -66,26 +69,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        FirebaseDynamicLinks.getInstance()
-//                .getDynamicLink(getIntent())
-//                .addOnSuccessListener(this, new OnSuccessListener<PendingDynamicLinkData>() {
-//                    @Override
-//                    public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
-//                        // Get deep link from result (may be null if no link is found)
-//                        Uri deepLink = null;
-//                        if (pendingDynamicLinkData != null) {
-//                            deepLink = pendingDynamicLinkData.getLink();
-//                        }
-//
-//
-//                        // Handle the deep link. For example, open the linked
-//                        // content, or apply promotional credit to the user's
-//                        // account.
-//                        // ...
-//
-//                        // ...
-//                    }
-//                });
         setContentView(R.layout.activity_main);
         // TODO this code is incomplete, just here to fix build errors
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
@@ -110,18 +93,21 @@ public class MainActivity extends AppCompatActivity
                     bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu);
                     // Set the default selected item to "home"
                     bottomNavigationView.setSelectedItemId(R.id.home);
+                    handleDeeplink();
                 } else if (changedValue.intValue() == 2) {
                     removeBottomNavMenuItems();
                     removeBottomNavMenuUserAndAdminItems();
                     bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_admin);
                     // Set the default selected item to "home"
                     bottomNavigationView.setSelectedItemId(R.id.browseProfiles);
+                    handleDeeplink();
                 } else {
                     removeBottomNavMenuItems();
                     removeBottomNavMenuAdminItems();
                     bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_user_and_admin);
                     // Set the default selected item to "browseProfiles"
                     bottomNavigationView.setSelectedItemId(R.id.home);
+                    handleDeeplink();
                 }
             }
         });
@@ -145,6 +131,7 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+
     }
 
     // Create fragment instances
@@ -172,47 +159,99 @@ public class MainActivity extends AppCompatActivity
         }
         // Handle navigation based on the selected item ID
         if (item.getItemId() == R.id.home) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            while (fragmentManager.getBackStackEntryCount() > 0) {
+                fragmentManager.popBackStackImmediate();
+            }
             MyApp.getInstance().replaceFragment(homeFragment);
             return true;
         } else if (item.getItemId() == R.id.camera) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            while (fragmentManager.getBackStackEntryCount() > 0) {
+                fragmentManager.popBackStackImmediate();
+            }
             MyApp.getInstance().replaceFragment(cameraFragment);
             return true;
         } else if (item.getItemId() == R.id.account) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            while (fragmentManager.getBackStackEntryCount() > 0) {
+                fragmentManager.popBackStackImmediate();
+            }
             MyApp.getInstance().replaceFragment(accountFragment);
             return true;
         } else if (item.getItemId() == R.id.facility) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            while (fragmentManager.getBackStackEntryCount() > 0) {
+                fragmentManager.popBackStackImmediate();
+            }
             MyApp.getInstance().replaceFragment(facilityFragment);
             return true;
         } else if (item.getItemId() == R.id.browseEvents) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            while (fragmentManager.getBackStackEntryCount() > 0) {
+                fragmentManager.popBackStackImmediate();
+            }
             MyApp.getInstance().replaceFragment(browseEventsFragment);
 
             return true;
         } else if (item.getItemId() == R.id.browseFacilities) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            while (fragmentManager.getBackStackEntryCount() > 0) {
+                fragmentManager.popBackStackImmediate();
+            }
             MyApp.getInstance().replaceFragment(browseFacilitiesFragment);
 
             return true;
         } else if (item.getItemId() == R.id.browseProfiles) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            while (fragmentManager.getBackStackEntryCount() > 0) {
+                fragmentManager.popBackStackImmediate();
+            }
             MyApp.getInstance().replaceFragment(browseProfilesFragment);
 
             return true;
         } else if (item.getItemId() == R.id.browseProfiles) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            while (fragmentManager.getBackStackEntryCount() > 0) {
+                fragmentManager.popBackStackImmediate();
+            }
             MyApp.getInstance().replaceFragment(browseProfilesFragment);
 
             return true;
         } else if (item.getItemId() == R.id.admin) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            while (fragmentManager.getBackStackEntryCount() > 0) {
+                fragmentManager.popBackStackImmediate();
+            }
             MyApp.getInstance().replaceFragment(adminAndUserFragment);
 
             return true;
         } else if (item.getItemId() == R.id.browseEvents) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            while (fragmentManager.getBackStackEntryCount() > 0) {
+                fragmentManager.popBackStackImmediate();
+            }
             MyApp.getInstance().replaceFragment(browseEventsFragment);
             return true;
         } else if (item.getItemId() == R.id.browseFacilities) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            while (fragmentManager.getBackStackEntryCount() > 0) {
+                fragmentManager.popBackStackImmediate();
+            }
             MyApp.getInstance().replaceFragment(browseFacilitiesFragment);
             return true;
         } else if (item.getItemId() == R.id.browseProfiles) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            while (fragmentManager.getBackStackEntryCount() > 0) {
+                fragmentManager.popBackStackImmediate();
+            }
             MyApp.getInstance().replaceFragment(browseProfilesFragment);
             return true;
         } else if (item.getItemId() == R.id.admin) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            while (fragmentManager.getBackStackEntryCount() > 0) {
+                fragmentManager.popBackStackImmediate();
+            }
             MyApp.getInstance().replaceFragment(adminAndUserFragment);
             return true;
         } else {
@@ -241,7 +280,32 @@ public class MainActivity extends AppCompatActivity
         bottomNavigationView.getMenu().removeItem(R.id.admin);
     }
 
+    private void handleDeeplink() {
+        Intent intent = getIntent();
+        if (intent != null && intent.getData() != null) {
+            String url = getIntent().getData().toString();
+            Uri uri = Uri.parse(url);
+            String eventId = uri.getQueryParameter("eventId");
+            // TODO because of async of getting user details, the first time this will get overwritten and replaced with home fragment, not sure how to fix this yet
+            Bundle bundle = new Bundle();
+            bundle.putString("firestoreEventId", eventId);
+            JoinEventFragment frag = new JoinEventFragment();
+            frag.setArguments(bundle);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.flFragment, frag, null)
+                    .addToBackStack(null)
+                    .commit();
+        }
+    }
 
+    @Override
+    public void onBackPressed() {
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack(); // Go back to the previous fragment
+        } else {
+            super.onBackPressed(); // Exit the activity
+        }
+    }
 
     /**
      * Checks if the current user has an admin status in the Firestore database.

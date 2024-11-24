@@ -1,11 +1,16 @@
 package com.example.lotto649.Controllers;
 
+import static android.app.PendingIntent.getActivity;
+
 import android.util.Log;
+
+import androidx.fragment.app.FragmentManager;
 
 import com.example.lotto649.AbstractClasses.AbstractController;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.Models.EventsModel;
 import com.example.lotto649.MyApp;
+import com.example.lotto649.R;
 import com.example.lotto649.Views.Fragments.EventFragment;
 
 import java.util.ArrayList;
@@ -50,7 +55,7 @@ public class EventsController extends AbstractController {
      */
     public void addEvent() {
         EventFragment eventFragment = new EventFragment();
-        MyApp.getInstance().replaceFragment(eventFragment);
+        MyApp.getInstance().addFragmentToStack(eventFragment);
     }
 
     /**
@@ -61,6 +66,6 @@ public class EventsController extends AbstractController {
      */
     public void editEvent(EventModel event) {
         EventFragment eventFragment = new EventFragment(event);
-        MyApp.getInstance().replaceFragment(eventFragment);
+        MyApp.getInstance().addFragmentToStack(eventFragment);
     }
 }
