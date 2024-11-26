@@ -10,17 +10,13 @@
  */
 package com.example.lotto649;
 
-import static android.app.PendingIntent.getActivity;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,7 +25,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
-import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.Views.Fragments.AccountFragment;
 import com.example.lotto649.Views.Fragments.AdminAndUserFragment;
 import com.example.lotto649.Views.Fragments.BrowseEventsFragment;
@@ -40,18 +35,11 @@ import com.example.lotto649.Views.Fragments.FacilityFragment;
 import com.example.lotto649.Views.Fragments.HomeFragment;
 import com.example.lotto649.Views.Fragments.JoinEventFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-
-import java.util.ArrayList;
-import java.util.Date;
-
 
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener {
@@ -110,7 +98,7 @@ public class MainActivity extends AppCompatActivity
         });
 
         String deviceId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
-        DocumentReference userRef = FirebaseFirestore.getInstance().collection("users").document(deviceId);
+        userRef = FirebaseFirestore.getInstance().collection("users").document(deviceId);
         userRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
