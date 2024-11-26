@@ -69,29 +69,36 @@ public class MainActivity extends AppCompatActivity
         MyApp.getInstance().setCurrentActivity(this);
         MyApp.getInstance().replaceFragment(accountFragment);
         bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu);
-        bottomNavigationView.setSelectedItemId(R.id.account);
+        bottomNavigationView.setSelectedItemId(R.id.home);
 
         whichMenuToShow = new MutableLiveData<Integer>(1);
         whichMenuToShow.observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(Integer changedValue) {
                 if (changedValue.intValue() == 1) {
+                    int id = bottomNavigationView.getSelectedItemId();
                     removeMenuItems();
                     bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu);
-                    // Set the default selected item to "home"
-                    bottomNavigationView.setSelectedItemId(R.id.home);
+                    if (id == R.id.home || id == R.id.camera || id == R.id.facility || id == R.id.account) {
+                        bottomNavigationView.setSelectedItemId(id);
+                    } else {
+                        bottomNavigationView.setSelectedItemId(R.id.home);
+                    }
                     handleDeeplink();
                 } else if (changedValue.intValue() == 2) {
                     removeMenuItems();
                     bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_admin);
-                    // Set the default selected item to "home"
                     bottomNavigationView.setSelectedItemId(R.id.browseProfiles);
                     handleDeeplink();
                 } else {
+                    int id = bottomNavigationView.getSelectedItemId();
                     removeMenuItems();
                     bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_user_and_admin);
-                    // Set the default selected item to "browseProfiles"
-                    bottomNavigationView.setSelectedItemId(R.id.home);
+                    if (id == R.id.home || id == R.id.camera || id == R.id.facility || id == R.id.account) {
+                        bottomNavigationView.setSelectedItemId(id);
+                    } else {
+                        bottomNavigationView.setSelectedItemId(R.id.home);
+                    }
                     handleDeeplink();
                 }
             }
