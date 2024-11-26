@@ -2,6 +2,7 @@ package com.example.lotto649.Models;
 
 import java.util.ArrayList;
 
+// TODO never used, lets remove it
 /**
  * Interface for organizers to create, manage, and handle event-related operations.
  * Provides methods for event creation, QR code generation, waiting list management,

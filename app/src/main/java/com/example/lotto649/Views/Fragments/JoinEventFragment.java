@@ -8,7 +8,6 @@ package com.example.lotto649.Views.Fragments;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,21 +15,20 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 
 import com.bumptech.glide.Glide;
-import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -60,6 +58,7 @@ public class JoinEventFragment extends Fragment {
     ExtendedFloatingActionButton backButton;
     private Uri posterUri;
     private MutableLiveData<Boolean> imageAbleToBeDeleted, qrCodeAbleToBeDeleted;
+    private Date startDate, endDate;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -123,8 +122,8 @@ public class JoinEventFragment extends Fragment {
                             }
                             String numAttendeesText = Integer.toString(((Long) doc.get("numberOfSpots")).intValue()) + " Attendees";
                             DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-                            Date startDate = doc.getDate("startDate");
-                            Date endDate = doc.getDate("endDate");
+                            startDate = doc.getDate("startDate");
+                            endDate = doc.getDate("endDate");
                             String datesText = "Enter between " + df.format(startDate) + " - " + df.format(endDate);
                             Boolean isGeo = doc.getBoolean("geo");
                             String geoLocationText = isGeo ? "Requires GeoLocation Tracking" : "";
@@ -179,15 +178,37 @@ public class JoinEventFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-                Map<String, Object> signUp = new HashMap<>();
-                signUp.put("eventId", firestoreEventId);
-                signUp.put("userId", deviceId);
-                signUp.put("timestamp", FieldValue.serverTimestamp());
-                // TODO add geolocation data here
-                db.collection("signUps").document(firestoreEventId+"_"+deviceId).set(signUp);
-                // TODO this could maybe be on success
-                joinButton.setVisibility(View.GONE);
-                unjoinButton.setVisibility(View.VISIBLE);
+                DocumentReference doc = FirebaseFirestore.getInstance().collection("users").document(deviceId);
+                doc.get().addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        // TODO do we need entrant to be saved at all
+                        if (!document.exists() || !document.getBoolean("entrant")) {
+                            MyApp.getInstance().addFragmentToStack(new CreateAccountFragment());
+                        } else if (document.exists()) {
+                            // Perform signup
+                            Date currentDate = new Date();
+                            if (currentDate.before(startDate)) {
+                                Toast.makeText(getContext(), "Sorry this event is not accepting signups yet.", Toast.LENGTH_SHORT).show();
+                            } else if (currentDate.after(endDate)) {
+                                Toast.makeText(getContext(), "Sorry this event has closed for new signups.", Toast.LENGTH_SHORT).show();
+                            }else {
+                                Map<String, Object> signUp = new HashMap<>();
+                                signUp.put("eventId", firestoreEventId);
+
+                                signUp.put("userId", deviceId);
+                                signUp.put("timestamp", FieldValue.serverTimestamp());
+                                // TODO add geolocation data here
+                                db.collection("signUps").document(firestoreEventId + "_" + deviceId).set(signUp).addOnSuccessListener(listener -> {
+                                    // TODO set flags for entrant state, (in list, chosen, waiting for response...)
+                                    joinButton.setVisibility(View.GONE);
+                                    unjoinButton.setVisibility(View.VISIBLE);
+                                    // TODO make sure this event is added to home screen
+                                });
+                            }
+                        }
+                    }
+                });
             }
         });
 
@@ -195,10 +216,10 @@ public class JoinEventFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-                // TODO add geolocation data here
-                db.collection("signUps").document(firestoreEventId+"_"+deviceId).delete();
-                joinButton.setVisibility(View.VISIBLE);
-                unjoinButton.setVisibility(View.GONE);
+                db.collection("signUps").document(firestoreEventId+"_"+deviceId).delete().addOnSuccessListener(listener -> {
+                    joinButton.setVisibility(View.VISIBLE);
+                    unjoinButton.setVisibility(View.GONE);
+                });
             }
         });
 

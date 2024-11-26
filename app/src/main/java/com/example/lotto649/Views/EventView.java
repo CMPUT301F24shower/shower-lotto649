@@ -5,6 +5,7 @@ import com.example.lotto649.AbstractClasses.AbstractView;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.Views.Fragments.EventFragment;
 
+// TODO use this method same as AccountView is used to update the UI
 /**
  * EventView is responsible for observing changes in the EventModel and updating
  * the corresponding EventFragment with the latest event details.

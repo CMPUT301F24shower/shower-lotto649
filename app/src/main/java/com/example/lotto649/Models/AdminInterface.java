@@ -3,6 +3,7 @@ package com.example.lotto649.Models;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 
+// TODO lets delete this
 /**
  * Interface for administrative actions, including removing inappropriate items
  * and browsing existing entries in the database.

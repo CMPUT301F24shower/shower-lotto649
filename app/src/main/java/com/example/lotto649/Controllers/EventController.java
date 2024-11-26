@@ -10,6 +10,7 @@ import com.example.lotto649.Views.Fragments.HomeFragment;
 
 import java.util.Date;
 
+// TODO dont reuse this controller between View/Fragment classes, for diff functionality make new controller
 /**
  * Controller class for managing an EventModel instance.
  * Provides methods to update event properties and save/remove events from Firestore.
@@ -116,6 +117,7 @@ public class EventController extends AbstractController {
      */
     public void saveEventToFirestore() {
         getModel().saveEventToFirestore();
+        // TODO this shouldnt be in controller, also this should be popFragment
         MyApp.getInstance().replaceFragment(new HomeFragment());
     }
 
@@ -124,6 +126,7 @@ public class EventController extends AbstractController {
      */
     public void removeEventFromFirestore() {
         getModel().removeEventFromFirestore();
+        // TODO this shouldnt be in controller, also this should be popFragment
         MyApp.getInstance().replaceFragment(new HomeFragment());
     }
 
@@ -133,4 +136,5 @@ public class EventController extends AbstractController {
     public void returnToEvents() {
         MyApp.getInstance().replaceFragment(new HomeFragment());
     }
+    // TODO should be popFragment, shouldnt be in controller
 }

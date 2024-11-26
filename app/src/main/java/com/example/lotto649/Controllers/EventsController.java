@@ -49,6 +49,7 @@ public class EventsController extends AbstractController {
         getModel().getMyEvents(events);
     }
 
+    // TODO this isnt a controller, move code to fragment
     /**
      * Navigates to the fragment for creating a new event.
      * Replaces the current fragment with the EventFragment for event creation.

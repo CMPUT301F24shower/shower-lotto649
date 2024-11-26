@@ -17,11 +17,13 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO this isnt a model, just use array adapter and firestore calls from another class
 /**
  * Model class for managing a collection of events.
  * Interacts with Firebase Firestore to fetch and manage event data.
  */
 public class EventsModel extends AbstractModel {
+    // TODO name this myCreatedEvents
     private ArrayList<EventModel> myEvents;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -87,10 +89,12 @@ public class EventsModel extends AbstractModel {
      * @param callback Callback to handle the user's events once fetched.
      */
     public void getMyEvents(MyEventsCallback callback) {
+        // TODO why are we using callbacks, we dont need them
         EventsModel.fetchEventsByOrganizerId(new EventsModel.EventFetchCallback() {
             @Override
             public void onCallback(List<DocumentSnapshot> documents) {
                 for (DocumentSnapshot document : documents) {
+                    // TODO use constructor here, why are we doing this
                     EventModel event = document.toObject(EventModel.class);
                     event.setEventId(document.getId());
                     event.setDb(db);
