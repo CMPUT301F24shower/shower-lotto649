@@ -2,42 +2,35 @@ package com.example.lotto649.Controllers;
 
 import static android.app.PendingIntent.getActivity;
 
-import android.util.Log;
-
-import androidx.fragment.app.FragmentManager;
-
 import com.example.lotto649.AbstractClasses.AbstractController;
 import com.example.lotto649.Models.EventModel;
-import com.example.lotto649.Models.EventsModel;
+import com.example.lotto649.Models.HomePageModel;
 import com.example.lotto649.MyApp;
-import com.example.lotto649.R;
 import com.example.lotto649.Views.Fragments.EventFragment;
 
-import java.util.ArrayList;
-
 /**
- * Controller class for managing a collection of events represented by the EventsModel.
+ * Controller class for managing a collection of events represented by the HomePageModel.
  * Provides methods for accessing, adding, and editing events.
  */
 public class EventsController extends AbstractController {
 
     /**
-     * Constructs an EventsController with the specified EventsModel.
+     * Constructs an EventsController with the specified HomePageModel.
      *
-     * @param events The EventsModel instance to be managed by this controller.
+     * @param events The HomePageModel instance to be managed by this controller.
      */
-    public EventsController(EventsModel events) {
+    public EventsController(HomePageModel events) {
         super(events);
     }
 
     /**
-     * Retrieves the EventsModel associated with this controller.
+     * Retrieves the HomePageModel associated with this controller.
      *
-     * @return The EventsModel instance.
+     * @return The HomePageModel instance.
      */
     @Override
-    public EventsModel getModel() {
-        return (EventsModel) super.getModel();
+    public HomePageModel getModel() {
+        return (HomePageModel) super.getModel();
     }
 
     /**
@@ -45,7 +38,7 @@ public class EventsController extends AbstractController {
      *
      * @param events Callback interface for handling the retrieval of user's events.
      */
-    public void getMyEvents(EventsModel.MyEventsCallback events) {
+    public void getMyEvents(HomePageModel.MyEventsCallback events) {
         getModel().getMyEvents(events);
     }
 
