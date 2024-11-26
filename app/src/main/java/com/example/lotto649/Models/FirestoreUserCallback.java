@@ -9,6 +9,7 @@
  */
 package com.example.lotto649.Models;
 
+// TODO i dont think we need callback functions
 public interface FirestoreUserCallback {
     /**
      * Called when the Firestore query for user data is completed.

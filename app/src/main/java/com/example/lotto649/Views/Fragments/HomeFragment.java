@@ -54,7 +54,7 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_events, container, false);
+        View view = inflater.inflate(R.layout.fragment_home, container, false);
 
         events = new EventsModel();
         eventsController = new EventsController(events);
@@ -68,14 +68,17 @@ public class HomeFragment extends Fragment {
             public void onEventsFetched(ArrayList<EventModel> events) {
                 Log.w("Ohm", "Events fetched: " + events.size());
 
-                // Initialize and set the adapter with fetched events
-                eventAdapter = new EventArrayAdapter(getContext(), events, new EventArrayAdapter.EventArrayAdapterListener() {
-                    @Override
-                    public void onEventsWaitListChanged() {
-                        // Handle waitlist changes if needed
-                    }
-                });
-                eventsList.setAdapter(eventAdapter);
+                // TODO test that this doesnt introduce any bugs - so far so good
+                if (isAdded()) {
+                    // Initialize and set the adapter with fetched events
+                    eventAdapter = new EventArrayAdapter(requireContext(), events, new EventArrayAdapter.EventArrayAdapterListener() {
+                        @Override
+                        public void onEventsWaitListChanged() {
+                            // Handle waitlist changes if needed
+                        }
+                    });
+                    eventsList.setAdapter(eventAdapter);
+                }
             }
         });
 

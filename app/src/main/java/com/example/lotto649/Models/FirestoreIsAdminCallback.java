@@ -14,3 +14,4 @@ public interface FirestoreIsAdminCallback {
     void onCallback(boolean isAdmin);
 }
 
+// TODO this callback isnt needed

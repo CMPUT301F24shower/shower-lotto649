@@ -7,9 +7,7 @@ import static com.example.lotto649.FirebaseStorageHelper.uploadPosterImageToFire
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
@@ -26,7 +24,6 @@ import com.bumptech.glide.Glide;
 import com.example.lotto649.Controllers.EventController;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.Models.QrCodeModel;
-import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.R;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -42,14 +39,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
-import java.sql.Time;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
-import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -195,7 +189,7 @@ public class EventFragment extends Fragment {
      */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_event, container, false);
+        View view = inflater.inflate(R.layout.fragment_manage_event, container, false);
         currentImageUriString = new AtomicReference<String>("");
         posterLoadedInFirestore = new MutableLiveData<Boolean>(Boolean.FALSE);
         posterLoadedInFirestore.observe(getViewLifecycleOwner(), new Observer<Boolean>() {

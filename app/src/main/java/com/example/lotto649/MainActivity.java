@@ -10,8 +10,12 @@
  */
 package com.example.lotto649;
 
+import static android.app.PendingIntent.getActivity;
+
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -22,12 +26,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
 import com.example.lotto649.Models.FirestoreIsAdminCallback;
 import com.example.lotto649.Views.Fragments.AccountFragment;
 import com.example.lotto649.Views.Fragments.AdminAndUserFragment;
+import com.example.lotto649.Views.Fragments.AdminEventFragment;
 import com.example.lotto649.Views.Fragments.BrowseEventsFragment;
 import com.example.lotto649.Views.Fragments.BrowseFacilitiesFragment;
 import com.example.lotto649.Views.Fragments.BrowseProfilesFragment;
@@ -35,7 +41,10 @@ import com.example.lotto649.Views.Fragments.CameraFragment;
 //import com.example.lotto649.Views.Fragments.EventsFragment;
 import com.example.lotto649.Views.Fragments.FacilityFragment;
 import com.example.lotto649.Views.Fragments.HomeFragment;
+import com.example.lotto649.Views.Fragments.JoinEventFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentReference;
@@ -43,7 +52,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Objects;
-
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener {
     BottomNavigationView bottomNavigationView;
@@ -83,18 +93,21 @@ public class MainActivity extends AppCompatActivity
                     bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu);
                     // Set the default selected item to "home"
                     bottomNavigationView.setSelectedItemId(R.id.home);
+                    handleDeeplink();
                 } else if (changedValue.intValue() == 2) {
                     removeBottomNavMenuItems();
                     removeBottomNavMenuUserAndAdminItems();
                     bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_admin);
                     // Set the default selected item to "home"
                     bottomNavigationView.setSelectedItemId(R.id.browseProfiles);
+                    handleDeeplink();
                 } else {
                     removeBottomNavMenuItems();
                     removeBottomNavMenuAdminItems();
                     bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_user_and_admin);
                     // Set the default selected item to "browseProfiles"
                     bottomNavigationView.setSelectedItemId(R.id.home);
+                    handleDeeplink();
                 }
             }
         });
@@ -118,6 +131,7 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+
     }
 
     // Create fragment instances
@@ -214,7 +228,33 @@ public class MainActivity extends AppCompatActivity
         bottomNavigationView.getMenu().removeItem(R.id.admin);
     }
 
+    private void handleDeeplink() {
+        // TODO this should not happen if the user is not an entrant
+        Intent intent = getIntent();
+        if (intent != null && intent.getData() != null) {
+            String url = getIntent().getData().toString();
+            Uri uri = Uri.parse(url);
+            String eventId = uri.getQueryParameter("eventId");
+            // TODO because of async of getting user details, the first time this will get overwritten and replaced with home fragment, not sure how to fix this yet
+            Bundle bundle = new Bundle();
+            bundle.putString("firestoreEventId", eventId);
+            JoinEventFragment frag = new JoinEventFragment();
+            frag.setArguments(bundle);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.flFragment, frag, null)
+                    .addToBackStack(null)
+                    .commit();
+        }
+    }
 
+    @Override
+    public void onBackPressed() {
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack(); // Go back to the previous fragment
+        } else {
+            super.onBackPressed(); // Exit the activity
+        }
+    }
 
     /**
      * Checks if the current user has an admin status in the Firestore database.
