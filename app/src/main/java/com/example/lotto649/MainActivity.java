@@ -13,8 +13,11 @@ package com.example.lotto649;
 import static android.app.PendingIntent.getActivity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -42,16 +45,34 @@ import com.example.lotto649.Views.Fragments.CameraFragment;
 import com.example.lotto649.Views.Fragments.FacilityFragment;
 import com.example.lotto649.Views.Fragments.HomeFragment;
 import com.example.lotto649.Views.Fragments.JoinEventFragment;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.Priority;
+import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.Priority;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 public class MainActivity extends AppCompatActivity
@@ -59,6 +80,83 @@ public class MainActivity extends AppCompatActivity
     BottomNavigationView bottomNavigationView;
     private static final int REQUEST_CODE_POST_NOTIFICATIONS = 1;
     private MutableLiveData<Integer> whichMenuToShow;
+    private static final int LOCATION_REQUEST_CODE = 100;
+    private static final int BACKGROUND_LOCATION_REQUEST_CODE = 101;
+    public static final int LOCATION_SETTINGS_REQUEST_CODE = 100;
+    FusedLocationProviderClient fusedLocationClient;
+
+    public void getUserLocation(Context context, AtomicReference<Location> currentLocation) {
+        if (context == null) {
+            Log.e("LocationHelper", "Context is null. Cannot check permission.");
+            return;
+        }
+        if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if (fusedLocationClient == null) {
+                Log.e("LocationHelper", "FusedLocationProviderClient initialization failed.");
+                return;  // or handle error gracefully
+            }
+            Log.e("JASON LOCATION", "Set currentLocation atomic reference");
+            fusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, location -> {
+                        if (location != null) {
+                            currentLocation.set(location);
+                        }
+                    });
+        } else {
+            // Request permission if not already granted
+            Log.e("JASON LOCATION", "Don't have permissions - request permissions");
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
+        }
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == LOCATION_SETTINGS_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                // The user enabled location services
+                LocationManagerSingleton.getInstance().setLocationTrackingEnabled(true);
+            } else {
+                // The user did not enable location services
+                LocationManagerSingleton.getInstance().setLocationTrackingEnabled(false);
+            }
+        }
+    }
+
+    private void checkLocationSettings() {
+        Log.e("JASON LOCATION", "Inside check locations settings");
+        // Create a LocationRequest using create() method
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(Priority.PRIORITY_HIGH_ACCURACY);  // Prioritize high accuracy (GPS)
+        locationRequest.setInterval(10000);  // Set interval (in milliseconds)
+        locationRequest.setFastestInterval(5000);  // Set fastest interval (in milliseconds)
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest);
+
+        Log.e("JASON LOCATION", "Created settings client task");
+        SettingsClient settingsClient = LocationServices.getSettingsClient(this);
+        Task<LocationSettingsResponse> task = settingsClient.checkLocationSettings(builder.build());
+
+        task.addOnSuccessListener(this, locationSettingsResponse -> {
+            // Location services are enabled, proceed
+            LocationManagerSingleton.getInstance().setLocationTrackingEnabled(true);
+        });
+
+        task.addOnFailureListener(this, e -> {
+            if (e instanceof ResolvableApiException) {
+                // Location services are not enabled, ask the user to enable
+                try {
+                    ResolvableApiException resolvable = (ResolvableApiException) e;
+                    resolvable.startResolutionForResult(this, LOCATION_SETTINGS_REQUEST_CODE);
+                } catch (IntentSender.SendIntentException sendEx) {
+                    // Handle error
+                }
+            }
+        });
+    }
 
     /**
      * Initializes the activity, setting up the bottom navigation view and its listener.
@@ -70,6 +168,26 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        // Initialize the LocationManagerSingleton with application context
+        LocationManagerSingleton.getInstance().init(getApplicationContext());
+        Log.d("Jason MainActivity", "LocationManagerSingleton initialized");
+
+        // check location stuff (from ChatGPT accessed Nov 16 2024)
+        // Check if the app has location permission
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
+        } else {
+            checkLocationSettings();  // Proceed to check location settings if permission is granted
+        }
+
+        // // Check for background location permission (Android 10 and above)
+        // if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        //     ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_REQUEST_CODE);
+        // }
+
         // TODO this code is incomplete, just here to fix build errors
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.getMenu().clear();
@@ -355,6 +473,13 @@ public class MainActivity extends AppCompatActivity
                 // Granted
             } else {
                 // NOT granted
+            }
+        }
+        if (requestCode == LOCATION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                checkLocationSettings();
+            } else {
+                // Handle permission denial
             }
         }
     }
