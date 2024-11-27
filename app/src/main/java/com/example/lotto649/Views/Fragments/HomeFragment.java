@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment;
 import com.example.lotto649.Controllers.EventsController;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.Models.EventsModel;
+import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.example.lotto649.Views.ArrayAdapters.EventArrayAdapter;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
@@ -97,10 +98,8 @@ public class HomeFragment extends Fragment {
                 if (Objects.equals(organizerId, deviceId)) {
                     OrganizerEventFragment frag = new OrganizerEventFragment();
                     frag.setArguments(bundle);
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.flFragment, frag, null)
-                            .addToBackStack(null)
-                            .commit();
+                    MyApp app = MyApp.getInstance();
+                    app.replaceFragment(frag);
                 } else {
                     eventsController.editEvent(event);
                 }
