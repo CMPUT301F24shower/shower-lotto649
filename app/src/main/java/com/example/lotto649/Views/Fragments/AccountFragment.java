@@ -225,6 +225,7 @@ public class AccountFragment extends Fragment {
                 String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
 
                 String fileName = deviceId + ".jpg";
+
                 // https://stackoverflow.com/questions/1068760/can-i-pass-parameters-by-reference-in-java
                 FirebaseStorageHelper.uploadProfileImageToFirebaseStorage(currentImageUri, fileName, currentImageUriString, imageAbleToBeDeleted);
                 SetSaveButtonVisibility(true);
