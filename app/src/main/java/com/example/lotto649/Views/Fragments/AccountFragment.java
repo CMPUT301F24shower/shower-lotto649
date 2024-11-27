@@ -240,6 +240,7 @@ public class AccountFragment extends Fragment {
                 user = userController.getModel();
                 imagePlaceholder.setText(user.getInitials()); // TODO, this isnt right
                 saveButton.setText("Save");
+                // TODO make sure that we are staying on this page even after scanning QR code
             }
         });
 

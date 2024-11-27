@@ -25,6 +25,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
+import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.Views.Fragments.AccountFragment;
 import com.example.lotto649.Views.Fragments.AdminAndUserFragment;
 import com.example.lotto649.Views.Fragments.BrowseEventsFragment;
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity
     private static final int REQUEST_CODE_POST_NOTIFICATIONS = 1;
     private MutableLiveData<Integer> whichMenuToShow;
     DocumentReference userRef;
+    Boolean newEventSeen;
 
     /**
      * Initializes the activity, setting up the bottom navigation view and its listener.
@@ -58,6 +60,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        newEventSeen = false;
         // TODO this code is incomplete, just here to fix build errors
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.getMenu().clear();
@@ -106,12 +109,9 @@ public class MainActivity extends AppCompatActivity
 
         String deviceId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
         userRef = FirebaseFirestore.getInstance().collection("users").document(deviceId);
-        userRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
-                if (error != null) {
-                    return;
-                }
+        userRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot documentSnapshot = task.getResult();
                 if (documentSnapshot != null && documentSnapshot.exists()) {
                     Boolean isAdmin = documentSnapshot.getBoolean("admin");
                     Boolean isEntrant = documentSnapshot.getBoolean("entrant");
