@@ -63,8 +63,8 @@ public class JoinEventFragment extends Fragment {
     ExtendedFloatingActionButton backButton;
     private Uri posterUri;
     private MutableLiveData<Boolean> imageAbleToBeDeleted, qrCodeAbleToBeDeleted;
-    private AtomicReference<Location> currentLocation;
     private Date startDate, endDate;
+    private boolean geoRequired;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -97,7 +97,7 @@ public class JoinEventFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
 
-        currentLocation = new AtomicReference<Location>(null);
+        geoRequired = false;
 
         name = view.findViewById(R.id.admin_event_name);
         status = view.findViewById(R.id.admin_event_status);
@@ -135,6 +135,7 @@ public class JoinEventFragment extends Fragment {
                             String datesText = "Enter between " + df.format(startDate) + " - " + df.format(endDate);
                             Boolean isGeo = doc.getBoolean("geo");
                             String geoLocationText = isGeo ? "Requires GeoLocation Tracking" : "";
+                            geoRequired = isGeo;
                             String descriptionText = doc.getString("description");
                             name.setText(nameText);
                             // TODO: set to actual event status
@@ -207,17 +208,23 @@ public class JoinEventFragment extends Fragment {
                                 signUp.put("userId", deviceId);
                                 signUp.put("timestamp", FieldValue.serverTimestamp());
                                 // TODO add geolocation data here
-                                boolean isLocationEnabled = LocationManagerSingleton.getInstance().isLocationTrackingEnabled();
-                                if (isLocationEnabled) {
-                                    // Proceed with location-based functionality
-                                    GeoPoint currLocation = LocationManagerSingleton.getInstance().getGeoPoint();
-                                    signUp.put("longitude", currLocation.getLongitude());
-                                    signUp.put("latitude", currLocation.getLatitude());
-                                } else {
-                                    // Prompt the user to enable location tracking
-                                    // TODO: if geo location required figure this out
-                                    signUp.put("longitude", "");
-                                    signUp.put("latitude", "");
+                                if (geoRequired) {
+                                    ((MainActivity) getActivity()).getUserLocation(getContext());
+                                    boolean isLocationEnabled = LocationManagerSingleton.getInstance().isLocationTrackingEnabled();
+                                    if (isLocationEnabled) {
+                                        // Proceed with location-based functionality
+                                        GeoPoint currLocation = LocationManagerSingleton.getInstance().getGeoPoint();
+                                        signUp.put("longitude", currLocation.getLongitude());
+                                        signUp.put("latitude", currLocation.getLatitude());
+                                    } else {
+                                        // Prompt the user to enable location tracking
+                                        if (geoRequired) {
+                                            return;
+                                        }
+                                        // geo not required, just put blank strings
+                                        signUp.put("longitude", "");
+                                        signUp.put("latitude", "");
+                                    }
                                 }
                                 db.collection("signUps").document(firestoreEventId + "_" + deviceId).set(signUp).addOnSuccessListener(listener -> {
                                     // TODO set flags for entrant state, (in list, chosen, waiting for response...)
