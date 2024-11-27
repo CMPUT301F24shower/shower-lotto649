@@ -219,14 +219,13 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void handleDeeplink() {
-        // TODO this should not happen if the user is not an entrant
         Intent intent = getIntent();
         if (intent != null && intent.getData() != null) {
             String url = getIntent().getData().toString();
             Uri uri = Uri.parse(url);
             String eventId = uri.getQueryParameter("eventId");
-            // TODO because of async of getting user details, the first time this will get overwritten and replaced with home fragment, not sure how to fix this yet
             Bundle bundle = new Bundle();
+            // TODO check that this is a valid event first
             bundle.putString("firestoreEventId", eventId);
             JoinEventFragment frag = new JoinEventFragment();
             frag.setArguments(bundle);

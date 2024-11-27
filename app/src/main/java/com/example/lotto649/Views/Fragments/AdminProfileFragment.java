@@ -140,19 +140,19 @@ public class AdminProfileFragment extends Fragment {
                             Boolean isEntrant = doc.getBoolean("entrant");
                             StringBuilder rolesBuilder = new StringBuilder();
                             rolesBuilder.append("Roles: ");
-                            if (isAdmin) {
+                            if (Boolean.TRUE.equals(isAdmin)) {
                                 rolesBuilder.append("Admin, ");
                             }
-                            if (isOrganizer) {
+                            if (Boolean.TRUE.equals(isOrganizer)) {
                                 rolesBuilder.append("Organizer, ");
                             }
-                            if (isEntrant) {
+                            if (Boolean.TRUE.equals(isEntrant)) {
                                 rolesBuilder.append("Entrant, ");
                             }
                             String rolesText = rolesBuilder.toString().substring(0, rolesBuilder.toString().length() - 2);
                             name.setText(nameText);
                             email.setText(emailText);
-                            if (phoneText.isEmpty()) {
+                            if (phoneText == null || phoneText.isEmpty()) {
                                 phone.setVisibility(View.GONE);
                             } else {
                                 phone.setVisibility(View.VISIBLE);
@@ -163,7 +163,7 @@ public class AdminProfileFragment extends Fragment {
                         //     getting profile image
                             imagePlaceholder.setText(new UserModel(getContext(), nameText, emailText).getInitials());
                             String profileUriString = doc.getString("profileImage");
-                            if (!Objects.equals(profileUriString, "")) {
+                            if (profileUriString != null && !Objects.equals(profileUriString, "")) {
                                 imageAbleToBeDeleted.setValue(Boolean.TRUE);
                                 profileUri = Uri.parse(profileUriString);
                                 StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(profileUriString);

@@ -42,8 +42,12 @@ public class AdminManageFacilityTest {
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
 
+    /**
+     * Deleting a facility
+     * Tests US 03.07.01
+     */
     @Test
-    public void testDeleteFacility() {
+    public void testDeleteFacility() throws InterruptedException {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         //     create admin profile to test with
         String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
@@ -78,6 +82,8 @@ public class AdminManageFacilityTest {
                 .inAdapterView(withId(R.id.browse_facilities_list))
                 .atPosition(0)
                 .perform(click());
+
+        Thread.sleep(1000);
 
         // check that correct item was clicked
         onView(withId(R.id.admin_facility_name))
