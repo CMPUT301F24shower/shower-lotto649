@@ -500,8 +500,6 @@ public class EventModel extends AbstractModel implements Serializable {
     public ArrayList<String> getWaitingList() {
         ArrayList<String> waitingList = new ArrayList<>();
         db.collection("signUps").whereEqualTo("eventId",eventId)
-            .orderBy("random")
-            .limit(10)
             .get()
             .addOnCompleteListener(
                 task -> {

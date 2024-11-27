@@ -11,6 +11,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.example.lotto649.Models.EventModel;
+import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -18,9 +20,11 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -29,6 +33,8 @@ public class OrganizerEventFragment extends Fragment {
     private CollectionReference eventsRef;
     private String firestoreEventId;
     private ImageView posterImage;
+    private String eventId;
+    private int numberOfSpots;
     TextView name;
     TextView status;
     TextView location;
@@ -64,10 +70,12 @@ public class OrganizerEventFragment extends Fragment {
         daysLeft = view.findViewById(R.id.eventDaysLeft);
         geoLocation = view.findViewById(R.id.geolocationRequirement);
         description = view.findViewById(R.id.eventDescription);
+
+        posterImage = view.findViewById(R.id.list_event_poster);
+
         viewQrCodeButton = view.findViewById(R.id.view_qr_code_button);
         chooseWinnersButton = view.findViewById(R.id.choose_winners_button);
         viewEntrantsMapButton = view.findViewById(R.id.view_entrants_map_button);
-        posterImage = view.findViewById(R.id.list_event_poster);
         viewEntrantsWaitingListButton = view.findViewById(R.id.view_entrants_list_button);
         editButton = view.findViewById(R.id.edit_event_button);
 
@@ -79,10 +87,15 @@ public class OrganizerEventFragment extends Fragment {
                         if (task.isSuccessful()) {
                             DocumentSnapshot doc = task.getResult();
                             String nameText = doc.getString("title");
+                            eventId = doc.getString("eventId");
                             int maxNum = ((Long) doc.get("numberOfMaxEntrants")).intValue();
+                            int curNum = ((Long) doc.get("waitingListSize")).intValue();
+                            numberOfSpots = ((Long) doc.get("numberOfSpots")).intValue();
                             String spotsAvailText;
                             if (maxNum == -1) {
                                 spotsAvailText = "OPEN";
+                            } else if (maxNum <= curNum) {
+                                spotsAvailText = "FULL";
                             } else {
                                 spotsAvailText = Integer.toString(maxNum - ((List<String>) doc.get("waitingList")).size()) + " Spots Available";
                             }
@@ -121,6 +134,54 @@ public class OrganizerEventFragment extends Fragment {
                         }
                     }
                 });
+
+        viewEntrantsWaitingListButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ArrayList<String> waitingList = new ArrayList<>();
+                db.collection("signUps").whereEqualTo("eventId",eventId)
+                        .get()
+                        .addOnCompleteListener(
+                                task -> {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot doc : task.getResult()) {
+                                            waitingList.add(doc.getString("userId"));
+                                        }
+                                    }
+                                }
+                        );
+            }
+        });
+        // TODO screen for waitlist
+
+        chooseWinnersButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ArrayList<String> winnerList = new ArrayList<>();
+                db.collection("signUps").whereEqualTo("eventId",eventId)
+                        .orderBy("random")
+                        .limit(numberOfSpots)
+                        .get()
+                        .addOnCompleteListener(
+                                task -> {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot doc : task.getResult()) {
+                                            winnerList.add(doc.getString("userId"));
+                                        }
+                                    }
+                                }
+                        );
+            }
+        });
+        // TODO screen for winnerlist
+
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MyApp.getInstance().replaceFragment(new EventFragment());
+            }
+        });
+
         return view;
     }
 }
