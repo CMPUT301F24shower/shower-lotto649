@@ -2,6 +2,7 @@ package com.example.lotto649.Views.Fragments;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,8 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -35,6 +38,7 @@ public class OrganizerEventFragment extends Fragment {
     private ImageView posterImage;
     private String eventId;
     private int numberOfSpots;
+    private EventModel event;
     TextView name;
     TextView status;
     TextView location;
@@ -87,7 +91,10 @@ public class OrganizerEventFragment extends Fragment {
                         if (task.isSuccessful()) {
                             DocumentSnapshot doc = task.getResult();
                             String nameText = doc.getString("title");
-                            eventId = doc.getString("eventId");
+                            event = doc.toObject(EventModel.class);
+                            event.setEventId(doc.getId());
+                            event.setDb(db);
+                            eventId = doc.getId();
                             int maxNum = ((Long) doc.get("numberOfMaxEntrants")).intValue();
                             int curNum = ((Long) doc.get("waitingListSize")).intValue();
                             numberOfSpots = ((Long) doc.get("numberOfSpots")).intValue();
@@ -138,6 +145,7 @@ public class OrganizerEventFragment extends Fragment {
         viewEntrantsWaitingListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.e("Ohm", "Getting Waiting List");
                 ArrayList<String> waitingList = new ArrayList<>();
                 db.collection("signUps").whereEqualTo("eventId",eventId)
                         .get()
@@ -145,6 +153,7 @@ public class OrganizerEventFragment extends Fragment {
                                 task -> {
                                     if (task.isSuccessful()) {
                                         for (QueryDocumentSnapshot doc : task.getResult()) {
+                                            Log.e("Ohm", "Doc Id " + doc.getString("userId"));
                                             waitingList.add(doc.getString("userId"));
                                         }
                                     }
@@ -157,16 +166,20 @@ public class OrganizerEventFragment extends Fragment {
         chooseWinnersButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ArrayList<String> winnerList = new ArrayList<>();
+                Log.e("Ohm", "Choosing " + numberOfSpots + " winners");
+                ArrayList<String> winnerList = new ArrayList<>(numberOfSpots);
                 db.collection("signUps").whereEqualTo("eventId",eventId)
-                        .orderBy("random")
-                        .limit(numberOfSpots)
                         .get()
                         .addOnCompleteListener(
                                 task -> {
                                     if (task.isSuccessful()) {
-                                        for (QueryDocumentSnapshot doc : task.getResult()) {
-                                            winnerList.add(doc.getString("userId"));
+                                        List<DocumentSnapshot> docs = task.getResult().getDocuments();
+                                        Collections.shuffle(docs);
+                                        for (DocumentSnapshot doc : docs) {
+                                            if (winnerList.size() < numberOfSpots) {
+                                                Log.e("Ohm", "Doc Id " + doc.getString("userId"));
+                                                winnerList.add(doc.getString("userId"));
+                                            }
                                         }
                                     }
                                 }
@@ -178,7 +191,7 @@ public class OrganizerEventFragment extends Fragment {
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MyApp.getInstance().replaceFragment(new EventFragment());
+                MyApp.getInstance().addFragmentToStack(new EventFragment(event));
             }
         });
 
