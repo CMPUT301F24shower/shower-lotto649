@@ -3,11 +3,14 @@ package com.example.lotto649;
 import android.content.Context;
 import android.util.Log;
 
+import com.google.firebase.firestore.GeoPoint;
+
 public class LocationManagerSingleton {
 
     private static LocationManagerSingleton instance;
     private Context context;
     private boolean locationTrackingEnabled = false;
+    private GeoPoint geoPoint;
 
     // Private constructor to prevent instantiation
     private LocationManagerSingleton() {}
@@ -40,5 +43,13 @@ public class LocationManagerSingleton {
     // Safely use context in singleton methods
     public Context getContext() {
         return context;
+    }
+
+    public GeoPoint getGeoPoint() {
+        return geoPoint;
+    }
+
+    public void setGeoPoint(GeoPoint geoPoint) {
+        this.geoPoint = geoPoint;
     }
 }

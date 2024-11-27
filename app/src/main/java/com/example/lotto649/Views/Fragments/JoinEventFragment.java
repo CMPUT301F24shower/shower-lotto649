@@ -35,6 +35,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -209,13 +210,12 @@ public class JoinEventFragment extends Fragment {
                                 boolean isLocationEnabled = LocationManagerSingleton.getInstance().isLocationTrackingEnabled();
                                 if (isLocationEnabled) {
                                     // Proceed with location-based functionality
-                                    MainActivity mActivity = new MainActivity();
-                                    mActivity.getUserLocation(getContext(), currentLocation);
-                                    Location currLocation = currentLocation.get();
+                                    GeoPoint currLocation = LocationManagerSingleton.getInstance().getGeoPoint();
                                     signUp.put("longitude", currLocation.getLongitude());
                                     signUp.put("latitude", currLocation.getLatitude());
                                 } else {
                                     // Prompt the user to enable location tracking
+                                    // TODO: if geo location required figure this out
                                     signUp.put("longitude", "");
                                     signUp.put("latitude", "");
                                 }
