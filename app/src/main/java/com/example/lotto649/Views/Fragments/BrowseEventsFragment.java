@@ -113,7 +113,7 @@ public class BrowseEventsFragment extends Fragment {
                         boolean geo = doc.getBoolean("geo");
                         dataList.add( new EventModel(getContext(), title, facilityId, description, numberOfSpots,
                         numberOfMaxEntrants, startDate, endDate, posterImageUriString, geo, qrCodeHash,
-                                new ArrayList<>(), null));
+                                0, null));
                         eventIdList.add(eventId);
                     }
                     eventsAdapter.notifyDataSetChanged();
