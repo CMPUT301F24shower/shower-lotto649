@@ -1,5 +1,6 @@
 package com.example.lotto649.Views.ArrayAdapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
@@ -105,9 +106,20 @@ public class EventArrayAdapter extends ArrayAdapter<EventModel> {
             // Asynchronously load image using Firebase and Glide
             imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                 profileUri = uri;
-                Glide.with(getContext())
-                        .load(uri)
-                        .into(posterImage);
+                Context context = parent.getContext();
+                if (context instanceof Activity) {
+                    Activity activity = (Activity) context;
+
+                    // Check if the Activity is valid before using it
+                    if (!activity.isDestroyed() && !activity.isFinishing()) {
+                        Glide.with(activity)
+                                .load(uri)
+                                .into(posterImage);
+                    }
+                }
+//                Glide.with(getContext())
+//                        .load(uri)
+//                        .into(posterImage);
                 // TODO: This is hardcoded, but works good on my phone, not sure if this is a good idea or not
                 // Set layout parameters for image
                 LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(750, 450);

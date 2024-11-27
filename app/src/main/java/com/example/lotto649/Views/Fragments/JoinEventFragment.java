@@ -118,7 +118,9 @@ public class JoinEventFragment extends Fragment {
                             if (maxNum == -1) {
                                 spotsAvailText = "OPEN";
                             } else {
-                                spotsAvailText = Integer.toString(maxNum - ((List<String>) doc.get("waitingList")).size()) + " Spots Available";
+                                // TODO please fix this
+                                spotsAvailText = "TODO";
+//                                spotsAvailText = Integer.toString(maxNum - ((List<String>) doc.get("waitingList")).size()) + " Spots Available";
                             }
                             String numAttendeesText = Integer.toString(((Long) doc.get("numberOfSpots")).intValue()) + " Attendees";
                             DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
