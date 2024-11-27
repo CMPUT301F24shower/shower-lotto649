@@ -224,6 +224,7 @@ public class MainActivity extends AppCompatActivity
             String url = getIntent().getData().toString();
             Uri uri = Uri.parse(url);
             String eventId = uri.getQueryParameter("eventId");
+            // TODO make sure QR code hasnt been deleted, if it has dont return anything
             Bundle bundle = new Bundle();
             // TODO check that this is a valid event first
             bundle.putString("firestoreEventId", eventId);
