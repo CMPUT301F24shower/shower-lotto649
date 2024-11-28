@@ -215,8 +215,8 @@ public class JoinEventFragment extends Fragment {
                                 if (isLocationEnabled) {
                                     // Proceed with location-based functionality
                                     GeoPoint currLocation = LocationManagerSingleton.getInstance().getGeoPoint();
-                                    signUp.put("longitude", currLocation.getLongitude());
-                                    signUp.put("latitude", currLocation.getLatitude());
+                                    signUp.put("longitude", Double.toString(currLocation.getLongitude()));
+                                    signUp.put("latitude", Double.toString(currLocation.getLatitude()));
                                 } else {
                                     // Prompt the user to enable location tracking
                                     if (geoRequired) {

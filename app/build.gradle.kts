@@ -45,6 +45,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
     implementation("com.google.firebase:firebase-storage")
     implementation("com.github.bumptech.glide:glide:4.12.0")
+    implementation(libs.library)
     annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
     testImplementation(libs.junit)
     testImplementation("junit:junit:4.13.2")

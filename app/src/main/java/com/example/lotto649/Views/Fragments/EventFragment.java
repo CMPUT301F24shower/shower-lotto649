@@ -425,7 +425,12 @@ public class EventFragment extends Fragment {
         mapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MyApp.getInstance().replaceFragment(new MapFragment());
+                Bundle bundle = new Bundle();
+                Log.e("JASON MAP", "Event id before bundle: " + event.getEventId());
+                bundle.putString("eventId", event.getEventId());
+                MapFragment mapFragment = new MapFragment();
+                mapFragment.setArguments(bundle);
+                MyApp.getInstance().replaceFragment(mapFragment);
             }
         });
 
