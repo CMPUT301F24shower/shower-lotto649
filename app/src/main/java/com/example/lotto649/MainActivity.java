@@ -40,6 +40,7 @@ import com.example.lotto649.Views.Fragments.CameraFragment;
 import com.example.lotto649.Views.Fragments.FacilityFragment;
 import com.example.lotto649.Views.Fragments.HomeFragment;
 import com.example.lotto649.Views.Fragments.JoinEventFragment;
+import com.example.lotto649.Views.Fragments.JoinEventFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -149,9 +150,7 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
-
         createMenuByUserType();
-
     }
 
     // Create fragment instances

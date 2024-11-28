@@ -318,8 +318,6 @@ public class CreateAccountFragment extends Fragment {
     /**
      * Checks if the user exists in Firestore based on the device ID and retrieves the user data.
      * If no user is found, a new UserModel with default values is created.
-     *
-     * @param firestoreUserCallback The callback used to return the user model
      */
     private void checkUserInFirestore() {
         String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);

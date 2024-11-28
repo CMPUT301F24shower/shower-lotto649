@@ -51,14 +51,6 @@ public class EventModel extends AbstractModel implements Serializable {
     }
 
     /**
-     * Callback interface for handling FacilityModel retrieval asynchronously.
-     */
-    public interface FacilityCallback {
-        void onCallback(FacilityModel facility);
-    }
-    // TODO remove this
-
-    /**
      * No-argument constructor for Firestore deserialization.
      * This constructor is required for creating instances of the `EventModel` when
      * reading from Firestore.
