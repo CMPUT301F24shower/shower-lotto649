@@ -51,14 +51,6 @@ public class EventModel extends AbstractModel implements Serializable {
     }
 
     /**
-     * Callback interface for handling FacilityModel retrieval asynchronously.
-     */
-    public interface FacilityCallback {
-        void onCallback(FacilityModel facility);
-    }
-    // TODO remove this
-
-    /**
      * No-argument constructor for Firestore deserialization.
      * This constructor is required for creating instances of the `EventModel` when
      * reading from Firestore.
@@ -259,17 +251,15 @@ public class EventModel extends AbstractModel implements Serializable {
     // TODO why is this never used, orgId and facilityId are the same, we dont need this
     /**
      * Fetches the full FacilityModel from Firestore using the stored facility ID.
-     *
-     * @param callback callback to handle the fetched FacilityModel asynchronously
      */
-    public void fetchFacility(FacilityCallback callback) {
+    public void fetchFacility() {
         if (facilityId == null || db == null) return;
 
         DocumentReference facilityRef = db.collection("facilities").document(facilityId);
         facilityRef.get()
                 .addOnSuccessListener(documentSnapshot -> {
                     FacilityModel facility = documentSnapshot.toObject(FacilityModel.class);
-                    callback.onCallback(facility);
+                    // TODO what are we doing with the facility here? currently nothing
                 })
                 .addOnFailureListener(e -> {
                     System.err.println("Error fetching facility: " + e.getMessage());
@@ -539,29 +529,4 @@ public class EventModel extends AbstractModel implements Serializable {
     private void generateQrCode() {
         this.qrCode = QrCodeModel.generateHash(this.qrCode);
     }
-
-    /**
-     * Serializes the EventModel by writing the eventId first, then the rest of the fields.
-     *
-     * @param out the output stream to write data to
-     * @throws IOException if any I/O error occurs
-     */
-    private void writeObject(ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject(); // Default serialization
-        out.writeObject(eventId); // Serialize eventId as unique identifier
-    }
-    // TODO can we remove this
-
-    /**
-     * Deserializes the EventModel by reading the eventId first, then the rest of the fields.
-     *
-     * @param in the input stream to read data from
-     * @throws IOException if any I/O error occurs
-     * @throws ClassNotFoundException if the class is not found
-     */
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject(); // Default deserialization
-        eventId = (String) in.readObject(); // Deserialize eventId
-    }
-    // TODO can we remove this
 }
