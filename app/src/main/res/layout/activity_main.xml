@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:attr/windowBackground"
+    android:background="@color/colorBackground"
     tools:context=".MainActivity">
 
     <!-- Fragment Container -->
@@ -19,8 +19,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:background="@color/lightBackground"
-        android:elevation="2dp"
+        android:background="@color/colorSurface"
+        android:elevation="4dp"
         android:clipToPadding="false"
         android:padding="16dp" />
 
@@ -29,10 +29,10 @@
         android:id="@+id/bottomNavigationView"
         android:layout_width="match_parent"
         android:layout_height="75dp"
-        android:background="@color/primaryColor"
-        android:elevation="4dp"
-        app:itemTextColor="@color/lightOnPrimary"
-        app:itemIconTint="@color/lightOnPrimary"
+        android:background="@color/lotteryGold"
+        android:elevation="8dp"
+        app:itemTextColor="@color/black"
+        app:itemIconTint="@color/black"
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

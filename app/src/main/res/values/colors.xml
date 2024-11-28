@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Updated Colors -->
 <resources>
     <!-- Core Colors -->
     <color name="black">#FF000000</color>
@@ -8,6 +9,12 @@
     <color name="colorPrimary">#6200EE</color> <!-- Main app color -->
     <color name="colorPrimaryDark">#3700B3</color> <!-- Darker shade for primary color -->
     <color name="colorAccent">#03DAC5</color> <!-- Secondary color for accents -->
+
+    <!-- Enhanced Colors for Event and Lottery Theme -->
+    <color name="lotteryGold">#FFD700</color> <!-- Special event color for lottery highlights -->
+    <color name="winningGreen">#4CAF50</color> <!-- Color to represent winning -->
+    <color name="alertRed">#FF5252</color> <!-- Alert or error color for eye-catching feedback -->
+    <color name="infoBlue">#2196F3</color> <!-- Informational color -->
 
     <!-- Surface & Background Colors -->
     <color name="lightOnSurface">#1D1B20</color> <!-- Text on surfaces -->
@@ -19,13 +26,4 @@
     <color name="colorOnBackground">#212121</color> <!-- A dark gray text color -->
     <color name="colorSurface">#FFFFFF</color> <!-- Primary surface color (white) -->
     <color name="colorSurfaceVariant">#F0F0F0</color> <!-- Slightly darker gray for variation -->
-
-
-    <!-- Additional Colors for UI -->
-    <color name="primaryColor">#6200EE</color> <!-- Navigation bar and key UI components -->
-    <color name="lightBackground">#FAFAFA</color> <!-- General background color -->
-    <color name="lightOnPrimary">#FFFFFF</color> <!-- Text/Icon color on primary background -->
-    <color name="errorColor">#B00020</color> <!-- Error text or button background -->
-    <color name="successColor">#388E3C</color> <!-- Success messages or indicators -->
-    <color name="infoColor">#2196F3</color> <!-- Info messages or highlights -->
 </resources>
