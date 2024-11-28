@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -27,6 +28,14 @@ public class FirestoreHelper {
         facilitiesRef = db.collection("facilities");
         signUpRef = db.collection("signUps");
         storageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app");
+    }
+
+
+    public void deleteFacility(String facilityId) {
+        // TODO make sure this works if the user doesnt have a facility
+        facilitiesRef.document(facilityId).delete();
+        deleteEventsFromFacility(facilityId);
+
     }
 
     public void deleteEventsFromFacility(String facilityOwner) {
