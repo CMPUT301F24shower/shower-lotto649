@@ -26,9 +26,7 @@ import static android.app.Activity.RESULT_OK;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.RippleDrawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.Editable;
@@ -50,13 +48,10 @@ import androidx.lifecycle.Observer;
 import com.bumptech.glide.Glide;
 import com.example.lotto649.Controllers.AccountUserController;
 import com.example.lotto649.FirebaseStorageHelper;
-import com.example.lotto649.Models.FirestoreUserCallback;
 import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.R;
 import com.example.lotto649.Views.AccountView;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -195,44 +190,7 @@ public class AccountFragment extends Fragment {
         user = new UserModel(mContext, FirebaseFirestore.getInstance());
 
         // Check if the user exists in Firestore, or create a new user
-        checkUserInFirestore(new FirestoreUserCallback() {
-            @Override
-            public void onCallback(String name, String email, String phone, String profileImageUri) {
-                userController.updateName(name);
-                userController.updateEmail(email);
-                userController.updatePhone(phone);
-                user = userController.getModel();
-                nameEditText.setText(user.getName());
-                emailEditText.setText(user.getEmail());
-                phoneEditText.setText(user.getPhone());
-
-                initialNameInput = name;
-                initialEmailInput = email;
-                initialPhoneInput = phone;
-                imagePlaceholder.setText(user.getInitials());
-                SetSaveButtonVisibility(true);
-
-                // Update profile Image
-                if (!Objects.equals(profileImageUri, "")) {
-                    StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(profileImageUri);
-                    imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                        currentImageUri = uri;
-                        currentImageUriString.set(profileImageUri);
-                        imageAbleToBeDeleted.setValue(Boolean.TRUE);
-                        Glide.with(mContext)
-                                .load(uri)
-                                .into(profileImage);
-                        linearLayout.removeView(imagePlaceholder);
-                        linearLayout.addView(profileImage, 2);
-                        hasSetImage = true;
-                    })
-                            .addOnFailureListener(e -> {
-                                Toast.makeText(getActivity(), "Unable to fetch profile image", Toast.LENGTH_SHORT).show();
-                            });
-                }
-
-            }
-        });
+        checkUserInFirestore();
 
         // Initialize MVC components
         AccountView accountView = new AccountView(user, this);
@@ -335,34 +293,88 @@ public class AccountFragment extends Fragment {
     /**
      * Checks if the user exists in Firestore based on the device ID and retrieves the user data.
      * If no user is found, a new UserModel with default values is created.
-     *
-     * @param firestoreUserCallback The callback used to return the user model
      */
-    private void checkUserInFirestore(FirestoreUserCallback firestoreUserCallback) {
+    private void checkUserInFirestore() {
         String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
         DocumentReference doc = db.collection("users").document(deviceId);
-        doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+        doc.get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        // User exists, deserialize to UserModel
                         UserModel user = document.toObject(UserModel.class);
                         if (user != null) {
                             saveButton.setText("Save");
-                            firestoreUserCallback.onCallback(user.getName(), user.getEmail(), user.getPhone(), user.getProfileImage());
+                            String name = user.getName();
+                            String email = user.getEmail();
+                            String phone = user.getPhone();
+                            String profileImageUri = user.getProfileImage();
+
+                            userController.updateName(name);
+                            userController.updateEmail(email);
+                            userController.updatePhone(phone);
+                            user = userController.getModel();
+                            nameEditText.setText(user.getName());
+                            emailEditText.setText(user.getEmail());
+                            phoneEditText.setText(user.getPhone());
+
+                            initialNameInput = name;
+                            initialEmailInput = email;
+                            initialPhoneInput = phone;
+                            imagePlaceholder.setText(user.getInitials());
+                            SetSaveButtonVisibility(true);
+
+                            // Update profile Image
+                            if (!Objects.equals(profileImageUri, "")) {
+                                StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(profileImageUri);
+                                imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                                            currentImageUri = uri;
+                                            currentImageUriString.set(profileImageUri);
+                                            imageAbleToBeDeleted.setValue(Boolean.TRUE);
+                                            Glide.with(mContext)
+                                                    .load(uri)
+                                                    .into(profileImage);
+                                            linearLayout.removeView(imagePlaceholder);
+                                            linearLayout.addView(profileImage, 2);
+                                            hasSetImage = true;
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Toast.makeText(getActivity(), "Unable to fetch profile image", Toast.LENGTH_SHORT).show();
+                                        });
+                            }
                         }
                     } else {
                         // No user found, create a new one
                         saveButton.setText("Create");
-                        firestoreUserCallback.onCallback("", "", "", "");
+                        userController.updateName("");
+                        userController.updateEmail("");
+                        userController.updatePhone("");
+                        user = userController.getModel();
+                        nameEditText.setText(user.getName());
+                        emailEditText.setText(user.getEmail());
+                        phoneEditText.setText(user.getPhone());
+
+                        initialNameInput = "";
+                        initialEmailInput = "";
+                        initialPhoneInput = "";
+                        imagePlaceholder.setText(user.getInitials());
+                        SetSaveButtonVisibility(true);
                     }
                 } else {
                     // Failure, return a new default user
-                    firestoreUserCallback.onCallback("", "", "", "");
+                    userController.updateName("");
+                    userController.updateEmail("");
+                    userController.updatePhone("");
+                    user = userController.getModel();
+                    nameEditText.setText(user.getName());
+                    emailEditText.setText(user.getEmail());
+                    phoneEditText.setText(user.getPhone());
+
+                    initialNameInput = "";
+                    initialEmailInput = "";
+                    initialPhoneInput = "";
+                    imagePlaceholder.setText(user.getInitials());
+                    SetSaveButtonVisibility(true);
                 }
-            }
         });
     }
 

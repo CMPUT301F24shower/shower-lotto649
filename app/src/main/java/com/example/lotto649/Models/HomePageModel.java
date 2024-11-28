@@ -2,13 +2,8 @@ package com.example.lotto649.Models;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
 import com.example.lotto649.AbstractClasses.AbstractModel;
 import com.example.lotto649.MyApp;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -22,7 +17,7 @@ import java.util.List;
  * Model class for managing a collection of events.
  * Interacts with Firebase Firestore to fetch and manage event data.
  */
-public class EventsModel extends AbstractModel {
+public class HomePageModel extends AbstractModel {
     // TODO name this myCreatedEvents
     private ArrayList<EventModel> myEvents;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -54,9 +49,9 @@ public class EventsModel extends AbstractModel {
     }
 
     /**
-     * Constructs an EventsModel with an empty list of events.
+     * Constructs an HomePageModel with an empty list of events.
      */
-    public EventsModel() {
+    public HomePageModel() {
         myEvents = new ArrayList<>();
     }
 
@@ -90,7 +85,7 @@ public class EventsModel extends AbstractModel {
      */
     public void getMyEvents(MyEventsCallback callback) {
         // TODO why are we using callbacks, we dont need them
-        EventsModel.fetchEventsByOrganizerId(new EventsModel.EventFetchCallback() {
+        HomePageModel.fetchEventsByOrganizerId(new HomePageModel.EventFetchCallback() {
             @Override
             public void onCallback(List<DocumentSnapshot> documents) {
                 for (DocumentSnapshot document : documents) {
