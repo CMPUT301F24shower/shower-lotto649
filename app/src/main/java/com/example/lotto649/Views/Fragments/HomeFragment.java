@@ -22,6 +22,8 @@ import android.widget.ListView;
 
 import androidx.fragment.app.Fragment;
 
+import com.example.lotto649.Models.HomePageModel;
+import com.example.lotto649.Views.ArrayAdapters.EventArrayAdapter;
 import com.example.lotto649.Controllers.EventsController;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.Models.EventsModel;
@@ -37,7 +39,7 @@ public class HomeFragment extends Fragment {
     private EventsController eventsController;
     private ExtendedFloatingActionButton addButton;
     private EventArrayAdapter eventAdapter;
-    private EventsModel events;
+    private HomePageModel events;
 
     /**
      * Required empty public constructor.
@@ -57,28 +59,31 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_events, container, false);
+        View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        events = new EventsModel();
+        events = new HomePageModel();
         eventsController = new EventsController(events);
         addButton = view.findViewById(R.id.addButton);
 
         ListView eventsList = view.findViewById(R.id.event_contents);
 
         // Use the asynchronous method and handle data once it's ready
-        eventsController.getMyEvents(new EventsModel.MyEventsCallback() {
+        eventsController.getMyEvents(new HomePageModel.MyEventsCallback() {
             @Override
             public void onEventsFetched(ArrayList<EventModel> events) {
                 Log.w("Ohm", "Events fetched: " + events.size());
 
-                // Initialize and set the adapter with fetched events
-                eventAdapter = new EventArrayAdapter(getContext(), events, new EventArrayAdapter.EventArrayAdapterListener() {
-                    @Override
-                    public void onEventsWaitListChanged() {
-                        // Handle waitlist changes if needed
-                    }
-                });
-                eventsList.setAdapter(eventAdapter);
+                // TODO test that this doesnt introduce any bugs - so far so good
+                if (isAdded()) {
+                    // Initialize and set the adapter with fetched events
+                    eventAdapter = new EventArrayAdapter(requireContext(), events, new EventArrayAdapter.EventArrayAdapterListener() {
+                        @Override
+                        public void onEventsWaitListChanged() {
+                            // Handle waitlist changes if needed
+                        }
+                    });
+                    eventsList.setAdapter(eventAdapter);
+                }
             }
         });
 

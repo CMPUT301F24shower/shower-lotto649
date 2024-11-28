@@ -41,6 +41,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
@@ -49,8 +50,10 @@ import com.bumptech.glide.Glide;
 import com.example.lotto649.Controllers.AccountUserController;
 import com.example.lotto649.FirebaseStorageHelper;
 import com.example.lotto649.Models.UserModel;
+import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.example.lotto649.Views.AccountView;
+import com.example.lotto649.Views.CreateAccountView;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -69,7 +72,7 @@ import java.util.regex.Pattern;
 /**
  * The AccountFragment class handles the user interface for viewing and editing account details.
  */
-public class AccountFragment extends Fragment {
+public class CreateAccountFragment extends Fragment {
     private AccountView accountView;
     private AccountUserController userController;
     private FirebaseFirestore db;
@@ -92,7 +95,7 @@ public class AccountFragment extends Fragment {
     /**
      * Required empty public constructor for AccountFragment.
      */
-    public AccountFragment() {
+    public CreateAccountFragment() {
         // Required empty public constructor
     }
 
@@ -118,6 +121,26 @@ public class AccountFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_account, container, false);
+
+        ExtendedFloatingActionButton backButton = new ExtendedFloatingActionButton(requireContext());
+        backButton.setId(View.generateViewId());
+        backButton.setText("Back");
+        backButton.setIconResource(R.drawable.ic_back_foreground);
+        backButton.setBackgroundTintList(requireContext().getColorStateList(R.color.lightSurfaceContainerHigh));
+        ConstraintLayout.LayoutParams layoutParamsBack = new ConstraintLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        layoutParamsBack.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
+        layoutParamsBack.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
+        layoutParamsBack.setMargins(8, 8, 8, 8); // Set margins
+        backButton.setLayoutParams(layoutParamsBack);
+        ConstraintLayout rootLayout = (ConstraintLayout) view;
+        rootLayout.addView(backButton);
+        backButton.setOnClickListener(v -> {
+            requireActivity().onBackPressed();
+        });
+
         hasSetImage = false;
         currentImageUri = null;
         currentImageUriString = new AtomicReference<String>("");
@@ -193,7 +216,8 @@ public class AccountFragment extends Fragment {
         checkUserInFirestore();
 
         // Initialize MVC components
-        AccountView accountView = new AccountView(user, this);
+        // TODO these need their own classes
+        CreateAccountView accountView = new CreateAccountView(user, this);
         userController = new AccountUserController(user);
 
         // Set up the save button click listener
@@ -239,6 +263,7 @@ public class AccountFragment extends Fragment {
                 user = userController.getModel();
                 imagePlaceholder.setText(user.getInitials()); // TODO, this isnt right
                 saveButton.setText("Save");
+                MyApp.getInstance().popFragment();
             }
         });
 
@@ -298,69 +323,53 @@ public class AccountFragment extends Fragment {
         String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
         DocumentReference doc = db.collection("users").document(deviceId);
         doc.get().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        UserModel user = document.toObject(UserModel.class);
-                        if (user != null) {
-                            saveButton.setText("Save");
-                            String name = user.getName();
-                            String email = user.getEmail();
-                            String phone = user.getPhone();
-                            String profileImageUri = user.getProfileImage();
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    UserModel user = document.toObject(UserModel.class);
+                    if (user != null) {
+                        saveButton.setText("Save");
+                        String name = user.getName();
+                        String email = user.getEmail();
+                        String phone = user.getPhone();
+                        String profileImageUri = user.getProfileImage();
 
-                            userController.updateName(name);
-                            userController.updateEmail(email);
-                            userController.updatePhone(phone);
-                            user = userController.getModel();
-                            nameEditText.setText(user.getName());
-                            emailEditText.setText(user.getEmail());
-                            phoneEditText.setText(user.getPhone());
-
-                            initialNameInput = name;
-                            initialEmailInput = email;
-                            initialPhoneInput = phone;
-                            imagePlaceholder.setText(user.getInitials());
-                            SetSaveButtonVisibility(true);
-
-                            // Update profile Image
-                            if (!Objects.equals(profileImageUri, "")) {
-                                StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(profileImageUri);
-                                imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                                            currentImageUri = uri;
-                                            currentImageUriString.set(profileImageUri);
-                                            imageAbleToBeDeleted.setValue(Boolean.TRUE);
-                                            Glide.with(mContext)
-                                                    .load(uri)
-                                                    .into(profileImage);
-                                            linearLayout.removeView(imagePlaceholder);
-                                            linearLayout.addView(profileImage, 2);
-                                            hasSetImage = true;
-                                        })
-                                        .addOnFailureListener(e -> {
-                                            Toast.makeText(getActivity(), "Unable to fetch profile image", Toast.LENGTH_SHORT).show();
-                                        });
-                            }
-                        }
-                    } else {
-                        // No user found, create a new one
-                        saveButton.setText("Create");
-                        userController.updateName("");
-                        userController.updateEmail("");
-                        userController.updatePhone("");
+                        userController.updateName(name);
+                        userController.updateEmail(email);
+                        userController.updatePhone(phone);
                         user = userController.getModel();
                         nameEditText.setText(user.getName());
                         emailEditText.setText(user.getEmail());
                         phoneEditText.setText(user.getPhone());
 
-                        initialNameInput = "";
-                        initialEmailInput = "";
-                        initialPhoneInput = "";
+                        initialNameInput = name;
+                        initialEmailInput = email;
+                        initialPhoneInput = phone;
                         imagePlaceholder.setText(user.getInitials());
                         SetSaveButtonVisibility(true);
+
+                        // Update profile Image
+                        if (!Objects.equals(profileImageUri, "")) {
+                            StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(profileImageUri);
+                            imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                                        currentImageUri = uri;
+                                        currentImageUriString.set(profileImageUri);
+                                        imageAbleToBeDeleted.setValue(Boolean.TRUE);
+                                        Glide.with(mContext)
+                                                .load(uri)
+                                                .into(profileImage);
+                                        linearLayout.removeView(imagePlaceholder);
+                                        linearLayout.addView(profileImage, 2);
+                                        hasSetImage = true;
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(getActivity(), "Unable to fetch profile image", Toast.LENGTH_SHORT).show();
+                                    });
+                        }
                     }
                 } else {
-                    // Failure, return a new default user
+                    // No user found, create a new one
+                    saveButton.setText("Create");
                     userController.updateName("");
                     userController.updateEmail("");
                     userController.updatePhone("");
@@ -375,6 +384,22 @@ public class AccountFragment extends Fragment {
                     imagePlaceholder.setText(user.getInitials());
                     SetSaveButtonVisibility(true);
                 }
+            } else {
+                // Failure, return a new default user
+                userController.updateName("");
+                userController.updateEmail("");
+                userController.updatePhone("");
+                user = userController.getModel();
+                nameEditText.setText(user.getName());
+                emailEditText.setText(user.getEmail());
+                phoneEditText.setText(user.getPhone());
+
+                initialNameInput = "";
+                initialEmailInput = "";
+                initialPhoneInput = "";
+                imagePlaceholder.setText(user.getInitials());
+                SetSaveButtonVisibility(true);
+            }
         });
     }
 
@@ -384,16 +409,6 @@ public class AccountFragment extends Fragment {
      * @param user The user model containing the details to be displayed
      */
     public void showUserDetails(UserModel user) {
-//         getActivity().runOnUiThread(new Runnable() {
-//         requireActivity().runOnUiThread(new Runnable() {
-//             @Override
-//             public void run() {
-//                 nameEditText.setText(user.getName());
-//                 emailEditText.setText(user.getEmail());
-//                 phoneEditText.setText(user.getPhone());
-//                 imagePlaceholder.setText(user.getInitials());
-//             }
-//         });
         nameEditText.setText(user.getName());
         emailEditText.setText(user.getEmail());
         phoneEditText.setText(user.getPhone());

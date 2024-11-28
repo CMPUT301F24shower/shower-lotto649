@@ -7,10 +7,13 @@
  */
 package com.example.lotto649;
 
+import static android.app.PendingIntent.getActivity;
+
 import android.app.Application;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 
 import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.Views.Fragments.EventFragment;
@@ -92,9 +95,39 @@ public class MyApp extends Application {
     // Fragment replacement method
     public void replaceFragment(Fragment fragment) {
         if (currentActivity != null) {
-            currentActivity.get().getSupportFragmentManager().beginTransaction()
+            FragmentManager fragmentManager = currentActivity.get().getSupportFragmentManager();
+
+            // Clear the back stack
+            fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+            // Replace the fragment
+            fragmentManager.beginTransaction()
                     .replace(R.id.flFragment, fragment)
                     .commit();
         }
+    }
+
+    /**
+     * Replaces the current fragment in the activity with the specified fragment.
+     *
+     * <p>This method replaces the fragment within the current activity's container,
+     * defined by the R.id.flFragment ID, if the current activity is set.</p>
+     *
+     * @param fragment The fragment to display in the current activity.
+     */
+    public void addFragmentToStack(Fragment fragment) {
+        if (currentActivity != null) {
+            currentActivity.get().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.flFragment, fragment)
+                    .addToBackStack(null)
+                    .commit();
+        }
+    }
+
+    public void popFragment() {
+        if (currentActivity != null) {
+            currentActivity.get().getSupportFragmentManager().popBackStackImmediate();
+        }
+
     }
 }

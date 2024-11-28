@@ -11,44 +11,42 @@
 package com.example.lotto649;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
-import com.example.lotto649.Models.FirestoreIsAdminCallback;
 import com.example.lotto649.Views.Fragments.AccountFragment;
 import com.example.lotto649.Views.Fragments.AdminAndUserFragment;
 import com.example.lotto649.Views.Fragments.BrowseEventsFragment;
 import com.example.lotto649.Views.Fragments.BrowseFacilitiesFragment;
 import com.example.lotto649.Views.Fragments.BrowseProfilesFragment;
 import com.example.lotto649.Views.Fragments.CameraFragment;
-//import com.example.lotto649.Views.Fragments.EventsFragment;
 import com.example.lotto649.Views.Fragments.FacilityFragment;
 import com.example.lotto649.Views.Fragments.HomeFragment;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.example.lotto649.Views.Fragments.JoinEventFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.Objects;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener {
     BottomNavigationView bottomNavigationView;
     private static final int REQUEST_CODE_POST_NOTIFICATIONS = 1;
     private MutableLiveData<Integer> whichMenuToShow;
+    DocumentReference userRef;
 
     /**
      * Initializes the activity, setting up the bottom navigation view and its listener.
@@ -71,53 +69,69 @@ public class MainActivity extends AppCompatActivity
         MyApp.getInstance().setCurrentActivity(this);
         MyApp.getInstance().replaceFragment(accountFragment);
         bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu);
-        bottomNavigationView.setSelectedItemId(R.id.account);
+        bottomNavigationView.setSelectedItemId(R.id.home);
 
         whichMenuToShow = new MutableLiveData<Integer>(1);
         whichMenuToShow.observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(Integer changedValue) {
                 if (changedValue.intValue() == 1) {
-                    removeBottomNavMenuAdminItems();
-                    removeBottomNavMenuUserAndAdminItems();
+                    int id = bottomNavigationView.getSelectedItemId();
+                    removeMenuItems();
                     bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu);
-                    // Set the default selected item to "home"
-                    bottomNavigationView.setSelectedItemId(R.id.home);
+                    if (id == R.id.home || id == R.id.camera || id == R.id.facility || id == R.id.account) {
+                        bottomNavigationView.setSelectedItemId(id);
+                    } else {
+                        bottomNavigationView.setSelectedItemId(R.id.home);
+                    }
+                    handleDeeplink();
                 } else if (changedValue.intValue() == 2) {
-                    removeBottomNavMenuItems();
-                    removeBottomNavMenuUserAndAdminItems();
+                    removeMenuItems();
                     bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_admin);
-                    // Set the default selected item to "home"
                     bottomNavigationView.setSelectedItemId(R.id.browseProfiles);
+                    handleDeeplink();
                 } else {
-                    removeBottomNavMenuItems();
-                    removeBottomNavMenuAdminItems();
+                    int id = bottomNavigationView.getSelectedItemId();
+                    removeMenuItems();
                     bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_user_and_admin);
-                    // Set the default selected item to "browseProfiles"
-                    bottomNavigationView.setSelectedItemId(R.id.home);
+                    if (id == R.id.home || id == R.id.camera || id == R.id.facility || id == R.id.account) {
+                        bottomNavigationView.setSelectedItemId(id);
+                    } else {
+                        bottomNavigationView.setSelectedItemId(R.id.home);
+                    }
+                    handleDeeplink();
                 }
             }
         });
 
-        checkUserAdminStatus(new FirestoreIsAdminCallback() {
+        String deviceId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
+        userRef = FirebaseFirestore.getInstance().collection("users").document(deviceId);
+        userRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
-            public void onCallback(boolean isAdmin) {
-                if (isAdmin) {
-                    checkUserEntrantStatus(new FirestoreIsAdminCallback() {
-                        @Override
-                        public void onCallback(boolean isEntrant) {
-                            if (isEntrant) {
-                                whichMenuToShow.setValue(3);
-                            } else {
-                                whichMenuToShow.setValue(2);
-                            }
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    return;
+                }
+                if (documentSnapshot != null && documentSnapshot.exists()) {
+                    Boolean isAdmin = documentSnapshot.getBoolean("admin");
+                    Boolean isEntrant = documentSnapshot.getBoolean("entrant");
+                    if (isAdmin != null && isAdmin) {
+                        if (isEntrant != null && isEntrant) {
+                            whichMenuToShow.setValue(3);
+                        } else {
+                            whichMenuToShow.setValue(2);
                         }
-                    });
+                    } else {
+                        whichMenuToShow.setValue(1);
+                    }
                 } else {
                     whichMenuToShow.setValue(1);
                 }
             }
         });
+
+        createMenuByUserType();
+
     }
 
     // Create fragment instances
@@ -193,99 +207,77 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void removeBottomNavMenuItems() {
+    private void removeMenuItems() {
         bottomNavigationView.getMenu().removeItem(R.id.home);
         bottomNavigationView.getMenu().removeItem(R.id.camera);
         bottomNavigationView.getMenu().removeItem(R.id.facility);
         bottomNavigationView.getMenu().removeItem(R.id.account);
-    }
-
-    private void removeBottomNavMenuAdminItems() {
         bottomNavigationView.getMenu().removeItem(R.id.browseProfiles);
         bottomNavigationView.getMenu().removeItem(R.id.browseFacilities);
         bottomNavigationView.getMenu().removeItem(R.id.browseEvents);
-    }
-
-    private void removeBottomNavMenuUserAndAdminItems() {
-        bottomNavigationView.getMenu().removeItem(R.id.home);
-        bottomNavigationView.getMenu().removeItem(R.id.camera);
-        bottomNavigationView.getMenu().removeItem(R.id.facility);
-        bottomNavigationView.getMenu().removeItem(R.id.account);
         bottomNavigationView.getMenu().removeItem(R.id.admin);
     }
 
+    private void handleDeeplink() {
+        // TODO this should not happen if the user is not an entrant
+        Intent intent = getIntent();
+        if (intent != null && intent.getData() != null) {
+            String url = getIntent().getData().toString();
+            Uri uri = Uri.parse(url);
+            String eventId = uri.getQueryParameter("eventId");
+            // TODO because of async of getting user details, the first time this will get overwritten and replaced with home fragment, not sure how to fix this yet
+            Bundle bundle = new Bundle();
+            bundle.putString("firestoreEventId", eventId);
+            JoinEventFragment frag = new JoinEventFragment();
+            frag.setArguments(bundle);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.flFragment, frag, null)
+                    .addToBackStack(null)
+                    .commit();
+        }
+    }
 
+    @Override
+    public void onBackPressed() {
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack(); // Go back to the previous fragment
+        } else {
+            super.onBackPressed(); // Exit the activity
+        }
+    }
 
     /**
      * Checks if the current user has an admin status in the Firestore database.
      * This method retrieves the device ID, then queries the "users" collection in Firestore
      * to determine if the user has admin privileges.
      *
-     * @param firestoreIsAdminCallback A callback interface to handle the result of the admin status check.
-     *                                 The callback will return {@code true} if the user is an admin,
-     *                                 and {@code false} otherwise.
      */
-    private void checkUserAdminStatus(FirestoreIsAdminCallback firestoreIsAdminCallback) {
+    private void createMenuByUserType() {
         String deviceId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
         DocumentReference doc = FirebaseFirestore.getInstance().collection("users").document(deviceId);
-
-        doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Boolean isAdmin = document.getBoolean("admin");
-                        if (isAdmin != null && isAdmin) {
-                            firestoreIsAdminCallback.onCallback(true);
-                        } else {
-                            firestoreIsAdminCallback.onCallback(false);
-                        }
-                    } else {
-                        firestoreIsAdminCallback.onCallback(false);
-                    }
-                } else {
-                    firestoreIsAdminCallback.onCallback(false);
-                }
-            }
-        });
-    }
-
-    /**
-     * Checks if the current user has entrant status in the Firestore database.
-     * This method retrieves the device ID, then queries the "users" collection in Firestore
-     * to determine if the user has entrant privileges.
-     *
-     * @param firestoreIsAdminCallback A callback interface to handle the result of the entrant status check.
-     *                                 The callback will return {@code true} if the user is an entrant,
-     *                                 and {@code false} otherwise.
-     */
-    private void checkUserEntrantStatus(FirestoreIsAdminCallback firestoreIsAdminCallback) {
-        String deviceId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
-        DocumentReference doc = FirebaseFirestore.getInstance().collection("users").document(deviceId);
-
-        doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Boolean isEntrant = document.getBoolean("entrant");
+        doc.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    Boolean isAdmin = document.getBoolean("admin");
+                    Boolean isEntrant = document.getBoolean("entrant");
+                    if (isAdmin != null && isAdmin) {
                         if (isEntrant != null && isEntrant) {
-                            firestoreIsAdminCallback.onCallback(true);
+                            whichMenuToShow.setValue(3);
                         } else {
-                            firestoreIsAdminCallback.onCallback(false);
+                            whichMenuToShow.setValue(2);
                         }
                     } else {
-                        firestoreIsAdminCallback.onCallback(false);
+                        whichMenuToShow.setValue(1);
                     }
                 } else {
-                    firestoreIsAdminCallback.onCallback(false);
+                    whichMenuToShow.setValue(1);
                 }
+            } else {
+                whichMenuToShow.setValue(1);
             }
         });
     }
-
 
     /**
      * Callback method that is invoked when the user responds to a permission request.

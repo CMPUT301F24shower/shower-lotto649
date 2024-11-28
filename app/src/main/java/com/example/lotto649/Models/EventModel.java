@@ -36,6 +36,7 @@ public class EventModel extends AbstractModel implements Serializable {
     private boolean geo;
     private String qrCode;
     private String qrCodeData;
+    // TODO lets have waiting list, it can be queried form firestore
     private ArrayList<UserModel> waitingList;
 
     private FirebaseFirestore db;
@@ -47,13 +48,6 @@ public class EventModel extends AbstractModel implements Serializable {
 
     public void setDb(FirebaseFirestore db) {
         this.db = db;
-    }
-
-    /**
-     * Callback interface for handling FacilityModel retrieval asynchronously.
-     */
-    public interface FacilityCallback {
-        void onCallback(FacilityModel facility);
     }
 
     /**
@@ -154,6 +148,7 @@ public class EventModel extends AbstractModel implements Serializable {
      * If the event has already been saved, this method does nothing.
      */
     public void saveEventToFirestore() {
+        // TODO move to helper
         if (savedToFirestore) return;
 
         db.collection("events")
@@ -181,6 +176,8 @@ public class EventModel extends AbstractModel implements Serializable {
                     System.err.println("Error saving event: " + e.getMessage());
                 });
         }
+
+    // TODO can we remove this variable
     /**
      * Retrieves if saved to firestore.
      *
@@ -197,6 +194,7 @@ public class EventModel extends AbstractModel implements Serializable {
         this.savedToFirestore = savedToFirestore;
     }
 
+    // TODO why is this 2 methods, please make it 1
     /**
      * Removes the event data to Firestore.
      * If the event has already been removed, this method does nothing.
@@ -225,6 +223,7 @@ public class EventModel extends AbstractModel implements Serializable {
                 });
     }
 
+    // TODO this should never change
     public void setEventId(String eventId){
         //removeEventFirestore();
         this.eventId = eventId;
@@ -249,19 +248,18 @@ public class EventModel extends AbstractModel implements Serializable {
                 });
     }
 
+    // TODO why is this never used, orgId and facilityId are the same, we dont need this
     /**
      * Fetches the full FacilityModel from Firestore using the stored facility ID.
-     *
-     * @param callback callback to handle the fetched FacilityModel asynchronously
      */
-    public void fetchFacility(FacilityCallback callback) {
+    public void fetchFacility() {
         if (facilityId == null || db == null) return;
 
         DocumentReference facilityRef = db.collection("facilities").document(facilityId);
         facilityRef.get()
                 .addOnSuccessListener(documentSnapshot -> {
                     FacilityModel facility = documentSnapshot.toObject(FacilityModel.class);
-                    callback.onCallback(facility);
+                    // TODO what are we doing with the facility here? currently nothing
                 })
                 .addOnFailureListener(e -> {
                     System.err.println("Error fetching facility: " + e.getMessage());
@@ -307,6 +305,7 @@ public class EventModel extends AbstractModel implements Serializable {
         updateFirestore("facilityId", facilityId);
         notifyViews();
     }
+    // TODO this needs to be used
 
     /**
      * Retrieves the organizer ID associated with this event.
@@ -327,6 +326,7 @@ public class EventModel extends AbstractModel implements Serializable {
         updateFirestore("organizerId", organizerId);
         notifyViews();
     }
+    // TODO this should never be set
 
     /**
      * Retrieves the description of the event.
@@ -509,6 +509,7 @@ public class EventModel extends AbstractModel implements Serializable {
         notifyViews();
         return true;
     }
+    // TODO this is not how waiting list is implemented
 
     /**
      * Serializes the waiting list to a list of user IDs for Firestore storage.
@@ -520,34 +521,12 @@ public class EventModel extends AbstractModel implements Serializable {
                 .map(UserModel::getDeviceId)
                 .collect(Collectors.toList());
     }
+    // TODO this is not how waiting list is implemented
 
     /**
      * Generates a QR code for the event (mock implementation).
      */
     private void generateQrCode() {
         this.qrCode = QrCodeModel.generateHash(this.qrCode);
-    }
-
-    /**
-     * Serializes the EventModel by writing the eventId first, then the rest of the fields.
-     *
-     * @param out the output stream to write data to
-     * @throws IOException if any I/O error occurs
-     */
-    private void writeObject(ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject(); // Default serialization
-        out.writeObject(eventId); // Serialize eventId as unique identifier
-    }
-
-    /**
-     * Deserializes the EventModel by reading the eventId first, then the rest of the fields.
-     *
-     * @param in the input stream to read data from
-     * @throws IOException if any I/O error occurs
-     * @throws ClassNotFoundException if the class is not found
-     */
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject(); // Default deserialization
-        eventId = (String) in.readObject(); // Deserialize eventId
     }
 }
