@@ -103,9 +103,6 @@ public class MainActivity extends AppCompatActivity
                         bottomNavigationView.setSelectedItemId(R.id.home);
                     }
                     handleDeeplink();
-                    // Set the default selected item to "home"
-                    bottomNavigationView.setSelectedItemId(R.id.home);
-                    handleDeeplink();
                 } else if (changedValue.intValue() == 2) {
                     removeMenuItems();
                     bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_admin);
@@ -120,9 +117,6 @@ public class MainActivity extends AppCompatActivity
                     } else {
                         bottomNavigationView.setSelectedItemId(R.id.home);
                     }
-                    handleDeeplink();
-                    // Set the default selected item to "browseProfiles"
-                    bottomNavigationView.setSelectedItemId(R.id.home);
                     handleDeeplink();
                 }
             }

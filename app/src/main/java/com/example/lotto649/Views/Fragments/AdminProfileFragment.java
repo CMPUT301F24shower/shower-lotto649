@@ -23,6 +23,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
 import com.bumptech.glide.Glide;
+import com.example.lotto649.FirestoreHelper;
 import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
@@ -62,6 +63,7 @@ public class AdminProfileFragment extends Fragment {
     Button removeImage;
     Button removeUser;
     ExtendedFloatingActionButton backButton;
+    FirestoreHelper firestoreHelper;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -86,7 +88,7 @@ public class AdminProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // get info from bundle
         String userDeviceId = getArguments().getString("userDeviceId");
-
+        firestoreHelper = new FirestoreHelper();
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_admin_view_profile, container, false);
 
@@ -141,6 +143,8 @@ public class AdminProfileFragment extends Fragment {
                             StringBuilder rolesBuilder = new StringBuilder();
                             rolesBuilder.append("Roles: ");
                             if (Boolean.TRUE.equals(isAdmin)) {
+                                // Admins should not be deleted in the app
+                                removeUser.setVisibility(View.GONE);
                                 rolesBuilder.append("Admin, ");
                             }
                             if (Boolean.TRUE.equals(isOrganizer)) {
@@ -196,6 +200,7 @@ public class AdminProfileFragment extends Fragment {
         removeUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                firestoreHelper.deleteFacility(userDeviceId);
                 usersRef
                         .document(userDeviceId)
                         .delete()
