@@ -1,6 +1,6 @@
 /**
  * MainActivity is the entry point of the application that implements a bottom navigation bar
- * for switching between different fragments such as Home, Camera, and Account.
+ * for switching between different fragments such as Home, and Account.
  * <p>
  * Code adapted from the following source for implementing a bottom navigation bar:
  * <a href="https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/">GeeksforGeeks: Bottom Navigation Bar in Android</a>
@@ -47,7 +47,6 @@ import com.example.lotto649.Views.Fragments.AdminEventFragment;
 import com.example.lotto649.Views.Fragments.BrowseEventsFragment;
 import com.example.lotto649.Views.Fragments.BrowseFacilitiesFragment;
 import com.example.lotto649.Views.Fragments.BrowseProfilesFragment;
-import com.example.lotto649.Views.Fragments.CameraFragment;
 import com.example.lotto649.Views.Fragments.FacilityFragment;
 import com.example.lotto649.Views.Fragments.HomeFragment;
 import com.example.lotto649.Views.Fragments.JoinEventFragment;
@@ -272,7 +271,6 @@ public class MainActivity extends AppCompatActivity
 
     // Create fragment instances
     HomeFragment homeFragment = new HomeFragment();
-    CameraFragment cameraFragment = new CameraFragment();
     AccountFragment accountFragment = new AccountFragment();
     FacilityFragment facilityFragment = new FacilityFragment();
 
