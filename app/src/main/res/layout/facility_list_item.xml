@@ -1,43 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp"
-    android:background="@color/colorSurfaceVariant">
+    android:layout_height="match_parent">
 
-    <!-- Facility Name -->
     <TextView
         android:id="@+id/facility_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
-        android:fontFamily="sans-serif-medium"
-        android:textSize="40sp"
-        android:textColor="@color/lightOnSurface"
-        android:layout_marginBottom="8dp" />
+        android:textSize="40sp" />
 
-    <!-- Facility Address -->
     <TextView
         android:id="@+id/facility_address"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
-        android:fontFamily="sans-serif"
-        android:textSize="25sp"
-        android:textColor="@color/lightOnSurfaceVariant"
-        android:layout_marginBottom="8dp" />
+        android:textSize="25sp" />
 
-    <!-- Open Events -->
     <TextView
         android:id="@+id/facility_open_events"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
-        android:fontFamily="sans-serif"
-        android:textSize="25sp"
-        android:textColor="@color/lightOnSurfaceVariant"
-        android:layout_marginBottom="8dp" />
+        android:textSize="25sp" />
 
 </LinearLayout>

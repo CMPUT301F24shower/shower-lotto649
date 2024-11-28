@@ -1,34 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Updated Colors -->
 <resources>
-    <!-- Core Colors -->
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Background and Surface Colors -->
+    <color name="colorBackground">#F9F9F9</color>
+    <color name="colorSurface">#FFFFFF</color>
+    <color name="colorOnSurface">#212121</color>
+    <color name="colorOnSurfaceVariant">#757575</color>
 
-    <!-- Enhanced Colors -->
-    <color name="bottom_nav_icon_color">#212121</color> <!-- Color for Bottom Nav Icons -->
-    <color name="bottom_nav_text_color">#48454E</color> <!-- Color for Bottom Nav Text -->
-    <color name="rippleColor">#40FFFFFF</color> <!-- Light ripple effect for bottom navigation -->
+    <color name="white">#FFFFFFFF</color>
+    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="lightOnSurface">#1d1b20</color>
+    <color name="lightOnSurfaceVariant">#48454e</color>
+    <color name="inputBackground">#e6e0e8</color>
+    <color name="lightSurfaceContainerHigh">#ece6f0</color>
+    <color name="lightPrimary">#64558e</color>
 
     <!-- Primary Colors -->
-    <color name="colorPrimary">#6200EE</color> <!-- Main app color -->
-    <color name="colorPrimaryDark">#3700B3</color> <!-- Darker shade for primary color -->
-    <color name="colorAccent">#03DAC5</color> <!-- Secondary color for accents -->
+    <color name="colorPrimary">#6200EE</color>
+    <color name="colorPrimaryVariant">#3700B3</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
 
-    <!-- Enhanced Colors for Event and Lottery Theme -->
-    <color name="lotteryGold">#FFD700</color> <!-- Special event color for lottery highlights -->
-    <color name="winningGreen">#4CAF50</color> <!-- Color to represent winning -->
-    <color name="alertRed">#FF5252</color> <!-- Alert or error color for eye-catching feedback -->
-    <color name="infoBlue">#2196F3</color> <!-- Informational color -->
+    <!-- Secondary Colors -->
+    <color name="colorSecondary">#03DAC6</color>
+    <color name="colorSecondaryVariant">#018786</color>
+    <color name="colorOnSecondary">#000000</color>
 
-    <!-- Surface & Background Colors -->
-    <color name="lightOnSurface">#1D1B20</color> <!-- Text on surfaces -->
-    <color name="lightOnSurfaceVariant">#48454E</color> <!-- Subtle text or outlines -->
-    <color name="inputBackground">#E6E0E8</color> <!-- Form field backgrounds -->
-    <color name="lightSurfaceContainerHigh">#ECE6F0</color> <!-- Elevated container background -->
-    <color name="lightPrimary">#64558E</color> <!-- Light variation of primary color -->
-    <color name="colorBackground">#F5F5F5</color> <!-- A light gray background -->
-    <color name="colorOnBackground">#212121</color> <!-- A dark gray text color -->
-    <color name="colorSurface">#FFFFFF</color> <!-- Primary surface color (white) -->
-    <color name="colorSurfaceVariant">#F0F0F0</color> <!-- Slightly darker gray for variation -->
+    <!-- Accent Colors -->
+    <color name="colorAccent">#FF4081</color>
+
+    <!-- Card Background Color -->
+    <color name="cardBackground">#FFFFFF</color>
+
+    <!-- Text and Icon Colors -->
+    <color name="textColorPrimary">#212121</color>
+    <color name="textColorSecondary">#757575</color>
+    <color name="iconColorPrimary">#6200EE</color>
+
+    <!-- Shadow Color -->
+    <color name="shadowColor">#000000</color>
+
+    <color name="black">#000000</color>
 </resources>
+
