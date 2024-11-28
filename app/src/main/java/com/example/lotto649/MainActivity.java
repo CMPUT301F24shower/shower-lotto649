@@ -40,6 +40,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
+import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.Views.Fragments.AccountFragment;
 import com.example.lotto649.Views.Fragments.AdminAndUserFragment;
 import com.example.lotto649.Views.Fragments.AdminEventFragment;
@@ -65,6 +66,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.example.lotto649.Views.Fragments.JoinEventFragment;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.Priority;
 import com.google.android.gms.location.LocationSettingsRequest;
@@ -97,6 +99,7 @@ public class MainActivity extends AppCompatActivity
     private static final int REQUEST_CODE_POST_NOTIFICATIONS = 1;
     private MutableLiveData<Integer> whichMenuToShow;
     DocumentReference userRef;
+    Boolean newEventSeen;
     private static final int LOCATION_REQUEST_CODE = 100;
     private static final int BACKGROUND_LOCATION_REQUEST_CODE = 101;
     public static final int LOCATION_SETTINGS_REQUEST_CODE = 100;
@@ -168,6 +171,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        newEventSeen = false;
 
         // Create a LocationRequest using create() method
         LocationRequest locationRequest = LocationRequest.create();
@@ -243,13 +247,9 @@ public class MainActivity extends AppCompatActivity
 
         String deviceId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
         userRef = FirebaseFirestore.getInstance().collection("users").document(deviceId);
-        // TODO i think this got changed back to previous method in my other branch to fix bug
-        userRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
-                if (error != null) {
-                    return;
-                }
+        userRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot documentSnapshot = task.getResult();
                 if (documentSnapshot != null && documentSnapshot.exists()) {
                     Boolean isAdmin = documentSnapshot.getBoolean("admin");
                     Boolean isEntrant = documentSnapshot.getBoolean("entrant");
@@ -267,10 +267,7 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
-
-
         createMenuByUserType();
-
     }
 
     // Create fragment instances
@@ -367,14 +364,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void handleDeeplink() {
-        // TODO this should not happen if the user is not an entrant
         Intent intent = getIntent();
         if (intent != null && intent.getData() != null) {
             String url = getIntent().getData().toString();
             Uri uri = Uri.parse(url);
             String eventId = uri.getQueryParameter("eventId");
-            // TODO because of async of getting user details, the first time this will get overwritten and replaced with home fragment, not sure how to fix this yet
+            // TODO make sure QR code hasnt been deleted, if it has dont return anything
             Bundle bundle = new Bundle();
+            // TODO check that this is a valid event first
             bundle.putString("firestoreEventId", eventId);
             JoinEventFragment frag = new JoinEventFragment();
             frag.setArguments(bundle);

@@ -1,5 +1,13 @@
 package com.example.lotto649.Controllers;
 
+import static android.app.PendingIntent.getActivity;
+import static android.app.PendingIntent.getActivity;
+
+import android.util.Log;
+
+import androidx.fragment.app.FragmentManager;
+
+
 import com.example.lotto649.AbstractClasses.AbstractController;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.Models.HomePageModel;
