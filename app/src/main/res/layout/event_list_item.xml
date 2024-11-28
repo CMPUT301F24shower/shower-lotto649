@@ -130,3 +130,138 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<androidx.constraintlayout.widget.ConstraintLayout-->
+<!--    xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
+<!--    xmlns:tools="http://schemas.android.com/tools"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="wrap_content"-->
+<!--    android:background="@color/colorSurfaceVariant"-->
+<!--    android:padding="16dp">-->
+
+<!--    &lt;!&ndash; Event Poster &ndash;&gt;-->
+<!--    <ImageView-->
+<!--        android:id="@+id/event_poster"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="150dp"-->
+<!--        android:scaleType="centerCrop"-->
+<!--        android:src="@drawable/ic_default_event_img_foreground"-->
+<!--        android:background="@color/colorSurface"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintHorizontal_bias="0.5" />-->
+
+<!--    &lt;!&ndash; Event Name &ndash;&gt;-->
+<!--    <TextView-->
+<!--        android:id="@+id/admin_event_name"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="8dp"-->
+<!--        android:text="@string/event_title"-->
+<!--        android:textSize="20sp"-->
+<!--        android:fontFamily="sans-serif-medium"-->
+<!--        android:textColor="@color/lightOnSurface"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/event_poster"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent" />-->
+
+<!--    &lt;!&ndash; Event Status &ndash;&gt;-->
+<!--    <TextView-->
+<!--        android:id="@+id/admin_event_status"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="4dp"-->
+<!--        android:text="@string/event_status"-->
+<!--        android:textSize="14sp"-->
+<!--        android:fontFamily="sans-serif"-->
+<!--        android:textColor="@color/lightOnSurfaceVariant"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/admin_event_name"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent" />-->
+
+<!--    &lt;!&ndash; Event Location &ndash;&gt;-->
+<!--    <TextView-->
+<!--        android:id="@+id/admin_event_location"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="4dp"-->
+<!--        android:text="@string/event_location"-->
+<!--        android:textSize="14sp"-->
+<!--        android:fontFamily="sans-serif"-->
+<!--        android:textColor="@color/lightOnSurface"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/admin_event_status"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent" />-->
+
+<!--    &lt;!&ndash; Available Spots &ndash;&gt;-->
+<!--    <TextView-->
+<!--        android:id="@+id/admin_event_spots"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="4dp"-->
+<!--        android:text="@string/event_available_spots"-->
+<!--        android:textSize="14sp"-->
+<!--        android:fontFamily="sans-serif"-->
+<!--        android:textColor="@color/lightOnSurfaceVariant"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/admin_event_location"-->
+<!--        app:layout_constraintStart_toStartOf="parent" />-->
+
+<!--    &lt;!&ndash; Attendees &ndash;&gt;-->
+<!--    <TextView-->
+<!--        android:id="@+id/admin_event_attendees"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="4dp"-->
+<!--        android:text="@string/event_attendees"-->
+<!--        android:textSize="14sp"-->
+<!--        android:fontFamily="sans-serif"-->
+<!--        android:textColor="@color/lightOnSurfaceVariant"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/admin_event_spots"-->
+<!--        app:layout_constraintStart_toStartOf="parent" />-->
+
+<!--    &lt;!&ndash; Event Dates &ndash;&gt;-->
+<!--    <TextView-->
+<!--        android:id="@+id/admin_event_dates"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="4dp"-->
+<!--        android:text="@string/event_dates"-->
+<!--        android:textSize="14sp"-->
+<!--        android:fontFamily="sans-serif"-->
+<!--        android:textColor="@color/lightOnSurfaceVariant"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/admin_event_attendees"-->
+<!--        app:layout_constraintStart_toStartOf="parent" />-->
+
+<!--    &lt;!&ndash; GeoLocation Requirement &ndash;&gt;-->
+<!--    <TextView-->
+<!--        android:id="@+id/admin_event_geo"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="4dp"-->
+<!--        android:text="@string/geolocation_requirement"-->
+<!--        android:textSize="14sp"-->
+<!--        android:fontFamily="sans-serif"-->
+<!--        android:textColor="@color/lightOnSurfaceVariant"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/admin_event_dates"-->
+<!--        app:layout_constraintStart_toStartOf="parent" />-->
+
+<!--    &lt;!&ndash; Event Description &ndash;&gt;-->
+<!--    <TextView-->
+<!--        android:id="@+id/admin_event_description"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="4dp"-->
+<!--        android:text="@string/event_description"-->
+<!--        android:textSize="14sp"-->
+<!--        android:fontFamily="sans-serif"-->
+<!--        android:textColor="@color/lightOnSurface"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/admin_event_geo"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent" />-->
+
+<!--</androidx.constraintlayout.widget.ConstraintLayout>-->

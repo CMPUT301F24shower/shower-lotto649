@@ -21,4 +21,6 @@
     <string name="event_days_left"># Days Left to Enter</string>
     <string name="geolocation_requirement">GeoLocation Required</string>
     <string name="event_description">Description</string>
+    <string name="event_dates">Dates: 01 Jan - 07 Jan</string>
+    <string name="event_attendees">Attendees: 25</string>
 </resources>

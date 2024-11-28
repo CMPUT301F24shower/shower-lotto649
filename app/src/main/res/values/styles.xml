@@ -4,8 +4,17 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:fontFamily">sans-serif-medium</item> <!-- Set global font for titles and main headers -->
-        <item name="android:textColor">@color/colorOnBackground</item> <!-- Set default text color -->
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/colorOnBackground</item>
+    </style>
+
+    <!-- Enhanced Button Styles for Bottom Navigation -->
+    <style name="BottomNavStyle" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="android:background">@color/lotteryGold</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="itemIconTint">@color/bottom_nav_icon_color</item>
+        <item name="itemTextColor">@color/bottom_nav_text_color</item>
+        <item name="itemRippleColor">@color/rippleColor</item>
     </style>
 
     <!-- Button Styles for Lottery App -->

@@ -5,6 +5,11 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
+    <!-- Enhanced Colors -->
+    <color name="bottom_nav_icon_color">#212121</color> <!-- Color for Bottom Nav Icons -->
+    <color name="bottom_nav_text_color">#48454E</color> <!-- Color for Bottom Nav Text -->
+    <color name="rippleColor">#40FFFFFF</color> <!-- Light ripple effect for bottom navigation -->
+
     <!-- Primary Colors -->
     <color name="colorPrimary">#6200EE</color> <!-- Main app color -->
     <color name="colorPrimaryDark">#3700B3</color> <!-- Darker shade for primary color -->
