@@ -2,6 +2,7 @@ package com.example.lotto649.Views.Fragments;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.example.lotto649.Models.EventModel;
+import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -121,6 +124,18 @@ public class OrganizerEventFragment extends Fragment {
                         }
                     }
                 });
+
+
+        viewEntrantsMapButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Bundle bundle = new Bundle();
+                bundle.putString("eventId", firestoreEventId);
+                MapFragment mapFragment = new MapFragment();
+                mapFragment.setArguments(bundle);
+                MyApp.getInstance().addFragmentToStack(mapFragment);
+            }
+        });
         return view;
     }
 }

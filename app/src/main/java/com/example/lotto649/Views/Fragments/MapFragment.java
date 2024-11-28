@@ -136,9 +136,9 @@ public class MapFragment extends Fragment {
         if (coordsList.size() > 0) {
             // zoom to bounding box, with a little wiggle room to show all points nicely
             if (abs(northPoint - southPoint) <= 1 || abs(eastPoint - westPoint) <= 1) {
-                map.zoomToBoundingBox(new BoundingBox(northPoint + 0.5, eastPoint + 0.5, southPoint - 0.5, westPoint - 0.5), true);
+                map.zoomToBoundingBox(new BoundingBox(northPoint + 0.5, eastPoint + 0.5, southPoint - 0.5, westPoint - 0.5), false);
             } else {
-                map.zoomToBoundingBox(new BoundingBox(northPoint + 1, eastPoint + 1, southPoint - 1, westPoint - 1), true);
+                map.zoomToBoundingBox(new BoundingBox(northPoint + 1, eastPoint + 1, southPoint - 1, westPoint - 1), false);
             }
         }
     }
@@ -159,7 +159,7 @@ public class MapFragment extends Fragment {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MyApp.getInstance().replaceFragment(new HomeFragment());
+                MyApp.getInstance().popFragment();
             }
         });
 

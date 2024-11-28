@@ -60,7 +60,7 @@ public class EventFragment extends Fragment {
     private TextInputEditText titleEditText, descriptionEditText, lotteryStartDateFieldText, lotteryEndDateFieldText, spotsEditText, maxEntrantsEditText;
     private String initialTitle, initialDescription, initialStartDate, initialEndDate, initialAttendees, initialMaxEntrants;
     private CheckBox geoCheck;
-    private ExtendedFloatingActionButton cancelButton, saveButton, mapButton;
+    private ExtendedFloatingActionButton cancelButton, saveButton;
 
     private AtomicReference<Date> startDate = new AtomicReference<>(new Date());
     private AtomicReference<Date> endDate = new AtomicReference<>(new Date());
@@ -264,7 +264,6 @@ public class EventFragment extends Fragment {
         maxEntrantsEditText = (TextInputEditText) maxEntrantsInputLayout.getEditText();
         cancelButton = view.findViewById(R.id.cancelButton);
         saveButton = view.findViewById(R.id.saveButton);
-        mapButton = view.findViewById(R.id.map_button);
 
         if (!isAddingFirstTime) {
             saveButton.setText("Save");
@@ -420,18 +419,6 @@ public class EventFragment extends Fragment {
                         .commit();
             }
             isAddingFirstTime = false;
-        });
-
-        mapButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Bundle bundle = new Bundle();
-                Log.e("JASON MAP", "Event id before bundle: " + event.getEventId());
-                bundle.putString("eventId", event.getEventId());
-                MapFragment mapFragment = new MapFragment();
-                mapFragment.setArguments(bundle);
-                MyApp.getInstance().replaceFragment(mapFragment);
-            }
         });
 
         return view;
