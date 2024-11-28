@@ -1,5 +1,7 @@
 package com.example.lotto649.Views.Fragments;
 
+import static java.lang.Math.abs;
+
 import android.Manifest;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -40,6 +42,7 @@ import com.google.firebase.storage.StorageReference;
 import org.checkerframework.checker.units.qual.A;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
@@ -62,7 +65,9 @@ public class MapFragment extends Fragment {
     private CollectionReference signUpsRef;
     private ExtendedFloatingActionButton backButton;
     private ObservableArrayList<GeoPoint> coordsList;
+    private View view;
 
+    // when points changed in list, update the map
     ObservableList.OnListChangedCallback<ObservableArrayList> listChangedCallback = new ObservableList.OnListChangedCallback<ObservableArrayList>() {
         @Override
         public void onChanged(ObservableArrayList sender) {
@@ -91,39 +96,57 @@ public class MapFragment extends Fragment {
     };
 
     private void updateMapMarkings() {
+        map = (MapView) view.findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
+        map.getOverlays().clear();
         IMapController mapController = map.getController();
         mapController.setZoom(9.5);
+        // default zoom to Edmonton area
         GeoPoint startPoint = new GeoPoint(53.526640, -113.530590);
         mapController.setCenter(startPoint);
 
-        Double sumLats = 0.0;
-        Double sumLongs = 0.0;
+        // must have map showing on screen to be able to make changes - return otherwise
+        if (getActivity() == null || getActivity().isDestroyed()){
+            Log.e("JASON MAP", "Map is null - return");
+            return;
+        }
+
+        // get bounding box points to set zoom
+        Double northPoint = -90.0;
+        Double southPoint = 90.0;
+        Double eastPoint = -180.0;
+        Double westPoint = 180.0;
 
         // Good resource for changing location on emulator: https://stackoverflow.com/questions/2279647/how-to-emulate-gps-location-in-the-android-emulator (second answer)
         for (GeoPoint coord: coordsList) {
-            sumLats+=coord.getLatitude();
-            sumLongs+=coord.getLongitude();
-            // TODO: sometimes crashes the app idk why
+            // find new bounding points
+            if (coord.getLatitude() > northPoint) northPoint = coord.getLatitude();
+            if (coord.getLatitude() < southPoint) southPoint = coord.getLatitude();
+            if (coord.getLongitude() > eastPoint) eastPoint = coord.getLongitude();
+            if (coord.getLongitude() < westPoint) westPoint = coord.getLongitude();
+            // create marker for each coordinate on the map
             Marker marker = new Marker(map);
             marker.setPosition(coord);
-            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
+            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
             Log.e("JASON MAP", "Creating marker!!");
             map.getOverlays().add(marker);
         }
         if (coordsList.size() > 0) {
-            // https://gis.stackexchange.com/questions/12120/calculating-midpoint-from-series-of-latitude-and-longitude-coordinates#:~:text=The%20centroid%20of%20finitely%20many,by%20the%20number%20of%20points.
-            mapController.setCenter(new GeoPoint(sumLats / coordsList.size(), sumLongs / coordsList.size()));
-            mapController.setZoom(4.0);
+            // zoom to bounding box, with a little wiggle room to show all points nicely
+            if (abs(northPoint - southPoint) <= 1 || abs(eastPoint - westPoint) <= 1) {
+                map.zoomToBoundingBox(new BoundingBox(northPoint + 0.5, eastPoint + 0.5, southPoint - 0.5, westPoint - 0.5), true);
+            } else {
+                map.zoomToBoundingBox(new BoundingBox(northPoint + 1, eastPoint + 1, southPoint - 1, westPoint - 1), true);
+            }
         }
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.map_layout, container, false);
+        view = inflater.inflate(R.layout.map_layout, container, false);
 
         String eventId = getArguments().getString("eventId");
         Log.e("JASON MAP", "Event id from bundle: " + eventId);
@@ -158,7 +181,6 @@ public class MapFragment extends Fragment {
                         if (!eventIdStr.equals(eventId)) {
                             continue;
                         }
-                        String userId = doc.getString("userId");
                         String latStr = doc.getString("latitude");
                         String longStr = doc.getString("longitude");
                         if (latStr != null && longStr != null && !latStr.isEmpty() && !longStr.isEmpty()) {
@@ -170,7 +192,6 @@ public class MapFragment extends Fragment {
             }
         });
 
-        map = (MapView) view.findViewById(R.id.map);
         updateMapMarkings();
 
         return view;
