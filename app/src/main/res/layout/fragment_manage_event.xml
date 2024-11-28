@@ -53,6 +53,17 @@
 
     </LinearLayout>
 
+<!--    Test button for viewing map. TODO: remove-->
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/map_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Map"
+        app:layout_constraintTop_toBottomOf="@+id/event_poster_linear_layout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
     <!-- Event Name Field -->
     <com.google.android.material.textfield.TextInputLayout
         style="?attr/textInputFilledStyle"
@@ -62,7 +73,7 @@
         android:hint="Event Name"
         app:helperTextEnabled="true"
         app:helperText="Required"
-        app:layout_constraintTop_toBottomOf="@+id/event_poster_linear_layout"
+        app:layout_constraintTop_toBottomOf="@+id/map_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="16dp"

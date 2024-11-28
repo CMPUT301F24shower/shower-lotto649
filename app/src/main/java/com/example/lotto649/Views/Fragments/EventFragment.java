@@ -24,6 +24,7 @@ import com.bumptech.glide.Glide;
 import com.example.lotto649.Controllers.EventController;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.Models.QrCodeModel;
+import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -59,7 +60,7 @@ public class EventFragment extends Fragment {
     private TextInputEditText titleEditText, descriptionEditText, lotteryStartDateFieldText, lotteryEndDateFieldText, spotsEditText, maxEntrantsEditText;
     private String initialTitle, initialDescription, initialStartDate, initialEndDate, initialAttendees, initialMaxEntrants;
     private CheckBox geoCheck;
-    private ExtendedFloatingActionButton cancelButton, saveButton;
+    private ExtendedFloatingActionButton cancelButton, saveButton, mapButton;
 
     private AtomicReference<Date> startDate = new AtomicReference<>(new Date());
     private AtomicReference<Date> endDate = new AtomicReference<>(new Date());
@@ -263,6 +264,7 @@ public class EventFragment extends Fragment {
         maxEntrantsEditText = (TextInputEditText) maxEntrantsInputLayout.getEditText();
         cancelButton = view.findViewById(R.id.cancelButton);
         saveButton = view.findViewById(R.id.saveButton);
+        mapButton = view.findViewById(R.id.map_button);
 
         if (!isAddingFirstTime) {
             saveButton.setText("Save");
@@ -418,6 +420,13 @@ public class EventFragment extends Fragment {
                         .commit();
             }
             isAddingFirstTime = false;
+        });
+
+        mapButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MyApp.getInstance().replaceFragment(new MapFragment());
+            }
         });
 
         return view;

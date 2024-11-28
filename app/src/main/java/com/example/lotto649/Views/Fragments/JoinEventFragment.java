@@ -210,21 +210,21 @@ public class JoinEventFragment extends Fragment {
                                 // TODO add geolocation data here
                                 if (geoRequired) {
                                     ((MainActivity) getActivity()).getUserLocation(getContext());
-                                    boolean isLocationEnabled = LocationManagerSingleton.getInstance().isLocationTrackingEnabled();
-                                    if (isLocationEnabled) {
-                                        // Proceed with location-based functionality
-                                        GeoPoint currLocation = LocationManagerSingleton.getInstance().getGeoPoint();
-                                        signUp.put("longitude", currLocation.getLongitude());
-                                        signUp.put("latitude", currLocation.getLatitude());
-                                    } else {
-                                        // Prompt the user to enable location tracking
-                                        if (geoRequired) {
-                                            return;
-                                        }
-                                        // geo not required, just put blank strings
-                                        signUp.put("longitude", "");
-                                        signUp.put("latitude", "");
+                                }
+                                boolean isLocationEnabled = LocationManagerSingleton.getInstance().isLocationTrackingEnabled();
+                                if (isLocationEnabled) {
+                                    // Proceed with location-based functionality
+                                    GeoPoint currLocation = LocationManagerSingleton.getInstance().getGeoPoint();
+                                    signUp.put("longitude", currLocation.getLongitude());
+                                    signUp.put("latitude", currLocation.getLatitude());
+                                } else {
+                                    // Prompt the user to enable location tracking
+                                    if (geoRequired) {
+                                        return;
                                     }
+                                    // geo not required, just put blank strings
+                                    signUp.put("longitude", "");
+                                    signUp.put("latitude", "");
                                 }
                                 db.collection("signUps").document(firestoreEventId + "_" + deviceId).set(signUp).addOnSuccessListener(listener -> {
                                     // TODO set flags for entrant state, (in list, chosen, waiting for response...)
