@@ -99,13 +99,24 @@ public class MapFragment extends Fragment {
         GeoPoint startPoint = new GeoPoint(53.526640, -113.530590);
         mapController.setCenter(startPoint);
 
+        Double sumLats = 0.0;
+        Double sumLongs = 0.0;
+
         // Good resource for changing location on emulator: https://stackoverflow.com/questions/2279647/how-to-emulate-gps-location-in-the-android-emulator (second answer)
         for (GeoPoint coord: coordsList) {
+            sumLats+=coord.getLatitude();
+            sumLongs+=coord.getLongitude();
+            // TODO: sometimes crashes the app idk why
             Marker marker = new Marker(map);
             marker.setPosition(coord);
             marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
             Log.e("JASON MAP", "Creating marker!!");
             map.getOverlays().add(marker);
+        }
+        if (coordsList.size() > 0) {
+            // https://gis.stackexchange.com/questions/12120/calculating-midpoint-from-series-of-latitude-and-longitude-coordinates#:~:text=The%20centroid%20of%20finitely%20many,by%20the%20number%20of%20points.
+            mapController.setCenter(new GeoPoint(sumLats / coordsList.size(), sumLongs / coordsList.size()));
+            mapController.setZoom(4.0);
         }
     }
 
