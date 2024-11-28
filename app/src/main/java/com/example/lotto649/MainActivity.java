@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity
                     int id = bottomNavigationView.getSelectedItemId();
                     removeMenuItems();
                     bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu);
-                    if (id == R.id.home || id == R.id.camera || id == R.id.facility || id == R.id.account) {
+                    if (id == R.id.home || id == R.id.facility || id == R.id.account) {
                         bottomNavigationView.setSelectedItemId(id);
                     } else {
                         bottomNavigationView.setSelectedItemId(R.id.home);
@@ -235,7 +235,7 @@ public class MainActivity extends AppCompatActivity
                     int id = bottomNavigationView.getSelectedItemId();
                     removeMenuItems();
                     bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_user_and_admin);
-                    if (id == R.id.home || id == R.id.camera || id == R.id.facility || id == R.id.account) {
+                    if (id == R.id.home || id == R.id.facility || id == R.id.account) {
                         bottomNavigationView.setSelectedItemId(id);
                     } else {
                         bottomNavigationView.setSelectedItemId(R.id.home);
@@ -306,9 +306,6 @@ public class MainActivity extends AppCompatActivity
         if (item.getItemId() == R.id.home) {
             MyApp.getInstance().replaceFragment(homeFragment);
             return true;
-        } else if (item.getItemId() == R.id.camera) {
-            MyApp.getInstance().replaceFragment(cameraFragment);
-            return true;
         } else if (item.getItemId() == R.id.account) {
             MyApp.getInstance().replaceFragment(accountFragment);
             return true;
@@ -354,7 +351,6 @@ public class MainActivity extends AppCompatActivity
 
     private void removeMenuItems() {
         bottomNavigationView.getMenu().removeItem(R.id.home);
-        bottomNavigationView.getMenu().removeItem(R.id.camera);
         bottomNavigationView.getMenu().removeItem(R.id.facility);
         bottomNavigationView.getMenu().removeItem(R.id.account);
         bottomNavigationView.getMenu().removeItem(R.id.browseProfiles);

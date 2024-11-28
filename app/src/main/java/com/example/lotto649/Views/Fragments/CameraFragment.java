@@ -43,9 +43,9 @@ public class CameraFragment extends Fragment {
      * @param savedInstanceState Bundle containing data about the previous state (if any)
      * @return View for the camera fragment's UI
      */
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_camera, container, false);
-    }
+//    @Override
+//    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+//        // Inflate the layout for this fragment
+//        return inflater.inflate(R.layout.fragment_camera, container, false);
+//    }
 }
