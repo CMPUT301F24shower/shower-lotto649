@@ -1,102 +1,132 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:background="@color/colorSurfaceVariant"
+    android:padding="16dp">
 
-    <LinearLayout
-        android:id="@+id/event_poster_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
+    <!-- Event Poster -->
+    <ImageView
+        android:id="@+id/event_poster"
+        android:layout_width="0dp"
+        android:layout_height="150dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_default_event_img_foreground"
+        android:background="@color/white"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" >
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="16dp"/>
-
-        <ImageView
-            android:id="@+id/event_poster"
-            android:src="@drawable/ic_default_event_img_foreground"
-            android:contentDescription="Icon description"
-            android:layout_width="300dp"
-            android:layout_height="150dp"
-            android:scaleType="centerCrop"
-            android:layout_gravity="center"
-            android:background="@color/white" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="16dp"/>
-
-    </LinearLayout>
-
+    <!-- Event Name -->
     <TextView
         android:id="@+id/admin_event_name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="40sp"
-        app:layout_constraintTop_toBottomOf="@+id/event_poster_layout"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_marginTop="8dp"
+        android:text="Event Name"
+        android:textSize="20sp"
+        android:fontFamily="sans-serif-medium"
+        android:textColor="@color/lightOnSurface"
+        app:layout_constraintTop_toBottomOf="@id/event_poster"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Event Status -->
     <TextView
         android:id="@+id/admin_event_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="25sp"
-        app:layout_constraintTop_toBottomOf="@+id/admin_event_name"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_marginTop="4dp"
+        android:text="OPEN/PENDING/CLOSED"
+        android:textSize="14sp"
+        android:fontFamily="sans-serif"
+        android:textColor="@color/lightOnSurfaceVariant"
+        app:layout_constraintTop_toBottomOf="@id/admin_event_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Event Location -->
     <TextView
         android:id="@+id/admin_event_location"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="25sp"
-        app:layout_constraintTop_toBottomOf="@+id/admin_event_status"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_marginTop="4dp"
+        android:text="Location"
+        android:textSize="14sp"
+        android:fontFamily="sans-serif"
+        android:textColor="@color/lightOnSurface"
+        app:layout_constraintTop_toBottomOf="@id/admin_event_status"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Available Spots -->
     <TextView
         android:id="@+id/admin_event_spots"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="25sp"
-        app:layout_constraintTop_toBottomOf="@+id/admin_event_location"
+        android:layout_marginTop="4dp"
+        android:text="Spots: 10/50"
+        android:textSize="14sp"
+        android:fontFamily="sans-serif"
+        android:textColor="@color/lightOnSurfaceVariant"
+        app:layout_constraintTop_toBottomOf="@id/admin_event_location"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- Attendees -->
     <TextView
         android:id="@+id/admin_event_attendees"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="25sp"
-        app:layout_constraintTop_toBottomOf="@+id/admin_event_spots"
+        android:layout_marginTop="4dp"
+        android:text="Attendees: 25"
+        android:textSize="14sp"
+        android:fontFamily="sans-serif"
+        android:textColor="@color/lightOnSurfaceVariant"
+        app:layout_constraintTop_toBottomOf="@id/admin_event_spots"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- Event Dates -->
     <TextView
         android:id="@+id/admin_event_dates"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="25sp"
-        app:layout_constraintTop_toBottomOf="@+id/admin_event_attendees"
+        android:layout_marginTop="4dp"
+        android:text="Dates: 01 Jan - 07 Jan"
+        android:textSize="14sp"
+        android:fontFamily="sans-serif"
+        android:textColor="@color/lightOnSurfaceVariant"
+        app:layout_constraintTop_toBottomOf="@id/admin_event_attendees"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- GeoLocation Requirement -->
     <TextView
         android:id="@+id/admin_event_geo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="25sp"
-        app:layout_constraintTop_toBottomOf="@+id/admin_event_dates"
+        android:layout_marginTop="4dp"
+        android:text="GeoLocation Required"
+        android:textSize="14sp"
+        android:fontFamily="sans-serif"
+        android:textColor="@color/lightOnSurfaceVariant"
+        app:layout_constraintTop_toBottomOf="@id/admin_event_dates"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- Event Description -->
     <TextView
         android:id="@+id/admin_event_description"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="25sp"
-        app:layout_constraintTop_toBottomOf="@+id/admin_event_geo"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_marginTop="4dp"
+        android:text="Event Description goes here..."
+        android:textSize="14sp"
+        android:fontFamily="sans-serif"
+        android:textColor="@color/lightOnSurface"
+        app:layout_constraintTop_toBottomOf="@id/admin_event_geo"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
