@@ -1,168 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--Code used from the following source for menu bar-->
-<!--https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/-->
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorBackground"
     tools:context=".MainActivity">
+
+    <!-- Main Linear Layout -->
     <LinearLayout
         android:id="@+id/account_linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         android:orientation="vertical"
+        android:gravity="center"
         android:paddingHorizontal="24dp"
-        android:gravity="center">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Title -->
         <TextView
             android:id="@+id/accountFragmentTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Account"
-            android:textSize="40sp" />
+            android:textSize="40sp"
+            android:textColor="@color/lightOnSurface"
+            android:fontFamily="sans-serif-medium" />
+
         <View
             android:layout_width="match_parent"
-            android:layout_height="16dp"/>
+            android:layout_height="16dp" />
 
-<!--        <ImageView-->
-<!--            android:id="@+id/profileImage"-->
-<!--            android:src="@drawable/ic_person_foreground"-->
-<!--            android:contentDescription="Icon description"-->
-<!--            android:layout_width="150dp"-->
-<!--            android:layout_height="150dp"-->
-<!--            android:scaleType="centerCrop"-->
-<!--            android:layout_gravity="center"-->
-<!--            android:background="@color/white"/>-->
+        <!-- Profile Image Placeholder -->
         <TextView
             android:id="@+id/imagePlaceholder"
-            android:src="@drawable/ic_person_foreground"
             android:layout_width="150dp"
             android:layout_height="150dp"
-            android:scaleType="centerCrop"
-            android:layout_gravity="center"
             android:background="@drawable/name_bg"
             android:textColor="@color/white"
             android:gravity="center"
             android:textSize="48sp"
+            android:fontFamily="sans-serif-medium"
             android:text="" />
+
         <View
             android:layout_width="match_parent"
-            android:layout_height="16dp"/>
+            android:layout_height="16dp" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        style="?attr/textInputFilledStyle"
-        android:id="@+id/textFieldName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="25dp"
-        android:hint="Full Name"
-        app:helperTextEnabled="true"
-        app:helperText="Required"
-        app:endIconMode="custom"
-        app:endIconDrawable="@drawable/ic_person_name_foreground">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/nameEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="16dp"/>
+        <!-- Full Name Field -->
         <com.google.android.material.textfield.TextInputLayout
-            style="?attr/textInputFilledStyle"
+            android:id="@+id/textFieldName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Full Name"
+            app:helperText="Required"
+            app:helperTextEnabled="true"
+            app:endIconMode="custom"
+            app:endIconDrawable="@drawable/ic_person_name_foreground">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/nameEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="16dp" />
+
+        <!-- Email Field -->
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textFieldEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginEnd="24dp"
             android:hint="Email"
-            app:helperTextEnabled="true"
             app:helperText="Required"
+            app:helperTextEnabled="true"
             app:endIconMode="custom"
             app:endIconDrawable="@drawable/ic_email_foreground">
 
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/emailEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-            </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/emailEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="16dp"/>
+            android:layout_height="16dp" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textFieldPhone"
-                style="?attr/textInputFilledStyle"
+        <!-- Phone Number Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textFieldPhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Phone Number"
+            app:helperText="Optional"
+            app:helperTextEnabled="true"
+            app:endIconMode="custom"
+            app:endIconDrawable="@drawable/ic_phone_foreground">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/phoneEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:layout_marginEnd="24dp"
-                android:hint="Phone Number"
-                app:helperText="Optional"
-                app:helperTextEnabled="true"
-                app:endIconMode="custom"
-                app:endIconDrawable="@drawable/ic_phone_foreground"
-                app:layout_constraintBottom_toTopOf="@+id/account_save_button">
-
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/phoneEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-            </com.google.android.material.textfield.TextInputLayout>
+                android:fontFamily="sans-serif" />
+        </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
+    <!-- Action Buttons -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_marginBottom="32dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" >
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent">
 
+        <!-- Save Button -->
+
+        <!-- Remove Picture Button -->
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/account_save_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
             android:layout_margin="16dp"
-            android:textColor="@color/lightPrimary"
-            android:text="Save"
             android:backgroundTint="@color/lightSurfaceContainerHigh"
+            android:text="Save"
+            android:textColor="@color/lightPrimary"
             app:icon="@drawable/ic_check_foreground"
             app:iconSize="40dp"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/account_delete_image"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/account_delete_image" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/account_delete_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
             android:layout_margin="16dp"
+            android:layout_marginTop="8dp"
             android:backgroundTint="@color/lightSurfaceContainerHigh"
             android:text="Remove Picture"
+            android:textColor="@color/lightPrimary"
             app:icon="@drawable/ic_trash_foreground"
             app:iconSize="40dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/account_save_button"
             app:layout_constraintEnd_toEndOf="parent"
-            android:maxLines="2" />
-
+            app:layout_constraintStart_toEndOf="@+id/account_save_button"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
