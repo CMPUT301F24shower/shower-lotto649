@@ -16,6 +16,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.example.lotto649.FirestoreHelper;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.Models.EventModel;
@@ -43,6 +44,7 @@ public class AdminFacilityFragment extends Fragment {
     private CollectionReference facilitiesRef;
     private CollectionReference eventsRef;
     private String userDeviceId;
+    FirestoreHelper firestoreHelper;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -67,6 +69,7 @@ public class AdminFacilityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // get info from bundle
         userDeviceId = getArguments().getString("facilityDeviceId");
+        firestoreHelper = new FirestoreHelper();
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_admin_view_facility, container, false);
@@ -99,6 +102,8 @@ public class AdminFacilityFragment extends Fragment {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // TODO this might need popFragment instead to make sure andorid back button doesnt mess stuff up
+                // Havent tested yet tho
                 MyApp.getInstance().replaceFragment(new BrowseFacilitiesFragment());
             }
         });
@@ -106,7 +111,7 @@ public class AdminFacilityFragment extends Fragment {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                deleteEventsFromFacility(userDeviceId);
+                firestoreHelper.deleteEventsFromFacility(userDeviceId);
 
                 facilitiesRef
                         .document(userDeviceId)
@@ -124,31 +129,6 @@ public class AdminFacilityFragment extends Fragment {
                         });
             }
         });
-
-
         return view;
-    }
-
-    private void deleteEventsFromFacility(String facilityOwner) {
-        Query eventsInFacility = eventsRef.whereEqualTo("organizerId", facilityOwner);
-
-        eventsInFacility.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        deletePosterFromEvent(document.getString("posterImage"));
-                        document.getReference().delete();
-                    }
-                }
-            }
-        });
-    }
-
-    private void deletePosterFromEvent(String posterString) {
-        if (!posterString.isEmpty()) {
-            StorageReference storageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(posterString);
-            storageRef.delete();
-        }
     }
 }

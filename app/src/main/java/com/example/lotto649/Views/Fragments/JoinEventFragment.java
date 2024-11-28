@@ -200,6 +200,7 @@ public class JoinEventFragment extends Fragment {
 
                                 signUp.put("userId", deviceId);
                                 signUp.put("timestamp", FieldValue.serverTimestamp());
+                                signUp.put("eventDeleted", false);
                                 // TODO add geolocation data here
                                 db.collection("signUps").document(firestoreEventId + "_" + deviceId).set(signUp).addOnSuccessListener(listener -> {
                                     // TODO set flags for entrant state, (in list, chosen, waiting for response...)
