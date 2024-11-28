@@ -12,6 +12,7 @@
 package com.example.lotto649.Views.Fragments;
 
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,7 +27,12 @@ import com.example.lotto649.Views.ArrayAdapters.EventArrayAdapter;
 import com.example.lotto649.Controllers.EventsController;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
@@ -59,6 +65,26 @@ public class HomeFragment extends Fragment {
         events = new HomePageModel();
         eventsController = new EventsController(events);
         addButton = view.findViewById(R.id.addButton);
+
+        // Check that the user has created an account and a facility, if they haven't hide the create event button
+        String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+        DocumentReference userRef = FirebaseFirestore.getInstance().collection("users").document(deviceId);
+        DocumentReference facilityRef = FirebaseFirestore.getInstance().collection("facilities").document(deviceId);
+
+        userRef.get().addOnCompleteListener(task -> {
+            DocumentSnapshot userDoc = task.getResult();
+            boolean userExists = userDoc != null && userDoc.exists();
+            if (!userExists) {
+                addButton.setVisibility(View.GONE);
+            }
+        }).addOnFailureListener(task -> addButton.setVisibility(View.GONE));;
+        facilityRef.get().addOnCompleteListener(task -> {
+            DocumentSnapshot facilityDoc = task.getResult();
+            boolean facilityExists = facilityDoc != null && facilityDoc.exists();
+            if (!facilityExists) {
+                addButton.setVisibility(View.GONE);
+            }
+        }).addOnFailureListener(task -> addButton.setVisibility(View.GONE));
 
         ListView eventsList = view.findViewById(R.id.event_contents);
 
