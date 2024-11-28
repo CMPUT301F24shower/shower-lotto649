@@ -4,26 +4,29 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/colorBackground">
 
-
-
+    <!-- Event Poster Section -->
     <LinearLayout
         android:id="@+id/list_event_poster_linear_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" >
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Event Poster Placeholder -->
+        <!-- Placeholder for Event Poster -->
         <ImageView
             android:id="@+id/list_event_poster_placeholder"
             android:layout_width="300dp"
             android:layout_height="150dp"
-            android:background="#D3D3D3"
+            android:background="@color/colorSurfaceVariant"
             android:contentDescription="Event Image Placeholder"
-            android:layout_margin="16dp"
+            android:layout_margin="8dp"
+            android:scaleType="centerCrop"
             android:src="@drawable/ic_default_event_img_foreground" />
 
         <!-- Real Event Poster -->
@@ -31,24 +34,25 @@
             android:id="@+id/list_event_poster"
             android:layout_width="300dp"
             android:layout_height="150dp"
-            android:background="#D3D3D3"
+            android:background="@color/colorSurfaceVariant"
             android:contentDescription="Event Image"
-            android:layout_margin="16dp"/>
-
+            android:layout_margin="8dp"
+            android:scaleType="centerCrop" />
     </LinearLayout>
 
-    <!-- Event Name -->
+    <!-- Event Title -->
     <TextView
         android:id="@+id/eventTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Title"
-        android:textSize="36dp"
-        android:layout_marginVertical="8dp"
+        android:textSize="24sp"
+        android:textColor="@color/colorOnBackground"
+        android:fontFamily="sans-serif-medium"
+        android:layout_margin="16dp"
         app:layout_constraintTop_toBottomOf="@+id/list_event_poster_linear_layout"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Event Status -->
     <TextView
@@ -56,12 +60,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="OPEN/PENDING/CLOSED"
-        android:textSize="22dp"
-        android:layout_marginVertical="8dp"
+        android:textSize="16sp"
+        android:textColor="@color/colorPrimary"
+        android:fontFamily="sans-serif"
+        android:layout_margin="8dp"
         app:layout_constraintTop_toBottomOf="@+id/eventTitle"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Event Location -->
     <TextView
@@ -69,12 +74,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Location"
-        android:textSize="18dp"
-        android:layout_marginVertical="8dp"
+        android:textSize="14sp"
+        android:textColor="@color/colorOnBackground"
+        android:fontFamily="sans-serif"
+        android:layout_margin="8dp"
         app:layout_constraintTop_toBottomOf="@+id/eventStatus"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Event Available Spots -->
     <TextView
@@ -82,12 +88,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="# Spots Available/OPEN"
-        android:textSize="18dp"
-        android:layout_marginVertical="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/eventStatus"
+        android:textSize="14sp"
+        android:textColor="@color/colorOnBackground"
+        android:fontFamily="sans-serif"
+        android:layout_margin="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/eventLocation"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Event Days Left -->
     <TextView
@@ -95,12 +102,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="# Days Left to Enter"
-        android:textSize="18dp"
-        android:layout_marginVertical="8dp"
+        android:textSize="14sp"
+        android:textColor="@color/colorOnBackground"
+        android:fontFamily="sans-serif"
+        android:layout_margin="8dp"
         app:layout_constraintTop_toBottomOf="@+id/eventAvailableSpots"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Geolocation Requirement -->
     <TextView
@@ -108,12 +116,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="GeoLocation Required"
-        android:textSize="18dp"
-        android:layout_marginVertical="8dp"
+        android:textSize="14sp"
+        android:textColor="@color/colorOnBackground"
+        android:fontFamily="sans-serif"
+        android:layout_margin="8dp"
         app:layout_constraintTop_toBottomOf="@+id/eventDaysLeft"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Event Description -->
     <TextView
@@ -121,10 +130,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Description"
-        android:textSize="18dp"
-        android:layout_marginVertical="8dp"
+        android:textSize="14sp"
+        android:textColor="@color/colorOnBackground"
+        android:fontFamily="sans-serif"
+        android:layout_margin="16dp"
         app:layout_constraintTop_toBottomOf="@+id/geolocationRequirement"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp"/>
+        app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
