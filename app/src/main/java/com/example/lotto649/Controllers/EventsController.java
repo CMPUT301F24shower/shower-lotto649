@@ -11,7 +11,6 @@ import com.example.lotto649.AbstractClasses.AbstractController;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.Models.HomePageModel;
 import com.example.lotto649.MyApp;
-import com.example.lotto649.R;
 import com.example.lotto649.Views.Fragments.EventFragment;
 
 /**
