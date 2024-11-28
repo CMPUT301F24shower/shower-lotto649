@@ -71,7 +71,7 @@ public class BrowseProfilesArrayAdapter extends ArrayAdapter<UserModel> {
         String profileUriString = user.getProfileImage();
         String initials = user.getInitials();
         imagePlaceholder.setText(initials);
-        if (!Objects.equals(profileUriString, "")) {
+        if (!Objects.equals(profileUriString, "") && !(profileUriString == null)) {
             profileImage.setVisibility(View.VISIBLE);
             imagePlaceholder.setVisibility(View.GONE);
             profileUri = Uri.parse(profileUriString);
@@ -92,7 +92,7 @@ public class BrowseProfilesArrayAdapter extends ArrayAdapter<UserModel> {
         }
         userName.setText(user.getName());
         userEmail.setText(user.getEmail());
-        if (user.getPhone().isEmpty()) {
+        if (user.getPhone() == null || user.getPhone().isEmpty()) {
             userPhone.setVisibility(View.GONE);
         } else {
             userPhone.setVisibility(View.VISIBLE);

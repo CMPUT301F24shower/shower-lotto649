@@ -6,29 +6,49 @@ import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.typeText;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
+import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.provider.Settings;
+import android.util.Log;
 
+import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageException;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
+
 
 @RunWith(AndroidJUnit4.class)
 public class ManageProfileTest {
@@ -125,7 +145,7 @@ public class ManageProfileTest {
                 .check(matches(withText("john@example.com")));
         onView(withId(R.id.phoneEditText))
                 .check(matches(withText("999-999-9999")));
-        onView(withId(R.id.account_save_button)).check(matches(isDisplayed()));
+        onView(withId(R.id.account_save_button)).check(matches(not(isDisplayed())));
 
         // Edit name
         onView(withId(R.id.nameEditText))
@@ -275,6 +295,7 @@ public class ManageProfileTest {
     }
 
     // There are no automated tests for uploading images, this requires a human eye to test, and a specific device to select different images, therefore no point in automating
+    // This is US 01.03.01 that will not be tested
 
     /**
      * Tests creating that the profile image is created from the users initials
@@ -344,5 +365,114 @@ public class ManageProfileTest {
                 .check(matches(withText("BJ")));
         IdlingRegistry.getInstance().unregister(idlingResource);
 
+    }
+
+    /**
+     * Tests deleting a profile image from an existing user. The image should be deleted. The user should not. The image should be replaced with
+     * This tests US 01.03.02
+     * This somewhat tests US 01.03.01 the best we can, it checks that the custom profile image is displayed
+     */
+    @Test
+    public void testDeleteProfileImage() throws IOException, ExecutionException, InterruptedException {
+        String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+        DocumentReference userRef = FirebaseFirestore.getInstance().collection("users").document(deviceId);
+        userRef.set(new HashMap<String, Object>() {{
+            put("name", "John Tester");
+            put("email", "john@example.com");
+            put("phone", "999-999-9999");
+            put("entrant", true);
+            put("organizer", false);
+            put("admin", false);
+            put("profileImage", "");
+        }});
+
+        Uri newUri = copyFirebaseImage();
+        FirebaseFirestore.getInstance().collection("users").document(deviceId)
+                .update("profileImage", newUri.toString());
+
+        ElapsedTimeIdlingResource idlingResource = new ElapsedTimeIdlingResource(5000);
+        IdlingRegistry.getInstance().register(idlingResource);
+        onView(withId(R.id.bottomNavigationView)).check(matches(isDisplayed()));
+        onView(withId(R.id.account))
+                .check(matches(isDisplayed()))
+                .perform(click());
+        onView(withId(R.id.imagePlaceholder))
+                .check(doesNotExist());
+        onView(withId(R.id.account_delete_image))
+                .check(matches(isDisplayed()))
+                .perform(click());
+
+        onView(withId(R.id.imagePlaceholder))
+                .check(matches(isDisplayed()))
+                .check(matches(withText("JT")));
+
+        assertTrue(isImageDeleted());
+
+        userRef.get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        assertNotNull("Document should not be null", document);
+                        if (document.exists()) {
+                            assertEquals("John Tester", document.getString("name"));
+                            assertEquals("john@example.com", document.getString("email"));
+                            assertEquals("999-999-9999", document.getString("phone"));
+                            assertEquals(false, document.getBoolean("admin"));
+                            assertEquals(false, document.getBoolean("organizer"));
+                            assertEquals(true, document.getBoolean("entrant"));
+                            assertEquals("", document.getString("profileImage"));
+                        }
+                    } else {
+                        throw new AssertionError("Failed to fetch document");
+                    }});
+    }
+
+    private Uri copyFirebaseImage() throws IOException, ExecutionException, InterruptedException {
+        FirebaseStorage storage = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app");
+        StorageReference sourceRef = storage.getReference().child("profileImages/test_profile_image.jpg");
+        StorageReference destinationRef = storage.getReference().child("profileImages/new_test_profile_image.jpg");
+
+        Context context = ApplicationProvider.getApplicationContext();
+        File tempFile = new File(context.getCacheDir(), "temp_image.webp");
+
+        if (!tempFile.getParentFile().exists()) {
+            tempFile.getParentFile().mkdirs();
+        }
+
+        Task<byte[]> downloadTask = sourceRef.getBytes(Long.MAX_VALUE);
+        byte[] imageData = Tasks.await(downloadTask);
+
+        try (FileOutputStream outputStream = new FileOutputStream(tempFile)) {
+            outputStream.write(imageData);
+        }
+
+        Uri tempFileUri = Uri.fromFile(tempFile);
+        UploadTask uploadTask = destinationRef.putFile(tempFileUri);
+        Tasks.await(uploadTask);
+
+        Task<Uri> getDownloadUriTask = destinationRef.getDownloadUrl();
+        Uri downloadUri = Tasks.await(getDownloadUriTask);
+
+        return downloadUri;
+    }
+
+    private boolean isImageDeleted() {
+        FirebaseStorage storage = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app");
+        StorageReference imageRef = storage.getReference().child("profileImages/new_test_profile_image.jpg");
+
+        try {
+            Tasks.await(imageRef.getMetadata());
+            return false;
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof StorageException) {
+                StorageException storageException = (StorageException) e.getCause();
+                if (storageException.getErrorCode() == StorageException.ERROR_OBJECT_NOT_FOUND) {
+                    return true;
+                }
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return false;
     }
 }

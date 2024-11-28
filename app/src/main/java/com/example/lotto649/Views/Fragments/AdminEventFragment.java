@@ -150,7 +150,9 @@ public class AdminEventFragment extends Fragment {
                             if (maxNum == -1) {
                                 spotsAvailText = "OPEN";
                             } else {
-                                spotsAvailText = Integer.toString(maxNum - ((List<String>) doc.get("waitingList")).size()) + " Spots Available";
+                                // TODO set this properly based on new wait list implementation
+                                spotsAvailText = Integer.toString(maxNum);
+//                                spotsAvailText = Integer.toString(maxNum - ((List<String>) doc.get("waitingList")).size()) + " Spots Available";
                             }
                             String numAttendeesText = Integer.toString(((Long) doc.get("numberOfSpots")).intValue()) + " Attendees";
                             DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
