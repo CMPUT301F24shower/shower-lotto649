@@ -141,6 +141,8 @@ public class AdminProfileFragment extends Fragment {
                             StringBuilder rolesBuilder = new StringBuilder();
                             rolesBuilder.append("Roles: ");
                             if (Boolean.TRUE.equals(isAdmin)) {
+                                // Admins should not be deleted in the app
+                                removeUser.setVisibility(View.GONE);
                                 rolesBuilder.append("Admin, ");
                             }
                             if (Boolean.TRUE.equals(isOrganizer)) {
