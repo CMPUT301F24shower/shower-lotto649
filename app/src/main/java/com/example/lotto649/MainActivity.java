@@ -15,6 +15,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -119,6 +120,17 @@ public class MainActivity extends AppCompatActivity
                     Toast.makeText(getApplicationContext(), "Location services not found - please check your settings", Toast.LENGTH_SHORT).show();
                 }
             });
+
+    private ActivityResultLauncher<String> requestNotificationPermissionLauncher;
+
+    private void checkAndRequestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13+
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                // Request permission
+                requestNotificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS);
+            }
+        }
+    }
 
     /**
      * Initializes the activity, setting up the bottom navigation view and its listener.
