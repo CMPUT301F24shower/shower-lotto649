@@ -66,7 +66,6 @@ public class WinnerListFragment extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference userRef;
     private String eventId;
-    private int numberOfSpots;
     private Context mContext;
     ExtendedFloatingActionButton backButton;
 
@@ -76,9 +75,8 @@ public class WinnerListFragment extends Fragment {
      * Required for proper instantiation of the fragment by the Android system.
      * </p>
      */
-    public WinnerListFragment(String eventId, int numberOfSpots) {
+    public WinnerListFragment(String eventId) {
         this.eventId = eventId;
-        this.numberOfSpots = numberOfSpots;
         Log.e("Ohm","eventId: " + eventId);
         // Required empty public constructor
     }
@@ -121,48 +119,52 @@ public class WinnerListFragment extends Fragment {
 
         backButton = view.findViewById(R.id.back_button);
 
+//        db.collection("winners")
+//                .whereEqualTo("eventId", eventId)
+//                .get()
+//                .addOnCompleteListener(task -> {
+//                    if (task.isSuccessful() && task.getResult() != null) {
+//                        List<DocumentSnapshot> docs = task.getResult().getDocuments();
+//                        Collections.shuffle(docs);
+//                        for (DocumentSnapshot doc : docs) {
+//                            if (winnerList.size() < numberOfSpots) {
+//                                db.collection("winners").document(doc.getId()).delete();
+//                            }
+//                        }
+//                    }
+//                });
+
+//        db.collection("signUps")
+//                .whereEqualTo("eventId", eventId)
+//                .get()
+//                .addOnCompleteListener(task -> {
+//                    if (task.isSuccessful() && task.getResult() != null) {
+//                        List<DocumentSnapshot> docs = task.getResult().getDocuments();
+//                        Collections.shuffle(docs);
+//                        for (DocumentSnapshot doc : docs) {
+//                            if (winnerList.size() < numberOfSpots) {
+//                                Log.e("Ohm", "Doc Id " + doc.getString("userId"));
+//                                winnerList.add(doc.getString("userId"));
+//
+//                                db.collection("winners").add(doc.getData());
+//                            }
+//                        }
+//                    }
+//                });
+
         db.collection("winners")
                 .whereEqualTo("eventId", eventId)
                 .get()
                 .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        List<DocumentSnapshot> docs = task.getResult().getDocuments();
-                        Collections.shuffle(docs);
-                        for (DocumentSnapshot doc : docs) {
-                            if (winnerList.size() < numberOfSpots) {
-                                db.collection("winners").document(doc.getId()).delete();
-                            }
-                        }
-                    }
-                });
-
-        db.collection("signUps")
-                .whereEqualTo("eventId", eventId)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        List<DocumentSnapshot> docs = task.getResult().getDocuments();
-                        Collections.shuffle(docs);
-                        for (DocumentSnapshot doc : docs) {
-                            if (winnerList.size() < numberOfSpots) {
-                                Log.e("Ohm", "Doc Id " + doc.getString("userId"));
-                                winnerList.add(doc.getString("userId"));
-
-                                db.collection("winners").add(doc.getData());
-                            }
-                        }
-                    }
-                });
-
-        db.collection("winners")
-                .whereEqualTo("eventId", eventId)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult() != null) {
+                    if (task.isSuccessful() && task.getResult().size() <= 0) {
+                        db.collection("events").document(eventId).update("drawn",false);
+                    } else if (task.isSuccessful() && task.getResult() != null) {
+                        winnerList.clear();
                         deviceIdList.clear();
 
                         ArrayList<String> tempDeviceIdList  = new ArrayList<String>();
                         for (QueryDocumentSnapshot doc : task.getResult()) {
+                            winnerList.add(doc.getId());
                             tempDeviceIdList.add(doc.getString("userId"));
                         }
 

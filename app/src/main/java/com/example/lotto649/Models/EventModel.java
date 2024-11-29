@@ -1,10 +1,12 @@
 package com.example.lotto649.Models;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.lotto649.AbstractClasses.AbstractModel;
 import com.example.lotto649.MyApp;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -14,8 +16,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Date;
+import java.util.List;
 
 /**
  * EventModel represents an event in the application with attributes such as title, location,
@@ -36,6 +40,7 @@ public class EventModel extends AbstractModel implements Serializable {
     private String qrCode;
     private String qrCodeData;
     private int waitingListSize;
+    private boolean drawn;
 
     private FirebaseFirestore db;
     private boolean savedToFirestore = false;
@@ -76,6 +81,7 @@ public class EventModel extends AbstractModel implements Serializable {
         this.posterImage = "";
         this.geo = false;
         this.waitingListSize = 0;
+        this.drawn = false;
     }
 
     /**
@@ -110,13 +116,13 @@ public class EventModel extends AbstractModel implements Serializable {
     public EventModel(Context context, String title, String facilityId, String description, int numberOfSpots,
                       Date startDate, Date endDate, boolean geo, FirebaseFirestore db) {
         this(context, title, facilityId, description, numberOfSpots,
-                -1, startDate, endDate, null, geo, null, 0, db);
+                -1, startDate, endDate, null, geo, null, 0,false, db);
     }
 
     public EventModel(Context context, String title, String facilityId, String description, int numberOfSpots,
                       int numberOfMaxEntrants, Date startDate, Date endDate, boolean geo, FirebaseFirestore db) {
         this(context, title, facilityId, description, numberOfSpots,
-                numberOfMaxEntrants, startDate, endDate, null, geo, null, 0, db);
+                numberOfMaxEntrants, startDate, endDate, null, geo, null, 0, false, db);
     }
 
     /**
@@ -132,7 +138,7 @@ public class EventModel extends AbstractModel implements Serializable {
      */
     public EventModel(Context context, String title, String facilityId, String description, int numberOfSpots,
                       int numberOfMaxEntrants, Date startDate, Date endDate, String posterImage, boolean geo, String qrCodeUrl,
-                      int waitingListSize, FirebaseFirestore db) {
+                      int waitingListSize, boolean drawn, FirebaseFirestore db) {
         this.title = title;
         this.facilityId = facilityId;
         this.organizerId = MyApp.getInstance().getUserModel().getDeviceId();
@@ -147,6 +153,7 @@ public class EventModel extends AbstractModel implements Serializable {
         this.qrCodeData = title + description + numberOfSpots + numberOfMaxEntrants;
         this.qrCode = qrCode;
         this.waitingListSize = waitingListSize;
+        this.drawn = drawn;
     }
 
     /**
@@ -171,6 +178,7 @@ public class EventModel extends AbstractModel implements Serializable {
                     put("posterImage", posterImage);
                     put("geo",geo);
                     put("waitingListSize", waitingListSize);
+                    put("drawn", drawn);
                 }})
                 .addOnSuccessListener(documentReference -> {
                     eventId = documentReference.getId();
@@ -513,22 +521,32 @@ public class EventModel extends AbstractModel implements Serializable {
         return waitingList;
     }
 
-    public ArrayList<String> doDraw() {
-        ArrayList<String> winners = new ArrayList<>();
-        db.collection("signUps").whereEqualTo("eventId",eventId)
-                .orderBy("random")
-                .limit(numberOfSpots)
+    public boolean isDrawn() {
+        return drawn;
+    }
+
+
+    public void doDraw() {
+        if (drawn) return;
+
+        db.collection("signUps")
+                .whereEqualTo("eventId", eventId)
                 .get()
-                .addOnCompleteListener(
-                        task -> {
-                            if (task.isSuccessful()) {
-                                for (QueryDocumentSnapshot doc : task.getResult()) {
-                                    winners.add(doc.getString("userId"));
-                                }
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        List<DocumentSnapshot> docs = task.getResult().getDocuments();
+                        Collections.shuffle(docs);
+                        int i = 0;
+                        for (DocumentSnapshot doc : docs) {
+                            if (i++ < numberOfSpots) {
+                                db.collection("winners").add(doc.getData());
                             }
                         }
-                );
-        return winners;
+                    }
+                });
+        drawn = true;
+        updateFirestore("drawn", true);
+        notifyViews();
     }
 
     /**

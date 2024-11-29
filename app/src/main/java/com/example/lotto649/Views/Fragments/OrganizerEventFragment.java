@@ -190,7 +190,8 @@ public class OrganizerEventFragment extends Fragment {
 //                                    }
 //                                }
 //                        );
-                MyApp.getInstance().addFragmentToStack(new WinnerListFragment(eventId,numberOfSpots));
+                event.doDraw();
+                MyApp.getInstance().addFragmentToStack(new WinnerListFragment(eventId));
             }
         });
         // TODO screen for winnerlist
