@@ -17,6 +17,7 @@
         android:id="@+id/eventFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
         android:text="Create a Event"
         android:textSize="40sp"
         android:textAlignment="center"

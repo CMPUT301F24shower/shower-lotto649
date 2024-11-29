@@ -1,6 +1,6 @@
 /**
  * MainActivity is the entry point of the application that implements a bottom navigation bar
- * for switching between different fragments such as Home, and Account.
+ * for switching between different fragments such as Home, Camera, and Account.
  * <p>
  * Code adapted from the following source for implementing a bottom navigation bar:
  * <a href="https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/">GeeksforGeeks: Bottom Navigation Bar in Android</a>
@@ -49,6 +49,7 @@ import com.example.lotto649.Views.Fragments.BrowseFacilitiesFragment;
 import com.example.lotto649.Views.Fragments.BrowseProfilesFragment;
 import com.example.lotto649.Views.Fragments.FacilityFragment;
 import com.example.lotto649.Views.Fragments.HomeFragment;
+import com.example.lotto649.Views.Fragments.CameraFragment;
 import com.example.lotto649.Views.Fragments.JoinEventFragment;
 import com.example.lotto649.Views.Fragments.JoinEventFragment;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -219,7 +220,7 @@ public class MainActivity extends AppCompatActivity
                     int id = bottomNavigationView.getSelectedItemId();
                     removeMenuItems();
                     bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu);
-                    if (id == R.id.home || id == R.id.facility || id == R.id.account) {
+                    if (id == R.id.home || id == R.id.camera|| id == R.id.facility || id == R.id.account) {
                         bottomNavigationView.setSelectedItemId(id);
                     } else {
                         bottomNavigationView.setSelectedItemId(R.id.home);
@@ -234,7 +235,7 @@ public class MainActivity extends AppCompatActivity
                     int id = bottomNavigationView.getSelectedItemId();
                     removeMenuItems();
                     bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_user_and_admin);
-                    if (id == R.id.home || id == R.id.facility || id == R.id.account) {
+                    if (id == R.id.home || id == R.id.camera|| id == R.id.facility || id == R.id.account) {
                         bottomNavigationView.setSelectedItemId(id);
                     } else {
                         bottomNavigationView.setSelectedItemId(R.id.home);
@@ -271,6 +272,7 @@ public class MainActivity extends AppCompatActivity
 
     // Create fragment instances
     HomeFragment homeFragment = new HomeFragment();
+    CameraFragment cameraFragment = new CameraFragment();
     AccountFragment accountFragment = new AccountFragment();
     FacilityFragment facilityFragment = new FacilityFragment();
 
@@ -306,6 +308,9 @@ public class MainActivity extends AppCompatActivity
             return true;
         } else if (item.getItemId() == R.id.account) {
             MyApp.getInstance().replaceFragment(accountFragment);
+            return true;
+        } else if (item.getItemId() == R.id.camera) {
+            MyApp.getInstance().replaceFragment(cameraFragment);
             return true;
         } else if (item.getItemId() == R.id.facility) {
             MyApp.getInstance().replaceFragment(facilityFragment);
@@ -349,6 +354,7 @@ public class MainActivity extends AppCompatActivity
 
     private void removeMenuItems() {
         bottomNavigationView.getMenu().removeItem(R.id.home);
+        bottomNavigationView.getMenu().removeItem(R.id.camera);
         bottomNavigationView.getMenu().removeItem(R.id.facility);
         bottomNavigationView.getMenu().removeItem(R.id.account);
         bottomNavigationView.getMenu().removeItem(R.id.browseProfiles);
