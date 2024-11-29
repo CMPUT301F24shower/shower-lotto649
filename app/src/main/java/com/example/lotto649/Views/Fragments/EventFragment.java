@@ -354,6 +354,9 @@ public class EventFragment extends Fragment {
             } else if (!endDate.get().equals(startDate.get()) && endDate.get().before(startDate.get())) {
                 lotteryEndDateFieldLayout.setError("End date must be after start date");
                 hasError = true;
+            } else if (endDate.get().before(new Date())) {
+                lotteryStartDateFieldLayout.setError("End date can't be in the past");
+                hasError = true;
             } else {
                 lotteryEndDateFieldLayout.setError(null);
             }
