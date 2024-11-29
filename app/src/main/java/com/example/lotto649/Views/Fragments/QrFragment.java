@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
@@ -71,10 +72,7 @@ public class QrFragment extends Fragment {
         }
 
         backButton.setOnClickListener(v -> {
-            getParentFragmentManager().beginTransaction()
-                    .replace(R.id.flFragment, new HomeFragment())
-                    .addToBackStack(null)
-                    .commit();
+            MyApp.getInstance().popFragment();
         });
 
         return view;
