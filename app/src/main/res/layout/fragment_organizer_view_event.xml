@@ -136,8 +136,8 @@
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/view_qr_code_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="160dp"
+        android:layout_height="50dp"
         android:layout_marginTop="48dp"
         android:backgroundTint="@color/lightSurfaceContainerHigh"
         android:fontFamily="sans-serif"
@@ -149,8 +149,8 @@
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/choose_winners_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="160dp"
+        android:layout_height="50dp"
         android:layout_marginTop="48dp"
         android:backgroundTint="@color/lightSurfaceContainerHigh"
         android:fontFamily="sans-serif"
@@ -165,8 +165,8 @@
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/view_entrants_map_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="160dp"
+        android:layout_height="50dp"
         android:backgroundTint="@color/lightSurfaceContainerHigh"
         android:lines="2"
         android:fontFamily="sans-serif"
@@ -182,8 +182,8 @@
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/view_entrants_list_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="160dp"
+        android:layout_height="50dp"
         android:backgroundTint="@color/lightSurfaceContainerHigh"
         android:lines="2"
         android:fontFamily="sans-serif"
@@ -198,15 +198,32 @@
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/edit_event_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="160dp"
+        android:layout_height="50dp"
         android:backgroundTint="@color/lightSurfaceContainerHigh"
-        android:textColor="@color/lightPrimary"
         android:fontFamily="sans-serif"
         android:text="Edit"
+        android:textColor="@color/lightPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.88"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view_entrants_map_button" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/back_button"
+        android:layout_width="160dp"
+        android:layout_height="50dp"
+        android:backgroundTint="@color/lightSurfaceContainerHigh"
+        android:fontFamily="sans-serif"
+        android:text="Back"
+        app:icon="@drawable/ic_back_foreground"
+        android:textColor="@color/lightPrimary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.119"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view_entrants_map_button" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
