@@ -19,7 +19,9 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
-
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="16dp" />
         <!-- Title -->
         <TextView
             android:id="@+id/accountFragmentTitle"
@@ -77,6 +79,7 @@
             android:id="@+id/textFieldEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+
             android:hint="Email"
             app:helperText="Required"
             app:helperTextEnabled="true"

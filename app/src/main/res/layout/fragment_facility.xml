@@ -11,16 +11,20 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <!-- Main Linear Layout -->
     <LinearLayout
         android:id="@+id/facility_inputs_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:orientation="vertical"
         android:paddingHorizontal="24dp"
         android:gravity="center">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="16dp" />
 
         <TextView
             android:id="@+id/facilityFragment"
@@ -28,6 +32,7 @@
             android:layout_height="wrap_content"
             android:lines="2"
             android:gravity="center"
+            android:fontFamily="sans-serif-medium"
             android:text="Create a Facility"
             android:textSize="40sp" />
         <View
@@ -40,6 +45,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:layout_marginEnd="25dp"
+            android:fontFamily="sans-serif"
             android:hint="Facility Name"
 
             app:helperTextEnabled="true"
@@ -63,6 +69,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:layout_marginEnd="24dp"
+            android:fontFamily="sans-serif"
             android:hint="Address"
             app:helperTextEnabled="true"
             app:helperText="Required"
@@ -85,8 +92,9 @@
         android:id="@+id/facility_save_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_margin="16dp"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="32dp"
+        android:fontFamily="sans-serif"
         android:text="Save"
         app:icon="@drawable/ic_check_foreground"
         app:iconSize="40dp"
