@@ -1,7 +1,5 @@
 package com.example.lotto649;
 
-import static androidx.core.content.ContextCompat.getSystemService;
-
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -21,16 +19,21 @@ public class NotificationHelper {
                 .setSmallIcon(R.drawable.calendar_icon_foreground)
                 .setContentTitle(textTitle)
                 .setContentText(textContent)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+                .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                .setAutoCancel(true);
 
 
-        int importance = NotificationManager.IMPORTANCE_DEFAULT;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            int importance = NotificationManager.IMPORTANCE_HIGH;
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, textTitle, importance);
             channel.setDescription(textContent);
 
-            NotificationManager notificationManager = getSystemService(context, NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
+            NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+            }
         }
 
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
