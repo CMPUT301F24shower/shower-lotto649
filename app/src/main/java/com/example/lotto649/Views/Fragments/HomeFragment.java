@@ -101,8 +101,7 @@ public class HomeFragment extends Fragment {
                 if (Objects.equals(organizerId, deviceId)) {
                     OrganizerEventFragment frag = new OrganizerEventFragment();
                     frag.setArguments(bundle);
-                    MyApp app = MyApp.getInstance();
-                    app.replaceFragment(frag);
+                    MyApp.getInstance().addFragmentToStack(frag);
                 } else {
                     eventsController.editEvent(event);
                 }

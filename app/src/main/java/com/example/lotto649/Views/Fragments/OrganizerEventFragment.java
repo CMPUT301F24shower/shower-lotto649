@@ -52,6 +52,7 @@ public class OrganizerEventFragment extends Fragment {
     ExtendedFloatingActionButton viewEntrantsMapButton;
     ExtendedFloatingActionButton viewEntrantsWaitingListButton;
     ExtendedFloatingActionButton editButton;
+    ExtendedFloatingActionButton backButton;
     private Uri posterUri;
 
     public OrganizerEventFragment() {
@@ -82,6 +83,7 @@ public class OrganizerEventFragment extends Fragment {
         viewEntrantsMapButton = view.findViewById(R.id.view_entrants_map_button);
         viewEntrantsWaitingListButton = view.findViewById(R.id.view_entrants_list_button);
         editButton = view.findViewById(R.id.edit_event_button);
+        backButton = view.findViewById(R.id.back_button);
 
         eventsRef.document(firestoreEventId)
                 .get()
@@ -145,20 +147,20 @@ public class OrganizerEventFragment extends Fragment {
         viewEntrantsWaitingListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.e("Ohm", "Getting Waiting List");
-                ArrayList<String> waitingList = new ArrayList<>();
-                db.collection("signUps").whereEqualTo("eventId",eventId)
-                        .get()
-                        .addOnCompleteListener(
-                                task -> {
-                                    if (task.isSuccessful()) {
-                                        for (QueryDocumentSnapshot doc : task.getResult()) {
-                                            Log.e("Ohm", "Doc Id " + doc.getString("userId"));
-                                            waitingList.add(doc.getString("userId"));
-                                        }
-                                    }
-                                }
-                        );
+//                Log.e("Ohm", "Getting Waiting List");
+//                db.collection("signUps").whereEqualTo("eventId",eventId)
+//                        .get()
+//                        .addOnCompleteListener(
+//                                task -> {
+//                                    if (task.isSuccessful()) {
+//                                        for (QueryDocumentSnapshot doc : task.getResult()) {
+//                                            Log.e("Ohm", "Doc Id " + doc.getString("userId"));
+//                                        }
+//                                    }
+//                                }
+//                        );
+//                Log.e("Ohm", "Waiting List Got");
+                MyApp.getInstance().addFragmentToStack(new WaitingListFragment(eventId));
             }
         });
         // TODO screen for waitlist
@@ -166,24 +168,29 @@ public class OrganizerEventFragment extends Fragment {
         chooseWinnersButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.e("Ohm", "Choosing " + numberOfSpots + " winners");
-                ArrayList<String> winnerList = new ArrayList<>(numberOfSpots);
-                db.collection("signUps").whereEqualTo("eventId",eventId)
-                        .get()
-                        .addOnCompleteListener(
-                                task -> {
-                                    if (task.isSuccessful()) {
-                                        List<DocumentSnapshot> docs = task.getResult().getDocuments();
-                                        Collections.shuffle(docs);
-                                        for (DocumentSnapshot doc : docs) {
-                                            if (winnerList.size() < numberOfSpots) {
-                                                Log.e("Ohm", "Doc Id " + doc.getString("userId"));
-                                                winnerList.add(doc.getString("userId"));
-                                            }
-                                        }
-                                    }
-                                }
-                        );
+//                Log.e("Ohm", "Choosing " + numberOfSpots + " winners");
+//                ArrayList<String> winnerList = new ArrayList<>(numberOfSpots);
+//                db.collection("signUps").whereEqualTo("eventId",eventId)
+//                        .get()
+//                        .addOnCompleteListener(
+//                                task -> {
+//                                    if (task.isSuccessful()) {
+//                                        List<DocumentSnapshot> docs = task.getResult().getDocuments();
+//                                        Collections.shuffle(docs);
+//                                        for (DocumentSnapshot doc : docs) {
+//                                            if (winnerList.size() < numberOfSpots) {
+//                                                Log.e("Ohm", "Doc Id " + doc.getString("userId"));
+//                                                winnerList.add(doc.getString("userId"));
+//
+//                                                eventsRef.document(firestoreEventId).update("endDate", new Date());
+//
+//                                                db.collection("winners").add(doc.getData());
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//                        );
+                MyApp.getInstance().addFragmentToStack(new WinnerListFragment(eventId,numberOfSpots));
             }
         });
         // TODO screen for winnerlist
@@ -192,6 +199,13 @@ public class OrganizerEventFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 MyApp.getInstance().addFragmentToStack(new EventFragment(event));
+            }
+        });
+
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MyApp.getInstance().popFragment();
             }
         });
 
