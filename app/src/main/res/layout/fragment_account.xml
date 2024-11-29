@@ -19,9 +19,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="16dp" />
+
         <!-- Title -->
         <TextView
             android:id="@+id/accountFragmentTitle"
@@ -29,20 +27,19 @@
             android:layout_height="wrap_content"
             android:text="Account"
             android:textSize="40sp"
-            android:textColor="@color/lightOnSurface"
-            android:fontFamily="sans-serif-medium" />
+            android:lines="2"
+            android:gravity="center"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/black" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="16dp" />
 
         <!-- Profile Image Placeholder -->
         <TextView
             android:id="@+id/imagePlaceholder"
             android:layout_width="150dp"
             android:layout_height="150dp"
+            android:src="@drawable/ic_person_foreground"
             android:background="@drawable/name_bg"
-            android:textColor="@color/white"
             android:gravity="center"
             android:textSize="48sp"
             android:fontFamily="sans-serif-medium"
@@ -59,6 +56,7 @@
             android:layout_height="wrap_content"
             android:hint="Full Name"
             app:helperText="Required"
+            android:fontFamily="sans-serif"
             app:helperTextEnabled="true"
             app:endIconMode="custom"
             app:endIconDrawable="@drawable/ic_person_name_foreground">
@@ -79,9 +77,9 @@
             android:id="@+id/textFieldEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
             android:hint="Email"
             app:helperText="Required"
+            android:fontFamily="sans-serif"
             app:helperTextEnabled="true"
             app:endIconMode="custom"
             app:endIconDrawable="@drawable/ic_email_foreground">
@@ -104,6 +102,7 @@
             android:layout_height="wrap_content"
             android:hint="Phone Number"
             app:helperText="Optional"
+            android:fontFamily="sans-serif"
             app:helperTextEnabled="true"
             app:endIconMode="custom"
             app:endIconDrawable="@drawable/ic_phone_foreground">
@@ -136,6 +135,7 @@
             android:layout_margin="16dp"
             android:backgroundTint="@color/lightSurfaceContainerHigh"
             android:text="Save"
+            android:fontFamily="sans-serif-medium"
             android:textColor="@color/lightPrimary"
             app:icon="@drawable/ic_check_foreground"
             app:iconSize="40dp"
@@ -152,6 +152,7 @@
             android:layout_marginTop="8dp"
             android:backgroundTint="@color/lightSurfaceContainerHigh"
             android:text="Remove Picture"
+            android:fontFamily="sans-serif-medium"
             android:textColor="@color/lightPrimary"
             app:icon="@drawable/ic_trash_foreground"
             app:iconSize="40dp"

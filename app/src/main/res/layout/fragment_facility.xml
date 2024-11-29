@@ -32,7 +32,9 @@
             android:layout_height="wrap_content"
             android:lines="2"
             android:gravity="center"
+            android:padding="2dp"
             android:fontFamily="sans-serif-medium"
+            android:textColor="@color/black"
             android:text="Create a Facility"
             android:textSize="40sp" />
         <View
@@ -56,7 +58,8 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputFacilityName"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"/>
 
         </com.google.android.material.textfield.TextInputLayout>
         <View
@@ -79,7 +82,8 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputAddress"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"/>
 
         </com.google.android.material.textfield.TextInputLayout>
         <View
@@ -94,7 +98,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="32dp"
-        android:fontFamily="sans-serif"
+        android:fontFamily="sans-serif-medium"
         android:text="Save"
         app:icon="@drawable/ic_check_foreground"
         app:iconSize="40dp"
