@@ -53,10 +53,9 @@ public class OrganizerEventFragment extends Fragment {
     TextView daysLeft;
     TextView geoLocation;
     TextView description;
-    ExtendedFloatingActionButton optionsButtons;
-    ExtendedFloatingActionButton backButton;
+    ExtendedFloatingActionButton optionsButtons, backButton, viewEntrantsMapButton, qrButton, viewEntrantsButton, editButton, randomButton, cancelButton;
     private MutableLiveData<Boolean> hasQrCode;
-    private MutableLiveData<Boolean> hasDrawn;
+    private MutableLiveData<Boolean> canDraw;
     private Uri posterUri;
 
     public OrganizerEventFragment() {
@@ -68,21 +67,21 @@ public class OrganizerEventFragment extends Fragment {
         String description = doc.getString("description");
         Date endDate = doc.getDate("endDate");
         Boolean geo = doc.getBoolean("geo");
-        int numMaxEntrants = doc.getLong("numberOfMaxEntrants").intValue();
-        int numSpots = doc.getLong("numberOfSpots").intValue();
+        int numMaxEntrants = Objects.requireNonNull(doc.getLong("numberOfMaxEntrants")).intValue();
+        int numSpots = Objects.requireNonNull(doc.getLong("numberOfSpots")).intValue();
         String organizerId = doc.getString("organizerId");
         String posterImage = doc.getString("posterImage");
         String qrCode = doc.getString("qrCode");
         Date startDate = doc.getDate("startDate");
         String stateStr = doc.getString("state");
         EventState state = EventState.OPEN;
-        if (stateStr.equals("WAITING")) {
+        if (Objects.equals(stateStr, "WAITING")) {
             state = EventState.WAITING;
-        } else if (stateStr.equals("CLOSED")) {
+        } else if (Objects.equals(stateStr, "CLOSED")) {
             state = EventState.CLOSED;
         }
         String title = doc.getString("title");
-        int waitingListSize = doc.getLong("waitingListSize").intValue();
+        int waitingListSize = Objects.requireNonNull(doc.getLong("waitingListSize")).intValue();
         EventModel newEvent = new EventModel(title, description, numSpots, numMaxEntrants, startDate, endDate, posterImage, geo, qrCode, waitingListSize, state, db);
         newEvent.setOrganizerId(organizerId);
         newEvent.setEventId(eventId);
@@ -95,28 +94,32 @@ public class OrganizerEventFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_organizer_view_event, container, false);
 
-        // hasQrCode = new MutableLiveData<Boolean>(Boolean.TRUE);
-        // hasQrCode.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-        //     @Override
-        //     public void onChanged(Boolean changedValue) {
-        //         if (Objects.equals(changedValue, Boolean.TRUE)) {
-        //             viewQrCodeButton.setVisibility(View.VISIBLE);
-        //         } else {
-        //             viewQrCodeButton.setVisibility(View.GONE);
-        //         }
-        //     }
-        // });
-        // hasDrawn = new MutableLiveData<Boolean>(Boolean.FALSE);
-        // hasDrawn.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-        //     @Override
-        //     public void onChanged(Boolean changedValue) {
-        //         if (Objects.equals(changedValue, Boolean.FALSE)) {
-        //             chooseWinnersButton.setVisibility(View.VISIBLE);
-        //         } else {
-        //             chooseWinnersButton.setVisibility(View.GONE);
-        //         }
-        //     }
-        // });
+        hasQrCode = new MutableLiveData<Boolean>(Boolean.TRUE);
+        hasQrCode.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean changedValue) {
+                if (Objects.equals(changedValue, Boolean.TRUE)) {
+                    if (qrButton != null)
+                        qrButton.setVisibility(View.VISIBLE);
+                } else {
+                    if (qrButton != null)
+                        qrButton.setVisibility(View.GONE);
+                }
+            }
+        });
+        canDraw = new MutableLiveData<Boolean>(Boolean.TRUE);
+        canDraw.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean changedValue) {
+                if (Objects.equals(changedValue, Boolean.TRUE)) {
+                    if (randomButton != null)
+                        randomButton.setVisibility(View.VISIBLE);
+                } else {
+                    if (randomButton != null)
+                        randomButton.setVisibility(View.GONE);
+                }
+            }
+        });
 
         db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
@@ -139,12 +142,23 @@ public class OrganizerEventFragment extends Fragment {
                     .setView(dialogView)
                     .create();
 
-            ExtendedFloatingActionButton viewEntrantsMapButton = dialogView.findViewById(R.id.org_dialog_map);
-            ExtendedFloatingActionButton qrButton = dialogView.findViewById(R.id.org_dialog_view_qr);
-            ExtendedFloatingActionButton viewEntrantsButton = dialogView.findViewById(R.id.org_dialog_view_entrants);
-            ExtendedFloatingActionButton editButton = dialogView.findViewById(R.id.org_dialog_edit);
-            ExtendedFloatingActionButton randomButton = dialogView.findViewById(R.id.org_dialog_choose_winners);
-            ExtendedFloatingActionButton cancelButton = dialogView.findViewById(R.id.org_dialog_cancel);
+            viewEntrantsMapButton = dialogView.findViewById(R.id.org_dialog_map);
+            qrButton = dialogView.findViewById(R.id.org_dialog_view_qr);
+            viewEntrantsButton = dialogView.findViewById(R.id.org_dialog_view_entrants);
+            editButton = dialogView.findViewById(R.id.org_dialog_edit);
+            randomButton = dialogView.findViewById(R.id.org_dialog_choose_winners);
+            cancelButton = dialogView.findViewById(R.id.org_dialog_cancel);
+
+            if (canDraw.getValue().equals(Boolean.FALSE)) {
+                randomButton.setVisibility(View.GONE);
+            } else {
+                randomButton.setVisibility(View.VISIBLE);
+            }
+            if (hasQrCode.getValue().equals(Boolean.FALSE)) {
+                qrButton.setVisibility(View.GONE);
+            } else {
+                qrButton.setVisibility(View.VISIBLE);
+            }
 
             viewEntrantsMapButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -193,7 +207,7 @@ public class OrganizerEventFragment extends Fragment {
                         if (task.isSuccessful() && task.getResult() != null) {
                             DocumentSnapshot document = task.getResult();
                             if (document.exists()) {
-                                EventModel event = document.toObject(EventModel.class);
+                                EventModel event = getEventFromFirebaseObject(document);
                                 EventFragment frag = new EventFragment(event);
 //                                frag.setArguments(bundle);
                                 MyApp.getInstance().addFragmentToStack(frag);
@@ -211,7 +225,8 @@ public class OrganizerEventFragment extends Fragment {
             randomButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
+                    event.doDraw();
+                    canDraw.setValue(Boolean.FALSE);
                 }
             });
 
@@ -280,15 +295,17 @@ public class OrganizerEventFragment extends Fragment {
                                 if (diffInMillis <= 0)
                                     statusText = "PENDING";
 
-                                if (doc.getString("state").equals("OPEN")) {
-                                    hasDrawn.setValue(Boolean.FALSE);
+                                if (Objects.equals(doc.getString("state"), "OPEN")) {
+                                    Log.e("JASON STATE TEST", Objects.requireNonNull(doc.getString("state")));
+                                    canDraw.setValue(Boolean.TRUE);
                                 } else {
-                                    if (doc.getString("state").equals("WAITING")) {
+                                    if (Objects.equals(doc.getString("state"), "WAITING")) {
                                         statusText = "PENDING";
                                     } else {
                                         statusText = "CLOSED";
                                     }
-                                    hasDrawn.setValue(Boolean.TRUE);
+                                    Log.e("JASON STATE TEST", Objects.requireNonNull(doc.getString("state")));
+                                    canDraw.setValue(Boolean.FALSE);
                                 }
 
                                 // Convert milliseconds to days (rounding down)
@@ -352,33 +369,26 @@ public class OrganizerEventFragment extends Fragment {
         //     }
         // });
 
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                MyApp.getInstance().popFragment();
-            }
-        });
-
-        viewQrCodeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String data = "https://lotto649/?eventId=" + eventId;
-                Bitmap qrCodeBitmap = QrCodeModel.generateForEvent(data);
-                QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
-                MyApp.getInstance().addFragmentToStack(qrFragment);
-            }
-        });
-
-        viewEntrantsMapButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Bundle bundle = new Bundle();
-                bundle.putString("eventId", firestoreEventId);
-                MapFragment mapFragment = new MapFragment();
-                mapFragment.setArguments(bundle);
-                MyApp.getInstance().addFragmentToStack(mapFragment);
-            }
-        });
+        // viewQrCodeButton.setOnClickListener(new View.OnClickListener() {
+        //     @Override
+        //     public void onClick(View view) {
+        //         String data = "https://lotto649/?eventId=" + eventId;
+        //         Bitmap qrCodeBitmap = QrCodeModel.generateForEvent(data);
+        //         QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
+        //         MyApp.getInstance().addFragmentToStack(qrFragment);
+        //     }
+        // });
+        //
+        // viewEntrantsMapButton.setOnClickListener(new View.OnClickListener() {
+        //     @Override
+        //     public void onClick(View view) {
+        //         Bundle bundle = new Bundle();
+        //         bundle.putString("eventId", firestoreEventId);
+        //         MapFragment mapFragment = new MapFragment();
+        //         mapFragment.setArguments(bundle);
+        //         MyApp.getInstance().addFragmentToStack(mapFragment);
+        //     }
+        // });
         return view;
     }
 }

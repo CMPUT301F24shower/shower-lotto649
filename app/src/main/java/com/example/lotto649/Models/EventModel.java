@@ -39,7 +39,7 @@ public class EventModel extends AbstractModel implements Serializable {
     private boolean geo;
     private String qrCode;
     private int waitingListSize;
-    private EventState state;
+    private EventState state = EventState.OPEN;
 
     private FirebaseFirestore db;
     private boolean savedToFirestore = false;
@@ -158,7 +158,7 @@ public class EventModel extends AbstractModel implements Serializable {
                     put("posterImage", posterImage);
                     put("geo",geo);
                     put("waitingListSize", waitingListSize);
-                    put("state", state);
+                    put("state", state.name());
                 }})
                 .addOnSuccessListener(documentReference -> {
                     eventId = documentReference.getId();

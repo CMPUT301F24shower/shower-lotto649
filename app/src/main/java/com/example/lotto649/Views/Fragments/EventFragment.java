@@ -372,11 +372,14 @@ public class EventFragment extends Fragment {
             if (maxEntrantsStr.equals("0")){
                 maxEntrantsInputLayout.setError("Please enter a positive number");
                 hasError = true;
-            } else if (Integer.parseInt(maxEntrantsStr) < Integer.parseInt(spotsStr)) {
-                maxEntrantsInputLayout.setError("Waiting List Size must be at least as large as number of possible attendees.");
-                hasError = true;
             } else if (!maxEntrantsStr.isBlank()) {
-                maxEntrants = Integer.parseInt(maxEntrantsStr);
+                if (Integer.parseInt(maxEntrantsStr) < Integer.parseInt(spotsStr)) {
+                    maxEntrantsInputLayout.setError("Waiting List Size must be at least as large as number of possible attendees.");
+                    hasError = true;
+                }
+                else {
+                    maxEntrants = Integer.parseInt(maxEntrantsStr);
+                }
             }
 
             if (hasError) {

@@ -13,6 +13,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 // TODO this isnt a model, just use array adapter and firestore calls from another class
 /**
@@ -85,21 +86,21 @@ public class HomePageModel extends AbstractModel {
         String description = doc.getString("description");
         Date endDate = doc.getDate("endDate");
         Boolean geo = doc.getBoolean("geo");
-        int numMaxEntrants = doc.getLong("numberOfMaxEntrants").intValue();
-        int numSpots = doc.getLong("numberOfSpots").intValue();
+        int numMaxEntrants = Objects.requireNonNull(doc.getLong("numberOfMaxEntrants")).intValue();
+        int numSpots = Objects.requireNonNull(doc.getLong("numberOfSpots")).intValue();
         String organizerId = doc.getString("organizerId");
         String posterImage = doc.getString("posterImage");
         String qrCode = doc.getString("qrCode");
         Date startDate = doc.getDate("startDate");
         String stateStr = doc.getString("state");
         EventState state = EventState.OPEN;
-        if (stateStr.equals("WAITING")) {
+        if (Objects.equals(stateStr, "WAITING")) {
             state = EventState.WAITING;
-        } else if (stateStr.equals("CLOSED")) {
+        } else if (Objects.equals(stateStr, "CLOSED")) {
             state = EventState.CLOSED;
         }
         String title = doc.getString("title");
-        int waitingListSize = doc.getLong("waitingListSize").intValue();
+        int waitingListSize = Objects.requireNonNull(doc.getLong("waitingListSize")).intValue();
         EventModel newEvent = new EventModel(title, description, numSpots, numMaxEntrants, startDate, endDate, posterImage, geo, qrCode, waitingListSize, state, db);
         newEvent.setOrganizerId(organizerId);
         newEvent.setEventId(eventId);
