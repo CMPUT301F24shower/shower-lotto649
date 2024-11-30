@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -12,6 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:backgroundTint="@color/lightSurfaceContainerHigh"
+        android:fontFamily="sans-serif-medium"
         app:icon="@drawable/ic_back_foreground"
         app:iconSize="40dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,7 +23,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="212dp"
         android:textSize="40sp"
-        android:text="Facility Name"
         android:fontFamily="sans-serif-medium"
         android:textColor="@color/black"
         android:padding="2dp"
@@ -36,8 +35,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="25sp"
-        android:text="address"
-        android:fontFamily="sans-serif"
+        android:fontFamily="sans-serif-medium"
         android:textColor="@color/lightOnSurfaceVariant"
         android:padding="2dp"
         app:layout_constraintEnd_toEndOf="parent"
