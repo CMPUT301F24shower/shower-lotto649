@@ -1,47 +1,10 @@
 <resources>
-    <!-- Global application theme -->
+    <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
-<!--        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>-->
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
-<!--        <item name="android:textColor">@color/colorOnBackground</item>-->
     </style>
 
-    <!-- Enhanced Button Styles for Bottom Navigation -->
-    <style name="BottomNavStyle" parent="Widget.MaterialComponents.BottomNavigationView">
-<!--        <item name="android:background">@color/lotteryGold</item>-->
-        <item name="android:layout_marginTop">16dp</item>
-<!--        <item name="itemIconTint">@color/bottom_nav_icon_color</item>-->
-<!--        <item name="itemTextColor">@color/bottom_nav_text_color</item>-->
-<!--        <item name="itemRippleColor">@color/rippleColor</item>-->
-    </style>
-
-    <!-- Button Styles for Lottery App -->
-    <style name="LotteryButtonStyle" parent="Widget.MaterialComponents.Button">
-<!--        <item name="android:background">@color/lotteryGold</item>-->
-<!--        <item name="android:textColor">@color/black</item>-->
-        <item name="android:fontFamily">sans-serif-medium</item>
-    </style>
-
-    <!-- Winning Highlight Style -->
-    <style name="WinningTextStyle" parent="TextAppearance.MaterialComponents.Body1">
-<!--        <item name="android:textColor">@color/winningGreen</item>-->
-        <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="android:textSize">18sp</item>
-    </style>
-
-    <!-- Alert Message Text -->
-    <style name="AlertTextStyle" parent="TextAppearance.MaterialComponents.Body1">
-<!--        <item name="android:textColor">@color/alertRed</item>-->
-        <item name="android:fontFamily">sans-serif</item>
-        <item name="android:textSize">16sp</item>
-    </style>
-
-    <!-- Event Description Text -->
-    <style name="EventDescriptionStyle" parent="TextAppearance.MaterialComponents.Body1">
-<!--        <item name="android:textColor">@color/colorOnBackground</item>-->
-        <item name="android:fontFamily">sans-serif</item>
-        <item name="android:textSize">14sp</item>
-    </style>
 </resources>

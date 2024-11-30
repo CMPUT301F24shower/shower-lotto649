@@ -1,26 +1,16 @@
 <resources>
-    <!-- Updated Strings -->
-    <string name="app_name">Lotto649</string>
-    <string name="hello_blank_fragment">Welcome to Lotto649!</string>
-    <string name="enter_lottery_number">Enter Your Lottery Number</string>
-    <string name="check_results">Check Results</string>
-    <string name="congratulations">Congratulations! You Won!</string>
-    <string name="try_again">Better Luck Next Time</string>
-    <string name="view_previous_results">View Previous Results</string>
-    <string name="current_jackpot">Current Jackpot: </string>
-    <string name="enter_details">Enter your details to proceed</string>
-    <string name="contact_support">Contact Support</string>
-
-    <!-- Event Strings -->
-    <string name="event_poster_placeholder">Event Image Placeholder</string>
-    <string name="event_image">Event Image</string>
-    <string name="event_title">Title</string>
-    <string name="event_status">OPEN/PENDING/CLOSED</string>
-    <string name="event_location">Location</string>
-    <string name="event_available_spots"># Spots Available/OPEN</string>
-    <string name="event_days_left"># Days Left to Enter</string>
-    <string name="geolocation_requirement">GeoLocation Required</string>
-    <string name="event_description">Description</string>
-    <string name="event_dates">Dates: 01 Jan - 07 Jan</string>
-    <string name="event_attendees">Attendees: 25</string>
+<!--    &lt;!&ndash; Updated Strings &ndash;&gt;-->
+<!--    <string name="app_name">Lotto649</string>-->
+<!--    <string name="hello_blank_fragment">Welcome to Lotto649!</string>-->
+<!--    <string name="enter_lottery_number">Enter Your Lottery Number</string>-->
+<!--    <string name="check_results">Check Results</string>-->
+<!--    <string name="congratulations">Congratulations! You Won!</string>-->
+<!--    <string name="try_again">Better Luck Next Time</string>-->
+<!--    <string name="view_previous_results">View Previous Results</string>-->
+<!--    <string name="current_jackpot">Current Jackpot: </string>-->
+<!--    <string name="enter_details">Enter your details to proceed</string>-->
+<!--    <string name="contact_support">Contact Support</string>-->
+    <string name="app_name">lotto649</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
