@@ -3,6 +3,7 @@
  * into a working application.
  */
 package com.example.lotto649.Views.Fragments;
+import android.app.Activity;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.Editable;
@@ -182,13 +183,16 @@ public class FacilityFragment extends Fragment {
      * @param facility The facility model containing the details to be displayed
      */
     public void showFacilityDetails(FacilityModel facility) {
-        requireActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                nameInput.setText(facility.getFacilityName());
-                addressInput.setText(facility.getAddress());
-            }
-        });
+        Activity activity = getActivity();
+        if (activity != null) {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    nameInput.setText(facility.getFacilityName());
+                    addressInput.setText(facility.getAddress());
+                }
+            });
+        }
     }
 
     /**
