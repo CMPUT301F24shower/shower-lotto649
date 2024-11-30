@@ -17,7 +17,7 @@
         android:id="@+id/eventFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Create a Event"
+        android:text="Create Event"
         android:textSize="40sp"
         android:textAlignment="center"
         app:layout_constraintTop_toTopOf="parent"
