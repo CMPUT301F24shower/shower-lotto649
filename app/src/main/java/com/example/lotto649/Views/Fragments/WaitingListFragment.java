@@ -13,35 +13,33 @@ package com.example.lotto649.Views.Fragments;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-import com.example.lotto649.Models.FacilityModel;
 import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
-import com.example.lotto649.Views.ArrayAdapters.BrowseFacilitiesArrayAdapter;
 import com.example.lotto649.Views.ArrayAdapters.BrowseProfilesArrayAdapter;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * BrowseProfilesFragment class represents a fragment for the admin to browse all profiles in the application.
@@ -64,32 +62,8 @@ public class WaitingListFragment extends Fragment {
     private ListView browseProfilesList;
     private BrowseProfilesArrayAdapter profilesAdapter;
     private FirebaseFirestore db;
-    private CollectionReference userRef;
-    private String eventId;
-    private Context mContext;
     ExtendedFloatingActionButton backButton;
-
-    /**
-     * Public empty constructor for BrowseFacilitiesFragment.
-     * <p>
-     * Required for proper instantiation of the fragment by the Android system.
-     * </p>
-     */
-    public WaitingListFragment(String eventId) {
-        this.eventId = eventId;
-        Log.e("Ohm","eventId: " + eventId);
-        // Required empty public constructor
-    }
-
-    /**
-     * Attaches the fragment to the app, and sets the context
-     * @param context the given context
-     */
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        mContext = context;
-    }
+    private String firestoreEventId;
 
     /**
      * Called to create the view hierarchy associated with this fragment.
@@ -101,12 +75,12 @@ public class WaitingListFragment extends Fragment {
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        firestoreEventId = getArguments().getString("firestoreEventId");
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_waiting_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_browse_profiles, container, false);
 
         // initialize Firestore
         db = FirebaseFirestore.getInstance();
-        userRef = db.collection("users");
 
         // fill dataList from Firestore
         dataList = new ArrayList<UserModel>();
@@ -119,62 +93,79 @@ public class WaitingListFragment extends Fragment {
 
         backButton = view.findViewById(R.id.back_button);
 
-        db.collection("signUps")
-                .whereEqualTo("eventId", eventId)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        signUpIdList.clear();
-                        deviceIdList.clear();
-
-                        ArrayList<String> tempDeviceIdList  = new ArrayList<String>();
-                        for (QueryDocumentSnapshot doc : task.getResult()) {
-                            signUpIdList.add(doc.getId());
-                            tempDeviceIdList.add(doc.getString("userId"));
-                        }
-
-                        if (!tempDeviceIdList.isEmpty()) {
-                            userRef.whereIn(FieldPath.documentId(), tempDeviceIdList) // Use whereIn with document IDs
-                                    .orderBy("name")
-                                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onEvent(@Nullable QuerySnapshot querySnapshots, @Nullable FirebaseFirestoreException error) {
-                                            if (error != null) {
-                                                return;
-                                            }
-                                            if (querySnapshots != null) {
-                                                dataList.clear();
-                                                for (QueryDocumentSnapshot doc : querySnapshots) {
-                                                    String deviceIdText = doc.getId();
-                                                    String nameText = doc.getString("name");
-                                                    String emailText = doc.getString("email");
-                                                    String phoneText = doc.getString("phone");
-
-                                                    Log.e("Ohm",doc.getId() + " : " + doc.getString("name") + " | " + doc.getString("email") + " | " + doc.getString("phone"));
-                                                    UserModel newUser = new UserModel(mContext, nameText, emailText, phoneText, null);
-                                                    newUser.setProfileImage(doc.getString("profileImage"));
-                                                    dataList.add(newUser);
-                                                    deviceIdList.add(deviceIdText);
-                                                }
-                                                profilesAdapter.notifyDataSetChanged();
-                                            }
-                                        }
-                                    });
-                        }
+        db.collection("signUps").whereEqualTo("eventId", firestoreEventId).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot querySnapshots, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    return;
+                }
+                if (querySnapshots != null) {
+                    dataList.clear();
+                    AtomicBoolean noSignUps = new AtomicBoolean(true);
+                    for (QueryDocumentSnapshot doc: querySnapshots) {
+                        String deviceId = doc.getString("userId");
+                        db.collection("users").document(deviceId).get().addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                noSignUps.set(false);
+                                DocumentSnapshot userDoc = task.getResult();
+                                String deviceIdText = userDoc.getId();
+                                String nameText = userDoc.getString("name");
+                                String emailText = userDoc.getString("email");
+                                String phoneText = userDoc.getString("phone");
+                                Context context = getContext();
+                                UserModel newUser;
+                                if (context != null) {
+                                    newUser = new UserModel(context, nameText, emailText, phoneText, null);
+                                    newUser.setProfileImage(userDoc.getString("profileImage"));
+                                    dataList.add(newUser);
+                                    deviceIdList.add(deviceIdText);
+                                    profilesAdapter.notifyDataSetChanged();
+                                }
+                            }
+                        });
                     }
-                });
+                    if (noSignUps.get()) {
+                        ConstraintLayout layout = view.findViewById(R.id.browse_profiles_layout);
+                        TextView textView = new TextView(getContext());
+                        textView.setId(View.generateViewId()); // Generate an ID for the TextView
+                        textView.setText("No Users have signed up yet");
+                        textView.setTextSize(24);
+                        textView.setGravity(Gravity.CENTER);
+                        textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black)); // Update with your color
+
+                        // Set layout params for the TextView to match parent constraints
+                        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
+                                ConstraintLayout.LayoutParams.MATCH_PARENT,
+                                ConstraintLayout.LayoutParams.WRAP_CONTENT
+                        );
+
+                        params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
+                        params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
+                        params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
+                        params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
+
+                        textView.setLayoutParams(params);
+
+                        // Add the TextView to the layout
+                        layout.addView(textView);
+                    }
+                }
+            }
+        });
 
         browseProfilesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String signUpId = (String) signUpIdList.get(i);
-                String userId = (String) deviceIdList.get(i);
+                String chosenUserId = (String) deviceIdList.get(i);
                 Bundle bundle = new Bundle();
-                bundle.putString("signUpId", signUpId);
-                bundle.putString("userId", userId);
+                bundle.putString("userDeviceId", chosenUserId);
+                bundle.putString("firestoreEventId", firestoreEventId);
                 WaitingListProfileFragment frag = new WaitingListProfileFragment();
                 frag.setArguments(bundle);
-                MyApp.getInstance().addFragmentToStack(frag);
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.flFragment, frag, null)
+                        .addToBackStack(null)
+                        .commit();
             }
         });
 

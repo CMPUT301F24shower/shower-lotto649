@@ -136,6 +136,8 @@ public class BrowseEventsFragment extends Fragment {
             }
         });
 
+        // TODO needs a back button
+
         return view;
     }
 }

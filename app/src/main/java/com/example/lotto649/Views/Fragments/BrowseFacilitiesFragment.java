@@ -124,6 +124,8 @@ public class BrowseFacilitiesFragment extends Fragment {
             }
         });
 
+        // TODO needs a back button
+
         return view;
     }
 }
