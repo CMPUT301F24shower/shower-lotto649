@@ -61,6 +61,7 @@ public class JoinEventFragment extends Fragment {
     private Uri posterUri;
     private MutableLiveData<Boolean> imageAbleToBeDeleted, qrCodeAbleToBeDeleted;
     private Date startDate, endDate;
+    private int curNum;
     private boolean geoRequired;
 
     /**
@@ -119,13 +120,18 @@ public class JoinEventFragment extends Fragment {
                             DocumentSnapshot doc = task.getResult();
                             String nameText = doc.getString("title");
                             int maxNum = ((Long) doc.get("numberOfMaxEntrants")).intValue();
+                            curNum =  ((Long) doc.get("waitingListSize")).intValue();
                             String spotsAvailText;
                             if (maxNum == -1) {
                                 spotsAvailText = "OPEN";
+                            } else if (maxNum <= curNum){
+                                spotsAvailText = "FULL";
+                                joinButton.setVisibility(View.GONE);
                             } else {
                                 // TODO please fix this
-                                spotsAvailText = "TODO";
+//                                spotsAvailText = "TODO";
 //                                spotsAvailText = Integer.toString(maxNum - ((List<String>) doc.get("waitingList")).size()) + " Spots Available";
+                                spotsAvailText = Integer.toString(maxNum - curNum) + " Spots Available";
                             }
                             String numAttendeesText = Integer.toString(((Long) doc.get("numberOfSpots")).intValue()) + " Attendees";
                             DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
@@ -200,7 +206,7 @@ public class JoinEventFragment extends Fragment {
                                 Toast.makeText(getContext(), "Sorry this event is not accepting signups yet.", Toast.LENGTH_SHORT).show();
                             } else if (currentDate.after(endDate)) {
                                 Toast.makeText(getContext(), "Sorry this event has closed for new signups.", Toast.LENGTH_SHORT).show();
-                            }else {
+                            } else {
                                 Map<String, Object> signUp = new HashMap<>();
                                 signUp.put("eventId", firestoreEventId);
 
@@ -229,6 +235,7 @@ public class JoinEventFragment extends Fragment {
                                     signUp.put("latitude", "");
                                 }
                                 db.collection("signUps").document(firestoreEventId + "_" + deviceId).set(signUp).addOnSuccessListener(listener -> {
+                                    eventsRef.document(firestoreEventId).update("waitingListSize", curNum+1);
                                     // TODO set flags for entrant state, (in list, chosen, waiting for response...)
                                     joinButton.setVisibility(View.GONE);
                                     unjoinButton.setVisibility(View.VISIBLE);

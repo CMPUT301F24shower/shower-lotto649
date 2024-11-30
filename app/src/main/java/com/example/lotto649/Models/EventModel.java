@@ -8,14 +8,22 @@ import com.example.lotto649.MyApp;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.io.Serializable;
+
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Date;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * EventModel represents an event in the application with attributes such as title, location,
@@ -34,8 +42,8 @@ public class EventModel extends AbstractModel implements Serializable {
     private boolean geo;
     private String qrCode;
     private String qrCodeData;
-    // TODO lets have waiting list, it can be queried form firestore
-    private ArrayList<UserModel> waitingList;
+    private int waitingListSize;
+    private boolean drawn;
 
     private FirebaseFirestore db;
     private boolean savedToFirestore = false;
@@ -67,7 +75,8 @@ public class EventModel extends AbstractModel implements Serializable {
         this.endDate =  new Date();
         this.posterImage = "";
         this.geo = false;
-        this.waitingList = new ArrayList<>();
+        this.waitingListSize = 0;
+        this.drawn = false;
     }
 
     /**
@@ -99,13 +108,13 @@ public class EventModel extends AbstractModel implements Serializable {
     public EventModel(Context context, String title, String description, int numberOfSpots,
                       Date startDate, Date endDate, boolean geo, FirebaseFirestore db) {
         this(context, title, description, numberOfSpots,
-                -1, startDate, endDate, null, geo, null, new ArrayList<UserModel>(), db);
+                -1, startDate, endDate, null, geo, null, 0, false, db);
     }
 
     public EventModel(Context context, String title, String description, int numberOfSpots,
                       int numberOfMaxEntrants, Date startDate, Date endDate, boolean geo, FirebaseFirestore db) {
         this(context, title, description, numberOfSpots,
-                numberOfMaxEntrants, startDate, endDate, null, geo, null, new ArrayList<UserModel>(), db);
+                numberOfMaxEntrants, startDate, endDate, null, geo, null, 0, false, db);
     }
 
     /**
@@ -120,7 +129,7 @@ public class EventModel extends AbstractModel implements Serializable {
      */
     public EventModel(Context context, String title, String description, int numberOfSpots,
                       int numberOfMaxEntrants, Date startDate, Date endDate, String posterImage, boolean geo, String qrCodeUrl,
-                      ArrayList<UserModel> waitingList, FirebaseFirestore db) {
+                      int waitingListSize, boolean drawn, FirebaseFirestore db) {
         this.title = title;
         this.organizerId = MyApp.getInstance().getUserModel().getDeviceId();
         this.description = description;
@@ -131,8 +140,10 @@ public class EventModel extends AbstractModel implements Serializable {
         this.posterImage = posterImage;
         this.geo = geo;
         this.db = db;
-//        this.qrCode = qrCode;
-        this.waitingList = waitingList;
+        this.qrCodeData = title + description + numberOfSpots + numberOfMaxEntrants;
+        this.qrCode = qrCode;
+        this.waitingListSize = waitingListSize;
+        this.drawn = drawn;
     }
 
     /**
@@ -155,7 +166,8 @@ public class EventModel extends AbstractModel implements Serializable {
                     put("qrCode", qrCode);
                     put("posterImage", posterImage);
                     put("geo",geo);
-                    put("waitingList", serializeWaitingList());
+                    put("waitingListSize", waitingListSize);
+                    put("drawn", drawn);
                 }})
                 .addOnSuccessListener(documentReference -> {
                     eventId = documentReference.getId();
@@ -188,18 +200,11 @@ public class EventModel extends AbstractModel implements Serializable {
         this.savedToFirestore = savedToFirestore;
     }
 
-    // TODO why is this 2 methods, please make it 1
     /**
      * Removes the event data to Firestore.
      * If the event has already been removed, this method does nothing.
      */
     public void removeEventFromFirestore() {
-        removeEventFirestore();
-        clear();
-        notifyViews();
-    }
-
-    private void removeEventFirestore(){
         if (eventId == null || eventId.isEmpty()) {
             System.err.println("Event ID is not set. Cannot delete event.");
             return;
@@ -215,6 +220,8 @@ public class EventModel extends AbstractModel implements Serializable {
                 .addOnFailureListener(e -> {
                     System.err.println("Error removing event: " + e.getMessage());
                 });
+        clear();
+        notifyViews();
     }
 
     // TODO this should never change
@@ -242,23 +249,6 @@ public class EventModel extends AbstractModel implements Serializable {
                 });
     }
 
-    // TODO why is this never used, orgId and facilityId are the same, we dont need this
-    /**
-     * Fetches the full FacilityModel from Firestore using the stored facility ID.
-     */
-    public void fetchFacility() {
-        if (organizerId == null || db == null) return;
-
-        DocumentReference facilityRef = db.collection("facilities").document(organizerId);
-        facilityRef.get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    FacilityModel facility = documentSnapshot.toObject(FacilityModel.class);
-                    // TODO what are we doing with the facility here? currently nothing
-                })
-                .addOnFailureListener(e -> {
-                    System.err.println("Error fetching facility: " + e.getMessage());
-                });
-    }
 
     /**
      * Retrieves the title of the event.
@@ -288,6 +278,23 @@ public class EventModel extends AbstractModel implements Serializable {
     public String getOrganizerId() {
         return organizerId;
     }
+
+    public void getLocation(Consumer<String> callback) {
+        db.collection("facilities").document(organizerId).get().addOnSuccessListener(
+                doc -> {
+                    if (doc.exists()) {
+                        String address = doc.getString("address");
+                        callback.accept(address); // Pass the result to the callback
+                    } else {
+                        callback.accept(null); // No document found
+                    }
+                }).addOnFailureListener(e -> {
+            Log.e("Ohm", "Error fetching location: ", e);
+            callback.accept(null); // Handle errors
+        });
+    }
+
+
 
     /**
      * Sets the organizer ID associated with this event and updates Firestore.
@@ -463,40 +470,55 @@ public class EventModel extends AbstractModel implements Serializable {
         notifyViews();
     }
 
+
     /**
      * Retrieves the list of users on the waiting list for this event.
      *
      * @return an ArrayList of UserModel objects representing the waiting list
      */
-    public ArrayList<UserModel> getWaitingList() {
+    public ArrayList<String> getWaitingList() {
+        ArrayList<String> waitingList = new ArrayList<>();
+        db.collection("signUps").whereEqualTo("eventId",eventId)
+            .get()
+            .addOnCompleteListener(
+                task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot doc : task.getResult()) {
+                            waitingList.add(doc.getString("userId"));
+                        }
+                    }
+                }
+            );
         return waitingList;
     }
 
-    /**
-     * Adds an entrant to the waiting list and saves the updated waiting list to Firestore.
-     *
-     * @param entrant the user to add to the waiting list
-     */
-    public boolean addToWaitingList(UserModel entrant) {
-        if (0 < numberOfMaxEntrants && numberOfMaxEntrants <= waitingList.size()) return false;
-        waitingList.add(entrant);
-        updateFirestore("waitingList", serializeWaitingList());
-        notifyViews();
-        return true;
+    public boolean isDrawn() {
+        return drawn;
     }
-    // TODO this is not how waiting list is implemented
 
-    /**
-     * Serializes the waiting list to a list of user IDs for Firestore storage.
-     *
-     * @return a list of serialized waiting list entries as strings
-     */
-    private List<String> serializeWaitingList() {
-        return waitingList.stream()
-                .map(UserModel::getDeviceId)
-                .collect(Collectors.toList());
+
+    public void doDraw() {
+        if (drawn) return;
+
+        db.collection("signUps")
+                .whereEqualTo("eventId", eventId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        List<DocumentSnapshot> docs = task.getResult().getDocuments();
+                        Collections.shuffle(docs);
+                        int i = 0;
+                        for (DocumentSnapshot doc : docs) {
+                            if (i++ < numberOfSpots) {
+                                db.collection("winners").add(doc.getData());
+                            }
+                        }
+                    }
+                });
+        drawn = true;
+        updateFirestore("drawn", true);
+        notifyViews();
     }
-    // TODO this is not how waiting list is implemented
 
     /**
      * Generates a QR code for the event (mock implementation).

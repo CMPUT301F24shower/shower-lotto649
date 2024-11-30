@@ -32,6 +32,7 @@ import com.bumptech.glide.Glide;
 import com.example.lotto649.Controllers.EventController;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.Models.QrCodeModel;
+import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -312,7 +313,7 @@ public class EventFragment extends Fragment {
 
         // Set up the cancel button click listener
         cancelButton.setOnClickListener(v -> {
-            eventController.returnToEvents();
+            MyApp.getInstance().popFragment();
         });
 
         // Set up the save button click listener
@@ -410,7 +411,7 @@ public class EventFragment extends Fragment {
                             .commit();
                 });
             } else {
-                eventController.returnToEvents();
+                MyApp.getInstance().popFragment();
             }
             setInitialValues();
             isAddingFirstTime = false;
