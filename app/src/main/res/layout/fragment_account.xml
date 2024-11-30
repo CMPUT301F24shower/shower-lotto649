@@ -24,6 +24,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Account"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/black"
             android:textSize="40sp" />
         <View
             android:layout_width="match_parent"
@@ -38,6 +40,7 @@
             android:layout_gravity="center"
             android:background="@drawable/name_bg"
             android:textColor="@color/white"
+            android:fontFamily="sans-serif-medium"
             android:gravity="center"
             android:textSize="48sp"
             android:text="" />
@@ -61,7 +64,8 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/nameEditText"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"/>
 
         </com.google.android.material.textfield.TextInputLayout>
         <View
@@ -84,7 +88,8 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/emailEditText"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -110,7 +115,8 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/phoneEditText"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"/>
 
             </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
@@ -129,6 +135,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_margin="16dp"
+            android:fontFamily="sans-serif-medium"
             android:text="Save"
             android:backgroundTint="@color/lightSurfaceContainerHigh"
             app:icon="@drawable/ic_check_foreground"
@@ -145,6 +152,7 @@
             android:layout_gravity="bottom"
             android:layout_margin="16dp"
             android:backgroundTint="@color/lightSurfaceContainerHigh"
+            android:fontFamily="sans-serif-medium"
             android:text="Remove Picture"
             app:icon="@drawable/ic_trash_foreground"
             app:iconSize="40dp"

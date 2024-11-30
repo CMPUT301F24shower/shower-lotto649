@@ -18,6 +18,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Create Event"
+        android:fontFamily="sans-serif-medium"
+        android:textColor="@color/black"
         android:textSize="40sp"
         android:textAlignment="center"
         app:layout_constraintTop_toTopOf="parent"
@@ -37,7 +39,7 @@
             android:id="@+id/event_poster_placeholder"
             android:layout_width="300dp"
             android:layout_height="150dp"
-            android:background="#D3D3D3"
+            android:background="@drawable/rounded_corners"
             android:contentDescription="Event Image Placeholder"
             android:layout_margin="16dp"
             android:src="@drawable/ic_default_event_img_foreground"/>
@@ -45,9 +47,9 @@
         <!-- Real Event Poster -->
         <ImageView
             android:id="@+id/event_poster"
-            android:layout_width="75dp"
-            android:layout_height="75dp"
-            android:background="#D3D3D3"
+            android:layout_width="300dp"
+            android:layout_height="150dp"
+            android:background="@drawable/rounded_corners"
             android:contentDescription="Event Image"
             android:layout_margin="16dp"/>
 
@@ -72,7 +74,8 @@
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"/>
+            android:inputType="text"
+            android:fontFamily="sans-serif-medium"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Description Field -->
@@ -94,7 +97,8 @@
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textMultiLine"/>
+            android:inputType="textMultiLine"
+            android:fontFamily="sans-serif-medium"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Lottery Entry Start Date -->
@@ -118,7 +122,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:focusable="false"
-            android:inputType="date"/>
+            android:inputType="date"
+            android:fontFamily="sans-serif-medium"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Lottery Entry End Date -->
@@ -142,7 +147,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:focusable="false"
-            android:inputType="date"/>
+            android:inputType="date"
+            android:fontFamily="sans-serif-medium"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Number of Spots Available -->
@@ -166,7 +172,8 @@
             android:layout_height="wrap_content"
             android:inputType="number"
             android:maxLength="4"
-            android:digits="0123456789"/>
+            android:digits="0123456789"
+            android:fontFamily="sans-serif-medium"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Max Number of Entrants -->
@@ -190,7 +197,8 @@
             android:layout_height="wrap_content"
             android:inputType="number"
             android:maxLength="4"
-            android:digits="0123456789"/>
+            android:digits="0123456789"
+            android:fontFamily="sans-serif-medium"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- GeoLocation Checkbox -->
@@ -198,6 +206,7 @@
         android:id="@+id/eventGeolocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
         android:text="Require GeoLocation"
         app:layout_constraintTop_toBottomOf="@id/eventMaxEntrants"
         app:layout_constraintStart_toStartOf="parent"
@@ -209,6 +218,8 @@
         android:id="@+id/cancelButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:backgroundTint="@color/lightSurfaceContainerHigh"
         android:text="Cancel"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -219,6 +230,8 @@
         android:id="@+id/saveButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:backgroundTint="@color/lightSurfaceContainerHigh"
         android:text="Create"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/cancelButton"

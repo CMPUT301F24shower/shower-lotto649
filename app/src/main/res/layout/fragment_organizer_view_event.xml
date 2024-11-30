@@ -72,7 +72,7 @@
                 android:text="OPEN/PENDING/CLOSED"
                 android:textColor="@color/lightOnSurfaceVariant"
                 android:padding="2dp"
-                android:textSize="18sp"
+                android:textSize="25sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/organizer_event_name" />
 
@@ -84,7 +84,7 @@
                 android:text="Location"
                 android:textColor="@color/lightOnSurfaceVariant"
                 android:padding="2dp"
-                android:textSize="18sp"
+                android:textSize="25sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/organizer_event_status" />
 
@@ -95,7 +95,7 @@
                 android:text="# Spots Available/OPEN"
                 android:textColor="@color/lightOnSurfaceVariant"
                 android:padding="2dp"
-                android:textSize="18sp"
+                android:textSize="25sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/organizer_event_location" />
 
@@ -107,7 +107,7 @@
                 android:text="# of Attendees"
                 android:textColor="@color/lightOnSurfaceVariant"
                 android:padding="2dp"
-                android:textSize="18sp"
+                android:textSize="25sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/organizer_event_spots" />
 
@@ -119,7 +119,7 @@
                 android:text="Event Dates"
                 android:textColor="@color/lightOnSurfaceVariant"
                 android:padding="2dp"
-                android:textSize="18sp"
+                android:textSize="25sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/organizer_event_attendees" />
 
@@ -131,7 +131,7 @@
                 android:text="GeoLocation Required"
                 android:textColor="@color/lightOnSurfaceVariant"
                 android:padding="2dp"
-                android:textSize="18sp"
+                android:textSize="25sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/organizer_event_dates" />
 
@@ -167,6 +167,7 @@
             android:layout_height="0dp"
             android:layout_marginTop="4dp"
             android:backgroundTint="@color/lightSurfaceContainerHigh"
+            android:fontFamily="sans-serif-medium"
             android:text="View QR Code"
             app:icon="@drawable/ic_person_name_foreground"
             app:layout_constraintEnd_toStartOf="@+id/choose_winners_button"
@@ -181,6 +182,7 @@
             android:layout_height="0dp"
             android:layout_marginTop="4dp"
             android:backgroundTint="@color/lightSurfaceContainerHigh"
+            android:fontFamily="sans-serif-medium"
             android:lines="2"
             android:text="Randomly Choose\nWinning Entrants"
             android:textSize="12dp"
@@ -209,6 +211,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:backgroundTint="@color/lightSurfaceContainerHigh"
+            android:fontFamily="sans-serif-medium"
             android:lines="2"
             android:text="Map of Entrants\nin Waiting List"
             android:textSize="12dp"
@@ -225,6 +228,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:backgroundTint="@color/lightSurfaceContainerHigh"
+            android:fontFamily="sans-serif-medium"
             android:lines="2"
             android:text="View Entrants\nin Waiting List"
             android:textSize="12dp"
@@ -254,6 +258,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:backgroundTint="@color/lightSurfaceContainerHigh"
+        android:fontFamily="sans-serif-medium"
         app:icon="@drawable/ic_person_name_foreground"
         android:text="Edit"
         app:layout_constraintWidth_percent="0.4"
@@ -269,6 +274,7 @@
         android:layout_height="0dp"
         android:text="Back"
         android:backgroundTint="@color/lightSurfaceContainerHigh"
+        android:fontFamily="sans-serif-medium"
         app:icon="@drawable/ic_back_foreground"
         app:layout_constraintWidth_percent="0.4"
         app:layout_constraintHeight_percent="0.8"
