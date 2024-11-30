@@ -297,7 +297,11 @@ public class OrganizerEventFragment extends Fragment {
 
                                 if (Objects.equals(doc.getString("state"), "OPEN")) {
                                     Log.e("JASON STATE TEST", Objects.requireNonNull(doc.getString("state")));
-                                    canDraw.setValue(Boolean.TRUE);
+                                    if (waitListSize != null && waitListSize > 0) {
+                                        canDraw.setValue(Boolean.TRUE);
+                                    } else {
+                                        canDraw.setValue(Boolean.FALSE);
+                                    }
                                 } else {
                                     if (Objects.equals(doc.getString("state"), "WAITING")) {
                                         statusText = "PENDING";
