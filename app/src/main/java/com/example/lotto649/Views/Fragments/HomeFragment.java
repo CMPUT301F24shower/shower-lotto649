@@ -22,13 +22,19 @@ import android.widget.ListView;
 
 import androidx.fragment.app.Fragment;
 
+import com.example.lotto649.Models.HomePageModel;
+import com.example.lotto649.MyApp;
+import com.example.lotto649.Views.ArrayAdapters.EventArrayAdapter;
 import com.example.lotto649.Controllers.EventsController;
 import com.example.lotto649.Models.EventModel;
-import com.example.lotto649.Models.EventsModel;
-import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.example.lotto649.Views.ArrayAdapters.EventArrayAdapter;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -37,7 +43,7 @@ public class HomeFragment extends Fragment {
     private EventsController eventsController;
     private ExtendedFloatingActionButton addButton;
     private EventArrayAdapter eventAdapter;
-    private EventsModel events;
+    private HomePageModel events;
 
     /**
      * Required empty public constructor.
@@ -59,14 +65,34 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        events = new EventsModel();
+        events = new HomePageModel();
         eventsController = new EventsController(events);
         addButton = view.findViewById(R.id.addButton);
+
+        // Check that the user has created an account and a facility, if they haven't hide the create event button
+        String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+        DocumentReference userRef = FirebaseFirestore.getInstance().collection("users").document(deviceId);
+        DocumentReference facilityRef = FirebaseFirestore.getInstance().collection("facilities").document(deviceId);
+
+        userRef.get().addOnCompleteListener(task -> {
+            DocumentSnapshot userDoc = task.getResult();
+            boolean userExists = userDoc != null && userDoc.exists();
+            if (!userExists) {
+                addButton.setVisibility(View.GONE);
+            }
+        }).addOnFailureListener(task -> addButton.setVisibility(View.GONE));;
+        facilityRef.get().addOnCompleteListener(task -> {
+            DocumentSnapshot facilityDoc = task.getResult();
+            boolean facilityExists = facilityDoc != null && facilityDoc.exists();
+            if (!facilityExists) {
+                addButton.setVisibility(View.GONE);
+            }
+        }).addOnFailureListener(task -> addButton.setVisibility(View.GONE));
 
         ListView eventsList = view.findViewById(R.id.event_contents);
 
         // Use the asynchronous method and handle data once it's ready
-        eventsController.getMyEvents(new EventsModel.MyEventsCallback() {
+        eventsController.getMyEvents(new HomePageModel.MyEventsCallback() {
             @Override
             public void onEventsFetched(ArrayList<EventModel> events) {
                 Log.w("Ohm", "Events fetched: " + events.size());

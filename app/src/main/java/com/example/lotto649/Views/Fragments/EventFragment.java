@@ -345,9 +345,6 @@ public class EventFragment extends Fragment {
             if (lotteryStartDateFieldText.getText().toString().isBlank()) {
                 lotteryStartDateFieldLayout.setError("Please enter your event lottery start date");
                 hasError = true;
-            } else if (startDate.get().before(new Date())) {
-                lotteryStartDateFieldLayout.setError("Start date can't be in the past");
-                hasError = true;
             } else {
                 lotteryStartDateFieldLayout.setError(null);
             }
@@ -355,7 +352,10 @@ public class EventFragment extends Fragment {
                 lotteryEndDateFieldLayout.setError("Please enter your event lottery end date");
                 hasError = true;
             } else if (!endDate.get().equals(startDate.get()) && endDate.get().before(startDate.get())) {
-                lotteryEndDateFieldLayout.setError("End date must be greater than or equal to start date");
+                lotteryEndDateFieldLayout.setError("End date must be after start date");
+                hasError = true;
+            } else if (endDate.get().before(new Date())) {
+                lotteryStartDateFieldLayout.setError("End date can't be in the past");
                 hasError = true;
             } else {
                 lotteryEndDateFieldLayout.setError(null);
@@ -413,9 +413,8 @@ public class EventFragment extends Fragment {
 
                 eventController.updateQrCode(qrCodeHash);
                 QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
-                getParentFragmentManager().beginTransaction()
+                requireActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.flFragment, qrFragment)
-                        .addToBackStack(null)
                         .commit();
             }
             isAddingFirstTime = false;

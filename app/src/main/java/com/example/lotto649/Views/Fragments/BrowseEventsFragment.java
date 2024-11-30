@@ -111,7 +111,7 @@ public class BrowseEventsFragment extends Fragment {
                         String posterImageUriString = doc.getString("posterImage");
                         String qrCodeHash = doc.getString("qrCode");
                         boolean geo = doc.getBoolean("geo");
-                        dataList.add( new EventModel(getContext(), title, facilityId, description, numberOfSpots,
+                        dataList.add( new EventModel(getContext(), title, description, numberOfSpots,
                         numberOfMaxEntrants, startDate, endDate, posterImageUriString, geo, qrCodeHash,
                                 0, false, null));
                         eventIdList.add(eventId);

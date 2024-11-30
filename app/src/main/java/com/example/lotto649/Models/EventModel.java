@@ -11,15 +11,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.io.Serializable;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * EventModel represents an event in the application with attributes such as title, location,
@@ -28,7 +27,6 @@ import java.util.List;
  */
 public class EventModel extends AbstractModel implements Serializable {
     private String title;
-    private String facilityId;
     private String organizerId;
     private String description;
     private int numberOfSpots;
@@ -47,19 +45,11 @@ public class EventModel extends AbstractModel implements Serializable {
     private String eventId;
     public String getEventId() {
         return eventId;
-    };
+    }
 
     public void setDb(FirebaseFirestore db) {
         this.db = db;
     }
-
-    /**
-     * Callback interface for handling FacilityModel retrieval asynchronously.
-     */
-    public interface FacilityCallback {
-        void onCallback(FacilityModel facility);
-    }
-    // TODO remove this
 
     /**
      * No-argument constructor for Firestore deserialization.
@@ -72,7 +62,7 @@ public class EventModel extends AbstractModel implements Serializable {
 
     private void clear(){
         this.title = "";
-        this.facilityId = "";
+        this.organizerId = "";
         this.description = "";
         this.numberOfSpots = 0;
         this.numberOfMaxEntrants = -1;
@@ -98,8 +88,6 @@ public class EventModel extends AbstractModel implements Serializable {
         clear();
         this.organizerId = MyApp.getInstance().getUserModel().getDeviceId();
         this.db = db;
-        //generateQrCode();
-        //saveEventToFirestore();
     }
 
     /**
@@ -108,20 +96,19 @@ public class EventModel extends AbstractModel implements Serializable {
      *
      * @param context the application context
      * @param title the title of the event
-     * @param facilityId the ID of the FacilityModel document representing the event location
      * @param description a description of the event
      * @param numberOfSpots the number of spots available for the event
      * @param db the Firestore database instance
      */
-    public EventModel(Context context, String title, String facilityId, String description, int numberOfSpots,
+    public EventModel(Context context, String title, String description, int numberOfSpots,
                       Date startDate, Date endDate, boolean geo, FirebaseFirestore db) {
-        this(context, title, facilityId, description, numberOfSpots,
-                -1, startDate, endDate, null, geo, null, 0,false, db);
+        this(context, title, description, numberOfSpots,
+                -1, startDate, endDate, null, geo, null, 0, false, db);
     }
 
-    public EventModel(Context context, String title, String facilityId, String description, int numberOfSpots,
+    public EventModel(Context context, String title, String description, int numberOfSpots,
                       int numberOfMaxEntrants, Date startDate, Date endDate, boolean geo, FirebaseFirestore db) {
-        this(context, title, facilityId, description, numberOfSpots,
+        this(context, title, description, numberOfSpots,
                 numberOfMaxEntrants, startDate, endDate, null, geo, null, 0, false, db);
     }
 
@@ -131,16 +118,14 @@ public class EventModel extends AbstractModel implements Serializable {
      *
      * @param context the application context
      * @param title the title of the event
-     * @param facilityId the ID of the FacilityModel document representing the event location
      * @param description a description of the event
      * @param numberOfSpots the number of spots available for the event
      * @param db the Firestore database instance
      */
-    public EventModel(Context context, String title, String facilityId, String description, int numberOfSpots,
+    public EventModel(Context context, String title, String description, int numberOfSpots,
                       int numberOfMaxEntrants, Date startDate, Date endDate, String posterImage, boolean geo, String qrCodeUrl,
                       int waitingListSize, boolean drawn, FirebaseFirestore db) {
         this.title = title;
-        this.facilityId = facilityId;
         this.organizerId = MyApp.getInstance().getUserModel().getDeviceId();
         this.description = description;
         this.numberOfSpots = numberOfSpots;
@@ -167,7 +152,6 @@ public class EventModel extends AbstractModel implements Serializable {
         db.collection("events")
                 .add(new HashMap<String, Object>() {{
                     put("title", title);
-                    put("facilityId", facilityId);
                     put("organizerId", organizerId);
                     put("description", description);
                     put("numberOfSpots", numberOfSpots);
@@ -257,25 +241,6 @@ public class EventModel extends AbstractModel implements Serializable {
                 });
     }
 
-    // TODO why is this never used, orgId and facilityId are the same, we dont need this
-    /**
-     * Fetches the full FacilityModel from Firestore using the stored facility ID.
-     *
-     * @param callback callback to handle the fetched FacilityModel asynchronously
-     */
-    public void fetchFacility(FacilityCallback callback) {
-        if (facilityId == null || db == null) return;
-
-        DocumentReference facilityRef = db.collection("facilities").document(facilityId);
-        facilityRef.get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    FacilityModel facility = documentSnapshot.toObject(FacilityModel.class);
-                    callback.onCallback(facility);
-                })
-                .addOnFailureListener(e -> {
-                    System.err.println("Error fetching facility: " + e.getMessage());
-                });
-    }
 
     /**
      * Retrieves the title of the event.
@@ -298,27 +263,6 @@ public class EventModel extends AbstractModel implements Serializable {
     }
 
     /**
-     * Retrieves the facility ID associated with this event.
-     *
-     * @return the facility ID as a string
-     */
-    public String getFacilityId() {
-        return facilityId;
-    }
-
-    /**
-     * Sets the facility ID associated with this event and updates Firestore.
-     *
-     * @param facilityId the new facility ID
-     */
-    public void setFacilityId(String facilityId) {
-        this.facilityId = facilityId;
-        updateFirestore("facilityId", facilityId);
-        notifyViews();
-    }
-    // TODO this needs to be used
-
-    /**
      * Retrieves the organizer ID associated with this event.
      *
      * @return the organizer ID as a string
@@ -326,6 +270,23 @@ public class EventModel extends AbstractModel implements Serializable {
     public String getOrganizerId() {
         return organizerId;
     }
+
+    public void getLocation(Consumer<String> callback) {
+        db.collection("facilities").document(organizerId).get().addOnSuccessListener(
+                doc -> {
+                    if (doc.exists()) {
+                        String address = doc.getString("address");
+                        callback.accept(address); // Pass the result to the callback
+                    } else {
+                        callback.accept(null); // No document found
+                    }
+                }).addOnFailureListener(e -> {
+            Log.e("Ohm", "Error fetching location: ", e);
+            callback.accept(null); // Handle errors
+        });
+    }
+
+
 
     /**
      * Sets the organizer ID associated with this event and updates Firestore.
@@ -555,29 +516,4 @@ public class EventModel extends AbstractModel implements Serializable {
     private void generateQrCode() {
         this.qrCode = QrCodeModel.generateHash(this.qrCode);
     }
-
-    /**
-     * Serializes the EventModel by writing the eventId first, then the rest of the fields.
-     *
-     * @param out the output stream to write data to
-     * @throws IOException if any I/O error occurs
-     */
-    private void writeObject(ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject(); // Default serialization
-        out.writeObject(eventId); // Serialize eventId as unique identifier
-    }
-    // TODO can we remove this
-
-    /**
-     * Deserializes the EventModel by reading the eventId first, then the rest of the fields.
-     *
-     * @param in the input stream to read data from
-     * @throws IOException if any I/O error occurs
-     * @throws ClassNotFoundException if the class is not found
-     */
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject(); // Default deserialization
-        eventId = (String) in.readObject(); // Deserialize eventId
-    }
-    // TODO can we remove this
 }

@@ -128,8 +128,10 @@ public class OrganizerEventFragment extends Fragment {
                                 name.setText(nameText);
                                 // TODO: set to actual event status
                                 status.setText("OPEN");
-                                // TODO: set to actual location
-                                location.setText("LOCATION");
+                                event.getLocation(address -> {
+                                    Log.e("Ohm", "Addy: " + address);
+                                    location.setText((address != null) ? address : "Address not found.");
+                                });
                                 spotsAvail.setText(spotsAvailText);
                                 daysLeft.setText(daysLeftText);
                                 if (isGeo) {
@@ -210,6 +212,18 @@ public class OrganizerEventFragment extends Fragment {
             }
         });
 
+
+
+        viewEntrantsMapButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Bundle bundle = new Bundle();
+                bundle.putString("eventId", firestoreEventId);
+                MapFragment mapFragment = new MapFragment();
+                mapFragment.setArguments(bundle);
+                MyApp.getInstance().addFragmentToStack(mapFragment);
+            }
+        });
         return view;
     }
 }

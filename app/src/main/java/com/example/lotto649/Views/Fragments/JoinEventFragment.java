@@ -22,6 +22,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 
 import com.bumptech.glide.Glide;
+import com.example.lotto649.LocationManagerSingleton;
+import com.example.lotto649.MainActivity;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -32,6 +34,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -39,7 +42,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -60,6 +62,7 @@ public class JoinEventFragment extends Fragment {
     private MutableLiveData<Boolean> imageAbleToBeDeleted, qrCodeAbleToBeDeleted;
     private Date startDate, endDate;
     private int curNum;
+    private boolean geoRequired;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -92,6 +95,8 @@ public class JoinEventFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
 
+        geoRequired = false;
+
         name = view.findViewById(R.id.admin_event_name);
         status = view.findViewById(R.id.admin_event_status);
         location = view.findViewById(R.id.admin_event_location);
@@ -123,6 +128,9 @@ public class JoinEventFragment extends Fragment {
                                 spotsAvailText = "FULL";
                                 joinButton.setVisibility(View.GONE);
                             } else {
+                                // TODO please fix this
+//                                spotsAvailText = "TODO";
+//                                spotsAvailText = Integer.toString(maxNum - ((List<String>) doc.get("waitingList")).size()) + " Spots Available";
                                 spotsAvailText = Integer.toString(maxNum - curNum) + " Spots Available";
                             }
                             String numAttendeesText = Integer.toString(((Long) doc.get("numberOfSpots")).intValue()) + " Attendees";
@@ -132,6 +140,7 @@ public class JoinEventFragment extends Fragment {
                             String datesText = "Enter between " + df.format(startDate) + " - " + df.format(endDate);
                             Boolean isGeo = doc.getBoolean("geo");
                             String geoLocationText = isGeo ? "Requires GeoLocation Tracking" : "";
+                            geoRequired = isGeo;
                             String descriptionText = doc.getString("description");
                             name.setText(nameText);
                             // TODO: set to actual event status
@@ -203,7 +212,28 @@ public class JoinEventFragment extends Fragment {
 
                                 signUp.put("userId", deviceId);
                                 signUp.put("timestamp", FieldValue.serverTimestamp());
+                                signUp.put("eventDeleted", false);
+                                signUp.put("lottoStatus", "Waiting");
+
                                 // TODO add geolocation data here
+                                if (geoRequired) {
+                                    ((MainActivity) getActivity()).getUserLocation(getContext());
+                                }
+                                boolean isLocationEnabled = LocationManagerSingleton.getInstance().isLocationTrackingEnabled();
+                                if (isLocationEnabled) {
+                                    // Proceed with location-based functionality
+                                    GeoPoint currLocation = LocationManagerSingleton.getInstance().getGeoPoint();
+                                    signUp.put("longitude", Double.toString(currLocation.getLongitude()));
+                                    signUp.put("latitude", Double.toString(currLocation.getLatitude()));
+                                } else {
+                                    // Prompt the user to enable location tracking
+                                    if (geoRequired) {
+                                        return;
+                                    }
+                                    // geo not required, just put blank strings
+                                    signUp.put("longitude", "");
+                                    signUp.put("latitude", "");
+                                }
                                 db.collection("signUps").document(firestoreEventId + "_" + deviceId).set(signUp).addOnSuccessListener(listener -> {
                                     eventsRef.document(firestoreEventId).update("waitingListSize", curNum+1);
                                     // TODO set flags for entrant state, (in list, chosen, waiting for response...)

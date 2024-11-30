@@ -73,7 +73,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
 <div class="inheritance"><a href="../AbstractClasses/AbstractModel.html" title="class in com.example.lotto649.AbstractClasses">com.example.lotto649.AbstractClasses.AbstractModel</a>
-<div class="inheritance">com.example.lotto649.Models.EventsModel</div>
+<div class="inheritance">com.example.lotto649.Models.HomePageModel</div>
 </div>
 </div>
 <section class="class-description" id="class-description">
@@ -134,13 +134,13 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fetchEventsByOrganizerId(com.example.lotto649.Models.EventsModel.EventFetchCallback,com.google.firebase.firestore.FirebaseFirestore)" class="member-name-link">fetchEventsByOrganizerId</a><wbr>(<a href="EventsModel.EventFetchCallback.html" title="interface in com.example.lotto649.Models">EventsModel.EventFetchCallback</a>&nbsp;callback,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fetchEventsByOrganizerId(com.example.lotto649.Models.HomePageModel.EventFetchCallback,com.google.firebase.firestore.FirebaseFirestore)" class="member-name-link">fetchEventsByOrganizerId</a><wbr>(<a href="EventsModel.EventFetchCallback.html" title="interface in com.example.lotto649.Models">EventsModel.EventFetchCallback</a>&nbsp;callback,
  com.google.firebase.firestore.FirebaseFirestore&nbsp;db)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Fetches events associated with the current organizer (by organizer ID) from Firestore.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMyEvents(com.example.lotto649.Models.EventsModel.MyEventsCallback)" class="member-name-link">getMyEvents</a><wbr>(<a href="EventsModel.MyEventsCallback.html" title="interface in com.example.lotto649.Models">EventsModel.MyEventsCallback</a>&nbsp;callback)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMyEvents(com.example.lotto649.Models.HomePageModel.MyEventsCallback)" class="member-name-link">getMyEvents</a><wbr>(<a href="EventsModel.MyEventsCallback.html" title="interface in com.example.lotto649.Models">EventsModel.MyEventsCallback</a>&nbsp;callback)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Retrieves the events for the current user (organizer) and updates the myEvents list.</div>
 </div>
@@ -180,7 +180,7 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="fetchEventsByOrganizerId(com.example.lotto649.Models.EventsModel.EventFetchCallback,com.google.firebase.firestore.FirebaseFirestore)">
+<section class="detail" id="fetchEventsByOrganizerId(com.example.lotto649.Models.HomePageModel.EventFetchCallback,com.google.firebase.firestore.FirebaseFirestore)">
 <h3>fetchEventsByOrganizerId</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">fetchEventsByOrganizerId</span><wbr><span class="parameters">(<a href="EventsModel.EventFetchCallback.html" title="interface in com.example.lotto649.Models">EventsModel.EventFetchCallback</a>&nbsp;callback,
  com.google.firebase.firestore.FirebaseFirestore&nbsp;db)</span></div>
@@ -193,7 +193,7 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="getMyEvents(com.example.lotto649.Models.EventsModel.MyEventsCallback)">
+<section class="detail" id="getMyEvents(com.example.lotto649.Models.HomePageModel.MyEventsCallback)">
 <h3>getMyEvents</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">getMyEvents</span><wbr><span class="parameters">(<a href="EventsModel.MyEventsCallback.html" title="interface in com.example.lotto649.Models">EventsModel.MyEventsCallback</a>&nbsp;callback)</span></div>
 <div class="block">Retrieves the events for the current user (organizer) and updates the myEvents list.</div>

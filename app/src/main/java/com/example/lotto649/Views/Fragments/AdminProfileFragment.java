@@ -23,6 +23,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
 import com.bumptech.glide.Glide;
+import com.example.lotto649.FirestoreHelper;
 import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
@@ -62,6 +63,7 @@ public class AdminProfileFragment extends Fragment {
     Button removeImage;
     Button removeUser;
     ExtendedFloatingActionButton backButton;
+    FirestoreHelper firestoreHelper;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -86,7 +88,7 @@ public class AdminProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // get info from bundle
         String userDeviceId = getArguments().getString("userDeviceId");
-
+        firestoreHelper = new FirestoreHelper();
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_admin_view_profile, container, false);
 
@@ -140,19 +142,21 @@ public class AdminProfileFragment extends Fragment {
                             Boolean isEntrant = doc.getBoolean("entrant");
                             StringBuilder rolesBuilder = new StringBuilder();
                             rolesBuilder.append("Roles: ");
-                            if (isAdmin) {
+                            if (Boolean.TRUE.equals(isAdmin)) {
+                                // Admins should not be deleted in the app
+                                removeUser.setVisibility(View.GONE);
                                 rolesBuilder.append("Admin, ");
                             }
-                            if (isOrganizer) {
+                            if (Boolean.TRUE.equals(isOrganizer)) {
                                 rolesBuilder.append("Organizer, ");
                             }
-                            if (isEntrant) {
+                            if (Boolean.TRUE.equals(isEntrant)) {
                                 rolesBuilder.append("Entrant, ");
                             }
                             String rolesText = rolesBuilder.toString().substring(0, rolesBuilder.toString().length() - 2);
                             name.setText(nameText);
                             email.setText(emailText);
-                            if (phoneText.isEmpty()) {
+                            if (phoneText == null || phoneText.isEmpty()) {
                                 phone.setVisibility(View.GONE);
                             } else {
                                 phone.setVisibility(View.VISIBLE);
@@ -163,7 +167,7 @@ public class AdminProfileFragment extends Fragment {
                         //     getting profile image
                             imagePlaceholder.setText(new UserModel(getContext(), nameText, emailText).getInitials());
                             String profileUriString = doc.getString("profileImage");
-                            if (!Objects.equals(profileUriString, "")) {
+                            if (profileUriString != null && !Objects.equals(profileUriString, "")) {
                                 imageAbleToBeDeleted.setValue(Boolean.TRUE);
                                 profileUri = Uri.parse(profileUriString);
                                 StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(profileUriString);
@@ -196,6 +200,7 @@ public class AdminProfileFragment extends Fragment {
         removeUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                firestoreHelper.deleteFacility(userDeviceId);
                 usersRef
                         .document(userDeviceId)
                         .delete()

@@ -3,8 +3,7 @@
  * into a working application.
  */
 package com.example.lotto649.Views.Fragments;
-import android.graphics.drawable.RippleDrawable;
-import android.os.Build;
+import android.app.Activity;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.Editable;
@@ -15,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -27,10 +27,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * FacilityFragment class manages the facility details of the user in the application.
@@ -138,25 +140,37 @@ public class FacilityFragment extends Fragment {
                 // reset error message
                 nameInput.setError(null);
                 addressInput.setError(null);
-                String facilityName = nameInput.getEditableText().toString();
-                String address = addressInput.getEditableText().toString();
-                // If no facility name given, error
-                if (facilityName.isEmpty()) {
-                    nameInput.setError("Please enter a facility name");
-                    return;
-                }
-                if (address.isEmpty()) {
-                    addressInput.setError("Please enter an address");
-                    return;
-                }
-                facilityController.updateFacilityName(facilityName);
-                facilityController.updateAddress(address);
-                facilityController.saveToFirestore();
-                initialFacilityNameInput = facilityName;
-                initialAddressInput = address;
-                pageTitle.setText("Edit Facility Information");
-                save.setText("Save");
-                SetSaveButtonVisibility(true);
+                DocumentReference userRef = FirebaseFirestore.getInstance().collection("users").document(deviceId);
+                userRef.get().addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot documentSnapshot = task.getResult();
+                        if (documentSnapshot == null || documentSnapshot.exists()) {
+                            // TODO check if user exists, if it doesn't return
+                            String facilityName = nameInput.getEditableText().toString();
+                            String address = addressInput.getEditableText().toString();
+                            // If no facility name given, error
+                            if (facilityName.isEmpty()) {
+                                nameInput.setError("Please enter a facility name");
+                                return;
+                            }
+                            if (address.isEmpty()) {
+                                addressInput.setError("Please enter an address");
+                                return;
+                            }
+                            facilityController.updateFacilityName(facilityName);
+                            facilityController.updateAddress(address);
+                            facilityController.saveToFirestore();
+                            initialFacilityNameInput = facilityName;
+                            initialAddressInput = address;
+                            pageTitle.setText("Edit Facility Information");
+                            save.setText("Save");
+                            SetSaveButtonVisibility(true);
+                        } else {
+                            // You cannot become and organizer without an account
+                            Toast.makeText(getContext(), "Please create an account before creating a facility", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
             }
         });
 
@@ -169,13 +183,16 @@ public class FacilityFragment extends Fragment {
      * @param facility The facility model containing the details to be displayed
      */
     public void showFacilityDetails(FacilityModel facility) {
-        requireActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                nameInput.setText(facility.getFacilityName());
-                addressInput.setText(facility.getAddress());
-            }
-        });
+        Activity activity = getActivity();
+        if (activity != null) {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    nameInput.setText(facility.getFacilityName());
+                    addressInput.setText(facility.getAddress());
+                }
+            });
+        }
     }
 
     /**
