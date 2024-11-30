@@ -1,9 +1,9 @@
 package com.example.lotto649.Views.Fragments;
 
 import static android.app.Activity.RESULT_OK;
-
 import static com.example.lotto649.FirebaseStorageHelper.uploadPosterImageToFirebaseStorage;
 
+import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -11,10 +11,18 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
@@ -32,15 +40,6 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-
-import android.text.TextWatcher;
-import android.app.DatePickerDialog;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -398,25 +397,23 @@ public class EventFragment extends Fragment {
             }
 
             if (isAddingFirstTime) {
-                eventController.saveEventToFirestore();
+                eventController.saveEventToFirestore(eventId -> {
+                    String data = "https://lotto649/?eventId=" + eventId;
+                    Log.e("GDEEP", data);
+                    Bitmap qrCodeBitmap = QrCodeModel.generateForEvent(data);
+                    String qrCodeHash = QrCodeModel.generateHash(data);
+
+                    eventController.updateQrCode(qrCodeHash);
+
+                    QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
+                    requireActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.flFragment, qrFragment)
+                            .commit();
+                });
             } else {
                 MyApp.getInstance().popFragment();
             }
-
             setInitialValues();
-
-            // only add QR code information for the first time the event is created
-            if (isAddingFirstTime) {
-                String data = title + description + spotsStr + maxEntrantsStr;
-                Bitmap qrCodeBitmap = QrCodeModel.generateForEvent(data);
-                String qrCodeHash = QrCodeModel.generateHash(data);
-
-                eventController.updateQrCode(qrCodeHash);
-                QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
-                requireActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.flFragment, qrFragment)
-                        .commit();
-            }
             isAddingFirstTime = false;
         });
 

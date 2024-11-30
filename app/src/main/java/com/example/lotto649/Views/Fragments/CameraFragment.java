@@ -10,20 +10,14 @@
  * </p>
  */
 package com.example.lotto649.Views.Fragments;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.fragment.app.Fragment;
-
 import com.example.lotto649.R;
-
-
 // TODO this class can likely be deleted, along with the entire page
 public class CameraFragment extends Fragment {
-
     /**
      * Public empty constructor for CameraFragment.
      * <p>
@@ -33,7 +27,6 @@ public class CameraFragment extends Fragment {
     public CameraFragment() {
         // Required empty public constructor
     }
-
     /**
      * Called to create the view hierarchy associated with this fragment.
      * This method inflates the layout defined in `fragment_camera.xml`.
