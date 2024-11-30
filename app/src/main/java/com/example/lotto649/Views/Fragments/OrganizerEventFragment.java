@@ -59,18 +59,19 @@ public class OrganizerEventFragment extends Fragment {
 
         db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
+        // TODO lots of these are not displaying the right stuff
 
-        name = view.findViewById(R.id.eventTitle);
-        status = view.findViewById(R.id.eventStatus);
-        location = view.findViewById(R.id.eventLocation);
-        spotsAvail = view.findViewById(R.id.eventAvailableSpots);
-        daysLeft = view.findViewById(R.id.eventDaysLeft);
-        geoLocation = view.findViewById(R.id.geolocationRequirement);
-        description = view.findViewById(R.id.eventDescription);
+        name = view.findViewById(R.id.organizer_event_name);
+        status = view.findViewById(R.id.organizer_event_status);
+        location = view.findViewById(R.id.organizer_event_location);
+        spotsAvail = view.findViewById(R.id.organizer_event_spots);
+        daysLeft = view.findViewById(R.id.organizer_event_dates);
+        geoLocation = view.findViewById(R.id.organizer_event_geo);
+        description = view.findViewById(R.id.organizer_event_description);
         viewQrCodeButton = view.findViewById(R.id.view_qr_code_button);
         chooseWinnersButton = view.findViewById(R.id.choose_winners_button);
         viewEntrantsMapButton = view.findViewById(R.id.view_entrants_map_button);
-        posterImage = view.findViewById(R.id.list_event_poster);
+        posterImage = view.findViewById(R.id.organizer_event_poster);
         viewEntrantsWaitingListButton = view.findViewById(R.id.view_entrants_list_button);
         editButton = view.findViewById(R.id.edit_event_button);
 

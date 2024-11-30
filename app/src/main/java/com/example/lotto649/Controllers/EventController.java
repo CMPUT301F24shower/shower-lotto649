@@ -134,7 +134,7 @@ public class EventController extends AbstractController {
      * Navigates back to the HomeFragment, which serves as the main events screen.
      */
     public void returnToEvents() {
-        MyApp.getInstance().replaceFragment(new HomeFragment());
+        MyApp.getInstance().popFragment();
     }
     // TODO should be popFragment, shouldnt be in controller
 }
