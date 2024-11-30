@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.lotto649.HomeTab;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
@@ -72,7 +73,11 @@ public class QrFragment extends Fragment {
         }
 
         backButton.setOnClickListener(v -> {
-            MyApp.getInstance().popFragment();
+            // TODO make sure this doesn't mess up logic elsewhere
+            // Don't think this is right for when we are viewing QR code after creating, that being said maybe its fine anyways
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.flFragment, new HomeTab())
+                    .commit();
         });
 
         return view;

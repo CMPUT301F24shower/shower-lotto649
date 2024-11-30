@@ -413,9 +413,8 @@ public class EventFragment extends Fragment {
 
                 eventController.updateQrCode(qrCodeHash);
                 QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
-                getParentFragmentManager().beginTransaction()
+                requireActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.flFragment, qrFragment)
-                        .addToBackStack(null)
                         .commit();
             }
             isAddingFirstTime = false;
