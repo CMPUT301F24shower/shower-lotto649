@@ -69,3 +69,4 @@ public class EventsController extends AbstractController {
         MyApp.getInstance().addFragmentToStack(eventFragment);
     }
 }
+

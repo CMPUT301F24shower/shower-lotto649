@@ -1,6 +1,7 @@
 package com.example.lotto649.Views.Fragments;
 
 import android.app.AlertDialog;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -17,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.lotto649.Models.EventModel;
+import com.example.lotto649.Models.QrCodeModel;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -38,6 +40,9 @@ public class OrganizerEventFragment extends Fragment {
     private CollectionReference eventsRef;
     private String firestoreEventId;
     private ImageView posterImage;
+    private String eventId;
+    private int numberOfSpots;
+    private EventModel event;
     TextView name;
     TextView status;
     TextView location;
@@ -103,8 +108,14 @@ public class OrganizerEventFragment extends Fragment {
             qrButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    // TODO add new QR code stuff here
+                    String data = "https://lotto649/?eventId=" + eventId;
+                    Log.e("GDEEP", data);
+                    Bitmap qrCodeBitmap = QrCodeModel.generateForEvent(data);
                     QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
+                    requireActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.flFragment, qrFragment)
+                            .commit();
+                    dialog.dismiss();
                 }
             });
 
@@ -118,8 +129,6 @@ public class OrganizerEventFragment extends Fragment {
             editButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-//                    Bundle bundle = new Bundle();
-//                    bundle.putString("firestoreEventId", firestoreEventId);
                     FirebaseFirestore db = FirebaseFirestore.getInstance();
                     DocumentReference doc = db.collection("events").document(firestoreEventId);
                     doc.get().addOnCompleteListener(task -> {
@@ -174,13 +183,37 @@ public class OrganizerEventFragment extends Fragment {
                         if (task.isSuccessful()) {
                             DocumentSnapshot doc = task.getResult();
                             String nameText = doc.getString("title");
-                            int maxNum = ((Long) doc.get("numberOfMaxEntrants")).intValue();
+                            event = doc.toObject(EventModel.class);
+                            event.setEventId(doc.getId());
+                            event.setDb(db);
+                            eventId = doc.getId();
+                            Long maxEntrants = (Long) doc.get("numberOfMaxEntrants");
+                            int maxNum = 0;
+                            if (maxEntrants != null)
+                                maxNum = (maxEntrants).intValue();
+
+                            Long waitListSize = (Long) doc.get("waitingListSize");
+                            int curNum = 0;
+                            if (waitListSize != null)
+                                curNum = (waitListSize).intValue();
+
+                            Long numSpots = (Long) doc.get("numberOfSpots");
+                            if (numSpots != null)
+                                numberOfSpots = (numSpots).intValue();
+
                             String spotsAvailText;
+                            String statusText;
                             if (maxNum == -1) {
                                 spotsAvailText = "OPEN";
+                                statusText = "OPEN";
+                            } else if (maxNum <= curNum) {
+                                spotsAvailText = "FULL";
+                                statusText = "PENDING";
                             } else {
-                                spotsAvailText = Integer.toString(maxNum - ((List<String>) doc.get("waitingList")).size()) + " Spots Available";
+                                spotsAvailText = Integer.toString(maxNum - (int) doc.getLong("waitingListSize").intValue()) + " Spots Available";
+                                statusText = "OPEN";
                             }
+
                             DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
                             Date startDate = doc.getDate("startDate");
                             Date endDate = doc.getDate("endDate");
@@ -188,21 +221,29 @@ public class OrganizerEventFragment extends Fragment {
                             if (startDate != null && endDate != null) {
                                 // Calculate the difference in milliseconds
                                 long diffInMillis = endDate.getTime() - startDate.getTime();
+                                if (diffInMillis <= 0)
+                                    statusText = "PENDING";
+
+                                boolean drawn = Boolean.TRUE.equals(doc.getBoolean("drawn"));
+                                if (drawn)
+                                    statusText = "CLOSED";
+
                                 // Convert milliseconds to days (rounding down)
                                 int daysLeftInt = (int) (diffInMillis / (24 * 60 * 60 * 1000));
 
                                 String daysLeftText = Integer.toString(daysLeftInt);
 
                                 Boolean isGeo = doc.getBoolean("geo");
-                                String geoLocationText = isGeo ? "Requires GeoLocation Tracking" : "";
+                                String geoLocationText = Boolean.TRUE.equals(isGeo) ? "Requires GeoLocation Tracking" : "";
                                 String descriptionText = doc.getString("description");
 
 
                                 name.setText(nameText);
-                                // TODO: set to actual event status
-                                status.setText("OPEN");
-                                // TODO: set to actual location
-                                location.setText("LOCATION");
+                                status.setText(statusText);
+                                event.getLocation(address -> {
+                                    Log.e("Ohm", "Addy: " + address);
+                                    location.setText((address != null) ? address : "Address not found.");
+                                });
                                 spotsAvail.setText(spotsAvailText);
                                 daysLeft.setText(daysLeftText);
                                 if (isGeo) {
@@ -216,7 +257,6 @@ public class OrganizerEventFragment extends Fragment {
                         }
                     }
                 });
-
         return view;
     }
 }
