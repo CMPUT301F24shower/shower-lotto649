@@ -28,6 +28,8 @@ import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.example.lotto649.Views.ArrayAdapters.BrowseProfilesArrayAdapter;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -69,6 +71,7 @@ public class WinnerListFragment extends Fragment {
     private Context mContext;
     ExtendedFloatingActionButton backButton;
 
+    private int numberOfSpots;
     /**
      * Public empty constructor for BrowseFacilitiesFragment.
      * <p>
@@ -152,11 +155,19 @@ public class WinnerListFragment extends Fragment {
 //                    }
 //                });
 
+        db.collection("events").document(eventId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        numberOfSpots = ((Long) task.getResult().get("numberOfSpots")).intValue();
+                    }
+                });
+
         db.collection("winners")
                 .whereEqualTo("eventId", eventId)
                 .get()
                 .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult().size() <= 0) {
+                    if (task.isSuccessful() && task.getResult().size() <= numberOfSpots) {
                         db.collection("events").document(eventId).update("drawn",false);
                     } else if (task.isSuccessful() && task.getResult() != null) {
                         winnerList.clear();

@@ -5,7 +5,6 @@ import android.util.Log;
 
 import com.example.lotto649.AbstractClasses.AbstractModel;
 import com.example.lotto649.MyApp;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -17,8 +16,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * EventModel represents an event in the application with attributes such as title, location,
@@ -482,10 +481,24 @@ public class EventModel extends AbstractModel implements Serializable {
         return waitingList;
     }
 
+    private void getCurrentNumberOfWinners(Consumer<Integer> callback) {
+        db.collection("winners")
+                .whereEqualTo("eventId", eventId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        int curNumWinners = task.getResult().size();
+                        callback.accept(curNumWinners); // Pass the count to the callback
+                    } else {
+                        callback.accept(0); // Handle failure or no results
+                    }
+                });
+    }
+
+
     public boolean isDrawn() {
         return drawn;
     }
-
 
     public void doDraw() {
         if (drawn) return;
@@ -497,9 +510,10 @@ public class EventModel extends AbstractModel implements Serializable {
                     if (task.isSuccessful() && task.getResult() != null) {
                         List<DocumentSnapshot> docs = task.getResult().getDocuments();
                         Collections.shuffle(docs);
-                        int i = 0;
+                        AtomicInteger i = new AtomicInteger();
+                        getCurrentNumberOfWinners(i::set);
                         for (DocumentSnapshot doc : docs) {
-                            if (i++ < numberOfSpots) {
+                            if (i.getAndIncrement() < numberOfSpots) {
                                 db.collection("winners").add(doc.getData());
                             }
                         }

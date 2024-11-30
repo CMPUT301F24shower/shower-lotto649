@@ -109,7 +109,7 @@ public class OrganizerEventFragment extends Fragment {
                                 spotsAvailText = "FULL";
                                 statusText = "PENDING";
                             } else {
-                                spotsAvailText = Integer.toString(maxNum - ((List<String>) doc.get("waitingList")).size()) + " Spots Available";
+                                spotsAvailText = Integer.toString(maxNum - curNum) + " Spots Available";
                                 statusText = "OPEN";
                             }
 
