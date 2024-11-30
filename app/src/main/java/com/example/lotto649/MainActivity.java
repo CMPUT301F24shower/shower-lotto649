@@ -272,6 +272,7 @@ public class MainActivity extends AppCompatActivity
 
     // Create fragment instances
     HomeFragment homeFragment = new HomeFragment();
+    HomeTab homeTab = new HomeTab();
     CameraFragment cameraFragment = new CameraFragment();
     AccountFragment accountFragment = new AccountFragment();
     FacilityFragment facilityFragment = new FacilityFragment();
@@ -304,7 +305,9 @@ public class MainActivity extends AppCompatActivity
         }
         // Handle navigation based on the selected item ID
         if (item.getItemId() == R.id.home) {
-            MyApp.getInstance().replaceFragment(homeFragment);
+//            MyApp.getInstance().replaceFragment(homeFragment);
+            MyApp.getInstance().replaceFragment(homeTab);
+
             return true;
         } else if (item.getItemId() == R.id.camera) {
             MyApp.getInstance().replaceFragment(cameraFragment);
