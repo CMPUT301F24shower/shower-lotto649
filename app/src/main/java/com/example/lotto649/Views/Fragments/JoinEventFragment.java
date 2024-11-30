@@ -5,7 +5,6 @@
  */
 package com.example.lotto649.Views.Fragments;
 
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -43,10 +42,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A fragment to display a given event's information.
@@ -210,6 +207,8 @@ public class JoinEventFragment extends Fragment {
                                 signUp.put("userId", deviceId);
                                 signUp.put("timestamp", FieldValue.serverTimestamp());
                                 signUp.put("eventDeleted", false);
+                                signUp.put("lottoStatus", "Waiting");
+
                                 // TODO add geolocation data here
                                 if (geoRequired) {
                                     ((MainActivity) getActivity()).getUserLocation(getContext());
