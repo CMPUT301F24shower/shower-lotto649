@@ -53,7 +53,7 @@ public class OrganizerEventFragment extends Fragment {
     TextView daysLeft;
     TextView geoLocation;
     TextView description;
-    ExtendedFloatingActionButton optionsButtons, backButton, viewEntrantsMapButton, qrButton, viewEntrantsButton, editButton, randomButton, cancelButton;
+    ExtendedFloatingActionButton optionsButtons, backButton, viewEntrantsMapButton, qrButton, viewEntrantsButton, editButton, randomButton, cancelButton, viewInvitedEntrantsButton, viewCanceledEntrants, replacementWinnerButton;
     private MutableLiveData<Boolean> hasQrCode;
     private MutableLiveData<Boolean> canDraw;
     private Uri posterUri;
@@ -86,6 +86,200 @@ public class OrganizerEventFragment extends Fragment {
         newEvent.setOrganizerId(organizerId);
         newEvent.setEventId(eventId);
         return newEvent;
+    }
+
+    private void setUpOpenStateButtons(View dialogView, AlertDialog dialog) {
+        viewEntrantsMapButton = dialogView.findViewById(R.id.org_dialog_map);
+        qrButton = dialogView.findViewById(R.id.org_dialog_view_qr);
+        viewEntrantsButton = dialogView.findViewById(R.id.org_dialog_view_entrants);
+        editButton = dialogView.findViewById(R.id.org_dialog_edit);
+        randomButton = dialogView.findViewById(R.id.org_dialog_choose_winners);
+        cancelButton = dialogView.findViewById(R.id.org_dialog_cancel);
+
+        if (canDraw.getValue().equals(Boolean.FALSE)) {
+            randomButton.setVisibility(View.GONE);
+        } else {
+            randomButton.setVisibility(View.VISIBLE);
+        }
+        if (hasQrCode.getValue().equals(Boolean.FALSE)) {
+            qrButton.setVisibility(View.GONE);
+        } else {
+            qrButton.setVisibility(View.VISIBLE);
+        }
+
+        viewEntrantsMapButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Bundle bundle = new Bundle();
+                bundle.putString("eventId", firestoreEventId);
+                MapFragment mapFragment = new MapFragment();
+                mapFragment.setArguments(bundle);
+                MyApp.getInstance().addFragmentToStack(mapFragment);
+                dialog.dismiss();
+            }
+        });
+
+        qrButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String data = "https://lotto649/?eventId=" + eventId;
+                Log.e("GDEEP", data);
+                Bitmap qrCodeBitmap = QrCodeModel.generateForEvent(data);
+                QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
+                requireActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.flFragment, qrFragment)
+                        .commit();
+                dialog.dismiss();
+            }
+        });
+
+        viewEntrantsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                WaitingListFragment frag = new WaitingListFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("firestoreEventId", firestoreEventId);
+                frag.setArguments(bundle);
+                MyApp.getInstance().addFragmentToStack(frag);
+                dialog.dismiss();
+            }
+        });
+
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                DocumentReference doc = db.collection("events").document(firestoreEventId);
+                doc.get().addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            EventModel event = getEventFromFirebaseObject(document);
+                            EventFragment frag = new EventFragment(event);
+//                                frag.setArguments(bundle);
+                            MyApp.getInstance().addFragmentToStack(frag);
+                        } else {
+                            Toast.makeText(getContext(), "Unable to fetch event from firestore", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(getContext(), "Unable to fetch event from firestore", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                dialog.dismiss();
+            }
+        });
+
+        randomButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                event.doDraw();
+                canDraw.setValue(Boolean.FALSE);
+            }
+        });
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+    }
+
+    private void setUpWaitingStateButtons(View dialogView, AlertDialog dialog) {
+        viewEntrantsMapButton = dialogView.findViewById(R.id.org_dialog_map);
+        qrButton = dialogView.findViewById(R.id.org_dialog_view_qr);
+        viewInvitedEntrantsButton = dialogView.findViewById(R.id.org_dialog_view_invited_entrants);
+        viewCanceledEntrants = dialogView.findViewById(R.id.org_dialog_view_canceled_entrants);
+        replacementWinnerButton = dialogView.findViewById(R.id.org_dialog_choose_replacement);
+        editButton = dialogView.findViewById(R.id.org_dialog_edit);
+        cancelButton = dialogView.findViewById(R.id.org_dialog_cancel);
+
+        // TODO: only show replacement button if someone has canceled and needs to be replaced
+
+        if (hasQrCode.getValue().equals(Boolean.FALSE)) {
+            qrButton.setVisibility(View.GONE);
+        } else {
+            qrButton.setVisibility(View.VISIBLE);
+        }
+
+        viewEntrantsMapButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Bundle bundle = new Bundle();
+                bundle.putString("eventId", firestoreEventId);
+                MapFragment mapFragment = new MapFragment();
+                mapFragment.setArguments(bundle);
+                MyApp.getInstance().addFragmentToStack(mapFragment);
+                dialog.dismiss();
+            }
+        });
+
+        qrButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String data = "https://lotto649/?eventId=" + eventId;
+                Log.e("GDEEP", data);
+                Bitmap qrCodeBitmap = QrCodeModel.generateForEvent(data);
+                QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
+                requireActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.flFragment, qrFragment)
+                        .commit();
+                dialog.dismiss();
+            }
+        });
+
+        // TODO: show list of invited entrants (make new fragment)
+        viewInvitedEntrantsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                WaitingListFragment frag = new WaitingListFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("firestoreEventId", firestoreEventId);
+                frag.setArguments(bundle);
+                MyApp.getInstance().addFragmentToStack(frag);
+                dialog.dismiss();
+            }
+        });
+
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                DocumentReference doc = db.collection("events").document(firestoreEventId);
+                doc.get().addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            EventModel event = getEventFromFirebaseObject(document);
+                            EventFragment frag = new EventFragment(event);
+//                                frag.setArguments(bundle);
+                            MyApp.getInstance().addFragmentToStack(frag);
+                        } else {
+                            Toast.makeText(getContext(), "Unable to fetch event from firestore", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(getContext(), "Unable to fetch event from firestore", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                dialog.dismiss();
+            }
+        });
+
+        // TODO: have replacement draw
+        replacementWinnerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                event.doDraw();
+                canDraw.setValue(Boolean.FALSE);
+            }
+        });
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
     }
 
     @Override
@@ -142,100 +336,7 @@ public class OrganizerEventFragment extends Fragment {
                     .setView(dialogView)
                     .create();
 
-            viewEntrantsMapButton = dialogView.findViewById(R.id.org_dialog_map);
-            qrButton = dialogView.findViewById(R.id.org_dialog_view_qr);
-            viewEntrantsButton = dialogView.findViewById(R.id.org_dialog_view_entrants);
-            editButton = dialogView.findViewById(R.id.org_dialog_edit);
-            randomButton = dialogView.findViewById(R.id.org_dialog_choose_winners);
-            cancelButton = dialogView.findViewById(R.id.org_dialog_cancel);
-
-            if (canDraw.getValue().equals(Boolean.FALSE)) {
-                randomButton.setVisibility(View.GONE);
-            } else {
-                randomButton.setVisibility(View.VISIBLE);
-            }
-            if (hasQrCode.getValue().equals(Boolean.FALSE)) {
-                qrButton.setVisibility(View.GONE);
-            } else {
-                qrButton.setVisibility(View.VISIBLE);
-            }
-
-            viewEntrantsMapButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Bundle bundle = new Bundle();
-                    bundle.putString("eventId", firestoreEventId);
-                    MapFragment mapFragment = new MapFragment();
-                    mapFragment.setArguments(bundle);
-                    MyApp.getInstance().addFragmentToStack(mapFragment);
-                    dialog.dismiss();
-                }
-            });
-
-            qrButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    String data = "https://lotto649/?eventId=" + eventId;
-                    Log.e("GDEEP", data);
-                    Bitmap qrCodeBitmap = QrCodeModel.generateForEvent(data);
-                    QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
-                    requireActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.flFragment, qrFragment)
-                            .commit();
-                    dialog.dismiss();
-                }
-            });
-
-            viewEntrantsButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    WaitingListFragment frag = new WaitingListFragment();
-                    Bundle bundle = new Bundle();
-                    bundle.putString("firestoreEventId", firestoreEventId);
-                    frag.setArguments(bundle);
-                    MyApp.getInstance().addFragmentToStack(frag);
-                    dialog.dismiss();
-                }
-            });
-
-            editButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    FirebaseFirestore db = FirebaseFirestore.getInstance();
-                    DocumentReference doc = db.collection("events").document(firestoreEventId);
-                    doc.get().addOnCompleteListener(task -> {
-                        if (task.isSuccessful() && task.getResult() != null) {
-                            DocumentSnapshot document = task.getResult();
-                            if (document.exists()) {
-                                EventModel event = getEventFromFirebaseObject(document);
-                                EventFragment frag = new EventFragment(event);
-//                                frag.setArguments(bundle);
-                                MyApp.getInstance().addFragmentToStack(frag);
-                            } else {
-                                Toast.makeText(getContext(), "Unable to fetch event from firestore", Toast.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            Toast.makeText(getContext(), "Unable to fetch event from firestore", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    dialog.dismiss();
-                }
-            });
-
-            randomButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    event.doDraw();
-                    canDraw.setValue(Boolean.FALSE);
-                }
-            });
-
-            cancelButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    dialog.dismiss();
-                }
-            });
+            setUpOpenStateButtons(dialogView, dialog);
 
             // Show the dialog
             dialog.show();
@@ -308,7 +409,6 @@ public class OrganizerEventFragment extends Fragment {
                                     } else {
                                         statusText = "CLOSED";
                                     }
-                                    Log.e("JASON STATE TEST", Objects.requireNonNull(doc.getString("state")));
                                     canDraw.setValue(Boolean.FALSE);
                                 }
 
