@@ -13,5 +13,6 @@
 
     <color name="posterBackground">#D3D3D3</color>
     <color name="colorBackground">#F9F9F9</color>
+    <color name="cardBackground">#D1C4E9</color>
 </resources>
 
