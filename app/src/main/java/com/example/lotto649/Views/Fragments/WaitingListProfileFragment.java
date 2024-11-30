@@ -54,6 +54,8 @@ public class WaitingListProfileFragment extends Fragment {
     TextView roles;
     Button removeUser;
     ExtendedFloatingActionButton backButton;
+    String userDeviceId;
+    String firestoreEventId;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -77,8 +79,8 @@ public class WaitingListProfileFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // get info from bundle
-        String userDeviceId = getArguments().getString("userId");
-        String userSignUpId = getArguments().getString("signUpId");
+        userDeviceId = getArguments().getString("userDeviceId");
+        firestoreEventId = getArguments().getString("firestoreEventId");
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_waiting_list_profile, container, false);
@@ -174,7 +176,7 @@ public class WaitingListProfileFragment extends Fragment {
         removeUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                usersRef.document(userSignUpId)
+                usersRef.document(firestoreEventId + "_" + userDeviceId)
                         .delete()
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override

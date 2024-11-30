@@ -119,8 +119,14 @@ public class JoinEventFragment extends Fragment {
                         if (task.isSuccessful()) {
                             DocumentSnapshot doc = task.getResult();
                             String nameText = doc.getString("title");
-                            int maxNum = ((Long) doc.get("numberOfMaxEntrants")).intValue();
-                            curNum =  ((Long) doc.get("waitingListSize")).intValue();
+                            Long maxEntrants = (Long) doc.get("numberOfMaxEntrants");
+                            int maxNum = 0;
+                            if (maxEntrants != null)
+                                maxNum = (maxEntrants).intValue();
+
+                            Long waitListSize = (Long) doc.get("waitingListSize");
+                            if (waitListSize != null)
+                                curNum = (waitListSize).intValue();
                             String spotsAvailText;
                             if (maxNum == -1) {
                                 spotsAvailText = "OPEN";
