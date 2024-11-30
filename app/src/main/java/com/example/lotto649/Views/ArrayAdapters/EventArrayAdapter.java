@@ -70,7 +70,7 @@ public class EventArrayAdapter extends ArrayAdapter<EventModel> {
         // Set event details in the respective views
         ((TextView) view.findViewById(R.id.eventTitle)).setText(event.getTitle());
         ((TextView) view.findViewById(R.id.eventStatus)).setText("OPEN/PENDING/CLOSED");
-        ((TextView) view.findViewById(R.id.eventLocation)).setText(event.getFacilityId());
+        ((TextView) view.findViewById(R.id.eventLocation)).setText(event.getOrganizerId());
 
         // Calculate and display available spots
         ((TextView) view.findViewById(R.id.eventAvailableSpots)).setText(

@@ -8,10 +8,6 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.Serializable;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +21,6 @@ import java.util.Date;
  */
 public class EventModel extends AbstractModel implements Serializable {
     private String title;
-    private String facilityId;
     private String organizerId;
     private String description;
     private int numberOfSpots;
@@ -44,7 +39,7 @@ public class EventModel extends AbstractModel implements Serializable {
     private String eventId;
     public String getEventId() {
         return eventId;
-    };
+    }
 
     public void setDb(FirebaseFirestore db) {
         this.db = db;
@@ -61,7 +56,7 @@ public class EventModel extends AbstractModel implements Serializable {
 
     private void clear(){
         this.title = "";
-        this.facilityId = "";
+        this.organizerId = "";
         this.description = "";
         this.numberOfSpots = 0;
         this.numberOfMaxEntrants = -1;
@@ -86,8 +81,6 @@ public class EventModel extends AbstractModel implements Serializable {
         clear();
         this.organizerId = MyApp.getInstance().getUserModel().getDeviceId();
         this.db = db;
-        //generateQrCode();
-        //saveEventToFirestore();
     }
 
     /**
@@ -96,20 +89,19 @@ public class EventModel extends AbstractModel implements Serializable {
      *
      * @param context the application context
      * @param title the title of the event
-     * @param facilityId the ID of the FacilityModel document representing the event location
      * @param description a description of the event
      * @param numberOfSpots the number of spots available for the event
      * @param db the Firestore database instance
      */
-    public EventModel(Context context, String title, String facilityId, String description, int numberOfSpots,
+    public EventModel(Context context, String title, String description, int numberOfSpots,
                       Date startDate, Date endDate, boolean geo, FirebaseFirestore db) {
-        this(context, title, facilityId, description, numberOfSpots,
+        this(context, title, description, numberOfSpots,
                 -1, startDate, endDate, null, geo, null, new ArrayList<UserModel>(), db);
     }
 
-    public EventModel(Context context, String title, String facilityId, String description, int numberOfSpots,
+    public EventModel(Context context, String title, String description, int numberOfSpots,
                       int numberOfMaxEntrants, Date startDate, Date endDate, boolean geo, FirebaseFirestore db) {
-        this(context, title, facilityId, description, numberOfSpots,
+        this(context, title, description, numberOfSpots,
                 numberOfMaxEntrants, startDate, endDate, null, geo, null, new ArrayList<UserModel>(), db);
     }
 
@@ -119,16 +111,14 @@ public class EventModel extends AbstractModel implements Serializable {
      *
      * @param context the application context
      * @param title the title of the event
-     * @param facilityId the ID of the FacilityModel document representing the event location
      * @param description a description of the event
      * @param numberOfSpots the number of spots available for the event
      * @param db the Firestore database instance
      */
-    public EventModel(Context context, String title, String facilityId, String description, int numberOfSpots,
+    public EventModel(Context context, String title, String description, int numberOfSpots,
                       int numberOfMaxEntrants, Date startDate, Date endDate, String posterImage, boolean geo, String qrCodeUrl,
                       ArrayList<UserModel> waitingList, FirebaseFirestore db) {
         this.title = title;
-        this.facilityId = facilityId;
         this.organizerId = MyApp.getInstance().getUserModel().getDeviceId();
         this.description = description;
         this.numberOfSpots = numberOfSpots;
@@ -154,7 +144,6 @@ public class EventModel extends AbstractModel implements Serializable {
         db.collection("events")
                 .add(new HashMap<String, Object>() {{
                     put("title", title);
-                    put("facilityId", facilityId);
                     put("organizerId", organizerId);
                     put("description", description);
                     put("numberOfSpots", numberOfSpots);
@@ -253,9 +242,9 @@ public class EventModel extends AbstractModel implements Serializable {
      * Fetches the full FacilityModel from Firestore using the stored facility ID.
      */
     public void fetchFacility() {
-        if (facilityId == null || db == null) return;
+        if (organizerId == null || db == null) return;
 
-        DocumentReference facilityRef = db.collection("facilities").document(facilityId);
+        DocumentReference facilityRef = db.collection("facilities").document(organizerId);
         facilityRef.get()
                 .addOnSuccessListener(documentSnapshot -> {
                     FacilityModel facility = documentSnapshot.toObject(FacilityModel.class);
@@ -285,27 +274,6 @@ public class EventModel extends AbstractModel implements Serializable {
         updateFirestore("title", title);
         notifyViews();
     }
-
-    /**
-     * Retrieves the facility ID associated with this event.
-     *
-     * @return the facility ID as a string
-     */
-    public String getFacilityId() {
-        return facilityId;
-    }
-
-    /**
-     * Sets the facility ID associated with this event and updates Firestore.
-     *
-     * @param facilityId the new facility ID
-     */
-    public void setFacilityId(String facilityId) {
-        this.facilityId = facilityId;
-        updateFirestore("facilityId", facilityId);
-        notifyViews();
-    }
-    // TODO this needs to be used
 
     /**
      * Retrieves the organizer ID associated with this event.
