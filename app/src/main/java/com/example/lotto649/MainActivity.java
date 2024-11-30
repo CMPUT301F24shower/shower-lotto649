@@ -10,40 +10,30 @@
  */
 package com.example.lotto649;
 
-import static android.app.PendingIntent.getActivity;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
-import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.Views.Fragments.AccountFragment;
 import com.example.lotto649.Views.Fragments.AdminAndUserFragment;
-import com.example.lotto649.Views.Fragments.AdminEventFragment;
 import com.example.lotto649.Views.Fragments.BrowseEventsFragment;
 import com.example.lotto649.Views.Fragments.BrowseFacilitiesFragment;
 import com.example.lotto649.Views.Fragments.BrowseProfilesFragment;
@@ -51,44 +41,14 @@ import com.example.lotto649.Views.Fragments.CameraFragment;
 import com.example.lotto649.Views.Fragments.FacilityFragment;
 import com.example.lotto649.Views.Fragments.HomeFragment;
 import com.example.lotto649.Views.Fragments.JoinEventFragment;
-import com.example.lotto649.Views.Fragments.JoinEventFragment;
-import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gms.location.Priority;
-import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.example.lotto649.Views.Fragments.JoinEventFragment;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.Priority;
-import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.location.LocationSettingsResponse;
-import com.google.android.gms.common.api.ResolvableApiException;
-import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.location.Priority;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-
-
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
-
-import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
-import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 import com.google.firebase.firestore.GeoPoint;
 
 import org.osmdroid.config.Configuration;
@@ -161,6 +121,25 @@ public class MainActivity extends AppCompatActivity
                 }
             });
 
+    private ActivityResultLauncher<String> requestNotificationPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    Log.d("notif", "Notification permission granted");
+                } else {
+                    Log.d("notif", "Notification permission not granted");
+                }
+            });
+
+    private void checkAndRequestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13+
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                // Request permission
+                Log.d("ISAAC", "REQUESTING NOTIFICATION PERMISSION");
+                requestNotificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS);
+            }
+        }
+    }
+
     /**
      * Initializes the activity, setting up the bottom navigation view and its listener.
      *
@@ -172,6 +151,9 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         newEventSeen = false;
+
+        checkAndRequestNotificationPermission();
+
 
         // Create a LocationRequest using create() method
         LocationRequest locationRequest = LocationRequest.create();
@@ -294,6 +276,12 @@ public class MainActivity extends AppCompatActivity
         if (isFinishing() || isDestroyed()) {
             return false; // Don't perform the transaction if the activity is finishing or destroyed
         }
+
+        NotificationHelper notis = new NotificationHelper();
+        CharSequence title = "ALERT";
+        String description = "YOU USED THE NAV BAR";
+        notis.sendNotification(getApplicationContext(), title, description );
+
         if (LocationManagerSingleton.getInstance().isLocationTrackingEnabled()) {
             if (LocationManagerSingleton.getInstance().getGeoPoint() != null) {
                 Log.e("JASON LOCATION", LocationManagerSingleton.getInstance().getGeoPoint().toString());
