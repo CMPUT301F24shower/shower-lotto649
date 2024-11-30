@@ -101,20 +101,32 @@ public class OrganizerEventFragment extends Fragment {
                             int curNum = ((Long) doc.get("waitingListSize")).intValue();
                             numberOfSpots = ((Long) doc.get("numberOfSpots")).intValue();
                             String spotsAvailText;
+                            String statusText;
                             if (maxNum == -1) {
                                 spotsAvailText = "OPEN";
+                                statusText = "OPEN";
                             } else if (maxNum <= curNum) {
                                 spotsAvailText = "FULL";
+                                statusText = "PENDING";
                             } else {
                                 spotsAvailText = Integer.toString(maxNum - ((List<String>) doc.get("waitingList")).size()) + " Spots Available";
+                                statusText = "OPEN";
                             }
+
                             DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
                             Date startDate = doc.getDate("startDate");
                             Date endDate = doc.getDate("endDate");
 
+
                             if (startDate != null && endDate != null) {
                                 // Calculate the difference in milliseconds
                                 long diffInMillis = endDate.getTime() - startDate.getTime();
+                                if (diffInMillis <= 0)
+                                    statusText = "PENDING";
+
+                                if (doc.getBoolean("drawn"))
+                                    statusText = "CLOSED";
+
                                 // Convert milliseconds to days (rounding down)
                                 int daysLeftInt = (int) (diffInMillis / (24 * 60 * 60 * 1000));
 
@@ -126,8 +138,7 @@ public class OrganizerEventFragment extends Fragment {
 
 
                                 name.setText(nameText);
-                                // TODO: set to actual event status
-                                status.setText("OPEN");
+                                status.setText(statusText);
                                 event.getLocation(address -> {
                                     Log.e("Ohm", "Addy: " + address);
                                     location.setText((address != null) ? address : "Address not found.");
@@ -149,19 +160,6 @@ public class OrganizerEventFragment extends Fragment {
         viewEntrantsWaitingListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Log.e("Ohm", "Getting Waiting List");
-//                db.collection("signUps").whereEqualTo("eventId",eventId)
-//                        .get()
-//                        .addOnCompleteListener(
-//                                task -> {
-//                                    if (task.isSuccessful()) {
-//                                        for (QueryDocumentSnapshot doc : task.getResult()) {
-//                                            Log.e("Ohm", "Doc Id " + doc.getString("userId"));
-//                                        }
-//                                    }
-//                                }
-//                        );
-//                Log.e("Ohm", "Waiting List Got");
                 MyApp.getInstance().addFragmentToStack(new WaitingListFragment(eventId));
             }
         });
@@ -170,28 +168,6 @@ public class OrganizerEventFragment extends Fragment {
         chooseWinnersButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Log.e("Ohm", "Choosing " + numberOfSpots + " winners");
-//                ArrayList<String> winnerList = new ArrayList<>(numberOfSpots);
-//                db.collection("signUps").whereEqualTo("eventId",eventId)
-//                        .get()
-//                        .addOnCompleteListener(
-//                                task -> {
-//                                    if (task.isSuccessful()) {
-//                                        List<DocumentSnapshot> docs = task.getResult().getDocuments();
-//                                        Collections.shuffle(docs);
-//                                        for (DocumentSnapshot doc : docs) {
-//                                            if (winnerList.size() < numberOfSpots) {
-//                                                Log.e("Ohm", "Doc Id " + doc.getString("userId"));
-//                                                winnerList.add(doc.getString("userId"));
-//
-//                                                eventsRef.document(firestoreEventId).update("endDate", new Date());
-//
-//                                                db.collection("winners").add(doc.getData());
-//                                            }
-//                                        }
-//                                    }
-//                                }
-//                        );
                 event.doDraw();
                 MyApp.getInstance().addFragmentToStack(new WinnerListFragment(eventId));
             }
@@ -211,8 +187,6 @@ public class OrganizerEventFragment extends Fragment {
                 MyApp.getInstance().popFragment();
             }
         });
-
-
 
         viewEntrantsMapButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -24,8 +24,10 @@ import com.google.firebase.storage.StorageReference;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 /**
  * Custom ArrayAdapter for displaying EventModel items in a ListView.
@@ -69,7 +71,25 @@ public class EventArrayAdapter extends ArrayAdapter<EventModel> {
 
         // Set event details in the respective views
         ((TextView) view.findViewById(R.id.eventTitle)).setText(event.getTitle());
-        ((TextView) view.findViewById(R.id.eventStatus)).setText("OPEN/PENDING/CLOSED");
+        String statusText;
+
+        int maxNum = event.getNumberOfMaxEntrants();
+        int curNum = event.getWaitingList().size();
+
+        if (maxNum != -1 && maxNum <= curNum)
+            statusText = "PENDING";
+        else
+            statusText = "OPEN";
+
+        if (event.getEndDate().getTime() - event.getStartDate().getTime() <= 0)
+            statusText = "PENDING";
+        if (event.isDrawn())
+            statusText = "CLOSED";
+
+        ((TextView) view.findViewById(R.id.eventStatus))
+                .setText(statusText);
+
+
         event.getLocation(address -> {
             Log.e("Ohm", "Addy: " + address);
             ((TextView) view.findViewById(R.id.eventLocation))
