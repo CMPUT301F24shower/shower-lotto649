@@ -24,13 +24,10 @@ import androidx.fragment.app.Fragment;
 
 import com.example.lotto649.Models.HomePageModel;
 import com.example.lotto649.MyApp;
-import com.example.lotto649.Views.ArrayAdapters.EventArrayAdapter;
+import com.example.lotto649.Views.ArrayAdapters.BrowseEventsArrayAdapter;
 import com.example.lotto649.Controllers.EventsController;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.R;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.example.lotto649.Views.ArrayAdapters.EventArrayAdapter;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -42,7 +39,7 @@ import java.util.Objects;
 public class HomeFragment extends Fragment {
     private EventsController eventsController;
     private ExtendedFloatingActionButton addButton;
-    private EventArrayAdapter eventAdapter;
+    private BrowseEventsArrayAdapter eventAdapter;
     private HomePageModel events;
 
     /**
@@ -100,12 +97,7 @@ public class HomeFragment extends Fragment {
                 // TODO test that this doesnt introduce any bugs - so far so good
                 if (isAdded()) {
                     // Initialize and set the adapter with fetched events
-                    eventAdapter = new EventArrayAdapter(requireContext(), events, new EventArrayAdapter.EventArrayAdapterListener() {
-                        @Override
-                        public void onEventsWaitListChanged() {
-                            // Handle waitlist changes if needed
-                        }
-                    });
+                    eventAdapter = new BrowseEventsArrayAdapter(requireContext(), events);
                     eventsList.setAdapter(eventAdapter);
                 }
             }

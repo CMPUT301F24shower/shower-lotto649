@@ -128,6 +128,5 @@ public class MyApp extends Application {
         if (currentActivity != null) {
             currentActivity.get().getSupportFragmentManager().popBackStackImmediate();
         }
-
     }
 }
