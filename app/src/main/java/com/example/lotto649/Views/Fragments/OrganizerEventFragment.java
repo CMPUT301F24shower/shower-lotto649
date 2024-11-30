@@ -1,5 +1,6 @@
 package com.example.lotto649.Views.Fragments;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,8 +12,12 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
+import com.example.lotto649.EventState;
 import com.example.lotto649.Models.EventModel;
+import com.example.lotto649.Models.QrCodeModel;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -30,6 +35,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class OrganizerEventFragment extends Fragment {
     private FirebaseFirestore db;
@@ -53,10 +59,38 @@ public class OrganizerEventFragment extends Fragment {
     ExtendedFloatingActionButton viewEntrantsWaitingListButton;
     ExtendedFloatingActionButton editButton;
     ExtendedFloatingActionButton backButton;
+    private MutableLiveData<Boolean> hasQrCode;
+    private MutableLiveData<Boolean> hasDrawn;
     private Uri posterUri;
 
     public OrganizerEventFragment() {
         // Required empty public constructor
+    }
+
+    public EventModel getEventFromFirebaseObject(DocumentSnapshot doc) {
+        String eventId = doc.getId();
+        String description = doc.getString("description");
+        Date endDate = doc.getDate("endDate");
+        Boolean geo = doc.getBoolean("geo");
+        int numMaxEntrants = doc.getLong("numberOfMaxEntrants").intValue();
+        int numSpots = doc.getLong("numberOfSpots").intValue();
+        String organizerId = doc.getString("organizerId");
+        String posterImage = doc.getString("posterImage");
+        String qrCode = doc.getString("qrCode");
+        Date startDate = doc.getDate("startDate");
+        String stateStr = doc.getString("state");
+        EventState state = EventState.OPEN;
+        if (stateStr.equals("WAITING")) {
+            state = EventState.WAITING;
+        } else if (stateStr.equals("CLOSED")) {
+            state = EventState.CLOSED;
+        }
+        String title = doc.getString("title");
+        int waitingListSize = doc.getLong("waitingListSize").intValue();
+        EventModel newEvent = new EventModel(title, description, numSpots, numMaxEntrants, startDate, endDate, posterImage, geo, qrCode, waitingListSize, state, db);
+        newEvent.setOrganizerId(organizerId);
+        newEvent.setEventId(eventId);
+        return newEvent;
     }
 
     @Override
@@ -64,6 +98,29 @@ public class OrganizerEventFragment extends Fragment {
         firestoreEventId = getArguments().getString("firestoreEventId");
 
         View view = inflater.inflate(R.layout.fragment_organizer_view_event, container, false);
+
+        hasQrCode = new MutableLiveData<Boolean>(Boolean.TRUE);
+        hasQrCode.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean changedValue) {
+                if (Objects.equals(changedValue, Boolean.TRUE)) {
+                    viewQrCodeButton.setVisibility(View.VISIBLE);
+                } else {
+                    viewQrCodeButton.setVisibility(View.GONE);
+                }
+            }
+        });
+        hasDrawn = new MutableLiveData<Boolean>(Boolean.FALSE);
+        hasDrawn.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean changedValue) {
+                if (Objects.equals(changedValue, Boolean.FALSE)) {
+                    chooseWinnersButton.setVisibility(View.VISIBLE);
+                } else {
+                    chooseWinnersButton.setVisibility(View.GONE);
+                }
+            }
+        });
 
         db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
@@ -92,9 +149,7 @@ public class OrganizerEventFragment extends Fragment {
                         if (task.isSuccessful()) {
                             DocumentSnapshot doc = task.getResult();
                             String nameText = doc.getString("title");
-                            event = doc.toObject(EventModel.class);
-                            event.setEventId(doc.getId());
-                            event.setDb(db);
+                            event = getEventFromFirebaseObject(doc);
                             eventId = doc.getId();
                             int maxNum = ((Long) doc.get("numberOfMaxEntrants")).intValue();
                             int curNum = ((Long) doc.get("waitingListSize")).intValue();
@@ -122,8 +177,16 @@ public class OrganizerEventFragment extends Fragment {
                                 if (diffInMillis <= 0)
                                     statusText = "PENDING";
 
-                                if (doc.getBoolean("drawn"))
-                                    statusText = "CLOSED";
+                                if (doc.getString("state").equals("OPEN")) {
+                                    hasDrawn.setValue(Boolean.FALSE);
+                                } else {
+                                    if (doc.getString("state").equals("WAITING")) {
+                                        statusText = "PENDING";
+                                    } else {
+                                        statusText = "CLOSED";
+                                    }
+                                    hasDrawn.setValue(Boolean.TRUE);
+                                }
 
                                 // Convert milliseconds to days (rounding down)
                                 int daysLeftInt = (int) (diffInMillis / (24 * 60 * 60 * 1000));
@@ -150,6 +213,12 @@ public class OrganizerEventFragment extends Fragment {
                                     geoLocation.setVisibility(View.GONE);
                                 }
                                 description.setText(descriptionText);
+                                String qrCodeHash = doc.getString("qrCode");
+                                if (qrCodeHash.isEmpty()) {
+                                    hasQrCode.setValue(Boolean.FALSE);
+                                } else {
+                                    hasQrCode.setValue(Boolean.TRUE);
+                                }
                             }
                         }
                     }
@@ -167,7 +236,8 @@ public class OrganizerEventFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 event.doDraw();
-                MyApp.getInstance().addFragmentToStack(new WinnerListFragment(eventId));
+                hasDrawn.setValue(Boolean.TRUE);
+                // MyApp.getInstance().addFragmentToStack(new WinnerListFragment(eventId));
             }
         });
         // TODO screen for winnerlist
@@ -183,6 +253,16 @@ public class OrganizerEventFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 MyApp.getInstance().popFragment();
+            }
+        });
+
+        viewQrCodeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String data = "https://lotto649/?eventId=" + eventId;
+                Bitmap qrCodeBitmap = QrCodeModel.generateForEvent(data);
+                QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
+                MyApp.getInstance().addFragmentToStack(qrFragment);
             }
         });
 

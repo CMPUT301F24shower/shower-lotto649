@@ -23,6 +23,7 @@ import android.widget.ListView;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.lotto649.EventState;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.R;
@@ -111,9 +112,16 @@ public class BrowseEventsFragment extends Fragment {
                         String posterImageUriString = doc.getString("posterImage");
                         String qrCodeHash = doc.getString("qrCode");
                         boolean geo = doc.getBoolean("geo");
-                        dataList.add( new EventModel(getContext(), title, description, numberOfSpots,
+                        String stateStr = doc.getString("state");
+                        EventState state = EventState.OPEN;
+                        if (stateStr.equals("WAITING")) {
+                            state = EventState.WAITING;
+                        } else if (stateStr.equals("CLOSED")) {
+                            state = EventState.CLOSED;
+                        }
+                        dataList.add( new EventModel(title, description, numberOfSpots,
                         numberOfMaxEntrants, startDate, endDate, posterImageUriString, geo, qrCodeHash,
-                                0, false, null));
+                                0, state, null));
                         eventIdList.add(eventId);
                     }
                     eventsAdapter.notifyDataSetChanged();
