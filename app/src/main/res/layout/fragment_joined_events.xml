@@ -16,7 +16,7 @@
             android:id="@+id/eventsFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Created Events"
+            android:text="Joined Events"
             android:textColor="@color/lightOnSurface"
             android:textSize="40sp"
             android:textAlignment="center"
