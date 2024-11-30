@@ -121,12 +121,20 @@ public class MainActivity extends AppCompatActivity
                 }
             });
 
-    private ActivityResultLauncher<String> requestNotificationPermissionLauncher;
+    private ActivityResultLauncher<String> requestNotificationPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    Log.d("notif", "Notification permission granted");
+                } else {
+                    Log.d("notif", "Notification permission not granted");
+                }
+            });
 
     private void checkAndRequestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13+
             if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 // Request permission
+                Log.d("ISAAC", "REQUESTING NOTIFICATION PERMISSION");
                 requestNotificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS);
             }
         }
@@ -143,6 +151,9 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         newEventSeen = false;
+
+        checkAndRequestNotificationPermission();
+
 
         // Create a LocationRequest using create() method
         LocationRequest locationRequest = LocationRequest.create();
