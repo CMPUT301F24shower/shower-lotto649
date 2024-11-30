@@ -9,9 +9,9 @@
         android:id="@+id/back_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Back"
         android:layout_margin="8dp"
         android:backgroundTint="@color/lightSurfaceContainerHigh"
+        android:fontFamily="sans-serif-medium"
         app:icon="@drawable/ic_back_foreground"
         app:iconSize="40dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -31,15 +31,6 @@
             android:layout_width="match_parent"
             android:layout_height="16dp"/>
 
-        <!--        <ImageView-->
-        <!--            android:id="@+id/profileImage"-->
-        <!--            android:src="@drawable/ic_person_foreground"-->
-        <!--            android:contentDescription="Icon description"-->
-        <!--            android:layout_width="150dp"-->
-        <!--            android:layout_height="150dp"-->
-        <!--            android:scaleType="centerCrop"-->
-        <!--            android:layout_gravity="center"-->
-        <!--            android:background="@color/white"/>-->
         <TextView
             android:id="@+id/admin_profile_image_placeholder"
             android:src="@drawable/ic_person_foreground"
@@ -62,6 +53,9 @@
         android:id="@+id/admin_user_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:padding="2dp"
+        android:textColor="@color/black"
         android:textSize="40sp"
         app:layout_constraintTop_toBottomOf="@+id/admin_profile_picture_layout"
         app:layout_constraintStart_toStartOf="parent" />
@@ -70,6 +64,9 @@
         android:id="@+id/admin_user_email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:padding="2dp"
+        android:textColor="@color/lightOnSurfaceVariant"
         android:textSize="25sp"
         app:layout_constraintTop_toBottomOf="@+id/admin_user_name"
         app:layout_constraintStart_toStartOf="parent" />
@@ -78,6 +75,9 @@
         android:id="@+id/admin_user_phone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:padding="2dp"
+        android:textColor="@color/lightOnSurfaceVariant"
         android:textSize="25sp"
         app:layout_constraintTop_toBottomOf="@+id/admin_user_email"
         app:layout_constraintStart_toStartOf="parent" />
@@ -86,6 +86,9 @@
         android:id="@+id/admin_user_roles"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:padding="2dp"
+        android:textColor="@color/lightOnSurfaceVariant"
         android:textSize="25sp"
         app:layout_constraintTop_toBottomOf="@+id/admin_user_phone"
         app:layout_constraintStart_toStartOf="parent" />
@@ -106,6 +109,7 @@
             android:layout_gravity="bottom"
             android:layout_margin="16dp"
             android:backgroundTint="@color/lightSurfaceContainerHigh"
+            android:fontFamily="sans-serif-medium"
             android:text="Remove\nImage"
             app:icon="@drawable/ic_trash_foreground"
             app:iconSize="40dp"
@@ -122,6 +126,7 @@
             android:layout_gravity="bottom"
             android:layout_margin="16dp"
             android:backgroundTint="@color/lightSurfaceContainerHigh"
+            android:fontFamily="sans-serif-medium"
             android:text="Remove\nProfile"
             app:icon="@drawable/ic_trash_foreground"
             app:iconSize="40dp"

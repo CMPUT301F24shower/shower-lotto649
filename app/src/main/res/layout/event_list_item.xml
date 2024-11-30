@@ -3,42 +3,52 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    android:background="@drawable/card_corners">
 
     <LinearLayout
         android:id="@+id/event_poster_layout"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center"
+
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" >
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="16dp"/>
-
         <ImageView
             android:id="@+id/event_poster"
-            android:src="@drawable/ic_default_event_img_foreground"
-            android:contentDescription="Icon description"
-            android:layout_width="300dp"
+            android:layout_width="fill_parent"
             android:layout_height="150dp"
-            android:scaleType="centerCrop"
             android:layout_gravity="center"
-            android:background="@color/white" />
+            android:contentDescription="Icon description"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_default_event_img_foreground"
+            android:background="@drawable/rounded_corners"
+            android:clipToOutline="true"/>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="16dp"/>
 
     </LinearLayout>
-
+<LinearLayout
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    app:layout_constraintTop_toBottomOf="@id/event_poster_layout"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintBottom_toBottomOf="parent"
+    android:paddingVertical="8dp"
+    android:layout_marginStart="16dp">
     <TextView
         android:id="@+id/admin_event_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:text="Title"
+        android:textColor="@color/black"
+        android:padding="2dp"
         android:textSize="40sp"
         app:layout_constraintTop_toBottomOf="@+id/event_poster_layout"
         app:layout_constraintStart_toStartOf="parent" />
@@ -47,6 +57,10 @@
         android:id="@+id/admin_event_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:text="OPEN/PENDING/CLOSED"
+        android:textColor="@color/lightOnSurfaceVariant"
+        android:padding="2dp"
         android:textSize="25sp"
         app:layout_constraintTop_toBottomOf="@+id/admin_event_name"
         app:layout_constraintStart_toStartOf="parent" />
@@ -55,6 +69,10 @@
         android:id="@+id/admin_event_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:text="Location"
+        android:textColor="@color/lightOnSurfaceVariant"
+        android:padding="2dp"
         android:textSize="25sp"
         app:layout_constraintTop_toBottomOf="@+id/admin_event_status"
         app:layout_constraintStart_toStartOf="parent" />
@@ -63,6 +81,10 @@
         android:id="@+id/admin_event_spots"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:text="# Spots Available/OPEN"
+        android:textColor="@color/lightOnSurfaceVariant"
+        android:padding="2dp"
         android:textSize="25sp"
         app:layout_constraintTop_toBottomOf="@+id/admin_event_location"
         app:layout_constraintStart_toStartOf="parent" />
@@ -71,6 +93,10 @@
         android:id="@+id/admin_event_attendees"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:text="# of Attendees"
+        android:textColor="@color/lightOnSurfaceVariant"
+        android:padding="2dp"
         android:textSize="25sp"
         app:layout_constraintTop_toBottomOf="@+id/admin_event_spots"
         app:layout_constraintStart_toStartOf="parent" />
@@ -79,6 +105,10 @@
         android:id="@+id/admin_event_dates"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:text="Event Dates"
+        android:textColor="@color/lightOnSurfaceVariant"
+        android:padding="2dp"
         android:textSize="25sp"
         app:layout_constraintTop_toBottomOf="@+id/admin_event_attendees"
         app:layout_constraintStart_toStartOf="parent" />
@@ -87,6 +117,10 @@
         android:id="@+id/admin_event_geo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:text="GeoLocation Required"
+        android:textColor="@color/lightOnSurfaceVariant"
+        android:padding="2dp"
         android:textSize="25sp"
         app:layout_constraintTop_toBottomOf="@+id/admin_event_dates"
         app:layout_constraintStart_toStartOf="parent" />
@@ -95,8 +129,13 @@
         android:id="@+id/admin_event_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:padding="2dp"
+        android:text="Description"
+        android:textColor="@color/lightOnSurfaceVariant"
         android:textSize="25sp"
-        app:layout_constraintTop_toBottomOf="@+id/admin_event_geo"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/admin_event_geo" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

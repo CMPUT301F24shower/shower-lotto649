@@ -1,4 +1,15 @@
 <resources>
+<!--    &lt;!&ndash; Updated Strings &ndash;&gt;-->
+<!--    <string name="app_name">Lotto649</string>-->
+<!--    <string name="hello_blank_fragment">Welcome to Lotto649!</string>-->
+<!--    <string name="enter_lottery_number">Enter Your Lottery Number</string>-->
+<!--    <string name="check_results">Check Results</string>-->
+<!--    <string name="congratulations">Congratulations! You Won!</string>-->
+<!--    <string name="try_again">Better Luck Next Time</string>-->
+<!--    <string name="view_previous_results">View Previous Results</string>-->
+<!--    <string name="current_jackpot">Current Jackpot: </string>-->
+<!--    <string name="enter_details">Enter your details to proceed</string>-->
+<!--    <string name="contact_support">Contact Support</string>-->
     <string name="app_name">lotto649</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
