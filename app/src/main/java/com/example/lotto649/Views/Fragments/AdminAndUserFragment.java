@@ -57,21 +57,21 @@ public class AdminAndUserFragment extends Fragment {
         profiles.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MyApp.getInstance().replaceFragment(new BrowseProfilesFragment());
+                MyApp.getInstance().addFragmentToStack(new BrowseProfilesFragment());
             }
         });
 
         facilities.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MyApp.getInstance().replaceFragment(new BrowseFacilitiesFragment());
+                MyApp.getInstance().addFragmentToStack(new BrowseFacilitiesFragment());
             }
         });
 
         events.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MyApp.getInstance().replaceFragment(new BrowseEventsFragment());
+                MyApp.getInstance().addFragmentToStack(new BrowseEventsFragment());
             }
         });
 

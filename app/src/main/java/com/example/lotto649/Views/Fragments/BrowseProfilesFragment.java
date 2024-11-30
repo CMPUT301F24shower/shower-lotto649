@@ -26,11 +26,14 @@ import androidx.fragment.app.Fragment;
 
 import com.example.lotto649.Models.FacilityModel;
 import com.example.lotto649.Models.UserModel;
+import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.example.lotto649.Views.ArrayAdapters.BrowseFacilitiesArrayAdapter;
 import com.example.lotto649.Views.ArrayAdapters.BrowseProfilesArrayAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -63,6 +66,7 @@ public class BrowseProfilesFragment extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference userRef;
     private Context mContext;
+    private ExtendedFloatingActionButton backButton;
 
     /**
      * Public empty constructor for BrowseFacilitiesFragment.
@@ -105,6 +109,7 @@ public class BrowseProfilesFragment extends Fragment {
         dataList = new ArrayList<UserModel>();
         deviceIdList = new ArrayList<String>();
 
+        backButton = view.findViewById(R.id.back_button);
         browseProfilesList = view.findViewById(R.id.browse_profiles_list);
         profilesAdapter = new BrowseProfilesArrayAdapter(view.getContext(), dataList);
         browseProfilesList.setAdapter(profilesAdapter);
@@ -144,6 +149,13 @@ public class BrowseProfilesFragment extends Fragment {
                         .replace(R.id.flFragment, frag, null)
                         .addToBackStack(null)
                         .commit();
+            }
+        });
+
+        backButton.setOnClickListener(new ExtendedFloatingActionButton.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MyApp.getInstance().popFragment();
             }
         });
 

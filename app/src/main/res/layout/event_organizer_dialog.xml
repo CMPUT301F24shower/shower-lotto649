@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/org_dialog_choose_winners"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/lightSurfaceContainerHigh"
+        android:text="Randomly Choose Winners"
+        app:icon="@drawable/ic_person_foreground"
+        app:elevation="2dp" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/org_dialog_view_qr"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/lightSurfaceContainerHigh"
+        android:text="View QR"
+        app:icon="@drawable/qr_icon_foreground"
+        app:elevation="2dp" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/org_dialog_view_entrants"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/lightSurfaceContainerHigh"
+        android:text="View Entrants"
+        app:icon="@drawable/ic_person_foreground"
+        app:elevation="2dp" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/org_dialog_map"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/lightSurfaceContainerHigh"
+        android:text="Map Of Entrants"
+        app:icon="@drawable/map_icon_foreground"
+        app:elevation="2dp" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/org_dialog_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/lightSurfaceContainerHigh"
+        android:text="Edit"
+        app:icon="@drawable/ic_edit_icon_foreground"
+        app:elevation="2dp" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/org_dialog_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/lightSurfaceContainerHigh"
+        android:text="Close"
+        app:icon="@drawable/ic_close_foreground"
+        app:elevation="2dp" />
+
+    <!-- Repeat for other buttons -->
+</LinearLayout>

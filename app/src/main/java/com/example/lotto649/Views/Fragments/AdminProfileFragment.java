@@ -193,7 +193,7 @@ public class AdminProfileFragment extends Fragment {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MyApp.getInstance().replaceFragment(new BrowseProfilesFragment());
+                MyApp.getInstance().popFragment();
             }
         });
 
