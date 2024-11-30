@@ -1,13 +1,17 @@
 package com.example.lotto649.Views.Fragments;
 
+import android.app.AlertDialog;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -17,8 +21,10 @@ import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -40,11 +46,8 @@ public class OrganizerEventFragment extends Fragment {
     TextView daysLeft;
     TextView geoLocation;
     TextView description;
-    ExtendedFloatingActionButton viewQrCodeButton;
-    ExtendedFloatingActionButton chooseWinnersButton;
-    ExtendedFloatingActionButton viewEntrantsMapButton;
-    ExtendedFloatingActionButton viewEntrantsWaitingListButton;
-    ExtendedFloatingActionButton editButton;
+    ExtendedFloatingActionButton optionsButtons;
+    ExtendedFloatingActionButton backButton;
     private Uri posterUri;
 
     public OrganizerEventFragment() {
@@ -68,12 +71,100 @@ public class OrganizerEventFragment extends Fragment {
         daysLeft = view.findViewById(R.id.organizer_event_dates);
         geoLocation = view.findViewById(R.id.organizer_event_geo);
         description = view.findViewById(R.id.organizer_event_description);
-        viewQrCodeButton = view.findViewById(R.id.view_qr_code_button);
-        chooseWinnersButton = view.findViewById(R.id.choose_winners_button);
-        viewEntrantsMapButton = view.findViewById(R.id.view_entrants_map_button);
-        posterImage = view.findViewById(R.id.organizer_event_poster);
-        viewEntrantsWaitingListButton = view.findViewById(R.id.view_entrants_list_button);
-        editButton = view.findViewById(R.id.edit_event_button);
+        optionsButtons = view.findViewById(R.id.organizer_event_options);
+        backButton = view.findViewById(R.id.organizer_event_cancel);
+
+        optionsButtons.setOnClickListener(v -> {
+            View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.event_organizer_dialog, null);
+
+            AlertDialog dialog = new AlertDialog.Builder(getContext())
+                    .setView(dialogView)
+                    .create();
+
+            ExtendedFloatingActionButton viewEntrantsMapButton = dialogView.findViewById(R.id.org_dialog_map);
+            ExtendedFloatingActionButton qrButton = dialogView.findViewById(R.id.org_dialog_view_qr);
+            ExtendedFloatingActionButton viewEntrantsButton = dialogView.findViewById(R.id.org_dialog_view_entrants);
+            ExtendedFloatingActionButton editButton = dialogView.findViewById(R.id.org_dialog_edit);
+            ExtendedFloatingActionButton randomButton = dialogView.findViewById(R.id.org_dialog_choose_winners);
+            ExtendedFloatingActionButton cancelButton = dialogView.findViewById(R.id.org_dialog_cancel);
+
+            viewEntrantsMapButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("eventId", firestoreEventId);
+                    MapFragment mapFragment = new MapFragment();
+                    mapFragment.setArguments(bundle);
+                    MyApp.getInstance().addFragmentToStack(mapFragment);
+                    dialog.dismiss();
+                }
+            });
+
+            qrButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // TODO add new QR code stuff here
+                    QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
+                }
+            });
+
+            viewEntrantsButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                }
+            });
+
+            editButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+//                    Bundle bundle = new Bundle();
+//                    bundle.putString("firestoreEventId", firestoreEventId);
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    DocumentReference doc = db.collection("events").document(firestoreEventId);
+                    doc.get().addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && task.getResult() != null) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                EventModel event = document.toObject(EventModel.class);
+                                EventFragment frag = new EventFragment(event);
+//                                frag.setArguments(bundle);
+                                MyApp.getInstance().addFragmentToStack(frag);
+                            } else {
+                                Toast.makeText(getContext(), "Unable to fetch event from firestore", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(getContext(), "Unable to fetch event from firestore", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    dialog.dismiss();
+                }
+            });
+
+            randomButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                }
+            });
+
+            cancelButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    dialog.dismiss();
+                }
+            });
+
+            // Show the dialog
+            dialog.show();
+        });
+
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MyApp.getInstance().popFragment();
+            }
+        });
 
         eventsRef.document(firestoreEventId)
                 .get()
@@ -126,17 +217,6 @@ public class OrganizerEventFragment extends Fragment {
                     }
                 });
 
-
-        viewEntrantsMapButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Bundle bundle = new Bundle();
-                bundle.putString("eventId", firestoreEventId);
-                MapFragment mapFragment = new MapFragment();
-                mapFragment.setArguments(bundle);
-                MyApp.getInstance().addFragmentToStack(mapFragment);
-            }
-        });
         return view;
     }
 }
