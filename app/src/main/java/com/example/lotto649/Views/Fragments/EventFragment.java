@@ -136,7 +136,7 @@ public class EventFragment extends Fragment {
         super.onAttach(context);
         Log.e("Ohm", "onAttach");
         if (Objects.isNull(event)) {
-            this.event = new EventModel(context, FirebaseFirestore.getInstance());
+            this.event = new EventModel(FirebaseFirestore.getInstance());
         }
         mContext = context;
     }
@@ -373,7 +373,13 @@ public class EventFragment extends Fragment {
                 maxEntrantsInputLayout.setError("Please enter a positive number");
                 hasError = true;
             } else if (!maxEntrantsStr.isBlank()) {
-                maxEntrants = Integer.parseInt(maxEntrantsStr);
+                if (Integer.parseInt(maxEntrantsStr) < Integer.parseInt(spotsStr)) {
+                    maxEntrantsInputLayout.setError("Waiting List Size must be at least as large as number of possible attendees.");
+                    hasError = true;
+                }
+                else {
+                    maxEntrants = Integer.parseInt(maxEntrantsStr);
+                }
             }
 
             if (hasError) {
@@ -406,9 +412,7 @@ public class EventFragment extends Fragment {
                     eventController.updateQrCode(qrCodeHash);
 
                     QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
-                    requireActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.flFragment, qrFragment)
-                            .commit();
+                    MyApp.getInstance().addFragmentToStack(qrFragment);
                 });
             } else {
                 MyApp.getInstance().popFragment();

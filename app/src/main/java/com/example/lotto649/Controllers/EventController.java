@@ -116,7 +116,7 @@ public class EventController extends AbstractController {
     public void saveEventToFirestore(OnSuccessListener<String> onSuccess) {
         getModel().saveEventToFirestore(onSuccess);
         // TODO this shouldnt be in controller, also this should be popFragment
-        MyApp.getInstance().addFragmentToStack(new HomeFragment());
+        MyApp.getInstance().popFragment();
     }
 
     /**
@@ -125,7 +125,7 @@ public class EventController extends AbstractController {
     public void removeEventFromFirestore() {
         getModel().removeEventFromFirestore();
         // TODO this shouldnt be in controller, also this should be popFragment
-        MyApp.getInstance().addFragmentToStack(new HomeFragment());
+        MyApp.getInstance().popFragment();
     }
 
     /**

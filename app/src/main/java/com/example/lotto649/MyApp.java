@@ -16,7 +16,6 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.lotto649.Models.UserModel;
-import com.example.lotto649.Views.Fragments.EventFragment;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.lang.ref.WeakReference;
@@ -128,5 +127,11 @@ public class MyApp extends Application {
         if (currentActivity != null) {
             currentActivity.get().getSupportFragmentManager().popBackStackImmediate();
         }
+    }
+
+    public enum EventState {
+        OPEN,
+        WAITING,
+        CLOSED
     }
 }

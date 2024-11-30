@@ -76,7 +76,7 @@ public class BrowseEventsArrayAdapter extends ArrayAdapter<EventModel> {
         if (event.getNumberOfMaxEntrants() == -1) {
             eventSpotsAvail.setText("OPEN");
         } else {
-            eventSpotsAvail.setText(Integer.toString(event.getNumberOfMaxEntrants() - event.getWaitingList().size()) + " Spots Available");
+            eventSpotsAvail.setText(Integer.toString(event.getNumberOfMaxEntrants() - event.getWaitingListSize()) + " Spots Available");
         }
         eventNumAttendees.setText(Integer.toString(event.getNumberOfSpots()) + " Attendees");
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
