@@ -21,6 +21,7 @@ import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.matcher.BoundedMatcher;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.uiautomator.UiObjectNotFoundException;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -29,6 +30,7 @@ import com.google.firebase.firestore.SetOptions;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,6 +44,10 @@ public class AdminManageFacilityTest {
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
 
+    @Before
+    public void setUp() throws UiObjectNotFoundException {
+        PermissionHandler.handlePermissions();
+    }
     /**
      * Deleting a facility
      * Tests US 03.07.01
@@ -66,7 +72,7 @@ public class AdminManageFacilityTest {
         data.put("facility", "Test Facility");
         data.put("address", "111 Apple Street");
         // document set so it is first in list
-        DocumentReference testRef = db.collection("facilities").document("1111111111111111111111111uitest1");
+        DocumentReference testRef = db.collection("facilities").document("000000000000000000000000uitest1");
         testRef.set(data, SetOptions.merge());
 
         //     run test
