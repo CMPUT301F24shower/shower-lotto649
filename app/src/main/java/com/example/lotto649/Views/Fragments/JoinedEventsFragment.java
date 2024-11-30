@@ -14,7 +14,6 @@ package com.example.lotto649.Views.Fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,26 +23,18 @@ import android.widget.ListView;
 import androidx.fragment.app.Fragment;
 
 import com.example.lotto649.Models.HomePageModel;
-import com.example.lotto649.MyApp;
 import com.example.lotto649.Views.ArrayAdapters.EventArrayAdapter;
 import com.example.lotto649.Controllers.EventsController;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.R;
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class JoinedEventsFragment extends Fragment {
-    private EventsController eventsController;
-    private ExtendedFloatingActionButton addButton;
     private EventArrayAdapter eventAdapter;
-    private HomePageModel events;
 
     /**
      * Required empty public constructor.
@@ -63,32 +54,10 @@ public class JoinedEventsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_home, container, false);
-
-        events = new HomePageModel();
-        eventsController = new EventsController(events);
-        addButton = view.findViewById(R.id.addButton);
+        View view = inflater.inflate(R.layout.fragment_joined_events, container, false);
 
         // Check that the user has created an account and a facility, if they haven't hide the create event button
         String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-        DocumentReference userRef = FirebaseFirestore.getInstance().collection("users").document(deviceId);
-        DocumentReference facilityRef = FirebaseFirestore.getInstance().collection("facilities").document(deviceId);
-
-        userRef.get().addOnCompleteListener(task -> {
-            DocumentSnapshot userDoc = task.getResult();
-            boolean userExists = userDoc != null && userDoc.exists();
-            if (!userExists) {
-                addButton.setVisibility(View.GONE);
-            }
-        }).addOnFailureListener(task -> addButton.setVisibility(View.GONE));;
-        facilityRef.get().addOnCompleteListener(task -> {
-            DocumentSnapshot facilityDoc = task.getResult();
-            boolean facilityExists = facilityDoc != null && facilityDoc.exists();
-            if (!facilityExists) {
-                addButton.setVisibility(View.GONE);
-            }
-        }).addOnFailureListener(task -> addButton.setVisibility(View.GONE));
-
         ListView eventsList = view.findViewById(R.id.event_contents);
         ArrayList<EventModel> eventArrayList = new ArrayList<>();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -123,8 +92,6 @@ public class JoinedEventsFragment extends Fragment {
             }
         });
 
-        addButton.setOnClickListener(v -> eventsController.addEvent());
-
         eventsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -140,20 +107,6 @@ public class JoinedEventsFragment extends Fragment {
                         .replace(R.id.flFragment, frag, null)
                         .addToBackStack(null)
                         .commit();
-
-//                String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-//                String organizerId = event.getOrganizerId();
-//                Bundle bundle = new Bundle();
-//                bundle.putString("firestoreEventId", eventId);
-//
-//                if (Objects.equals(organizerId, deviceId)) {
-//                    OrganizerEventFragment frag = new OrganizerEventFragment();
-//                    frag.setArguments(bundle);
-//                    MyApp app = MyApp.getInstance();
-//                    app.replaceFragment(frag);
-//                } else {
-//                    eventsController.editEvent(event);
-//                }
             }
         });
 
