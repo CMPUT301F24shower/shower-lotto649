@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:layout_margin="16dp"
+    android:background="@drawable/card_corners">
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -22,14 +25,16 @@
         android:textColor="@color/black"
         android:textSize="40sp"
         android:textAlignment="center"
+        android:layout_margin="16dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <LinearLayout
         android:id="@+id/event_poster_linear_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_height="150dp"
+        android:orientation="vertical"
         app:layout_constraintTop_toBottomOf="@+id/eventFragment"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" >
@@ -37,21 +42,21 @@
         <!-- Event Poster Placeholder -->
         <ImageView
             android:id="@+id/event_poster_placeholder"
-            android:layout_width="300dp"
-            android:layout_height="150dp"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
             android:background="@drawable/rounded_corners"
             android:contentDescription="Event Image Placeholder"
-            android:layout_margin="16dp"
             android:src="@drawable/ic_default_event_img_foreground"/>
 
         <!-- Real Event Poster -->
         <ImageView
             android:id="@+id/event_poster"
-            android:layout_width="300dp"
-            android:layout_height="150dp"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
             android:background="@drawable/rounded_corners"
-            android:contentDescription="Event Image"
-            android:layout_margin="16dp"/>
+            android:contentDescription="Event Image">
+
+        </ImageView>
 
     </LinearLayout>
 
