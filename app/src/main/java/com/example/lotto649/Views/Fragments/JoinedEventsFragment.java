@@ -14,17 +14,19 @@ package com.example.lotto649.Views.Fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-import com.example.lotto649.Models.HomePageModel;
-import com.example.lotto649.Views.ArrayAdapters.EventArrayAdapter;
-import com.example.lotto649.Controllers.EventsController;
+import com.example.lotto649.Views.ArrayAdapters.BrowseEventsArrayAdapter;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.R;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -34,7 +36,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 
 public class JoinedEventsFragment extends Fragment {
-    private EventArrayAdapter eventAdapter;
+    private BrowseEventsArrayAdapter eventAdapter;
 
     /**
      * Required empty public constructor.
@@ -64,7 +66,9 @@ public class JoinedEventsFragment extends Fragment {
         Query query = db.collection("signUps").whereEqualTo("userId", deviceId);
         query.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                boolean noEvents = true;
                 for (QueryDocumentSnapshot doc : task.getResult()) {
+                    noEvents = false;
                     String eventId = doc.getString("eventId");
                     if (eventId == null) continue;
                     db.collection("events").document(eventId).get().addOnCompleteListener(task2 -> {
@@ -80,14 +84,34 @@ public class JoinedEventsFragment extends Fragment {
                     });
 
                 }
+                if (noEvents) {
+                    ConstraintLayout layout = view.findViewById(R.id.joined_events_layout);
+                    TextView textView = new TextView(getContext());
+                    textView.setId(View.generateViewId()); // Generate an ID for the TextView
+                    textView.setText("No events to display\nPlease scan a QR code\nto join an event");
+                    textView.setTextSize(24);
+                    textView.setGravity(Gravity.CENTER);
+                    textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black)); // Update with your color
+
+                    // Set layout params for the TextView to match parent constraints
+                    ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
+                            ConstraintLayout.LayoutParams.MATCH_PARENT,
+                            ConstraintLayout.LayoutParams.WRAP_CONTENT
+                    );
+
+                    params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
+                    params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
+                    params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
+                    params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
+
+                    textView.setLayoutParams(params);
+
+                    // Add the TextView to the layout
+                    layout.addView(textView);
+                }
                 Context context = getContext();
                 if (context == null) return;
-                eventAdapter = new EventArrayAdapter(context, eventArrayList, new EventArrayAdapter.EventArrayAdapterListener() {
-                        @Override
-                        public void onEventsWaitListChanged() {
-                            // Handle waitlist changes if needed
-                        }
-                    });
+                eventAdapter = new BrowseEventsArrayAdapter(context, eventArrayList);
                 eventsList.setAdapter(eventAdapter);
             }
         });

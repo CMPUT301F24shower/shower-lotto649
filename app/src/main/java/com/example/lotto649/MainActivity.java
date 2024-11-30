@@ -37,9 +37,9 @@ import com.example.lotto649.Views.Fragments.AdminAndUserFragment;
 import com.example.lotto649.Views.Fragments.BrowseEventsFragment;
 import com.example.lotto649.Views.Fragments.BrowseFacilitiesFragment;
 import com.example.lotto649.Views.Fragments.BrowseProfilesFragment;
-import com.example.lotto649.Views.Fragments.CameraFragment;
 import com.example.lotto649.Views.Fragments.FacilityFragment;
 import com.example.lotto649.Views.Fragments.HomeFragment;
+import com.example.lotto649.Views.Fragments.CameraFragment;
 import com.example.lotto649.Views.Fragments.JoinEventFragment;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
@@ -202,7 +202,7 @@ public class MainActivity extends AppCompatActivity
                     int id = bottomNavigationView.getSelectedItemId();
                     removeMenuItems();
                     bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu);
-                    if (id == R.id.home || id == R.id.camera || id == R.id.facility || id == R.id.account) {
+                    if (id == R.id.home || id == R.id.camera|| id == R.id.facility || id == R.id.account) {
                         bottomNavigationView.setSelectedItemId(id);
                     } else {
                         bottomNavigationView.setSelectedItemId(R.id.home);
@@ -217,7 +217,7 @@ public class MainActivity extends AppCompatActivity
                     int id = bottomNavigationView.getSelectedItemId();
                     removeMenuItems();
                     bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_user_and_admin);
-                    if (id == R.id.home || id == R.id.camera || id == R.id.facility || id == R.id.account) {
+                    if (id == R.id.home || id == R.id.camera|| id == R.id.facility || id == R.id.account) {
                         bottomNavigationView.setSelectedItemId(id);
                     } else {
                         bottomNavigationView.setSelectedItemId(R.id.home);
@@ -297,11 +297,11 @@ public class MainActivity extends AppCompatActivity
             MyApp.getInstance().replaceFragment(homeTab);
 
             return true;
-        } else if (item.getItemId() == R.id.camera) {
-            MyApp.getInstance().replaceFragment(cameraFragment);
-            return true;
         } else if (item.getItemId() == R.id.account) {
             MyApp.getInstance().replaceFragment(accountFragment);
+            return true;
+        } else if (item.getItemId() == R.id.camera) {
+            MyApp.getInstance().replaceFragment(cameraFragment);
             return true;
         } else if (item.getItemId() == R.id.facility) {
             MyApp.getInstance().replaceFragment(facilityFragment);

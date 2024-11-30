@@ -24,7 +24,7 @@
         android:layout_margin="16dp"
         android:backgroundTint="@color/lightSurfaceContainerHigh"
         android:text="Back to Home"
-        android:textColor="@color/lightPrimary"
+        android:fontFamily="sans-serif-medium"
         app:icon="@drawable/ic_home_foreground"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
