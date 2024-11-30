@@ -1,18 +1,21 @@
 package com.example.lotto649.Models;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.lotto649.AbstractClasses.AbstractModel;
 import com.example.lotto649.MyApp;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.Date;
 
 /**
  * EventModel represents an event in the application with attributes such as title, location,
@@ -128,8 +131,7 @@ public class EventModel extends AbstractModel implements Serializable {
         this.posterImage = posterImage;
         this.geo = geo;
         this.db = db;
-        this.qrCodeData = title + description + numberOfSpots + numberOfMaxEntrants;
-        this.qrCode = qrCode;
+//        this.qrCode = qrCode;
         this.waitingList = waitingList;
     }
 
@@ -137,11 +139,11 @@ public class EventModel extends AbstractModel implements Serializable {
      * Saves the event data to Firestore.
      * If the event has already been saved, this method does nothing.
      */
-    public void saveEventToFirestore() {
+    public void saveEventToFirestore(OnSuccessListener<String> onSuccess) {
         // TODO move to helper
         if (savedToFirestore) return;
 
-        db.collection("events")
+        Task<DocumentReference> task = db.collection("events")
                 .add(new HashMap<String, Object>() {{
                     put("title", title);
                     put("organizerId", organizerId);
@@ -158,8 +160,11 @@ public class EventModel extends AbstractModel implements Serializable {
                 .addOnSuccessListener(documentReference -> {
                     eventId = documentReference.getId();
                     savedToFirestore = true;
-                    setQrCode(qrCode);
                     System.out.println("Event saved successfully with ID: " + eventId);
+
+                    if (onSuccess != null) {
+                        onSuccess.onSuccess(eventId);
+                    }
                 })
                 .addOnFailureListener(e -> {
                     System.err.println("Error saving event: " + e.getMessage());
@@ -452,8 +457,10 @@ public class EventModel extends AbstractModel implements Serializable {
      */
     public void setQrCode(String qrCode) {
         this.qrCode = qrCode;
-//        updateFirestore("qrCode", qrCode);
-//        notifyViews();
+
+        Log.e("GDEEP", "Updating Firestore with QR Code");
+        updateFirestore("qrCode", qrCode);
+        notifyViews();
     }
 
     /**

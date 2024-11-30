@@ -1,12 +1,10 @@
 package com.example.lotto649.Controllers;
 
-import android.graphics.Bitmap;
-
 import com.example.lotto649.AbstractClasses.AbstractController;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.Views.Fragments.HomeFragment;
-//import com.example.lotto649.Views.Fragments.EventsFragment;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.Date;
 
@@ -115,10 +113,10 @@ public class EventController extends AbstractController {
     /**
      * Saves the current event to Firestore and navigates to the HomeFragment.
      */
-    public void saveEventToFirestore() {
-        getModel().saveEventToFirestore();
+    public void saveEventToFirestore(OnSuccessListener<String> onSuccess) {
+        getModel().saveEventToFirestore(onSuccess);
         // TODO this shouldnt be in controller, also this should be popFragment
-        MyApp.getInstance().replaceFragment(new HomeFragment());
+//        MyApp.getInstance().replaceFragment(new HomeFragment());
     }
 
     /**
