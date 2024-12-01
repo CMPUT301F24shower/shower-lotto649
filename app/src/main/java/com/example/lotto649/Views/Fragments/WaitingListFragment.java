@@ -57,7 +57,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * </p>
  */
 public class WaitingListFragment extends Fragment {
-    private ArrayList<String> signUpIdList, deviceIdList;
+    private ArrayList<String> deviceIdList;
     private ArrayList<UserModel> dataList;
     private ListView browseProfilesList;
     private BrowseProfilesArrayAdapter profilesAdapter;
@@ -85,7 +85,6 @@ public class WaitingListFragment extends Fragment {
         // fill dataList from Firestore
         dataList = new ArrayList<UserModel>();
         deviceIdList = new ArrayList<String>();
-        signUpIdList = new ArrayList<String>();
 
         browseProfilesList = view.findViewById(R.id.browse_profiles_list);
         profilesAdapter = new BrowseProfilesArrayAdapter(view.getContext(), dataList);

@@ -13,7 +13,6 @@ package com.example.lotto649.Views.Fragments;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +21,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
@@ -33,19 +31,14 @@ import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.example.lotto649.Views.ArrayAdapters.BrowseProfilesArrayAdapter;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -63,36 +56,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * https://stackoverflow.com/questions/47987649/why-getcontext-in-fragment-sometimes-returns-null
  * </p>
  */
-public class WinnerListFragment extends Fragment {
-    private ArrayList<String> winnerList, deviceIdList;
+public class CancelledListFragment extends Fragment {
+    private ArrayList<String> deviceIdList;
     private ArrayList<UserModel> dataList;
     private ListView browseProfilesList;
     private BrowseProfilesArrayAdapter profilesAdapter;
     private FirebaseFirestore db;
-    private CollectionReference userRef;
-    private Context mContext;
     ExtendedFloatingActionButton backButton;
     private String firestoreEventId;
-
-    /**
-     * Public empty constructor for BrowseFacilitiesFragment.
-     * <p>
-     * Required for proper instantiation of the fragment by the Android system.
-     * </p>
-     */
-    public WinnerListFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Attaches the fragment to the app, and sets the context
-     * @param context the given context
-     */
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        mContext = context;
-    }
 
     /**
      * Called to create the view hierarchy associated with this fragment.
@@ -110,7 +81,6 @@ public class WinnerListFragment extends Fragment {
 
         // initialize Firestore
         db = FirebaseFirestore.getInstance();
-        userRef = db.collection("users");
 
         // fill dataList from Firestore
         dataList = new ArrayList<UserModel>();
@@ -122,7 +92,7 @@ public class WinnerListFragment extends Fragment {
 
         backButton = view.findViewById(R.id.back_button);
 
-        db.collection("winners").whereEqualTo("eventId", firestoreEventId).addSnapshotListener(new EventListener<QuerySnapshot>() {
+        db.collection("cancelled").whereEqualTo("eventId", firestoreEventId).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot querySnapshots, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {
@@ -130,12 +100,12 @@ public class WinnerListFragment extends Fragment {
                 }
                 if (querySnapshots != null) {
                     dataList.clear();
-                    AtomicBoolean noAccepts = new AtomicBoolean(true);
+                    AtomicBoolean noSignUps = new AtomicBoolean(true);
                     for (QueryDocumentSnapshot doc: querySnapshots) {
                         String deviceId = doc.getString("userId");
                         db.collection("users").document(deviceId).get().addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
-                                noAccepts.set(false);
+                                noSignUps.set(false);
                                 DocumentSnapshot userDoc = task.getResult();
                                 String deviceIdText = userDoc.getId();
                                 String nameText = userDoc.getString("name");
@@ -153,11 +123,11 @@ public class WinnerListFragment extends Fragment {
                             }
                         });
                     }
-                    if (noAccepts.get()) {
+                    if (noSignUps.get()) {
                         ConstraintLayout layout = view.findViewById(R.id.browse_profiles_layout);
                         TextView textView = new TextView(getContext());
                         textView.setId(View.generateViewId()); // Generate an ID for the TextView
-                        textView.setText("No Users have accepted their invitation yet");
+                        textView.setText("No Users have been canceled yet");
                         textView.setTextSize(24);
                         textView.setGravity(Gravity.CENTER);
                         textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black)); // Update with your color
@@ -185,13 +155,16 @@ public class WinnerListFragment extends Fragment {
         browseProfilesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String userId = (String) deviceIdList.get(i);
+                String chosenUserId = (String) deviceIdList.get(i);
                 Bundle bundle = new Bundle();
-                bundle.putString("signUpId", firestoreEventId);
-                bundle.putString("userId", userId);
-                WinnerListProfileFragment frag = new WinnerListProfileFragment();
+                bundle.putString("userDeviceId", chosenUserId);
+                bundle.putString("firestoreEventId", firestoreEventId);
+                CancelledListProfileFragment frag = new CancelledListProfileFragment();
                 frag.setArguments(bundle);
-                MyApp.getInstance().addFragmentToStack(frag);
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.flFragment, frag, null)
+                        .addToBackStack(null)
+                        .commit();
             }
         });
 
