@@ -309,6 +309,21 @@ public class OrganizerEventFragment extends Fragment {
         firestoreEventId = getArguments().getString("firestoreEventId");
 
         View view = inflater.inflate(R.layout.fragment_organizer_view_event, container, false);
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.event_organizer_dialog, null);
+
+        AlertDialog dialog = new AlertDialog.Builder(getContext())
+                .setView(dialogView)
+                .create();
+
+        viewEntrantsMapButton = dialogView.findViewById(R.id.org_dialog_map);
+        qrButton = dialogView.findViewById(R.id.org_dialog_view_qr);
+        viewInvitedEntrantsButton = dialogView.findViewById(R.id.org_dialog_view_invited_entrants);
+        viewCanceledEntrants = dialogView.findViewById(R.id.org_dialog_view_canceled_entrants);
+        replacementWinnerButton = dialogView.findViewById(R.id.org_dialog_choose_replacement);
+        editButton = dialogView.findViewById(R.id.org_dialog_edit);
+        cancelButton = dialogView.findViewById(R.id.org_dialog_cancel);
+        viewEntrantsButton = dialogView.findViewById(R.id.org_dialog_view_entrants);
+        randomButton = dialogView.findViewById(R.id.org_dialog_choose_winners);
 
         hasQrCode = new MutableLiveData<Boolean>(Boolean.TRUE);
         hasQrCode.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
@@ -341,11 +356,13 @@ public class OrganizerEventFragment extends Fragment {
             @Override
             public void onChanged(Boolean changedValue) {
                 if (Objects.equals(changedValue, Boolean.TRUE)) {
-                    if (replacementWinnerButton != null)
+                    if (replacementWinnerButton != null) {
                         replacementWinnerButton.setVisibility(View.VISIBLE);
+                    }
                 } else {
-                    if (replacementWinnerButton != null)
+                    if (replacementWinnerButton != null) {
                         replacementWinnerButton.setVisibility(View.GONE);
+                    }
                 }
             }
         });
@@ -365,21 +382,7 @@ public class OrganizerEventFragment extends Fragment {
         backButton = view.findViewById(R.id.organizer_event_cancel);
 
         optionsButtons.setOnClickListener(v -> {
-            View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.event_organizer_dialog, null);
 
-            AlertDialog dialog = new AlertDialog.Builder(getContext())
-                    .setView(dialogView)
-                    .create();
-
-            viewEntrantsMapButton = dialogView.findViewById(R.id.org_dialog_map);
-            qrButton = dialogView.findViewById(R.id.org_dialog_view_qr);
-            viewInvitedEntrantsButton = dialogView.findViewById(R.id.org_dialog_view_invited_entrants);
-            viewCanceledEntrants = dialogView.findViewById(R.id.org_dialog_view_canceled_entrants);
-            replacementWinnerButton = dialogView.findViewById(R.id.org_dialog_choose_replacement);
-            editButton = dialogView.findViewById(R.id.org_dialog_edit);
-            cancelButton = dialogView.findViewById(R.id.org_dialog_cancel);
-            viewEntrantsButton = dialogView.findViewById(R.id.org_dialog_view_entrants);
-            randomButton = dialogView.findViewById(R.id.org_dialog_choose_winners);
 
             if (event.getState().equals(EventState.OPEN)) {
                 setUpOpenStateButtons(dialog);
@@ -418,7 +421,7 @@ public class OrganizerEventFragment extends Fragment {
                             FirestoreHelper.getInstance().getWaitlistSize(firestoreEventId);
                             int curNum = FirestoreHelper.getInstance().getCurrWaitlistSize().getValue();
 
-                                    Long numSpots = (Long) doc.get("numberOfSpots");
+                            Long numSpots = (Long) doc.get("numberOfSpots");
                             if (numSpots != null)
                                 numberOfSpots = (numSpots).intValue();
 
@@ -494,6 +497,28 @@ public class OrganizerEventFragment extends Fragment {
                                     hasQrCode.setValue(Boolean.FALSE);
                                 } else {
                                     hasQrCode.setValue(Boolean.TRUE);
+                                }
+
+                                FirestoreHelper.getInstance().getWinnersSize(firestoreEventId);
+                                int numWinners = FirestoreHelper.getInstance().getCurrWinnersSize().getValue();
+                                FirestoreHelper.getInstance().getNotSelectedSize(firestoreEventId);
+                                int numNotSelected = FirestoreHelper.getInstance().getCurrNotSelectedSize().getValue();
+                                FirestoreHelper.getInstance().getEnrolledSize(firestoreEventId);
+                                int numEnrolled = FirestoreHelper.getInstance().getCurrEnrolledSize().getValue();
+
+                                Log.e("JASON REDRAW", "numWinners: " + Integer.toString(numWinners));
+                                Log.e("JASON REDRAW", "numNotSelected: " + Integer.toString(numNotSelected));
+                                Log.e("JASON REDRAW", "numEnrolled: " + Integer.toString(numEnrolled));
+                                Log.e("JASON REDRAW", "numSpots: " + Integer.toString(numSpots.intValue()));
+
+                                if (numNotSelected == 0) {
+                                    canReplacementDraw.setValue(Boolean.FALSE);
+                                } else {
+                                    if (numWinners + numEnrolled < numSpots) {
+                                        canReplacementDraw.setValue(Boolean.TRUE);
+                                    } else {
+                                        canReplacementDraw.setValue(Boolean.FALSE);
+                                    }
                                 }
                             }
                         }

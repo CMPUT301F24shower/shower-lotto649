@@ -519,6 +519,7 @@ public class EventModel extends AbstractModel implements Serializable {
     }
 
     public void doReplacementDraw() {
+        // This only draws 1 additional user
         if (!getState().equals(EventState.WAITING)) return;
 
         db.collection("notSelected")
@@ -528,8 +529,13 @@ public class EventModel extends AbstractModel implements Serializable {
                     if (task.isSuccessful() && task.getResult() != null) {
                         List<DocumentSnapshot> docs = task.getResult().getDocuments();
                         Collections.shuffle(docs);
+                        int i = 0;
                         for (DocumentSnapshot doc : docs) {
-                            db.collection("winners").document(doc.getId()).set(doc.getData());
+                            if (i == 0) {
+                                db.collection("winners").document(doc.getId()).set(doc.getData());
+                                db.collection("notSelected").document(doc.getId()).delete();
+                                i++;
+                            }
                         }
                     }
                 });
