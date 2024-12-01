@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -16,6 +17,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 public class FirestoreHelper {
@@ -109,11 +111,51 @@ public class FirestoreHelper {
 
     // TODO use custom notification code here instead
     public void markSignupsAsDeleted(String eventId) {
-        Query usersSignedUp = signUpRef.whereEqualTo("eventId", eventId);
-        usersSignedUp.get().addOnCompleteListener(task -> {
+        db.collection("signUps").whereEqualTo("eventId", eventId).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 for (QueryDocumentSnapshot doc : task.getResult()) {
-                    doc.getReference().update("eventDeleted", true);
+                    Map<String, Object> data = doc.getData();
+                    data.put("hasSeenNoti", false);
+                    db.collection("cancelled").document(doc.getId()).set(data);
+                    db.collection("signUps")
+                            .document(doc.getId())
+                            .delete();
+                }
+            }
+        });
+        db.collection("winners").whereEqualTo("eventId", eventId).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot doc : task.getResult()) {
+                    Map<String, Object> data = doc.getData();
+                    data.put("hasSeenNoti", false);
+                    db.collection("cancelled").document(doc.getId()).set(data);
+                    db.collection("winners")
+                            .document(doc.getId())
+                            .delete();
+                }
+            }
+        });
+        db.collection("enrolled").whereEqualTo("eventId", eventId).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot doc : task.getResult()) {
+                    Map<String, Object> data = doc.getData();
+                    data.put("hasSeenNoti", false);
+                    db.collection("cancelled").document(doc.getId()).set(data);
+                    db.collection("enrolled")
+                            .document(doc.getId())
+                            .delete();
+                }
+            }
+        });
+        db.collection("notSelected").whereEqualTo("eventId", eventId).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot doc : task.getResult()) {
+                    Map<String, Object> data = doc.getData();
+                    data.put("hasSeenNoti", false);
+                    db.collection("cancelled").document(doc.getId()).set(data);
+                    db.collection("notSelected")
+                            .document(doc.getId())
+                            .delete();
                 }
             }
         });
