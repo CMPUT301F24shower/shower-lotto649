@@ -512,12 +512,15 @@ public class EventModel extends AbstractModel implements Serializable {
                         Collections.shuffle(docs);
                         int i = 0;
                         for (DocumentSnapshot doc : docs) {
+                            // TODO this is untested
+                            HashMap<String, Object> data = new HashMap<>(doc.getData());
+                            data.put("hasSeenNoti", false);
                             if (i++ < numberOfSpots) {
                                 Log.d("JASON LOTTERY", "Choosing winner " + doc.getString("userId"));
-                                db.collection("winners").add(doc.getData());
+                                db.collection("winners").add(data);
                             } else {
                                 Log.d("JASON LOTTERY", "Choosing loser " + doc.getString("userId"));
-                                db.collection("notSelected").add(doc.getData());
+                                db.collection("notSelected").add(data);
                             }
                         }
                     }

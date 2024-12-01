@@ -46,12 +46,16 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.Firebase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import org.osmdroid.config.Configuration;
+
+import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener {
@@ -65,6 +69,7 @@ public class MainActivity extends AppCompatActivity
     public static final int LOCATION_SETTINGS_REQUEST_CODE = 100;
     FusedLocationProviderClient fusedLocationClient;
     LocationRequest locationRequest;
+    String deviceId;
 
     public void getUserLocation(Context context) {
         if (context == null) {
@@ -151,6 +156,8 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         newEventSeen = false;
+        deviceId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
+
 
         checkAndRequestNotificationPermission();
 
@@ -227,7 +234,6 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        String deviceId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
         userRef = FirebaseFirestore.getInstance().collection("users").document(deviceId);
         userRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -277,10 +283,8 @@ public class MainActivity extends AppCompatActivity
             return false; // Don't perform the transaction if the activity is finishing or destroyed
         }
 
-        NotificationHelper notis = new NotificationHelper();
-        CharSequence title = "ALERT";
-        String description = "YOU USED THE NAV BAR";
-        notis.sendNotification(getApplicationContext(), title, description );
+        // TODO get your events
+        sendNotifications();
 
         if (LocationManagerSingleton.getInstance().isLocationTrackingEnabled()) {
             if (LocationManagerSingleton.getInstance().getGeoPoint() != null) {
@@ -343,6 +347,29 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    private void sendNotifications() {
+        Log.d("ISAAC", "Looking for Notifications");
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("winners").whereEqualTo("userId", deviceId).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot doc : task.getResult()) {
+                    Log.d("ISAAC", "Should send one");
+
+                    if (Boolean.FALSE.equals(doc.getBoolean("hasSeenNoti"))) {
+                        NotificationHelper notis = new NotificationHelper();
+                        CharSequence title = "Event Lottery System";
+                        String description = "You have been selected!\n Click to accept the invitation";
+                        notis.sendNotification(getApplicationContext(), title, description, doc.getString("eventId"));
+                        db.collection("winners").document(doc.getId()).update(new HashMap<String, Object>() {{
+                            put("hasSeenNoti", true);
+                        }});
+                    }
+                }
+            }
+        });
+
+    }
+
     private void removeMenuItems() {
         bottomNavigationView.getMenu().removeItem(R.id.home);
         bottomNavigationView.getMenu().removeItem(R.id.camera);
@@ -364,6 +391,18 @@ public class MainActivity extends AppCompatActivity
             Bundle bundle = new Bundle();
             // TODO check that this is a valid event first
             bundle.putString("firestoreEventId", eventId);
+            JoinEventFragment frag = new JoinEventFragment();
+            frag.setArguments(bundle);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.flFragment, frag, null)
+                    .addToBackStack(null)
+                    .commit();
+        }
+        if (intent != null && intent.hasExtra("eventId")) {
+            Log.d("ISAAC", "OPENED FROM NOTIFICATION");
+            Bundle bundle = new Bundle();
+            // TODO check that this is a valid event first
+            bundle.putString("firestoreEventId", intent.getStringExtra("eventId"));
             JoinEventFragment frag = new JoinEventFragment();
             frag.setArguments(bundle);
             getSupportFragmentManager().beginTransaction()
@@ -428,7 +467,7 @@ public class MainActivity extends AppCompatActivity
      *                     {@link PackageManager#PERMISSION_DENIED}.
      *
      * If the requestCode matches {@link #REQUEST_CODE_POST_NOTIFICATIONS}, the method checks if the user has granted
-     * or denied the {@link andorid.Manifest.permission#POST_NOTIFICATIONS} permission:
+     * or denied the notification permission:
      * <ul>
      *     <li>If the permission is granted, proceed with posting notifications.</li>
      *     <li>If the permission is denied, handle accordingly (e.g., show a message to the user).</li>
