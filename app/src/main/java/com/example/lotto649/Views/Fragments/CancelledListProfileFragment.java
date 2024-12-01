@@ -40,7 +40,7 @@ import java.util.Objects;
  * This is used by an admin user to manage a profile.
  * This fragment is reached through a list of profiles in the admin view.
  */
-public class WaitingListProfileFragment extends Fragment {
+public class CancelledListProfileFragment extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference usersRef;
     private TextView imagePlaceholder;
@@ -52,7 +52,6 @@ public class WaitingListProfileFragment extends Fragment {
     TextView email;
     TextView phone;
     TextView roles;
-    Button removeUser;
     ExtendedFloatingActionButton backButton;
     String userDeviceId;
     String firestoreEventId;
@@ -63,7 +62,7 @@ public class WaitingListProfileFragment extends Fragment {
      * Required for proper instantiation of the fragment by the Android system.
      * </p>
      */
-    public WaitingListProfileFragment() {
+    public CancelledListProfileFragment() {
         // Required empty public constructor
     }
 
@@ -88,13 +87,12 @@ public class WaitingListProfileFragment extends Fragment {
 
         // initialize Firestore
         db = FirebaseFirestore.getInstance();
-        usersRef = db.collection("signUps");
+        usersRef = db.collection("canceled");
 
         name = view.findViewById(R.id.admin_user_name);
         email = view.findViewById(R.id.admin_user_email);
         phone = view.findViewById(R.id.admin_user_phone);
         roles = view.findViewById(R.id.admin_user_roles);
-        removeUser = view.findViewById(R.id.admin_delete_user);
         profileImage = new ImageView(getContext());
         profileImage.setId(View.generateViewId());
         // TODO: This is hardcoded, but works good on my phone, not sure if this is a good idea or not
@@ -170,21 +168,6 @@ public class WaitingListProfileFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 MyApp.getInstance().popFragment();
-            }
-        });
-
-        // TODO: put user in canceled list
-        removeUser.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                usersRef.document(firestoreEventId + "_" + userDeviceId)
-                        .delete()
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                MyApp.getInstance().popFragment();
-                            }
-                        });
             }
         });
 

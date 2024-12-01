@@ -56,6 +56,7 @@ public class OrganizerEventFragment extends Fragment {
     ExtendedFloatingActionButton optionsButtons, backButton, viewEntrantsMapButton, qrButton, viewEntrantsButton, editButton, randomButton, cancelButton, viewInvitedEntrantsButton, viewCanceledEntrants, replacementWinnerButton;
     private MutableLiveData<Boolean> hasQrCode;
     private MutableLiveData<Boolean> canDraw;
+    private MutableLiveData<Boolean> canReplacementDraw;
     private Uri posterUri;
 
     public OrganizerEventFragment() {
@@ -82,19 +83,36 @@ public class OrganizerEventFragment extends Fragment {
         }
         String title = doc.getString("title");
         int waitingListSize = Objects.requireNonNull(doc.getLong("waitingListSize")).intValue();
-        EventModel newEvent = new EventModel(title, description, numSpots, numMaxEntrants, startDate, endDate, posterImage, geo, qrCode, waitingListSize, state, db);
+        boolean hasCancels = doc.getBoolean("hasCancels");
+        EventModel newEvent = new EventModel(title, description, numSpots, numMaxEntrants, startDate, endDate, posterImage, geo, qrCode, waitingListSize, hasCancels, state, db);
         newEvent.setOrganizerId(organizerId);
         newEvent.setEventId(eventId);
         return newEvent;
     }
 
-    private void setUpOpenStateButtons(View dialogView, AlertDialog dialog) {
-        viewEntrantsMapButton = dialogView.findViewById(R.id.org_dialog_map);
-        qrButton = dialogView.findViewById(R.id.org_dialog_view_qr);
-        viewEntrantsButton = dialogView.findViewById(R.id.org_dialog_view_entrants);
-        editButton = dialogView.findViewById(R.id.org_dialog_edit);
-        randomButton = dialogView.findViewById(R.id.org_dialog_choose_winners);
-        cancelButton = dialogView.findViewById(R.id.org_dialog_cancel);
+    private void hideOpenStateButtons() {
+        if (viewEntrantsButton != null) {
+            viewEntrantsButton.setVisibility(View.GONE);
+        }
+        if (randomButton != null) {
+            randomButton.setVisibility(View.GONE);
+        }
+    }
+
+    private void hideWaitingStateButtons() {
+        if (viewInvitedEntrantsButton != null) {
+            viewInvitedEntrantsButton.setVisibility(View.GONE);
+        }
+        if (viewCanceledEntrants != null) {
+            viewCanceledEntrants.setVisibility(View.GONE);
+        }
+        if (replacementWinnerButton != null) {
+            replacementWinnerButton.setVisibility(View.GONE);
+        }
+    }
+
+    private void setUpOpenStateButtons(AlertDialog dialog) {
+        hideWaitingStateButtons();
 
         if (canDraw.getValue().equals(Boolean.FALSE)) {
             randomButton.setVisibility(View.GONE);
@@ -185,14 +203,8 @@ public class OrganizerEventFragment extends Fragment {
         });
     }
 
-    private void setUpWaitingStateButtons(View dialogView, AlertDialog dialog) {
-        viewEntrantsMapButton = dialogView.findViewById(R.id.org_dialog_map);
-        qrButton = dialogView.findViewById(R.id.org_dialog_view_qr);
-        viewInvitedEntrantsButton = dialogView.findViewById(R.id.org_dialog_view_invited_entrants);
-        viewCanceledEntrants = dialogView.findViewById(R.id.org_dialog_view_canceled_entrants);
-        replacementWinnerButton = dialogView.findViewById(R.id.org_dialog_choose_replacement);
-        editButton = dialogView.findViewById(R.id.org_dialog_edit);
-        cancelButton = dialogView.findViewById(R.id.org_dialog_cancel);
+    private void setUpWaitingStateButtons(AlertDialog dialog) {
+        hideOpenStateButtons();
 
         // TODO: only show replacement button if someone has canceled and needs to be replaced
 
@@ -228,11 +240,22 @@ public class OrganizerEventFragment extends Fragment {
             }
         });
 
-        // TODO: show list of invited entrants (make new fragment)
         viewInvitedEntrantsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                WaitingListFragment frag = new WaitingListFragment();
+                WinnerListFragment frag = new WinnerListFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("firestoreEventId", firestoreEventId);
+                frag.setArguments(bundle);
+                MyApp.getInstance().addFragmentToStack(frag);
+                dialog.dismiss();
+            }
+        });
+
+        viewCanceledEntrants.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CancelledListFragment frag = new CancelledListFragment();
                 Bundle bundle = new Bundle();
                 bundle.putString("firestoreEventId", firestoreEventId);
                 frag.setArguments(bundle);
@@ -269,8 +292,8 @@ public class OrganizerEventFragment extends Fragment {
         replacementWinnerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                event.doDraw();
-                canDraw.setValue(Boolean.FALSE);
+                event.doReplacementDraw();
+                canReplacementDraw.setValue(Boolean.FALSE);
             }
         });
 
@@ -314,6 +337,19 @@ public class OrganizerEventFragment extends Fragment {
                 }
             }
         });
+        canReplacementDraw = new MutableLiveData<Boolean>(Boolean.TRUE);
+        canReplacementDraw.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean changedValue) {
+                if (Objects.equals(changedValue, Boolean.TRUE)) {
+                    if (replacementWinnerButton != null)
+                        replacementWinnerButton.setVisibility(View.VISIBLE);
+                } else {
+                    if (replacementWinnerButton != null)
+                        replacementWinnerButton.setVisibility(View.GONE);
+                }
+            }
+        });
 
         db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
@@ -336,7 +372,23 @@ public class OrganizerEventFragment extends Fragment {
                     .setView(dialogView)
                     .create();
 
-            setUpOpenStateButtons(dialogView, dialog);
+            viewEntrantsMapButton = dialogView.findViewById(R.id.org_dialog_map);
+            qrButton = dialogView.findViewById(R.id.org_dialog_view_qr);
+            viewInvitedEntrantsButton = dialogView.findViewById(R.id.org_dialog_view_invited_entrants);
+            viewCanceledEntrants = dialogView.findViewById(R.id.org_dialog_view_canceled_entrants);
+            replacementWinnerButton = dialogView.findViewById(R.id.org_dialog_choose_replacement);
+            editButton = dialogView.findViewById(R.id.org_dialog_edit);
+            cancelButton = dialogView.findViewById(R.id.org_dialog_cancel);
+            viewEntrantsButton = dialogView.findViewById(R.id.org_dialog_view_entrants);
+            randomButton = dialogView.findViewById(R.id.org_dialog_choose_winners);
+
+            if (event.getState().equals(EventState.OPEN)) {
+                setUpOpenStateButtons(dialog);
+            } else if (event.getState().equals(EventState.WAITING)) {
+                setUpWaitingStateButtons(dialog);
+            } else {
+
+            }
 
             // Show the dialog
             dialog.show();
@@ -405,6 +457,11 @@ public class OrganizerEventFragment extends Fragment {
                                     }
                                 } else {
                                     if (Objects.equals(doc.getString("state"), "WAITING")) {
+                                        if (Objects.equals(doc.getBoolean("hasCancels"), Boolean.TRUE)) {
+                                            canReplacementDraw.setValue(Boolean.TRUE);
+                                        } else {
+                                            canReplacementDraw.setValue(Boolean.FALSE);
+                                        }
                                         statusText = "PENDING";
                                     } else {
                                         statusText = "CLOSED";
@@ -447,52 +504,6 @@ public class OrganizerEventFragment extends Fragment {
                         }
                     }
                 });
-
-        // viewEntrantsWaitingListButton.setOnClickListener(new View.OnClickListener() {
-        //     @Override
-        //     public void onClick(View view) {
-        //         MyApp.getInstance().addFragmentToStack(new WaitingListFragment(eventId));
-        //     }
-        // });
-        // // TODO screen for waitlist
-        //
-        // chooseWinnersButton.setOnClickListener(new View.OnClickListener() {
-        //     @Override
-        //     public void onClick(View view) {
-        //         event.doDraw();
-        //         hasDrawn.setValue(Boolean.TRUE);
-        //         // MyApp.getInstance().addFragmentToStack(new WinnerListFragment(eventId));
-        //     }
-        // });
-        // // TODO screen for winnerlist
-        //
-        // editButton.setOnClickListener(new View.OnClickListener() {
-        //     @Override
-        //     public void onClick(View view) {
-        //         MyApp.getInstance().addFragmentToStack(new EventFragment(event));
-        //     }
-        // });
-
-        // viewQrCodeButton.setOnClickListener(new View.OnClickListener() {
-        //     @Override
-        //     public void onClick(View view) {
-        //         String data = "https://lotto649/?eventId=" + eventId;
-        //         Bitmap qrCodeBitmap = QrCodeModel.generateForEvent(data);
-        //         QrFragment qrFragment = QrFragment.newInstance(qrCodeBitmap);
-        //         MyApp.getInstance().addFragmentToStack(qrFragment);
-        //     }
-        // });
-        //
-        // viewEntrantsMapButton.setOnClickListener(new View.OnClickListener() {
-        //     @Override
-        //     public void onClick(View view) {
-        //         Bundle bundle = new Bundle();
-        //         bundle.putString("eventId", firestoreEventId);
-        //         MapFragment mapFragment = new MapFragment();
-        //         mapFragment.setArguments(bundle);
-        //         MyApp.getInstance().addFragmentToStack(mapFragment);
-        //     }
-        // });
         return view;
     }
 }

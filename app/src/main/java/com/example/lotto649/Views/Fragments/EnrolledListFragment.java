@@ -56,7 +56,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * https://stackoverflow.com/questions/47987649/why-getcontext-in-fragment-sometimes-returns-null
  * </p>
  */
-public class WaitingListFragment extends Fragment {
+public class EnrolledListFragment extends Fragment {
     private ArrayList<String> deviceIdList;
     private ArrayList<UserModel> dataList;
     private ListView browseProfilesList;
@@ -92,7 +92,7 @@ public class WaitingListFragment extends Fragment {
 
         backButton = view.findViewById(R.id.back_button);
 
-        db.collection("signUps").whereEqualTo("eventId", firestoreEventId).addSnapshotListener(new EventListener<QuerySnapshot>() {
+        db.collection("enrolled").whereEqualTo("eventId", firestoreEventId).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot querySnapshots, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {
@@ -129,7 +129,7 @@ public class WaitingListFragment extends Fragment {
                         if (context != null) {
                             TextView textView = new TextView(getContext());
                             textView.setId(View.generateViewId()); // Generate an ID for the TextView
-                            textView.setText("No Users have signed up yet");
+                            textView.setText("No Users have enrolled yet");
                             textView.setTextSize(24);
                             textView.setGravity(Gravity.CENTER);
                             textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black)); // Update with your color
@@ -162,7 +162,7 @@ public class WaitingListFragment extends Fragment {
                 Bundle bundle = new Bundle();
                 bundle.putString("userDeviceId", chosenUserId);
                 bundle.putString("firestoreEventId", firestoreEventId);
-                WaitingListProfileFragment frag = new WaitingListProfileFragment();
+                EnrolledListProfileFragment frag = new EnrolledListProfileFragment();
                 frag.setArguments(bundle);
                 getActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.flFragment, frag, null)
