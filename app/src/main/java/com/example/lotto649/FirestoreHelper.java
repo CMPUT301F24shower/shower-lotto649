@@ -1,14 +1,14 @@
 package com.example.lotto649;
 
+import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -19,28 +19,68 @@ import com.google.firebase.storage.StorageReference;
 import java.util.concurrent.CountDownLatch;
 
 public class FirestoreHelper {
+    private static FirestoreHelper instance;
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
     private CollectionReference usersRef;
     private CollectionReference facilitiesRef;
     private CollectionReference signUpRef;
-    FirebaseStorage storageRef;
+    private FirebaseStorage storageRef;
+    private MutableLiveData<Integer> currWaitlistSize;
+    private MutableLiveData<Integer> currWinnersSize;
+    private MutableLiveData<Integer> currEnrolledSize;
+    private MutableLiveData<Integer> currNotSelectedSize;
+    private Context context;
 
-    public FirestoreHelper() {
+    // Private constructor to prevent instantiation
+    private FirestoreHelper() {
         db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
         usersRef = db.collection("users");
         facilitiesRef = db.collection("facilities");
         signUpRef = db.collection("signUps");
         storageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app");
+        currWaitlistSize = new MutableLiveData<Integer>(0);
+        currWinnersSize = new MutableLiveData<Integer>(0);
+        currEnrolledSize = new MutableLiveData<Integer>(0);
+        currNotSelectedSize = new MutableLiveData<Integer>(0);
     }
 
+    // Get the singleton instance
+    public static synchronized FirestoreHelper getInstance() {
+        if (instance == null) {
+            instance = new FirestoreHelper();
+        }
+        return instance;
+    }
 
     public void deleteFacility(String facilityId) {
         // TODO make sure this works if the user doesnt have a facility
         facilitiesRef.document(facilityId).delete();
         deleteEventsFromFacility(facilityId);
+    }
 
+    // Initialize with context (call this from your Activity)
+    public void init(Context context) {
+        if (this.context == null) {
+            this.context = context.getApplicationContext(); // Ensure the application context is used
+        }
+    }
+
+    public MutableLiveData<Integer> getCurrWaitlistSize() {
+        return currWaitlistSize;
+    }
+
+    public MutableLiveData<Integer> getCurrWinnersSize() {
+        return currWinnersSize;
+    }
+
+    public MutableLiveData<Integer> getCurrEnrolledSize() {
+        return currEnrolledSize;
+    }
+
+    public MutableLiveData<Integer> getCurrNotSelectedSize() {
+        return currNotSelectedSize;
     }
 
     public void deleteEventsFromFacility(String facilityOwner) {
@@ -78,112 +118,50 @@ public class FirestoreHelper {
         });
     }
 
-    public int getWaitlistSize(String eventId) {
-        CountDownLatch latch = new CountDownLatch(1);
-        final Integer[] result = {null}; // Use an array to hold the result since variables need to be effectively final
+    public void getWaitlistSize(String eventId) {
+        Log.e("JASON LATCH", "start");
 
         db.collection("signUps")
                 .whereEqualTo("eventId", eventId)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        result[0] = task.getResult().size(); // Store the result
-                    } else {
-                        Log.e("Firestore", "Error getting documents: ", task.getException());
-                        result[0] = 0; // Default value for failure
+                        currWaitlistSize.setValue(task.getResult().size()); // Store the result
                     }
-                    latch.countDown(); // Signal that the operation is complete
                 });
-
-        try {
-            latch.await(); // Wait until the Firestore query completes
-        } catch (InterruptedException e) {
-            Log.e("Firestore", "Interrupted while waiting for Firestore result", e);
-            Thread.currentThread().interrupt(); // Restore the interrupted status
-        }
-
-        return result[0];
     }
 
-    public int getWinnersSize(String eventId) {
-        CountDownLatch latch = new CountDownLatch(1);
-        final Integer[] result = {null}; // Use an array to hold the result since variables need to be effectively final
-
-        db.collection("winners")
+    public void getWinnersSize(String eventId) {
+        db.collection("signUps")
                 .whereEqualTo("eventId", eventId)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        result[0] = task.getResult().size(); // Store the result
-                    } else {
-                        Log.e("Firestore", "Error getting documents: ", task.getException());
-                        result[0] = 0; // Default value for failure
+                        currWinnersSize.setValue(task.getResult().size()); // Store the result
                     }
-                    latch.countDown(); // Signal that the operation is complete
                 });
-
-        try {
-            latch.await(); // Wait until the Firestore query completes
-        } catch (InterruptedException e) {
-            Log.e("Firestore", "Interrupted while waiting for Firestore result", e);
-            Thread.currentThread().interrupt(); // Restore the interrupted status
-        }
-
-        return result[0];
     }
 
-    public int getEnrolledSize(String eventId) {
-        CountDownLatch latch = new CountDownLatch(1);
-        final Integer[] result = {null}; // Use an array to hold the result since variables need to be effectively final
-
-        db.collection("enrolled")
+    public void getEnrolledSize(String eventId) {
+        db.collection("signUps")
                 .whereEqualTo("eventId", eventId)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        result[0] = task.getResult().size(); // Store the result
-                    } else {
-                        Log.e("Firestore", "Error getting documents: ", task.getException());
-                        result[0] = 0; // Default value for failure
+                        currEnrolledSize.setValue(task.getResult().size()); // Store the result
                     }
-                    latch.countDown(); // Signal that the operation is complete
                 });
-
-        try {
-            latch.await(); // Wait until the Firestore query completes
-        } catch (InterruptedException e) {
-            Log.e("Firestore", "Interrupted while waiting for Firestore result", e);
-            Thread.currentThread().interrupt(); // Restore the interrupted status
-        }
-
-        return result[0];
     }
 
-    public int getNotSelectedSize(String eventId) {
-        CountDownLatch latch = new CountDownLatch(1);
-        final Integer[] result = {null}; // Use an array to hold the result since variables need to be effectively final
-
-        db.collection("notSelected")
+    public void getNotSelectedSize(String eventId) {
+        db.collection("signUps")
                 .whereEqualTo("eventId", eventId)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        result[0] = task.getResult().size(); // Store the result
-                    } else {
-                        Log.e("Firestore", "Error getting documents: ", task.getException());
-                        result[0] = 0; // Default value for failure
+                        currNotSelectedSize.setValue(task.getResult().size()); // Store the result
                     }
-                    latch.countDown(); // Signal that the operation is complete
                 });
-
-        try {
-            latch.await(); // Wait until the Firestore query completes
-        } catch (InterruptedException e) {
-            Log.e("Firestore", "Interrupted while waiting for Firestore result", e);
-            Thread.currentThread().interrupt(); // Restore the interrupted status
-        }
-
-        return result[0];
     }
 
 

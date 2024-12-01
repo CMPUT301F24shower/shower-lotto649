@@ -174,6 +174,8 @@ public class MainActivity extends AppCompatActivity
         LocationManagerSingleton.getInstance().init(getApplicationContext());
         Log.d("Jason MainActivity", "LocationManagerSingleton initialized");
 
+        FirestoreHelper.getInstance().init(getApplicationContext());
+
         // check location stuff (from ChatGPT accessed Nov 16 2024)
         // Check if the app has location permission
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {

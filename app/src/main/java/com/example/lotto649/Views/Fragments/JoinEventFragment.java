@@ -70,7 +70,6 @@ public class JoinEventFragment extends Fragment {
     private boolean geoRequired;
     String deviceId;
     boolean isWinnerMode;
-    private FirestoreHelper firestoreHelper;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -95,7 +94,6 @@ public class JoinEventFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // get info from bundle
         firestoreEventId = getArguments().getString("firestoreEventId");
-        firestoreHelper = new FirestoreHelper();
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_join_event, container, false);
@@ -147,7 +145,8 @@ public class JoinEventFragment extends Fragment {
                             if (maxEntrants != null)
                                 maxNum = (maxEntrants).intValue();
 
-                            curNum = firestoreHelper.getWaitlistSize(firestoreEventId);
+                            FirestoreHelper.getInstance().getWaitlistSize(firestoreEventId);
+                            curNum = FirestoreHelper.getInstance().getCurrWaitlistSize().getValue();
                             String spotsAvailText;
                             if (maxNum == -1) {
                                 spotsAvailText = "OPEN";

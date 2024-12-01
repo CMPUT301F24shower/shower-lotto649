@@ -59,7 +59,6 @@ public class OrganizerEventFragment extends Fragment {
     private MutableLiveData<Boolean> canDraw;
     private MutableLiveData<Boolean> canReplacementDraw;
     private Uri posterUri;
-    private FirestoreHelper firestoreHelper;
 
     public OrganizerEventFragment() {
         // Required empty public constructor
@@ -308,7 +307,6 @@ public class OrganizerEventFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         firestoreEventId = getArguments().getString("firestoreEventId");
-        firestoreHelper = new FirestoreHelper();
 
         View view = inflater.inflate(R.layout.fragment_organizer_view_event, container, false);
 
@@ -417,9 +415,10 @@ public class OrganizerEventFragment extends Fragment {
                             if (maxEntrants != null)
                                 maxNum = (maxEntrants).intValue();
 
-                            int curNum = firestoreHelper.getWaitlistSize(firestoreEventId);
+                            FirestoreHelper.getInstance().getWaitlistSize(firestoreEventId);
+                            int curNum = FirestoreHelper.getInstance().getCurrWaitlistSize().getValue();
 
-                            Long numSpots = (Long) doc.get("numberOfSpots");
+                                    Long numSpots = (Long) doc.get("numberOfSpots");
                             if (numSpots != null)
                                 numberOfSpots = (numSpots).intValue();
 
@@ -448,7 +447,8 @@ public class OrganizerEventFragment extends Fragment {
 
                                 if (Objects.equals(doc.getString("state"), "OPEN")) {
                                     Log.e("JASON STATE TEST", Objects.requireNonNull(doc.getString("state")));
-                                    int waitListSize = firestoreHelper.getWaitlistSize(firestoreEventId);
+                                    FirestoreHelper.getInstance().getWaitlistSize(firestoreEventId);
+                                    int waitListSize = FirestoreHelper.getInstance().getCurrWaitlistSize().getValue();
                                     if (waitListSize > 0) {
                                         canDraw.setValue(Boolean.TRUE);
                                     } else {

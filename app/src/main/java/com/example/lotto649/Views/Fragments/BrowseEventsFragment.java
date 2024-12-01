@@ -122,7 +122,7 @@ public class BrowseEventsFragment extends Fragment {
                         }
                         dataList.add( new EventModel(title, description, numberOfSpots,
                         numberOfMaxEntrants, startDate, endDate, posterImageUriString, geo, qrCodeHash,
-                                0, false, state, null));
+                                state, null));
                         eventIdList.add(eventId);
                     }
                     eventsAdapter.notifyDataSetChanged();
