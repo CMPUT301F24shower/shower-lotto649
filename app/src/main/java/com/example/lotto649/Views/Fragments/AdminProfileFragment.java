@@ -198,7 +198,69 @@ public class AdminProfileFragment extends Fragment {
         removeUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+<<<<<<< Updated upstream
                 FirestoreHelper.getInstance().deleteFacility(userDeviceId);
+=======
+                firestoreHelper.deleteFacility(userDeviceId);
+                db.collection("signUps")
+                        .whereEqualTo("userId", userDeviceId)
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                // Loop through the documents in the query result
+                                for (DocumentSnapshot document : task.getResult()) {
+                                    // Delete each document
+                                    db.collection("signUps").document(document.getId()).delete();
+                                }
+                            }
+                        });
+                db.collection("winners")
+                        .whereEqualTo("userId", userDeviceId)
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                // Loop through the documents in the query result
+                                for (DocumentSnapshot document : task.getResult()) {
+                                    // Delete each document
+                                    db.collection("signUps").document(document.getId()).delete();
+                                }
+                            }
+                        });
+                db.collection("noSelected")
+                        .whereEqualTo("userId", userDeviceId)
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                // Loop through the documents in the query result
+                                for (DocumentSnapshot document : task.getResult()) {
+                                    // Delete each document
+                                    db.collection("signUps").document(document.getId()).delete();
+                                }
+                            }
+                        });
+                db.collection("enrolled")
+                        .whereEqualTo("userId", userDeviceId)
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                // Loop through the documents in the query result
+                                for (DocumentSnapshot document : task.getResult()) {
+                                    // Delete each document
+                                    db.collection("signUps").document(document.getId()).delete();
+                                }
+                            }
+                        });
+                db.collection("cancelled")
+                        .whereEqualTo("userId", userDeviceId)
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                for (DocumentSnapshot document : task.getResult()) {
+                                    db.collection("signUps").document(document.getId()).delete();
+                                }
+                            }
+                        });
+>>>>>>> Stashed changes
                 usersRef
                         .document(userDeviceId)
                         .delete()
