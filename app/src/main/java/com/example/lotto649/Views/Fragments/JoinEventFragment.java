@@ -138,6 +138,15 @@ public class JoinEventFragment extends Fragment {
                                    }
                                }
                             });
+                            db.collection("enrolled").document(firestoreEventId + "_" + deviceId).get().addOnCompleteListener(newTask -> {
+                                if (newTask.isSuccessful()) {
+                                    DocumentSnapshot document = newTask.getResult();
+                                    if (document != null && document.exists()) {
+                                        joinButton.setVisibility(View.GONE);
+                                        unjoinButton.setVisibility(View.GONE);
+                                    }
+                                }
+                            });
                             // TODO check same thing in enrolled, cancelled ...
                             String nameText = doc.getString("title");
                             Long maxEntrants = (Long) doc.get("numberOfMaxEntrants");
