@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 
 import com.bumptech.glide.Glide;
+import com.example.lotto649.FirestoreHelper;
 import com.example.lotto649.LocationManagerSingleton;
 import com.example.lotto649.MainActivity;
 import com.example.lotto649.MyApp;
@@ -69,6 +70,7 @@ public class JoinEventFragment extends Fragment {
     private boolean geoRequired;
     String deviceId;
     boolean isWinnerMode;
+    private FirestoreHelper firestoreHelper;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -93,6 +95,7 @@ public class JoinEventFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // get info from bundle
         firestoreEventId = getArguments().getString("firestoreEventId");
+        firestoreHelper = new FirestoreHelper();
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_join_event, container, false);
@@ -145,8 +148,7 @@ public class JoinEventFragment extends Fragment {
                                 maxNum = (maxEntrants).intValue();
 
                             Long waitListSize = (Long) doc.get("waitingListSize");
-                            if (waitListSize != null)
-                                curNum = (waitListSize).intValue();
+                            curNum = firestoreHelper.getWaitlistSize(firestoreEventId);
                             String spotsAvailText;
                             if (maxNum == -1) {
                                 spotsAvailText = "OPEN";
@@ -233,7 +235,6 @@ public class JoinEventFragment extends Fragment {
                                         db.collection("winners")
                                                 .document(firestoreEventId + "_" + deviceId)
                                                 .delete();
-                                        db.collection("events").document(firestoreEventId).update("waitingListSize", --curNum);
                                     }
                                 }
                             });
@@ -283,7 +284,6 @@ public class JoinEventFragment extends Fragment {
                                         signUp.put("latitude", "");
                                     }
                                     db.collection("signUps").document(firestoreEventId + "_" + deviceId).set(signUp).addOnSuccessListener(listener -> {
-                                        eventsRef.document(firestoreEventId).update("waitingListSize", ++curNum);
                                         // TODO set flags for entrant state, (in list, chosen, waiting for response...)
                                         joinButton.setVisibility(View.GONE);
                                         unjoinButton.setVisibility(View.VISIBLE);
@@ -319,7 +319,6 @@ public class JoinEventFragment extends Fragment {
                                         db.collection("signUps")
                                                 .document(firestoreEventId + "_" + deviceId)
                                                 .delete();
-                                        db.collection("events").document(firestoreEventId).update("waitingListSize", --curNum);
                                         db.collection("events").document(firestoreEventId).update("hasCancels", true);
                                     }
                                 }
@@ -333,7 +332,6 @@ public class JoinEventFragment extends Fragment {
                     db.collection("notSelected")
                             .document(firestoreEventId + "_" + deviceId)
                             .delete();
-                    db.collection("events").document(firestoreEventId).update("waitingListSize", --curNum);
                 }
             }
         });

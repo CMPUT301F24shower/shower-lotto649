@@ -19,6 +19,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
 import com.example.lotto649.EventState;
+import com.example.lotto649.FirestoreHelper;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.Models.QrCodeModel;
 import com.example.lotto649.MyApp;
@@ -58,6 +59,7 @@ public class OrganizerEventFragment extends Fragment {
     private MutableLiveData<Boolean> canDraw;
     private MutableLiveData<Boolean> canReplacementDraw;
     private Uri posterUri;
+    private FirestoreHelper firestoreHelper;
 
     public OrganizerEventFragment() {
         // Required empty public constructor
@@ -308,6 +310,7 @@ public class OrganizerEventFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         firestoreEventId = getArguments().getString("firestoreEventId");
+        firestoreHelper = new FirestoreHelper();
 
         View view = inflater.inflate(R.layout.fragment_organizer_view_event, container, false);
 
@@ -417,7 +420,7 @@ public class OrganizerEventFragment extends Fragment {
                                 maxNum = (maxEntrants).intValue();
 
                             Long waitListSize = (Long) doc.get("waitingListSize");
-                            int curNum = 0;
+                            int curNum = firestoreHelper.getWaitlistSize(firestoreEventId);
                             if (waitListSize != null)
                                 curNum = (waitListSize).intValue();
 
