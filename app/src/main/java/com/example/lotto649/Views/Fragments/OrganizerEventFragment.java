@@ -54,7 +54,7 @@ public class OrganizerEventFragment extends Fragment {
     TextView daysLeft;
     TextView geoLocation;
     TextView description;
-    ExtendedFloatingActionButton optionsButtons, backButton, viewEntrantsMapButton, qrButton, viewEntrantsButton, editButton, randomButton, cancelButton, viewInvitedEntrantsButton, viewCanceledEntrants, replacementWinnerButton;
+    ExtendedFloatingActionButton optionsButtons, backButton, viewEntrantsMapButton, qrButton, viewEntrantsButton, editButton, randomButton, cancelButton, viewInvitedEntrantsButton, viewCanceledEntrants, replacementWinnerButton, viewFinalEntrants;
     private MutableLiveData<Boolean> hasQrCode;
     private MutableLiveData<Boolean> canDraw;
     private MutableLiveData<Boolean> canReplacementDraw;
@@ -96,23 +96,123 @@ public class OrganizerEventFragment extends Fragment {
         if (randomButton != null) {
             randomButton.setVisibility(View.GONE);
         }
+        if (qrButton != null) {
+            qrButton.setVisibility(View.GONE);
+        }
+        if (viewEntrantsMapButton != null) {
+            viewEntrantsMapButton.setVisibility(View.GONE);
+        }
+        if (editButton != null) {
+            editButton.setVisibility(View.GONE);
+        }
+        if (cancelButton != null) {
+            cancelButton.setVisibility(View.GONE);
+        }
     }
 
     private void hideWaitingStateButtons() {
         if (viewInvitedEntrantsButton != null) {
             viewInvitedEntrantsButton.setVisibility(View.GONE);
         }
+        if (replacementWinnerButton != null) {
+            replacementWinnerButton.setVisibility(View.GONE);
+        }
+        if (qrButton != null) {
+            qrButton.setVisibility(View.GONE);
+        }
+        if (editButton != null) {
+            editButton.setVisibility(View.GONE);
+        }
         if (viewCanceledEntrants != null) {
             viewCanceledEntrants.setVisibility(View.GONE);
         }
+        if (viewEntrantsMapButton != null) {
+            viewEntrantsMapButton.setVisibility(View.GONE);
+        }
+        if (cancelButton != null) {
+            cancelButton.setVisibility(View.GONE);
+        }
+    }
+
+    private void hideClosedStateButtons() {
+        if (viewEntrantsMapButton != null) {
+            viewEntrantsMapButton.setVisibility(View.GONE);
+        }
+        if (cancelButton != null) {
+            cancelButton.setVisibility(View.GONE);
+        }
+        if (viewCanceledEntrants != null) {
+            viewCanceledEntrants.setVisibility(View.GONE);
+        }
+        if (viewFinalEntrants != null) {
+            viewFinalEntrants.setVisibility(View.GONE);
+        }
+    }
+
+    private void showOpenStateButtons() {
+        if (viewEntrantsButton != null) {
+            viewEntrantsButton.setVisibility(View.VISIBLE);
+        }
+        if (randomButton != null) {
+            randomButton.setVisibility(View.VISIBLE);
+        }
+        if (qrButton != null) {
+            qrButton.setVisibility(View.VISIBLE);
+        }
+        if (viewEntrantsMapButton != null) {
+            viewEntrantsMapButton.setVisibility(View.VISIBLE);
+        }
+        if (editButton != null) {
+            editButton.setVisibility(View.VISIBLE);
+        }
+        if (cancelButton != null) {
+            cancelButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void showWaitingStateButtons() {
+        if (viewInvitedEntrantsButton != null) {
+            viewInvitedEntrantsButton.setVisibility(View.VISIBLE);
+        }
         if (replacementWinnerButton != null) {
-            replacementWinnerButton.setVisibility(View.GONE);
+            replacementWinnerButton.setVisibility(View.VISIBLE);
+        }
+        if (qrButton != null) {
+            qrButton.setVisibility(View.VISIBLE);
+        }
+        if (editButton != null) {
+            editButton.setVisibility(View.VISIBLE);
+        }
+        if (viewCanceledEntrants != null) {
+            viewCanceledEntrants.setVisibility(View.VISIBLE);
+        }
+        if (viewEntrantsMapButton != null) {
+            viewEntrantsMapButton.setVisibility(View.VISIBLE);
+        }
+        if (cancelButton != null) {
+            cancelButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void showClosedStateButtons() {
+        if (viewEntrantsMapButton != null) {
+            viewEntrantsMapButton.setVisibility(View.VISIBLE);
+        }
+        if (cancelButton != null) {
+            cancelButton.setVisibility(View.VISIBLE);
+        }
+        if (viewCanceledEntrants != null) {
+            viewCanceledEntrants.setVisibility(View.VISIBLE);
+        }
+        if (viewFinalEntrants != null) {
+            viewFinalEntrants.setVisibility(View.VISIBLE);
         }
     }
 
     private void setUpOpenStateButtons(AlertDialog dialog) {
         hideWaitingStateButtons();
-
+        hideClosedStateButtons();
+        showOpenStateButtons();
         if (canDraw.getValue().equals(Boolean.FALSE)) {
             randomButton.setVisibility(View.GONE);
         } else {
@@ -204,9 +304,8 @@ public class OrganizerEventFragment extends Fragment {
 
     private void setUpWaitingStateButtons(AlertDialog dialog) {
         hideOpenStateButtons();
-
-        // TODO: only show replacement button if someone has canceled and needs to be replaced
-
+        hideClosedStateButtons();
+        showWaitingStateButtons();
         if (hasQrCode.getValue().equals(Boolean.FALSE)) {
             qrButton.setVisibility(View.GONE);
         } else {
@@ -287,12 +386,59 @@ public class OrganizerEventFragment extends Fragment {
             }
         });
 
-        // TODO: have replacement draw
         replacementWinnerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 event.doReplacementDraw();
                 canReplacementDraw.setValue(Boolean.FALSE);
+            }
+        });
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+    }
+
+    private void setUpClosedStateButtons(AlertDialog dialog) {
+        hideWaitingStateButtons();
+        hideOpenStateButtons();
+        showClosedStateButtons();
+        viewEntrantsMapButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Bundle bundle = new Bundle();
+                bundle.putString("eventId", firestoreEventId);
+                MapFragment mapFragment = new MapFragment();
+                mapFragment.setArguments(bundle);
+                MyApp.getInstance().addFragmentToStack(mapFragment);
+                dialog.dismiss();
+            }
+        });
+
+        viewFinalEntrants.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EnrolledListFragment frag = new EnrolledListFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("firestoreEventId", firestoreEventId);
+                frag.setArguments(bundle);
+                MyApp.getInstance().addFragmentToStack(frag);
+                dialog.dismiss();
+            }
+        });
+
+        viewCanceledEntrants.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CancelledListFragment frag = new CancelledListFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("firestoreEventId", firestoreEventId);
+                frag.setArguments(bundle);
+                MyApp.getInstance().addFragmentToStack(frag);
+                dialog.dismiss();
             }
         });
 
@@ -324,6 +470,7 @@ public class OrganizerEventFragment extends Fragment {
         cancelButton = dialogView.findViewById(R.id.org_dialog_cancel);
         viewEntrantsButton = dialogView.findViewById(R.id.org_dialog_view_entrants);
         randomButton = dialogView.findViewById(R.id.org_dialog_choose_winners);
+        viewFinalEntrants = dialogView.findViewById(R.id.org_dialog_view_final_enrolled);
 
         hasQrCode = new MutableLiveData<Boolean>(Boolean.TRUE);
         hasQrCode.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
@@ -351,7 +498,7 @@ public class OrganizerEventFragment extends Fragment {
                 }
             }
         });
-        canReplacementDraw = new MutableLiveData<Boolean>(Boolean.TRUE);
+        canReplacementDraw = new MutableLiveData<Boolean>(Boolean.FALSE);
         canReplacementDraw.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean changedValue) {
@@ -389,7 +536,7 @@ public class OrganizerEventFragment extends Fragment {
             } else if (event.getState().equals(EventState.WAITING)) {
                 setUpWaitingStateButtons(dialog);
             } else {
-
+                setUpClosedStateButtons(dialog);
             }
 
             // Show the dialog
@@ -518,6 +665,13 @@ public class OrganizerEventFragment extends Fragment {
                                         canReplacementDraw.setValue(Boolean.TRUE);
                                     } else {
                                         canReplacementDraw.setValue(Boolean.FALSE);
+                                    }
+                                }
+
+                                if (numWinners == 0 && event.getState().equals(EventState.WAITING)) {
+                                    // can't be in the waiting state and these be zero, so only change state here
+                                    if (numNotSelected != 0 || numEnrolled != 0){
+                                        event.setState(EventState.CLOSED);
                                     }
                                 }
                             }

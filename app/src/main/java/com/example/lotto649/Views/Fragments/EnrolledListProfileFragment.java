@@ -81,6 +81,8 @@ public class EnrolledListProfileFragment extends Fragment {
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_waiting_list_profile, container, false);
+        ExtendedFloatingActionButton deleteBtn = view.findViewById(R.id.admin_delete_user);
+        deleteBtn.setVisibility(View.GONE);
 
 
         // initialize Firestore
