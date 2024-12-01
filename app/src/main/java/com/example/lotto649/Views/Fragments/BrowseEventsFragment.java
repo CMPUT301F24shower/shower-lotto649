@@ -37,6 +37,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * BrowseEventsFragment class represents a fragment for the admin to browse all events in the application.
@@ -111,17 +112,17 @@ public class BrowseEventsFragment extends Fragment {
                         Date endDate = doc.getDate("endDate");
                         String posterImageUriString = doc.getString("posterImage");
                         String qrCodeHash = doc.getString("qrCode");
-                        boolean geo = doc.getBoolean("geo");
+                        boolean geo = Boolean.TRUE.equals(doc.getBoolean("geo"));
                         String stateStr = doc.getString("state");
                         EventState state = EventState.OPEN;
-                        if (stateStr.equals("WAITING")) {
+                        if (Objects.equals(stateStr, "WAITING")) {
                             state = EventState.WAITING;
-                        } else if (stateStr.equals("CLOSED")) {
+                        } else if (Objects.equals(stateStr, "CLOSED")) {
                             state = EventState.CLOSED;
                         }
                         dataList.add( new EventModel(title, description, numberOfSpots,
                         numberOfMaxEntrants, startDate, endDate, posterImageUriString, geo, qrCodeHash,
-                                0, state, null));
+                                0, false, state, null));
                         eventIdList.add(eventId);
                     }
                     eventsAdapter.notifyDataSetChanged();

@@ -56,6 +56,7 @@ public class OrganizerEventFragment extends Fragment {
     ExtendedFloatingActionButton optionsButtons, backButton, viewEntrantsMapButton, qrButton, viewEntrantsButton, editButton, randomButton, cancelButton, viewInvitedEntrantsButton, viewCanceledEntrants, replacementWinnerButton;
     private MutableLiveData<Boolean> hasQrCode;
     private MutableLiveData<Boolean> canDraw;
+    private MutableLiveData<Boolean> canReplacementDraw;
     private Uri posterUri;
 
     public OrganizerEventFragment() {
@@ -82,7 +83,8 @@ public class OrganizerEventFragment extends Fragment {
         }
         String title = doc.getString("title");
         int waitingListSize = Objects.requireNonNull(doc.getLong("waitingListSize")).intValue();
-        EventModel newEvent = new EventModel(title, description, numSpots, numMaxEntrants, startDate, endDate, posterImage, geo, qrCode, waitingListSize, state, db);
+        boolean hasCancels = doc.getBoolean("hasCancels");
+        EventModel newEvent = new EventModel(title, description, numSpots, numMaxEntrants, startDate, endDate, posterImage, geo, qrCode, waitingListSize, hasCancels, state, db);
         newEvent.setOrganizerId(organizerId);
         newEvent.setEventId(eventId);
         return newEvent;
@@ -290,8 +292,8 @@ public class OrganizerEventFragment extends Fragment {
         replacementWinnerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                event.doDraw();
-                canDraw.setValue(Boolean.FALSE);
+                event.doReplacementDraw();
+                canReplacementDraw.setValue(Boolean.FALSE);
             }
         });
 
@@ -332,6 +334,19 @@ public class OrganizerEventFragment extends Fragment {
                 } else {
                     if (randomButton != null)
                         randomButton.setVisibility(View.GONE);
+                }
+            }
+        });
+        canReplacementDraw = new MutableLiveData<Boolean>(Boolean.TRUE);
+        canReplacementDraw.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean changedValue) {
+                if (Objects.equals(changedValue, Boolean.TRUE)) {
+                    if (replacementWinnerButton != null)
+                        replacementWinnerButton.setVisibility(View.VISIBLE);
+                } else {
+                    if (replacementWinnerButton != null)
+                        replacementWinnerButton.setVisibility(View.GONE);
                 }
             }
         });
@@ -442,6 +457,11 @@ public class OrganizerEventFragment extends Fragment {
                                     }
                                 } else {
                                     if (Objects.equals(doc.getString("state"), "WAITING")) {
+                                        if (Objects.equals(doc.getBoolean("hasCancels"), Boolean.TRUE)) {
+                                            canReplacementDraw.setValue(Boolean.TRUE);
+                                        } else {
+                                            canReplacementDraw.setValue(Boolean.FALSE);
+                                        }
                                         statusText = "PENDING";
                                     } else {
                                         statusText = "CLOSED";

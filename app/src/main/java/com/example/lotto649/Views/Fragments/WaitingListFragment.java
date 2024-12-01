@@ -125,28 +125,31 @@ public class WaitingListFragment extends Fragment {
                     }
                     if (noSignUps.get()) {
                         ConstraintLayout layout = view.findViewById(R.id.browse_profiles_layout);
-                        TextView textView = new TextView(getContext());
-                        textView.setId(View.generateViewId()); // Generate an ID for the TextView
-                        textView.setText("No Users have signed up yet");
-                        textView.setTextSize(24);
-                        textView.setGravity(Gravity.CENTER);
-                        textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black)); // Update with your color
+                        Context context = getContext();
+                        if (context != null) {
+                            TextView textView = new TextView(getContext());
+                            textView.setId(View.generateViewId()); // Generate an ID for the TextView
+                            textView.setText("No Users have signed up yet");
+                            textView.setTextSize(24);
+                            textView.setGravity(Gravity.CENTER);
+                            textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black)); // Update with your color
 
-                        // Set layout params for the TextView to match parent constraints
-                        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
-                                ConstraintLayout.LayoutParams.MATCH_PARENT,
-                                ConstraintLayout.LayoutParams.WRAP_CONTENT
-                        );
+                            // Set layout params for the TextView to match parent constraints
+                            ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
+                                    ConstraintLayout.LayoutParams.MATCH_PARENT,
+                                    ConstraintLayout.LayoutParams.WRAP_CONTENT
+                            );
 
-                        params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
-                        params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
-                        params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
-                        params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
+                            params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
+                            params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
+                            params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
+                            params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
 
-                        textView.setLayoutParams(params);
+                            textView.setLayoutParams(params);
 
-                        // Add the TextView to the layout
-                        layout.addView(textView);
+                            // Add the TextView to the layout
+                            layout.addView(textView);
+                        }
                     }
                 }
             }
