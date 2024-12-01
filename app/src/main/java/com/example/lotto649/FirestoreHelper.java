@@ -107,6 +107,7 @@ public class FirestoreHelper {
         }
     }
 
+    // TODO use custom notification code here instead
     public void markSignupsAsDeleted(String eventId) {
         Query usersSignedUp = signUpRef.whereEqualTo("eventId", eventId);
         usersSignedUp.get().addOnCompleteListener(task -> {
