@@ -350,19 +350,46 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void sendNotifications() {
-        Log.d("ISAAC", "Looking for Notifications");
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("winners").whereEqualTo("userId", deviceId).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 for (QueryDocumentSnapshot doc : task.getResult()) {
-                    Log.d("ISAAC", "Should send one");
-
                     if (Boolean.FALSE.equals(doc.getBoolean("hasSeenNoti"))) {
                         NotificationHelper notis = new NotificationHelper();
                         CharSequence title = "Event Lottery System";
                         String description = "You have been selected!\n Click to accept the invitation";
                         notis.sendNotification(getApplicationContext(), title, description, doc.getString("eventId"));
                         db.collection("winners").document(doc.getId()).update(new HashMap<String, Object>() {{
+                            put("hasSeenNoti", true);
+                        }});
+                    }
+                }
+            }
+        });
+        db.collection("cancelled").whereEqualTo("userId", deviceId).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot doc : task.getResult()) {
+                    if (Boolean.FALSE.equals(doc.getBoolean("hasSeenNoti"))) {
+                        NotificationHelper notis = new NotificationHelper();
+                        CharSequence title = "Event Lottery System";
+                        String description = "You have been cancelled from an event";
+                        notis.sendNotification(getApplicationContext(), title, description, doc.getString("eventId"));
+                        db.collection("cancelled").document(doc.getId()).update(new HashMap<String, Object>() {{
+                            put("hasSeenNoti", true);
+                        }});
+                    }
+                }
+            }
+        });
+        db.collection("notSelected").whereEqualTo("userId", deviceId).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot doc : task.getResult()) {
+                    if (Boolean.FALSE.equals(doc.getBoolean("hasSeenNoti"))) {
+                        NotificationHelper notis = new NotificationHelper();
+                        CharSequence title = "Event Lottery System";
+                        String description = "You have NOT been chosen for an event";
+                        notis.sendNotification(getApplicationContext(), title, description, doc.getString("eventId"));
+                        db.collection("notSelected").document(doc.getId()).update(new HashMap<String, Object>() {{
                             put("hasSeenNoti", true);
                         }});
                     }

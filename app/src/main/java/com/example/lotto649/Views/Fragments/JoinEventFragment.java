@@ -159,7 +159,13 @@ public class JoinEventFragment extends Fragment {
 //                                spotsAvailText = Integer.toString(maxNum - ((List<String>) doc.get("waitingList")).size()) + " Spots Available";
                                 spotsAvailText = Integer.toString(maxNum - curNum) + " Spots Available";
                             }
-                            String numAttendeesText = Integer.toString(((Long) doc.get("numberOfSpots")).intValue()) + " Attendees";
+                            Long numSpots = doc.getLong("numberOfSpots");
+                            String numAttendeesText;
+                            if (numSpots == null) {
+                                numAttendeesText = "Unknown number of Attendees";
+                            } else {
+                                numAttendeesText = numSpots + " Attendees";
+                            }
                             DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
                             startDate = doc.getDate("startDate");
                             endDate = doc.getDate("endDate");
@@ -309,7 +315,7 @@ public class JoinEventFragment extends Fragment {
                                     DocumentSnapshot doc = task.getResult();
                                     Map<String, Object> data = doc.getData();
                                     if (data != null) {
-                                        data.put("hasSeenNoti", false);
+                                        data.put("hasSeenNoti", true);
                                         db.collection("cancelled").document(firestoreEventId + "_" + deviceId).set(data);
                                         db.collection("winners")
                                                 .document(firestoreEventId + "_" + deviceId)
