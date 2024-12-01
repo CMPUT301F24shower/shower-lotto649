@@ -100,7 +100,13 @@ public class HomePageModel extends AbstractModel {
             state = EventState.CLOSED;
         }
         String title = doc.getString("title");
-        int waitingListSize = Objects.requireNonNull(doc.getLong("waitingListSize")).intValue();
+        int waitingListSize;
+        Long waitingListSizeLong = doc.getLong("waitingListSize");
+        if (waitingListSizeLong == null)
+            // TODO this shouldnt be here
+            waitingListSize = 0;
+        else
+            waitingListSize = waitingListSizeLong.intValue();
         EventModel newEvent = new EventModel(title, description, numSpots, numMaxEntrants, startDate, endDate, posterImage, geo, qrCode, waitingListSize, state, db);
         newEvent.setOrganizerId(organizerId);
         newEvent.setEventId(eventId);
