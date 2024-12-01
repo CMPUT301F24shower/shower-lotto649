@@ -132,7 +132,7 @@ public class FirestoreHelper {
     }
 
     public void getWinnersSize(String eventId) {
-        db.collection("signUps")
+        db.collection("winners")
                 .whereEqualTo("eventId", eventId)
                 .get()
                 .addOnCompleteListener(task -> {
@@ -143,7 +143,7 @@ public class FirestoreHelper {
     }
 
     public void getEnrolledSize(String eventId) {
-        db.collection("signUps")
+        db.collection("enrolled")
                 .whereEqualTo("eventId", eventId)
                 .get()
                 .addOnCompleteListener(task -> {
@@ -154,7 +154,7 @@ public class FirestoreHelper {
     }
 
     public void getNotSelectedSize(String eventId) {
-        db.collection("signUps")
+        db.collection("notSelected")
                 .whereEqualTo("eventId", eventId)
                 .get()
                 .addOnCompleteListener(task -> {
