@@ -1,17 +1,22 @@
 package com.example.lotto649;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import java.util.concurrent.CountDownLatch;
 
 public class FirestoreHelper {
     private FirebaseFirestore db;
@@ -72,4 +77,114 @@ public class FirestoreHelper {
             }
         });
     }
+
+    public int getWaitlistSize(String eventId) {
+        CountDownLatch latch = new CountDownLatch(1);
+        final Integer[] result = {null}; // Use an array to hold the result since variables need to be effectively final
+
+        db.collection("signUps")
+                .whereEqualTo("eventId", eventId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        result[0] = task.getResult().size(); // Store the result
+                    } else {
+                        Log.e("Firestore", "Error getting documents: ", task.getException());
+                        result[0] = 0; // Default value for failure
+                    }
+                    latch.countDown(); // Signal that the operation is complete
+                });
+
+        try {
+            latch.await(); // Wait until the Firestore query completes
+        } catch (InterruptedException e) {
+            Log.e("Firestore", "Interrupted while waiting for Firestore result", e);
+            Thread.currentThread().interrupt(); // Restore the interrupted status
+        }
+
+        return result[0];
+    }
+
+    public int getWinnersSize(String eventId) {
+        CountDownLatch latch = new CountDownLatch(1);
+        final Integer[] result = {null}; // Use an array to hold the result since variables need to be effectively final
+
+        db.collection("winners")
+                .whereEqualTo("eventId", eventId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        result[0] = task.getResult().size(); // Store the result
+                    } else {
+                        Log.e("Firestore", "Error getting documents: ", task.getException());
+                        result[0] = 0; // Default value for failure
+                    }
+                    latch.countDown(); // Signal that the operation is complete
+                });
+
+        try {
+            latch.await(); // Wait until the Firestore query completes
+        } catch (InterruptedException e) {
+            Log.e("Firestore", "Interrupted while waiting for Firestore result", e);
+            Thread.currentThread().interrupt(); // Restore the interrupted status
+        }
+
+        return result[0];
+    }
+
+    public int getEnrolledSize(String eventId) {
+        CountDownLatch latch = new CountDownLatch(1);
+        final Integer[] result = {null}; // Use an array to hold the result since variables need to be effectively final
+
+        db.collection("enrolled")
+                .whereEqualTo("eventId", eventId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        result[0] = task.getResult().size(); // Store the result
+                    } else {
+                        Log.e("Firestore", "Error getting documents: ", task.getException());
+                        result[0] = 0; // Default value for failure
+                    }
+                    latch.countDown(); // Signal that the operation is complete
+                });
+
+        try {
+            latch.await(); // Wait until the Firestore query completes
+        } catch (InterruptedException e) {
+            Log.e("Firestore", "Interrupted while waiting for Firestore result", e);
+            Thread.currentThread().interrupt(); // Restore the interrupted status
+        }
+
+        return result[0];
+    }
+
+    public int getNotSelectedSize(String eventId) {
+        CountDownLatch latch = new CountDownLatch(1);
+        final Integer[] result = {null}; // Use an array to hold the result since variables need to be effectively final
+
+        db.collection("notSelected")
+                .whereEqualTo("eventId", eventId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        result[0] = task.getResult().size(); // Store the result
+                    } else {
+                        Log.e("Firestore", "Error getting documents: ", task.getException());
+                        result[0] = 0; // Default value for failure
+                    }
+                    latch.countDown(); // Signal that the operation is complete
+                });
+
+        try {
+            latch.await(); // Wait until the Firestore query completes
+        } catch (InterruptedException e) {
+            Log.e("Firestore", "Interrupted while waiting for Firestore result", e);
+            Thread.currentThread().interrupt(); // Restore the interrupted status
+        }
+
+        return result[0];
+    }
+
+
 }
