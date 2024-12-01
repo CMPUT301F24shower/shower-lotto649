@@ -198,10 +198,7 @@ public class AdminProfileFragment extends Fragment {
         removeUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-<<<<<<< Updated upstream
                 FirestoreHelper.getInstance().deleteFacility(userDeviceId);
-=======
-                firestoreHelper.deleteFacility(userDeviceId);
                 db.collection("signUps")
                         .whereEqualTo("userId", userDeviceId)
                         .get()
@@ -260,7 +257,6 @@ public class AdminProfileFragment extends Fragment {
                                 }
                             }
                         });
->>>>>>> Stashed changes
                 usersRef
                         .document(userDeviceId)
                         .delete()
