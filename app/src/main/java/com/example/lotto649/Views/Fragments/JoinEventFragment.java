@@ -126,97 +126,106 @@ public class JoinEventFragment extends Fragment {
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
                             DocumentSnapshot doc = task.getResult();
-                            db.collection("winners").document(firestoreEventId + "_" + deviceId).get().addOnCompleteListener(newTask -> {
-                               if (newTask.isSuccessful()) {
-                                   DocumentSnapshot document = newTask.getResult();
-                                   if (document != null && document.exists()) {
-                                       joinButton.setText("Accept & Sign Up");
-                                       unjoinButton.setText("Decline");
-                                       isWinnerMode = true;
-                                       joinButton.setVisibility(View.VISIBLE);
-                                       unjoinButton.setVisibility(View.VISIBLE);
-                                   }
-                               }
-                            });
-                            db.collection("enrolled").document(firestoreEventId + "_" + deviceId).get().addOnCompleteListener(newTask -> {
-                                if (newTask.isSuccessful()) {
-                                    DocumentSnapshot document = newTask.getResult();
-                                    if (document != null && document.exists()) {
-                                        joinButton.setVisibility(View.GONE);
-                                        unjoinButton.setVisibility(View.GONE);
-                                    }
-                                }
-                            });
-                            // TODO check same thing in enrolled, cancelled ...
-                            String nameText = doc.getString("title");
-                            Long maxEntrants = (Long) doc.get("numberOfMaxEntrants");
-                            int maxNum = 0;
-                            if (maxEntrants != null)
-                                maxNum = (maxEntrants).intValue();
-
-                            FirestoreHelper.getInstance().getWaitlistSize(firestoreEventId);
-                            curNum = FirestoreHelper.getInstance().getCurrWaitlistSize().getValue();
-                            String spotsAvailText;
-                            if (maxNum == -1) {
-                                spotsAvailText = "OPEN";
-                            } else if (maxNum <= curNum){
-                                spotsAvailText = "FULL";
-                                joinButton.setVisibility(View.GONE);
+                            if (doc == null || !doc.exists()) {
+                                MyApp.getInstance().popFragment();
                             } else {
-                                // TODO please fix this
+                                db.collection("winners").document(firestoreEventId + "_" + deviceId).get().addOnCompleteListener(newTask -> {
+                                    if (newTask.isSuccessful()) {
+                                        DocumentSnapshot document = newTask.getResult();
+                                        if (document != null && document.exists()) {
+                                            joinButton.setText("Accept & Sign Up");
+                                            unjoinButton.setText("Decline");
+                                            isWinnerMode = true;
+                                            joinButton.setVisibility(View.VISIBLE);
+                                            unjoinButton.setVisibility(View.VISIBLE);
+                                        }
+                                    }
+                                });
+                                db.collection("enrolled").document(firestoreEventId + "_" + deviceId).get().addOnCompleteListener(newTask -> {
+                                    if (newTask.isSuccessful()) {
+                                        DocumentSnapshot document = newTask.getResult();
+                                        if (document != null && document.exists()) {
+                                            joinButton.setVisibility(View.GONE);
+                                            unjoinButton.setVisibility(View.GONE);
+                                        }
+                                    }
+                                });
+                                // TODO check same thing in enrolled, cancelled ...
+                                String nameText = doc.getString("title");
+                                Long maxEntrants = (Long) doc.get("numberOfMaxEntrants");
+                                int maxNum = 0;
+                                if (maxEntrants != null)
+                                    maxNum = (maxEntrants).intValue();
+
+                                FirestoreHelper.getInstance().getWaitlistSize(firestoreEventId);
+                                curNum = FirestoreHelper.getInstance().getCurrWaitlistSize().getValue();
+                                String spotsAvailText;
+                                if (maxNum == -1) {
+                                    spotsAvailText = "OPEN";
+                                } else if (maxNum <= curNum) {
+                                    spotsAvailText = "FULL";
+                                    joinButton.setVisibility(View.GONE);
+                                } else {
+                                    // TODO please fix this
 //                                spotsAvailText = "TODO";
 //                                spotsAvailText = Integer.toString(maxNum - ((List<String>) doc.get("waitingList")).size()) + " Spots Available";
-                                spotsAvailText = Integer.toString(maxNum - curNum) + " Spots Available";
-                            }
-                            Long numSpots = doc.getLong("numberOfSpots");
-                            String numAttendeesText;
-                            if (numSpots == null) {
-                                numAttendeesText = "Unknown number of Attendees";
-                            } else {
-                                numAttendeesText = numSpots + " Attendees";
-                            }
-                            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-                            startDate = doc.getDate("startDate");
-                            endDate = doc.getDate("endDate");
-                            String datesText = "Enter between " + df.format(startDate) + " - " + df.format(endDate);
-                            Boolean isGeo = doc.getBoolean("geo");
-                            String geoLocationText = isGeo ? "Requires GeoLocation Tracking" : "";
-                            geoRequired = isGeo;
-                            String descriptionText = doc.getString("description");
-                            name.setText(nameText);
-                            // TODO: set to actual event status
-                            status.setText("OPEN");
-                            // TODO: set to actual location
-                            location.setText("LOCATION");
-                            spotsAvail.setText(spotsAvailText);
-                            numAttendees.setText(numAttendeesText);
-                            dates.setText(datesText);
-                            if (isGeo) {
-                                geoLocation.setVisibility(View.VISIBLE);
-                                geoLocation.setText(geoLocationText);
-                            } else {
-                                geoLocation.setVisibility(View.GONE);
-                            }
-                            description.setText(descriptionText);
+                                    spotsAvailText = Integer.toString(maxNum - curNum) + " Spots Available";
+                                }
+                                Long numSpots = doc.getLong("numberOfSpots");
+                                String numAttendeesText;
+                                if (numSpots == null) {
+                                    numAttendeesText = "Unknown number of Attendees";
+                                } else {
+                                    numAttendeesText = numSpots + " Attendees";
+                                }
+                                DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                                startDate = doc.getDate("startDate");
+                                endDate = doc.getDate("endDate");
+                                String datesText;
+                                if (startDate != null && endDate != null) {
+                                    datesText = "Enter between " + df.format(startDate) + " - " + df.format(endDate);
+                                } else {
+                                    datesText = "Error finding dates";
+                                }
+                                Boolean isGeo = doc.getBoolean("geo");
+                                String geoLocationText = Boolean.TRUE.equals(isGeo) ? "Requires GeoLocation Tracking" : "";
+                                geoRequired = Boolean.TRUE.equals(isGeo);
+                                String descriptionText = doc.getString("description");
+                                name.setText(nameText);
+                                // TODO: set to actual event status
+                                status.setText("OPEN");
+                                // TODO: set to actual location
+                                location.setText("LOCATION");
+                                spotsAvail.setText(spotsAvailText);
+                                numAttendees.setText(numAttendeesText);
+                                dates.setText(datesText);
+                                if (Boolean.TRUE.equals(isGeo)) {
+                                    geoLocation.setVisibility(View.VISIBLE);
+                                    geoLocation.setText(geoLocationText);
+                                } else {
+                                    geoLocation.setVisibility(View.GONE);
+                                }
+                                description.setText(descriptionText);
 
-                            //     poster
-                            String posterUriString = doc.getString("posterImage");
-                            if (!Objects.equals(posterUriString, "")) {
-                                posterUri = Uri.parse(posterUriString);
-                                StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(posterUriString);
-                                imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                                    posterUri = uri;
-                                    if (isAdded()) {
-                                        Glide.with(getContext())
-                                                .load(uri)
-                                                .into(posterImage);
-                                    }
-                                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(900, 450);
-                                    posterImage.setLayoutParams(layoutParams);
-                                    posterImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                                });
-                            } else {
-                                posterUri = null;
+                                //     poster
+                                String posterUriString = doc.getString("posterImage");
+                                if (!Objects.equals(posterUriString, "")) {
+                                    posterUri = Uri.parse(posterUriString);
+                                    StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(posterUriString);
+                                    imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                                        posterUri = uri;
+                                        if (isAdded()) {
+                                            Glide.with(getContext())
+                                                    .load(uri)
+                                                    .into(posterImage);
+                                        }
+                                        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(900, 450);
+                                        posterImage.setLayoutParams(layoutParams);
+                                        posterImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                                    });
+                                } else {
+                                    posterUri = null;
+                                }
                             }
                         }
                     }
