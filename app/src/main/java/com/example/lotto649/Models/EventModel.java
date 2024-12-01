@@ -38,8 +38,6 @@ public class EventModel extends AbstractModel implements Serializable {
     private String posterImage;
     private boolean geo;
     private String qrCode;
-    private int waitingListSize;
-    private boolean hasCancels;
     private EventState state = EventState.OPEN;
 
     private FirebaseFirestore db;
@@ -72,8 +70,6 @@ public class EventModel extends AbstractModel implements Serializable {
         this.endDate =  new Date();
         this.posterImage = "";
         this.geo = false;
-        this.waitingListSize = 0;
-        this.hasCancels = false;
     }
 
     /**
@@ -103,13 +99,13 @@ public class EventModel extends AbstractModel implements Serializable {
     public EventModel(String title, String description, int numberOfSpots,
                       Date startDate, Date endDate, boolean geo, EventState state, FirebaseFirestore db) {
         this(title, description, numberOfSpots,
-                -1, startDate, endDate, null, geo, null, 0, false, state, db);
+                -1, startDate, endDate, null, geo, null, state, db);
     }
 
     public EventModel(String title, String description, int numberOfSpots,
                       int numberOfMaxEntrants, Date startDate, Date endDate, boolean geo, EventState state, FirebaseFirestore db) {
         this(title, description, numberOfSpots,
-                numberOfMaxEntrants, startDate, endDate, null, geo, null, 0, false, state, db);
+                numberOfMaxEntrants, startDate, endDate, null, geo, null, state, db);
     }
 
     /**
@@ -123,7 +119,7 @@ public class EventModel extends AbstractModel implements Serializable {
      */
     public EventModel(String title, String description, int numberOfSpots,
                       int numberOfMaxEntrants, Date startDate, Date endDate, String posterImage, boolean geo, String qrCodeUrl,
-                      int waitingListSize, boolean hasCancels, EventState state, FirebaseFirestore db) {
+                      EventState state, FirebaseFirestore db) {
         this.title = title;
         this.organizerId = MyApp.getInstance().getUserModel().getDeviceId();
         this.description = description;
@@ -135,8 +131,6 @@ public class EventModel extends AbstractModel implements Serializable {
         this.geo = geo;
         this.db = db;
         this.qrCode = qrCodeUrl;
-        this.waitingListSize = waitingListSize;
-        this.hasCancels = hasCancels;
         this.state = state;
     }
 
@@ -160,8 +154,6 @@ public class EventModel extends AbstractModel implements Serializable {
                     put("qrCode", qrCode);
                     put("posterImage", posterImage);
                     put("geo",geo);
-                    put("waitingListSize", waitingListSize);
-                    put("hasCancels", hasCancels);
                     put("state", state.name());
                 }})
                 .addOnSuccessListener(documentReference -> {
@@ -242,22 +234,6 @@ public class EventModel extends AbstractModel implements Serializable {
                 .addOnFailureListener(e -> {
                     System.err.println("Error updating event: " + e.getMessage());
                 });
-    }
-
-    public int getWaitingListSize() {
-        return waitingListSize;
-    }
-
-    public void setWaitingListSize(int waitingListSize) {
-        this.waitingListSize = waitingListSize;
-    }
-
-    public boolean getHasCancels() {
-        return hasCancels;
-    }
-
-    public void setHasCancels(boolean hasCancels) {
-        this.hasCancels = hasCancels;
     }
 
     /**

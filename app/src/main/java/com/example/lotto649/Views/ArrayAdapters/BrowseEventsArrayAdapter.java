@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
+import com.example.lotto649.FirestoreHelper;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.R;
 import com.google.firebase.storage.FirebaseStorage;
@@ -37,6 +38,7 @@ import java.util.Objects;
  */
 public class BrowseEventsArrayAdapter extends ArrayAdapter<EventModel> {
     private Uri posterUri;
+    private FirestoreHelper firestoreHelper;
 
     /**
      * Constructor for the array adapter
@@ -57,6 +59,7 @@ public class BrowseEventsArrayAdapter extends ArrayAdapter<EventModel> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.event_list_item, parent, false);
+        firestoreHelper = new FirestoreHelper();
         EventModel event = getItem(position);
         assert event != null;
         TextView eventName = view.findViewById(R.id.admin_event_name);
@@ -76,7 +79,8 @@ public class BrowseEventsArrayAdapter extends ArrayAdapter<EventModel> {
         if (event.getNumberOfMaxEntrants() == -1) {
             eventSpotsAvail.setText("OPEN");
         } else {
-            eventSpotsAvail.setText(Integer.toString(event.getNumberOfMaxEntrants() - event.getWaitingListSize()) + " Spots Available");
+            int waitingListSize = firestoreHelper.getWaitlistSize(event.getEventId());
+            eventSpotsAvail.setText(Integer.toString(event.getNumberOfMaxEntrants() - waitingListSize) + " Spots Available");
         }
         eventNumAttendees.setText(Integer.toString(event.getNumberOfSpots()) + " Attendees");
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");

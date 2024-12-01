@@ -147,7 +147,6 @@ public class JoinEventFragment extends Fragment {
                             if (maxEntrants != null)
                                 maxNum = (maxEntrants).intValue();
 
-                            Long waitListSize = (Long) doc.get("waitingListSize");
                             curNum = firestoreHelper.getWaitlistSize(firestoreEventId);
                             String spotsAvailText;
                             if (maxNum == -1) {
@@ -319,7 +318,6 @@ public class JoinEventFragment extends Fragment {
                                         db.collection("signUps")
                                                 .document(firestoreEventId + "_" + deviceId)
                                                 .delete();
-                                        db.collection("events").document(firestoreEventId).update("hasCancels", true);
                                     }
                                 }
                             });

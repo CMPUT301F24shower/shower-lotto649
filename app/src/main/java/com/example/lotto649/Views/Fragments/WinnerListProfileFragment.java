@@ -191,7 +191,6 @@ public class WinnerListProfileFragment extends Fragment {
                                     db.collection("signUps")
                                             .document(firestoreEventId + "_" + userDeviceId)
                                             .delete();
-                                    db.collection("events").document(firestoreEventId).update("hasCancels", true);
                                 }
                             }
                         });

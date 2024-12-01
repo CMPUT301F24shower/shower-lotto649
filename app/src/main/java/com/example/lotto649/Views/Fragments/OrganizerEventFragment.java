@@ -84,9 +84,7 @@ public class OrganizerEventFragment extends Fragment {
             state = EventState.CLOSED;
         }
         String title = doc.getString("title");
-        int waitingListSize = Objects.requireNonNull(doc.getLong("waitingListSize")).intValue();
-        boolean hasCancels = doc.getBoolean("hasCancels");
-        EventModel newEvent = new EventModel(title, description, numSpots, numMaxEntrants, startDate, endDate, posterImage, geo, qrCode, waitingListSize, hasCancels, state, db);
+        EventModel newEvent = new EventModel(title, description, numSpots, numMaxEntrants, startDate, endDate, posterImage, geo, qrCode, state, db);
         newEvent.setOrganizerId(organizerId);
         newEvent.setEventId(eventId);
         return newEvent;
@@ -419,10 +417,7 @@ public class OrganizerEventFragment extends Fragment {
                             if (maxEntrants != null)
                                 maxNum = (maxEntrants).intValue();
 
-                            Long waitListSize = (Long) doc.get("waitingListSize");
                             int curNum = firestoreHelper.getWaitlistSize(firestoreEventId);
-                            if (waitListSize != null)
-                                curNum = (waitListSize).intValue();
 
                             Long numSpots = (Long) doc.get("numberOfSpots");
                             if (numSpots != null)
@@ -437,7 +432,7 @@ public class OrganizerEventFragment extends Fragment {
                                 spotsAvailText = "FULL";
                                 statusText = "PENDING";
                             } else {
-                                spotsAvailText = Integer.toString(maxNum - (int) doc.getLong("waitingListSize").intValue()) + " Spots Available";
+                                spotsAvailText = Integer.toString(maxNum - curNum) + " Spots Available";
                                 statusText = "OPEN";
                             }
 
@@ -453,18 +448,15 @@ public class OrganizerEventFragment extends Fragment {
 
                                 if (Objects.equals(doc.getString("state"), "OPEN")) {
                                     Log.e("JASON STATE TEST", Objects.requireNonNull(doc.getString("state")));
-                                    if (waitListSize != null && waitListSize > 0) {
+                                    int waitListSize = firestoreHelper.getWaitlistSize(firestoreEventId);
+                                    if (waitListSize > 0) {
                                         canDraw.setValue(Boolean.TRUE);
                                     } else {
                                         canDraw.setValue(Boolean.FALSE);
                                     }
                                 } else {
                                     if (Objects.equals(doc.getString("state"), "WAITING")) {
-                                        if (Objects.equals(doc.getBoolean("hasCancels"), Boolean.TRUE)) {
-                                            canReplacementDraw.setValue(Boolean.TRUE);
-                                        } else {
-                                            canReplacementDraw.setValue(Boolean.FALSE);
-                                        }
+                                        // TODO: set if replacement button can be clicked
                                         statusText = "PENDING";
                                     } else {
                                         statusText = "CLOSED";
