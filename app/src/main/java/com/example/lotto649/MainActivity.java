@@ -373,10 +373,8 @@ public class MainActivity extends AppCompatActivity
                         NotificationHelper notis = new NotificationHelper();
                         CharSequence title = "Event Lottery System";
                         String description = "You have been cancelled from an event";
-                        notis.sendNotification(getApplicationContext(), title, description, doc.getString("eventId"));
-                        db.collection("cancelled").document(doc.getId()).update(new HashMap<String, Object>() {{
-                            put("hasSeenNoti", true);
-                        }});
+                        notis.sendCancelledNotification(getApplicationContext(), title, description);
+                        db.collection("cancelled").document(doc.getId()).delete();
                     }
                 }
             }
