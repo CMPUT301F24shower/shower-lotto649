@@ -233,6 +233,7 @@ public class JoinEventFragment extends Fragment {
                                         db.collection("winners")
                                                 .document(firestoreEventId + "_" + deviceId)
                                                 .delete();
+                                        db.collection("events").document(firestoreEventId).update("waitingListSize", --curNum);
                                     }
                                 }
                             });
@@ -282,7 +283,7 @@ public class JoinEventFragment extends Fragment {
                                         signUp.put("latitude", "");
                                     }
                                     db.collection("signUps").document(firestoreEventId + "_" + deviceId).set(signUp).addOnSuccessListener(listener -> {
-                                        eventsRef.document(firestoreEventId).update("waitingListSize", curNum + 1);
+                                        eventsRef.document(firestoreEventId).update("waitingListSize", ++curNum);
                                         // TODO set flags for entrant state, (in list, chosen, waiting for response...)
                                         joinButton.setVisibility(View.GONE);
                                         unjoinButton.setVisibility(View.VISIBLE);
@@ -318,9 +319,8 @@ public class JoinEventFragment extends Fragment {
                                         db.collection("signUps")
                                                 .document(firestoreEventId + "_" + deviceId)
                                                 .delete();
-                                        db.collection("notSelected")
-                                                .document(firestoreEventId + "_" + deviceId)
-                                                .delete();
+                                        db.collection("events").document(firestoreEventId).update("waitingListSize", --curNum);
+                                        db.collection("events").document(firestoreEventId).update("hasCancels", true);
                                     }
                                 }
                             });
@@ -330,6 +330,10 @@ public class JoinEventFragment extends Fragment {
                         joinButton.setVisibility(View.VISIBLE);
                         unjoinButton.setVisibility(View.GONE);
                     });
+                    db.collection("notSelected")
+                            .document(firestoreEventId + "_" + deviceId)
+                            .delete();
+                    db.collection("events").document(firestoreEventId).update("waitingListSize", --curNum);
                 }
             }
         });

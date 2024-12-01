@@ -33,6 +33,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -42,7 +43,7 @@ import java.util.Objects;
  */
 public class WinnerListProfileFragment extends Fragment {
     private FirebaseFirestore db;
-    private CollectionReference usersRef;
+    private CollectionReference winnersRef;
     private TextView imagePlaceholder;
     private LinearLayout linearLayout;
     private ImageView profileImage;
@@ -78,7 +79,7 @@ public class WinnerListProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // get info from bundle
         String userDeviceId = getArguments().getString("userId");
-        String userSignUpId = getArguments().getString("signUpId");
+        String firestoreEventId = getArguments().getString("eventId");
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_waiting_list_profile, container, false);
@@ -86,7 +87,7 @@ public class WinnerListProfileFragment extends Fragment {
 
         // initialize Firestore
         db = FirebaseFirestore.getInstance();
-        usersRef = db.collection("winners");
+        winnersRef = db.collection("winners");
 
         name = view.findViewById(R.id.admin_user_name);
         email = view.findViewById(R.id.admin_user_email);
@@ -174,14 +175,27 @@ public class WinnerListProfileFragment extends Fragment {
         removeUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                usersRef.document(userSignUpId)
-                        .delete()
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                MyApp.getInstance().popFragment();
+                db.collection("winners")
+                        .document(firestoreEventId + "_" + userDeviceId)
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful() && task.getResult() != null) {
+                                DocumentSnapshot doc = task.getResult();
+                                Map<String, Object> data = doc.getData();
+                                if (data != null) {
+                                    data.put("hasSeenNoti", false);
+                                    db.collection("cancelled").document(firestoreEventId + "_" + userDeviceId).set(data);
+                                    db.collection("winners")
+                                            .document(firestoreEventId + "_" + userDeviceId)
+                                            .delete();
+                                    db.collection("signUps")
+                                            .document(firestoreEventId + "_" + userDeviceId)
+                                            .delete();
+                                    db.collection("events").document(firestoreEventId).update("hasCancels", true);
+                                }
                             }
                         });
+                MyApp.getInstance().popFragment();
             }
         });
 

@@ -27,6 +27,8 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.MyApp;
@@ -46,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -121,7 +124,43 @@ public class WinnerListFragment extends Fragment {
         browseProfilesList.setAdapter(profilesAdapter);
 
         backButton = view.findViewById(R.id.back_button);
-
+        // TODO we want this
+//        MutableLiveData<Boolean> noAccepts = new MutableLiveData<>(Boolean.TRUE);
+//        noAccepts.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+//            @Override
+//            public void onChanged(Boolean aBoolean) {
+//                if (Objects.equals(aBoolean, Boolean.TRUE)) {
+//                    ConstraintLayout layout = view.findViewById(R.id.browse_profiles_layout);
+//                    Context context = getContext();
+//                    if (context != null) {
+//                        TextView textView = new TextView(getContext());
+//                        textView.setId(View.generateViewId()); // Generate an ID for the TextView
+//                        textView.setText("No Users have been invited yet");
+//                        textView.setTextSize(24);
+//                        textView.setGravity(Gravity.CENTER);
+//                        textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black)); // Update with your color
+//
+//                        // Set layout params for the TextView to match parent constraints
+//                        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
+//                                ConstraintLayout.LayoutParams.MATCH_PARENT,
+//                                ConstraintLayout.LayoutParams.WRAP_CONTENT
+//                        );
+//
+//                        params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
+//                        params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
+//                        params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
+//                        params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
+//
+//                        textView.setLayoutParams(params);
+//
+//                        // Add the TextView to the layout
+//                        layout.addView(textView);
+//                    } else {
+//
+//                    }
+//                }
+//            }
+//        });
         db.collection("winners").whereEqualTo("eventId", firestoreEventId).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot querySnapshots, @Nullable FirebaseFirestoreException error) {
@@ -130,12 +169,12 @@ public class WinnerListFragment extends Fragment {
                 }
                 if (querySnapshots != null) {
                     dataList.clear();
-                    AtomicBoolean noAccepts = new AtomicBoolean(true);
+
                     for (QueryDocumentSnapshot doc: querySnapshots) {
                         String deviceId = doc.getString("userId");
                         db.collection("users").document(deviceId).get().addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
-                                noAccepts.set(false);
+//                                noAccepts.setValue(Boolean.FALSE);
                                 DocumentSnapshot userDoc = task.getResult();
                                 String deviceIdText = userDoc.getId();
                                 String nameText = userDoc.getString("name");
@@ -151,35 +190,8 @@ public class WinnerListFragment extends Fragment {
                                     profilesAdapter.notifyDataSetChanged();
                                 }
                             }
+
                         });
-                    }
-                    if (noAccepts.get()) {
-                        ConstraintLayout layout = view.findViewById(R.id.browse_profiles_layout);
-                        Context context = getContext();
-                        if (context != null) {
-                            TextView textView = new TextView(getContext());
-                            textView.setId(View.generateViewId()); // Generate an ID for the TextView
-                            textView.setText("No Users have been invited yet");
-                            textView.setTextSize(24);
-                            textView.setGravity(Gravity.CENTER);
-                            textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black)); // Update with your color
-
-                            // Set layout params for the TextView to match parent constraints
-                            ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
-                                    ConstraintLayout.LayoutParams.MATCH_PARENT,
-                                    ConstraintLayout.LayoutParams.WRAP_CONTENT
-                            );
-
-                            params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
-                            params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
-                            params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
-                            params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
-
-                            textView.setLayoutParams(params);
-
-                            // Add the TextView to the layout
-                            layout.addView(textView);
-                        }
                     }
                 }
             }
@@ -190,7 +202,7 @@ public class WinnerListFragment extends Fragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String userId = (String) deviceIdList.get(i);
                 Bundle bundle = new Bundle();
-                bundle.putString("signUpId", firestoreEventId);
+                bundle.putString("eventId", firestoreEventId);
                 bundle.putString("userId", userId);
                 WinnerListProfileFragment frag = new WinnerListProfileFragment();
                 frag.setArguments(bundle);
