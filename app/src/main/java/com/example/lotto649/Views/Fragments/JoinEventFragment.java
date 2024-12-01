@@ -129,7 +129,7 @@ public class JoinEventFragment extends Fragment {
                                if (newTask.isSuccessful()) {
                                    DocumentSnapshot document = newTask.getResult();
                                    if (document != null && document.exists()) {
-                                       joinButton.setText("Accept");
+                                       joinButton.setText("Accept & Sign Up");
                                        unjoinButton.setText("Decline");
                                        isWinnerMode = true;
                                        joinButton.setVisibility(View.VISIBLE);
@@ -137,6 +137,7 @@ public class JoinEventFragment extends Fragment {
                                    }
                                }
                             });
+                            // TODO check same thing in enrolled, cancelled ...
                             String nameText = doc.getString("title");
                             Long maxEntrants = (Long) doc.get("numberOfMaxEntrants");
                             int maxNum = 0;
@@ -315,6 +316,9 @@ public class JoinEventFragment extends Fragment {
                                                 .document(firestoreEventId + "_" + deviceId)
                                                 .delete();
                                         db.collection("signUps")
+                                                .document(firestoreEventId + "_" + deviceId)
+                                                .delete();
+                                        db.collection("notSelected")
                                                 .document(firestoreEventId + "_" + deviceId)
                                                 .delete();
                                     }
