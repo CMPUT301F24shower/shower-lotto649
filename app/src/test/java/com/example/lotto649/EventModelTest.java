@@ -72,9 +72,9 @@ public class EventModelTest {
         when(mockCollectionRef.document(anyString())).thenReturn(mockDocRef);
 
         // Initialize the EventModel with mocked dependencies
-        mockEvent = spy(new EventModel(context, "Event", "Description", 10,
+        mockEvent = spy(new EventModel("Event", "Description", 5,
                 10, new Date(), new Date(), "posterImage", true, "qrCode",
-                0, false, mockDb));
+                EventState.OPEN, mockDb));
         doNothing().when(mockEvent).notifyViews();
     }
 
@@ -109,12 +109,6 @@ public class EventModelTest {
     public void testGetDescription() {
         mockEvent.setDescription("Event Description");
         assertEquals("Event Description", mockEvent.getDescription());
-    }
-
-    @Test
-    public void testIsDrawn() {
-        // Act & Assert
-        assertFalse(mockEvent.isDrawn()); // Default state should be false
     }
 }
 
