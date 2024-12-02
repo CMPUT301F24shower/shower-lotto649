@@ -19,6 +19,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.MutableLiveData;
 
 import com.bumptech.glide.Glide;
 import com.example.lotto649.FirestoreHelper;
@@ -79,24 +80,12 @@ public class BrowseEventsArrayAdapter extends ArrayAdapter<EventModel> {
 
         eventStatus.setText(event.getState().name());
 
-//        event.getLocation(eventLocation::setText);
-        eventLocation.setText("LOCATION");
-        String facilityId = event.getOrganizerId();
-        FirebaseFirestore.getInstance().collection("facilities").document(facilityId).get().addOnCompleteListener(facilityTask -> {
-            if (facilityTask.isSuccessful()) {
-                DocumentSnapshot facilityDoc = facilityTask.getResult();
-                String facilityName = facilityDoc.getString("facility");
-                String facilityAddress = facilityDoc.getString("address");
-                if (facilityName != null && facilityAddress != null) {
-                    eventLocation.setText(facilityName + " - " + facilityAddress);
-                }
-            }
-        });
-
         eventSpotsAvail.setText("No max waitlist size");
+        MutableLiveData<Integer> waitListSize = new MutableLiveData<>(-1);
+        FirestoreHelper.getInstance().getWaitlistSize(event.getEventId(), waitListSize);
         if (event.getNumberOfMaxEntrants() != -1) {
-            FirestoreHelper.getInstance().getCurrWaitlistSize().observe(lifecycleOwner, size -> {
-                if (size != null) {
+            waitListSize.observe(lifecycleOwner, size -> {
+                if (size != null && size != -1) {
                     Log.d("Waitlist browseeventsarrayadapter", "Current waitlist size: " + size);
                     // Perform actions with the waitlist size
                     if (event.getNumberOfMaxEntrants() <= size) {
@@ -110,6 +99,28 @@ public class BrowseEventsArrayAdapter extends ArrayAdapter<EventModel> {
         }
 
         eventNumAttendees.setText(event.getNumberOfSpots() + " Lottery Winners");
+        eventLocation.setText("LOCATION");
+        FirebaseFirestore.getInstance().collection("events").document(event.getEventId()).get().addOnCompleteListener(eventTask -> {
+            if (eventTask.isSuccessful()) {
+                DocumentSnapshot eventDoc = eventTask.getResult();
+                if (eventDoc != null) {
+                    String facilityId = eventDoc.getString("organizerId");
+                    if (facilityId != null) {
+                        FirebaseFirestore.getInstance().collection("facilities").document(facilityId).get().addOnCompleteListener(facilityTask -> {
+                            if (facilityTask.isSuccessful()) {
+                                DocumentSnapshot facilityDoc = facilityTask.getResult();
+                                String facilityName = facilityDoc.getString("facility");
+                                String facilityAddress = facilityDoc.getString("address");
+                                if (facilityName != null && facilityAddress != null) {
+                                    eventLocation.setText(facilityName + " - " + facilityAddress);
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        });
+
 
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         if (event.getStartDate() != null && event.getEndDate() != null)

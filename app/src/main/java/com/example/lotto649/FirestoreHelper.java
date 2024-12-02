@@ -28,14 +28,8 @@ public class FirestoreHelper {
     private CollectionReference facilitiesRef;
     private CollectionReference signUpRef;
     private FirebaseStorage storageRef;
-    private MutableLiveData<Integer> currWaitlistSize;
-    private MutableLiveData<Integer> currWinnersSize;
-    private MutableLiveData<Integer> currEnrolledSize;
-    private MutableLiveData<Integer> currNotSelectedSize;
     private Context context;
     boolean waitingForWaitList;
-    String waitlistEventId;
-    boolean spinlock;
 
     // Private constructor to prevent instantiation
     private FirestoreHelper() {
@@ -45,10 +39,6 @@ public class FirestoreHelper {
         facilitiesRef = db.collection("facilities");
         signUpRef = db.collection("signUps");
         storageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app");
-        currWaitlistSize = new MutableLiveData<Integer>(0);
-        currWinnersSize = new MutableLiveData<Integer>(0);
-        currEnrolledSize = new MutableLiveData<Integer>(0);
-        currNotSelectedSize = new MutableLiveData<Integer>(0);
         waitingForWaitList = false;
     }
 
@@ -71,22 +61,6 @@ public class FirestoreHelper {
         if (this.context == null) {
             this.context = context.getApplicationContext(); // Ensure the application context is used
         }
-    }
-
-    public MutableLiveData<Integer> getCurrWaitlistSize() {
-        return currWaitlistSize;
-    }
-
-    public MutableLiveData<Integer> getCurrWinnersSize() {
-        return currWinnersSize;
-    }
-
-    public MutableLiveData<Integer> getCurrEnrolledSize() {
-        return currEnrolledSize;
-    }
-
-    public MutableLiveData<Integer> getCurrNotSelectedSize() {
-        return currNotSelectedSize;
     }
 
     public void deleteEventsFromFacility(String facilityOwner) {
@@ -165,51 +139,56 @@ public class FirestoreHelper {
         });
     }
 
-    public void getWaitlistSize(String eventId) {
-        Log.e("JASON LATCH", "start");
-        waitingForWaitList = true;
-        waitlistEventId = eventId;
-
+    public void getWaitlistSize(String eventId, MutableLiveData<Integer> data) {
         db.collection("signUps")
                 .whereEqualTo("eventId", eventId)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        currWaitlistSize.setValue(task.getResult().size()); // Store the result
+                        data.setValue(task.getResult().size()); // Store the result
+                    } else {
+                        data.setValue(0);
                     }
-                    waitingForWaitList = false;
                 });
     }
 
-    public void getWinnersSize(String eventId) {
+    public void getWinnersSize(String eventId, MutableLiveData<Integer> data) {
         db.collection("winners")
                 .whereEqualTo("eventId", eventId)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        currWinnersSize.setValue(task.getResult().size()); // Store the result
+                        Log.e("JASON REDRAW", "get winners size success");
+                        data.setValue(task.getResult().size()); // Store the result
+                    } else {
+                        Log.e("JASON REDRAW", "get winners size fail - set to 0");
+                        data.setValue(0);
                     }
                 });
     }
 
-    public void getEnrolledSize(String eventId) {
+    public void getEnrolledSize(String eventId, MutableLiveData<Integer> data) {
         db.collection("enrolled")
                 .whereEqualTo("eventId", eventId)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        currEnrolledSize.setValue(task.getResult().size()); // Store the result
+                        data.setValue(task.getResult().size()); // Store the result
+                    } else {
+                        data.setValue(0);
                     }
                 });
     }
 
-    public void getNotSelectedSize(String eventId) {
+    public void getNotSelectedSize(String eventId, MutableLiveData<Integer> data) {
         db.collection("notSelected")
                 .whereEqualTo("eventId", eventId)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        currNotSelectedSize.setValue(task.getResult().size()); // Store the result
+                        data.setValue(task.getResult().size()); // Store the result
+                    } else {
+                        data.setValue(0);
                     }
                 });
     }

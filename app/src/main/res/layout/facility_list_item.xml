@@ -2,7 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    android:background="@drawable/card_corners"
+    android:paddingVertical="16dp"
+    android:paddingHorizontal="16dp">
 
     <TextView
         android:id="@+id/facility_name"
@@ -22,17 +26,6 @@
         android:layout_gravity="start"
         android:fontFamily="sans-serif-medium"
         android:text="Address"
-        android:padding="2dp"
-        android:textColor="@color/lightOnSurfaceVariant"
-        android:textSize="25sp" />
-
-    <TextView
-        android:id="@+id/facility_open_events"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="start"
-        android:fontFamily="sans-serif-medium"
-        android:text="Open Events"
         android:padding="2dp"
         android:textColor="@color/lightOnSurfaceVariant"
         android:textSize="25sp" />

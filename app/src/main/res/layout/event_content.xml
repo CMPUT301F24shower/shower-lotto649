@@ -7,7 +7,6 @@
     android:layout_height="match_parent">
 
 
-
     <LinearLayout
         android:id="@+id/list_event_poster_linear_layout"
         android:layout_width="wrap_content"

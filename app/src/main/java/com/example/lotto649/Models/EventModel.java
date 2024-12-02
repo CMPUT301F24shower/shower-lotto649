@@ -570,7 +570,9 @@ public class EventModel extends AbstractModel implements Serializable {
                         int i = 0;
                         for (DocumentSnapshot doc : docs) {
                             if (i == 0) {
-                                db.collection("winners").document(doc.getId()).set(doc.getData());
+                                HashMap<String, Object> data = new HashMap<>(doc.getData());
+                                data.put("hasSeenNoti", false);
+                                db.collection("winners").document(doc.getId()).set(data);
                                 db.collection("notSelected").document(doc.getId()).delete();
                                 i++;
                             }

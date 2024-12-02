@@ -108,7 +108,7 @@ public class BrowseEventsFragment extends Fragment {
                     for (QueryDocumentSnapshot doc: querySnapshots) {
                         String eventId = doc.getId();
                         String title = doc.getString("title");
-                        String facilityId = doc.getString("facilityId");
+                        String facilityId = doc.getString("organizerId");
                         String description = doc.getString("description");
                         Long numSpotsLong = ((Long) doc.get("numberOfSpots"));
                         int numberOfSpots = 0;
@@ -130,9 +130,11 @@ public class BrowseEventsFragment extends Fragment {
                         } else if (Objects.equals(stateStr, "CLOSED")) {
                             state = EventState.CLOSED;
                         }
-                        dataList.add( new EventModel(title, description, numberOfSpots,
-                        numberOfMaxEntrants, startDate, endDate, posterImageUriString, geo, qrCodeHash,
-                                state, null));
+                        EventModel event =  new EventModel(title, description, numberOfSpots,
+                                numberOfMaxEntrants, startDate, endDate, posterImageUriString, geo, qrCodeHash,
+                                state, null);
+                        event.setEventId(eventId);
+                        dataList.add(event);
                         eventIdList.add(eventId);
                     }
                     eventsAdapter.notifyDataSetChanged();

@@ -34,8 +34,6 @@ import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.example.lotto649.Views.ArrayAdapters.BrowseProfilesArrayAdapter;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -65,6 +63,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Code for the bottom navigation bar was adapted from:
  * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
  * </p>
+ * <p>
+ * Code for creating context from:
+ * https://stackoverflow.com/questions/47987649/why-getcontext-in-fragment-sometimes-returns-null
+ * </p>
  */
 public class WinnerListFragment extends Fragment {
     private ArrayList<String> winnerList, deviceIdList;
@@ -73,9 +75,19 @@ public class WinnerListFragment extends Fragment {
     private BrowseProfilesArrayAdapter profilesAdapter;
     private FirebaseFirestore db;
     private CollectionReference userRef;
-    private String firestoreEventId;
     private Context mContext;
     ExtendedFloatingActionButton backButton;
+    private String firestoreEventId;
+
+    /**
+     * Public empty constructor for BrowseFacilitiesFragment.
+     * <p>
+     * Required for proper instantiation of the fragment by the Android system.
+     * </p>
+     */
+    public WinnerListFragment() {
+        // Required empty public constructor
+    }
 
     /**
      * Attaches the fragment to the app, and sets the context.
@@ -119,48 +131,17 @@ public class WinnerListFragment extends Fragment {
         browseProfilesList.setAdapter(profilesAdapter);
 
         backButton = view.findViewById(R.id.back_button);
+        MutableLiveData<Boolean> noWinners = new MutableLiveData<>(Boolean.TRUE);
+        ConstraintLayout layout = view.findViewById(R.id.browse_profiles_layout);
+        Context context = getContext();
 
-        // TODO we want this
-//        MutableLiveData<Boolean> noAccepts = new MutableLiveData<>(Boolean.TRUE);
-//        noAccepts.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-//            @Override
-//            public void onChanged(Boolean aBoolean) {
-//                if (Objects.equals(aBoolean, Boolean.TRUE)) {
-//                    ConstraintLayout layout = view.findViewById(R.id.browse_profiles_layout);
-//                    Context context = getContext();
-//                    if (context != null) {
-//                        TextView textView = new TextView(getContext());
-//                        textView.setId(View.generateViewId()); // Generate an ID for the TextView
-//                        textView.setText("No Users have been invited yet");
-//                        textView.setTextSize(24);
-//                        textView.setGravity(Gravity.CENTER);
-//                        textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black)); // Update with your color
-//
-//                        // Set layout params for the TextView to match parent constraints
-//                        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
-//                                ConstraintLayout.LayoutParams.MATCH_PARENT,
-//                                ConstraintLayout.LayoutParams.WRAP_CONTENT
-//                        );
-//
-//                        params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
-//                        params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
-//                        params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
-//                        params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
-//
-//                        textView.setLayoutParams(params);
-//
-//                        // Add the TextView to the layout
-//                        layout.addView(textView);
-//                    } else {
-//
-//                    }
-//                }
-//            }
-//        });
-
-        db.collection("winners")
-                .whereEqualTo("eventId", firestoreEventId)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+        TextView textView;
+        if (context != null) {
+            textView = new TextView(context);
+        } else {
+            textView = null;
+        }
+        db.collection("winners").whereEqualTo("eventId", firestoreEventId).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot querySnapshots, @Nullable FirebaseFirestoreException error) {
                 if (error != null) return;
@@ -172,7 +153,7 @@ public class WinnerListFragment extends Fragment {
                         String deviceId = doc.getString("userId");
                         db.collection("users").document(deviceId).get().addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
-//                                noAccepts.setValue(Boolean.FALSE);
+                                noWinners.setValue(Boolean.FALSE);
                                 DocumentSnapshot userDoc = task.getResult();
                                 String deviceIdText = userDoc.getId();
                                 String nameText = userDoc.getString("name");
@@ -190,6 +171,45 @@ public class WinnerListFragment extends Fragment {
                             }
 
                         });
+                    }
+                }
+            }
+        });
+
+        noWinners.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if (Objects.equals(aBoolean, Boolean.TRUE)) {
+                    if (textView != null) {
+                        if (textView.getParent() != null) {
+                            ((ViewGroup) textView.getParent()).removeView(textView);
+                        }
+
+                        textView.setId(View.generateViewId()); // Generate an ID for the TextView
+                        textView.setText("No users have won the lottery");
+                        textView.setTextSize(24);
+                        textView.setGravity(Gravity.CENTER);
+                        textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black)); // Update with your color
+
+                        // Set layout params for the TextView to match parent constraints
+                        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
+                                ConstraintLayout.LayoutParams.MATCH_PARENT,
+                                ConstraintLayout.LayoutParams.WRAP_CONTENT
+                        );
+
+                        params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
+                        params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
+                        params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
+                        params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
+
+                        textView.setLayoutParams(params);
+
+                        // Add the TextView to the layout
+                        layout.addView(textView);
+                    }
+                } else {
+                    if (textView != null) {
+                        textView.setVisibility(View.GONE);
                     }
                 }
             }
