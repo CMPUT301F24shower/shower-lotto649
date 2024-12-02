@@ -137,6 +137,7 @@ public class EventFragment extends Fragment {
         Log.e("Ohm", "onAttach");
         if (Objects.isNull(event)) {
             this.event = new EventModel(FirebaseFirestore.getInstance());
+            this.event.setEventId(String.valueOf(System.currentTimeMillis()));
         }
         mContext = context;
     }
@@ -401,6 +402,7 @@ public class EventFragment extends Fragment {
             eventController.updateStartDate(startDate.get());
             eventController.updateEndDate(endDate.get());
             eventController.updateGeo(geo);
+
             String fileName = event.getEventId() + ".jpg";
             uploadPosterImageToFirebaseStorage(currentImageUri, fileName, currentImageUriString, posterLoadedInFirestore);
 
