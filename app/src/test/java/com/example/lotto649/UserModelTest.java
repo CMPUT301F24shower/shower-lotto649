@@ -11,6 +11,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -63,6 +65,7 @@ public class UserModelTest {
         when(mockFirestore.collection("users")).thenReturn(mockCollectionReference);
         when(mockCollectionReference.document(anyString())).thenReturn(mockDocumentReference);
         when(mockDocumentReference.set(any())).thenReturn(mockTask);
+        when(mockDocumentReference.set(any(), any())).thenReturn(mockTask);
         when(mockDocumentReference.update(anyString(), any(), any())).thenReturn(mockTask);
         when(mockTask.addOnSuccessListener(any())).thenAnswer(invocation -> {
             OnSuccessListener<Void> listener = invocation.getArgument(0);
@@ -123,9 +126,8 @@ public class UserModelTest {
             put("phone", user.getPhone());
             put("entrant", user.getEntrant());
             put("organizer", user.getOrganizer());
-            put("admin", user.getAdmin());
             put("profileImage", user.getProfileImage());
-        }});
+        }}, SetOptions.merge());
         assertTrue(user.getSavedToFirestore());
     }
 
@@ -153,9 +155,8 @@ public class UserModelTest {
             put("phone", user.getPhone());
             put("entrant", user.getEntrant());
             put("organizer", user.getOrganizer());
-            put("admin", user.getAdmin());
             put("profileImage", user.getProfileImage());
-        }});
+        }}, SetOptions.merge());
         assertFalse(user.getSavedToFirestore());
     }
 

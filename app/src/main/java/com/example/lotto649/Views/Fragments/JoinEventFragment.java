@@ -73,6 +73,7 @@ public class JoinEventFragment extends Fragment {
     private boolean geoRequired;
     String deviceId;
     boolean isWinnerMode;
+    boolean noQr;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -97,6 +98,7 @@ public class JoinEventFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // get info from bundle
         firestoreEventId = getArguments().getString("firestoreEventId");
+        noQr = false;
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_join_event, container, false);
@@ -244,6 +246,11 @@ public class JoinEventFragment extends Fragment {
                                 }
                                 description.setText(descriptionText);
 
+                                String qrCode = doc.getString("qrCode");
+                                if (qrCode == null || qrCode.isEmpty()) {
+                                    noQr = true;
+                                }
+
                                 //     poster
                                 String posterUriString = doc.getString("posterImage");
                                 if (posterUriString != null && !Objects.equals(posterUriString, "")) {
@@ -304,6 +311,10 @@ public class JoinEventFragment extends Fragment {
 
                     MyApp.getInstance().popFragment();
                 } else {
+                    if (noQr) {
+                        Toast.makeText(getActivity(), "This event is not allowing signups", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     DocumentReference doc = FirebaseFirestore.getInstance().collection("users").document(deviceId);
                     doc.get().addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
