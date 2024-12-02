@@ -13,9 +13,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -25,7 +25,7 @@ import java.util.Map;
 public class CustomNotificationFragment extends Fragment {
 
     private Spinner statusDropdown;
-    private EditText descriptionInput;
+    private EditText titleInput, descriptionInput;
     private FirebaseFirestore db;
 
     public CustomNotificationFragment() {
@@ -42,6 +42,7 @@ public class CustomNotificationFragment extends Fragment {
 
         // Initialize UI components
         statusDropdown = view.findViewById(R.id.status_dropdown);
+        titleInput = view.findViewById(R.id.title_input);
         descriptionInput = view.findViewById(R.id.description_input);
         ExtendedFloatingActionButton backButton = view.findViewById(R.id.back_button);
         ExtendedFloatingActionButton sendButton = view.findViewById(R.id.send_button);
@@ -55,8 +56,13 @@ public class CustomNotificationFragment extends Fragment {
         sendButton.setOnClickListener(v -> {
             // Handle sending the notification
             String selectedStatus = statusDropdown.getSelectedItem().toString();
+            String title = titleInput.getText().toString().trim();
             String description = descriptionInput.getText().toString().trim();
 
+            if (title.isEmpty()) {
+                Toast.makeText(getContext(), "Title cannot be empty", Toast.LENGTH_SHORT).show();
+                return;
+            }
             if (description.isEmpty()) {
                 Toast.makeText(getContext(), "Description cannot be empty", Toast.LENGTH_SHORT).show();
                 return;
@@ -65,7 +71,7 @@ public class CustomNotificationFragment extends Fragment {
             String collectionName = getCollectionForStatus(selectedStatus);
 
             if (collectionName != null) {
-                sendNotificationsToCollection(collectionName, description);
+                sendNotificationsToCollection(collectionName, title, description, eventId);
             } else {
                 Toast.makeText(getContext(), "Invalid status selected", Toast.LENGTH_SHORT).show();
             }
@@ -86,40 +92,37 @@ public class CustomNotificationFragment extends Fragment {
         }
     }
 
-    private void sendNotificationsToCollection(String collectionName, String message) {
+    private void sendNotificationsToCollection(String collectionName, String title, String message, String eventId) {
         db = FirebaseFirestore.getInstance();
-        CollectionReference collection = db.collection(collectionName);
 
-        collection.get().addOnCompleteListener(task -> {
+        db.collection(collectionName).whereEqualTo("eventId", eventId).get().addOnCompleteListener( task -> {
             if (task.isSuccessful()) {
-                if (task.getResult() != null && !task.getResult().isEmpty()) {
                     // Task succeeded and documents exist
                     for (QueryDocumentSnapshot doc : task.getResult()) {
-                        String deviceId = doc.getString("deviceId");
+                        String deviceId = doc.getString("userId");
 
                         if (deviceId != null) {
                             // Create a new document in the "custom" collection
                             Map<String, Object> notificationData = new HashMap<>();
-                            notificationData.put("deviceId", deviceId);
+                            notificationData.put("userId", deviceId);
+                            notificationData.put("title", title);
                             notificationData.put("message", message);
+                            notificationData.put("hasSeenNoti", false);
+                            notificationData.put("eventId", eventId);
 
                             db.collection("custom").add(notificationData)
                                     .addOnSuccessListener(documentReference -> {
-                                        Toast.makeText(getContext(), "Notification sent to: " + deviceId, Toast.LENGTH_SHORT).show();
+                                        Log.d("Custom Notifications", "Notification sent to: " + deviceId);
+                                        MyApp.getInstance().popFragment();
                                     })
                                     .addOnFailureListener(e -> {
                                         Log.e("FirestoreError", "Error sending notification: " + e.getMessage());
-                                        Toast.makeText(getContext(), "Error sending notification: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                        MyApp.getInstance().popFragment();
                                     });
                         } else {
-                            Log.w("FirestoreWarning", "Device ID is null for document: " + doc.getId());
+                            Log.w("FirestoreWarning", "User ID is null for document: " + doc.getId());
                         }
                     }
-                } else {
-                    // Task succeeded but no documents found
-                    Log.w("FirestoreWarning", "No documents found in collection: " + collectionName);
-                    Toast.makeText(getContext(), "No users found in the selected collection", Toast.LENGTH_SHORT).show();
-                }
             } else {
                 // Task failed
                 Log.e("FirestoreError", "Error fetching users: " + (task.getException() != null ? task.getException().getMessage() : "Unknown error"));

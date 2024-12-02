@@ -37,16 +37,15 @@ import com.example.lotto649.Views.Fragments.AdminAndUserFragment;
 import com.example.lotto649.Views.Fragments.BrowseEventsFragment;
 import com.example.lotto649.Views.Fragments.BrowseFacilitiesFragment;
 import com.example.lotto649.Views.Fragments.BrowseProfilesFragment;
+import com.example.lotto649.Views.Fragments.CameraFragment;
 import com.example.lotto649.Views.Fragments.FacilityFragment;
 import com.example.lotto649.Views.Fragments.HomeFragment;
-import com.example.lotto649.Views.Fragments.CameraFragment;
 import com.example.lotto649.Views.Fragments.JoinEventFragment;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.Firebase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -396,7 +395,21 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
-
+        db.collection("custom").whereEqualTo("userId", deviceId).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot doc : task.getResult()) {
+                    if (Boolean.FALSE.equals(doc.getBoolean("hasSeenNoti"))) {
+                        NotificationHelper notis = new NotificationHelper();
+                        CharSequence title = doc.getString("title");
+                        String description = doc.getString("description");
+                        notis.sendNotification(getApplicationContext(), title, description, doc.getString("eventId"));
+                        db.collection("custom").document(doc.getId()).update(new HashMap<String, Object>() {{
+                            put("hasSeenNoti", true);
+                        }});
+                    }
+                }
+            }
+        });
     }
 
     private void removeMenuItems() {
