@@ -90,7 +90,7 @@ public class BrowseEventsFragment extends Fragment {
         eventIdList = new ArrayList<String>();
 
         browseEventsList = view.findViewById(R.id.browse_events_list);
-        eventsAdapter = new BrowseEventsArrayAdapter(view.getContext(), dataList);
+        eventsAdapter = new BrowseEventsArrayAdapter(view.getContext(), dataList, getViewLifecycleOwner());
         browseEventsList.setAdapter(eventsAdapter);
 
         eventsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
