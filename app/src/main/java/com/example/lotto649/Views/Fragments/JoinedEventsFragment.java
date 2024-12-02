@@ -25,6 +25,8 @@ import android.widget.TextView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import com.example.lotto649.Views.ArrayAdapters.BrowseEventsArrayAdapter;
 import com.example.lotto649.Models.EventModel;
@@ -34,6 +36,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class JoinedEventsFragment extends Fragment {
     private BrowseEventsArrayAdapter eventAdapter;
@@ -63,18 +66,18 @@ public class JoinedEventsFragment extends Fragment {
         ListView eventsList = view.findViewById(R.id.event_contents);
         ArrayList<EventModel> eventArrayList = new ArrayList<>();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        MutableLiveData<Boolean> noJoinedEvents = new MutableLiveData<>(Boolean.TRUE);
         Query query = db.collection("signUps").whereEqualTo("userId", deviceId);
         query.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                boolean noEvents = true;
                 for (QueryDocumentSnapshot doc : task.getResult()) {
-                    noEvents = false;
                     String eventId = doc.getString("eventId");
                     if (eventId == null) continue;
                     db.collection("events").document(eventId).get().addOnCompleteListener(task2 -> {
                         if (task2.isSuccessful()) {
                             EventModel event = task2.getResult().toObject(EventModel.class);
                             if (event == null) return;
+                            noJoinedEvents.setValue(Boolean.FALSE);
                             event.setEventId(eventId);
                             eventArrayList.add(event);
                             if (eventAdapter != null) {
@@ -84,35 +87,54 @@ public class JoinedEventsFragment extends Fragment {
                     });
 
                 }
-                if (noEvents) {
-                    ConstraintLayout layout = view.findViewById(R.id.joined_events_layout);
-                    TextView textView = new TextView(getContext());
-                    textView.setId(View.generateViewId()); // Generate an ID for the TextView
-                    textView.setText("No events to display\nPlease scan a QR code\nto join an event");
-                    textView.setTextSize(24);
-                    textView.setGravity(Gravity.CENTER);
-                    textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black)); // Update with your color
-
-                    // Set layout params for the TextView to match parent constraints
-                    ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
-                            ConstraintLayout.LayoutParams.MATCH_PARENT,
-                            ConstraintLayout.LayoutParams.WRAP_CONTENT
-                    );
-
-                    params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
-                    params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
-                    params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
-                    params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
-
-                    textView.setLayoutParams(params);
-
-                    // Add the TextView to the layout
-                    layout.addView(textView);
-                }
                 Context context = getContext();
                 if (context == null) return;
-                eventAdapter = new BrowseEventsArrayAdapter(context, eventArrayList);
+                eventAdapter = new BrowseEventsArrayAdapter(context, eventArrayList, getViewLifecycleOwner());
                 eventsList.setAdapter(eventAdapter);
+            }
+        });
+
+        ConstraintLayout layout = view.findViewById(R.id.joined_events_layout);
+        Context context = getContext();
+
+        TextView textView;
+        if (context != null) {
+            textView = new TextView(context);
+        } else {
+            textView = null;
+        }
+        noJoinedEvents.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if (Objects.equals(aBoolean, Boolean.TRUE)) {
+                    if (textView != null) {
+                        textView.setId(View.generateViewId()); // Generate an ID for the TextView
+                        textView.setText("You have not signed up for any events, please scan a QR code to join an event");
+                        textView.setTextSize(24);
+                        textView.setGravity(Gravity.CENTER);
+                        textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black)); // Update with your color
+
+                        // Set layout params for the TextView to match parent constraints
+                        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
+                                ConstraintLayout.LayoutParams.MATCH_PARENT,
+                                ConstraintLayout.LayoutParams.WRAP_CONTENT
+                        );
+
+                        params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
+                        params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
+                        params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
+                        params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
+
+                        textView.setLayoutParams(params);
+
+                        // Add the TextView to the layout
+                        layout.addView(textView);
+                    }
+                } else {
+                    if (textView != null) {
+                        textView.setVisibility(View.GONE);
+                    }
+                }
             }
         });
 

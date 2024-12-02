@@ -5,8 +5,10 @@
  */
 package com.example.lotto649.Views.Fragments;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,7 +68,6 @@ public class AdminEventFragment extends Fragment {
     private Uri posterUri;
     private MutableLiveData<Boolean> imageAbleToBeDeleted;
     private MutableLiveData<Boolean> qrCodeAbleToBeDeleted;
-    FirestoreHelper firestoreHelper;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -91,7 +92,6 @@ public class AdminEventFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // get info from bundle
         firestoreEventId = getArguments().getString("firestoreEventId");
-        firestoreHelper = new FirestoreHelper();
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_admin_view_event, container, false);
@@ -139,7 +139,6 @@ public class AdminEventFragment extends Fragment {
         deleteEventButton = view.findViewById(R.id.admin_delete_event);
         posterImage = view.findViewById(R.id.admin_event_poster);
         backButton = view.findViewById(R.id.back_button);
-
         eventsRef.document(firestoreEventId)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -147,65 +146,123 @@ public class AdminEventFragment extends Fragment {
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
                             DocumentSnapshot doc = task.getResult();
-                            String nameText = doc.getString("title");
-                            int maxNum = ((Long) doc.get("numberOfMaxEntrants")).intValue();
-                            String spotsAvailText;
-                            if (maxNum == -1) {
-                                spotsAvailText = "OPEN";
-                            } else {
-                                // TODO set this properly based on new wait list implementation
-                                spotsAvailText = Integer.toString(maxNum);
-//                                spotsAvailText = Integer.toString(maxNum - ((List<String>) doc.get("waitingList")).size()) + " Spots Available";
-                            }
-                            String numAttendeesText = Integer.toString(((Long) doc.get("numberOfSpots")).intValue()) + " Attendees";
-                            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-                            Date startDate = doc.getDate("startDate");
-                            Date endDate = doc.getDate("endDate");
-                            String datesText = "Enter between " + df.format(startDate) + " - " + df.format(endDate);
-                            Boolean isGeo = doc.getBoolean("geo");
-                            String geoLocationText = isGeo ? "Requires GeoLocation Tracking" : "";
-                            String descriptionText = doc.getString("description");
-                            name.setText(nameText);
-                            // TODO: set to actual event status
-                            status.setText("OPEN");
-                            // TODO: set to actual location
-                            location.setText("LOCATION");
-                            spotsAvail.setText(spotsAvailText);
-                            numAttendees.setText(numAttendeesText);
-                            dates.setText(datesText);
-                            if (isGeo) {
-                                geoLocation.setVisibility(View.VISIBLE);
-                                geoLocation.setText(geoLocationText);
-                            } else {
-                                geoLocation.setVisibility(View.GONE);
-                            }
-                            description.setText(descriptionText);
+                            if (doc != null && doc.exists()) {
+                                String nameText = doc.getString("title");
+                                Long maxEntrants = (Long) doc.get("numberOfMaxEntrants");
+                                int maxNum;
+                                if (maxEntrants != null)
+                                    maxNum = (maxEntrants).intValue();
+                                else {
+                                    maxNum = 0;
+                                }
+                                MutableLiveData<Integer> waitListSize = new MutableLiveData<>(-1);
+                                FirestoreHelper.getInstance().getWaitlistSize(firestoreEventId, waitListSize);
 
-                            String qrCode = doc.getString("qrCode");
-                            if (qrCode == null || qrCode.isEmpty()) {
-                                qrCodeAbleToBeDeleted.setValue(Boolean.FALSE);
-                            } else {
-                                qrCodeAbleToBeDeleted.setValue(Boolean.TRUE);
-                            }
+                                spotsAvail.setText("No max waitlist size");
+                                if (maxNum != -1 && getView() != null) {
+                                   waitListSize.observe(getViewLifecycleOwner(), size -> {
+                                        if (size != null) {
+                                            Log.d("Waitlist admineventfragment", "Current waitlist size: " + size);
+                                            // Perform actions with the waitlist size
+                                            if (maxNum <= size) {
+                                                spotsAvail.setText("FULL");
+                                            } else {
+                                                String newText = size + "/" + maxNum + " Spots Full";
+                                                spotsAvail.setText(newText);
+                                            }
+                                        }
+                                    });
+                                }
+                                Long numSpots = doc.getLong("numberOfSpots");
+                                String numAttendeesText;
+                                if (numSpots == null) {
+                                    numAttendeesText = "Unknown number of Attendees";
+                                } else {
+                                    numAttendeesText = numSpots + " Lottery Winners";
+                                }
 
-                        //     poster
-                            String posterUriString = doc.getString("posterImage");
-                            if (!Objects.equals(posterUriString, "")) {
-                                imageAbleToBeDeleted.setValue(Boolean.TRUE);
-                                posterUri = Uri.parse(posterUriString);
-                                StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(posterUriString);
-                                imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                                    posterUri = uri;
-                                    Glide.with(getContext())
-                                            .load(uri)
-                                            .into(posterImage);
-                                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(900, 450);
-                                    posterImage.setLayoutParams(layoutParams);
-                                    posterImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                                });
-                            } else {
-                                posterUri = null;
-                                imageAbleToBeDeleted.setValue(Boolean.FALSE);
+                                DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                                Date startDate = doc.getDate("startDate");
+                                Date endDate = doc.getDate("endDate");
+                                String datesText;
+                                if (startDate != null && endDate != null) {
+                                    datesText = "Enter between " + df.format(startDate) + " - " + df.format(endDate);
+                                } else {
+                                    datesText = "Error finding dates";
+                                }
+                                Boolean isGeo = doc.getBoolean("geo");
+                                String geoLocationText = Boolean.TRUE.equals(isGeo) ? "Requires GeoLocation Tracking" : "";
+                                String descriptionText = doc.getString("description");
+                                name.setText(nameText);
+                                String eventState = doc.getString("state");
+                                if (eventState != null) {
+                                    status.setText(eventState);
+                                    if (!eventState.equals("OPEN")) ;
+                                } else {
+                                    status.setText("OPEN");
+                                }
+                                String facilityId = doc.getString("organizerId");
+                                if (facilityId != null) {
+                                    db.collection("facilities").document(facilityId).get().addOnCompleteListener(facilityTask -> {
+                                        if (facilityTask.isSuccessful()) {
+                                            DocumentSnapshot facilityDoc = facilityTask.getResult();
+                                            String facilityName = facilityDoc.getString("facility");
+                                            String facilityAddress = facilityDoc.getString("address");
+                                            if (facilityName != null && facilityAddress != null) {
+                                                location.setText(facilityName + " - " + facilityAddress);
+                                            } else {
+                                                location.setText("LOCATION");
+                                            }
+                                        } else {
+                                            location.setText("LOCATION");
+                                        }
+                                    });
+                                } else {
+                                    location.setText("LOCATION");
+                                }
+                                numAttendees.setText(numAttendeesText);
+                                dates.setText(datesText);
+                                if (Boolean.TRUE.equals(isGeo)) {
+                                    geoLocation.setVisibility(View.VISIBLE);
+                                    geoLocation.setText(geoLocationText);
+                                } else {
+                                    geoLocation.setVisibility(View.GONE);
+                                }
+                                description.setText(descriptionText);
+
+                                String qrCode = doc.getString("qrCode");
+                                if (qrCode == null || qrCode.isEmpty()) {
+                                    qrCodeAbleToBeDeleted.setValue(Boolean.FALSE);
+                                } else {
+                                    qrCodeAbleToBeDeleted.setValue(Boolean.TRUE);
+                                }
+
+                                //     poster
+                                String posterUriString = doc.getString("posterImage");
+                                if (posterUriString != null && !Objects.equals(posterUriString, "")) {
+                                    imageAbleToBeDeleted.setValue(Boolean.TRUE);
+                                    posterUri = Uri.parse(posterUriString);
+                                    StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(posterUriString);
+                                    imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                                        posterUri = uri;
+                                        if (isAdded()) {
+                                            Context context = getContext();
+                                            if (context != null) {
+                                                Glide.with(context)
+                                                        .load(uri)
+                                                        .into(posterImage);
+                                            } else {
+                                                posterUri = null;
+                                            }
+                                        }
+                                        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(900, 450);
+                                        posterImage.setLayoutParams(layoutParams);
+                                        posterImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                                    });
+                                } else {
+                                    posterUri = null;
+                                    imageAbleToBeDeleted.setValue(Boolean.FALSE);
+                                }
                             }
                         }
                     }
@@ -222,9 +279,9 @@ public class AdminEventFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (posterUri != null){
-                    firestoreHelper.deletePosterFromEvent(posterUri.toString());
+                    FirestoreHelper.getInstance().deletePosterFromEvent(posterUri.toString());
                 }
-                firestoreHelper.markSignupsAsDeleted(firestoreEventId);
+                FirestoreHelper.getInstance().markSignupsAsDeleted(firestoreEventId);
                 eventsRef
                         .document(firestoreEventId)
                         .delete()

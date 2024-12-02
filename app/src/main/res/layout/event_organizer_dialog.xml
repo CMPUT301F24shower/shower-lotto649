@@ -9,6 +9,56 @@
     android:padding="16dp">
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/org_dialog_view_final_enrolled"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/lightSurfaceContainerHigh"
+        android:text="View Final Enrolled Entrants"
+        app:icon="@drawable/ic_person_foreground"
+        app:elevation="2dp" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/org_dialog_view_canceled_entrants"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/lightSurfaceContainerHigh"
+        android:text="View Canceled Entrants"
+        app:icon="@drawable/ic_person_foreground"
+        app:elevation="2dp" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/org_dialog_view_invited_entrants"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/lightSurfaceContainerHigh"
+        android:text="View Invited Entrants"
+        app:icon="@drawable/ic_person_foreground"
+        app:elevation="2dp" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/org_dialog_send_custom_noti"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/lightSurfaceContainerHigh"
+        android:text="Send Custom Notification"
+        app:icon="@drawable/ic_person_foreground"
+        app:elevation="2dp" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/org_dialog_choose_replacement"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/lightSurfaceContainerHigh"
+        android:text="Draw Replacement Winner"
+        app:icon="@drawable/ic_person_foreground"
+        app:elevation="2dp" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/org_dialog_choose_winners"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

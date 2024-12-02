@@ -23,6 +23,7 @@ import android.widget.ListView;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.lotto649.EventState;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.R;
@@ -36,6 +37,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * BrowseEventsFragment class represents a fragment for the admin to browse all events in the application.
@@ -88,7 +90,7 @@ public class BrowseEventsFragment extends Fragment {
         eventIdList = new ArrayList<String>();
 
         browseEventsList = view.findViewById(R.id.browse_events_list);
-        eventsAdapter = new BrowseEventsArrayAdapter(view.getContext(), dataList);
+        eventsAdapter = new BrowseEventsArrayAdapter(view.getContext(), dataList, getViewLifecycleOwner());
         browseEventsList.setAdapter(eventsAdapter);
 
         eventsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -102,18 +104,33 @@ public class BrowseEventsFragment extends Fragment {
                     for (QueryDocumentSnapshot doc: querySnapshots) {
                         String eventId = doc.getId();
                         String title = doc.getString("title");
-                        String facilityId = doc.getString("facilityId");
+                        String facilityId = doc.getString("organizerId");
                         String description = doc.getString("description");
-                        int numberOfSpots = ((Long) doc.get("numberOfSpots")).intValue();
-                        int numberOfMaxEntrants = ((Long) doc.get("numberOfMaxEntrants")).intValue();
+                        Long numSpotsLong = ((Long) doc.get("numberOfSpots"));
+                        int numberOfSpots = 0;
+                        if (numSpotsLong != null)
+                            numberOfSpots = numSpotsLong.intValue();
+                        Long numMaxLong = ((Long) doc.get("numberOfMaxEntrants"));
+                        int numberOfMaxEntrants = 0;
+                        if (numMaxLong != null)
+                            numberOfMaxEntrants = numMaxLong.intValue();
                         Date startDate = doc.getDate("startDate");
                         Date endDate = doc.getDate("endDate");
                         String posterImageUriString = doc.getString("posterImage");
                         String qrCodeHash = doc.getString("qrCode");
-                        boolean geo = doc.getBoolean("geo");
-                        dataList.add( new EventModel(getContext(), title, description, numberOfSpots,
-                        numberOfMaxEntrants, startDate, endDate, posterImageUriString, geo, qrCodeHash,
-                                0, false, null));
+                        boolean geo = Boolean.TRUE.equals(doc.getBoolean("geo"));
+                        String stateStr = doc.getString("state");
+                        EventState state = EventState.OPEN;
+                        if (Objects.equals(stateStr, "WAITING")) {
+                            state = EventState.WAITING;
+                        } else if (Objects.equals(stateStr, "CLOSED")) {
+                            state = EventState.CLOSED;
+                        }
+                        EventModel event =  new EventModel(title, description, numberOfSpots,
+                                numberOfMaxEntrants, startDate, endDate, posterImageUriString, geo, qrCodeHash,
+                                state, null);
+                        event.setEventId(eventId);
+                        dataList.add(event);
                         eventIdList.add(eventId);
                     }
                     eventsAdapter.notifyDataSetChanged();

@@ -18,10 +18,15 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.MutableLiveData;
 
 import com.bumptech.glide.Glide;
+import com.example.lotto649.FirestoreHelper;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.R;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -37,14 +42,16 @@ import java.util.Objects;
  */
 public class BrowseEventsArrayAdapter extends ArrayAdapter<EventModel> {
     private Uri posterUri;
+    private final LifecycleOwner lifecycleOwner;
 
     /**
      * Constructor for the array adapter
      * @param context the context of the adapter
      * @param events the user models to be adapted
      */
-    public BrowseEventsArrayAdapter(Context context, ArrayList<EventModel> events) {
+    public BrowseEventsArrayAdapter(Context context, ArrayList<EventModel> events, LifecycleOwner lifecycleOwner) {
         super(context, 0, events);
+        this.lifecycleOwner = lifecycleOwner;
     }
 
     /**
@@ -68,21 +75,54 @@ public class BrowseEventsArrayAdapter extends ArrayAdapter<EventModel> {
         TextView eventGeo = view.findViewById(R.id.admin_event_geo);
         TextView eventDescription = view.findViewById(R.id.admin_event_description);
         ImageView posterImage = view.findViewById(R.id.event_poster);
+
         eventName.setText(event.getTitle());
-        // TODO: update with actual status
-        eventStatus.setText("OPEN");
-        // TODO: update with actual location
-        eventLocation.setText("Location");
-        if (event.getNumberOfMaxEntrants() == -1) {
-            eventSpotsAvail.setText("OPEN");
-        } else {
-            eventSpotsAvail.setText("OPEN");
-            // TODO fix once done
-//            eventSpotsAvail.setText(Integer.toString(event.getNumberOfMaxEntrants() - event.getWaitingList().size()) + " Spots Available");
+        eventStatus.setText(event.getState().toString());
+        eventSpotsAvail.setText("No max waitlist size");
+        MutableLiveData<Integer> waitListSize = new MutableLiveData<>(-1);
+        FirestoreHelper.getInstance().getWaitlistSize(event.getEventId(), waitListSize);
+        if (event.getNumberOfMaxEntrants() != -1) {
+            waitListSize.observe(lifecycleOwner, size -> {
+                if (size != null && size != -1) {
+                    Log.d("Waitlist browseeventsarrayadapter", "Current waitlist size: " + size);
+                    // Perform actions with the waitlist size
+                    if (event.getNumberOfMaxEntrants() <= size) {
+                        eventSpotsAvail.setText("FULL");
+                    } else {
+                        String newText = size + "/" + event.getNumberOfMaxEntrants() + " Spots Full";
+                        eventSpotsAvail.setText(newText);
+                    }
+                }
+            });
         }
-        eventNumAttendees.setText(Integer.toString(event.getNumberOfSpots()) + " Attendees");
+
+        eventNumAttendees.setText(event.getNumberOfSpots() + " Lottery Winners");
+        eventLocation.setText("LOCATION");
+        FirebaseFirestore.getInstance().collection("events").document(event.getEventId()).get().addOnCompleteListener(eventTask -> {
+            if (eventTask.isSuccessful()) {
+                DocumentSnapshot eventDoc = eventTask.getResult();
+                if (eventDoc != null) {
+                    String facilityId = eventDoc.getString("organizerId");
+                    if (facilityId != null) {
+                        FirebaseFirestore.getInstance().collection("facilities").document(facilityId).get().addOnCompleteListener(facilityTask -> {
+                            if (facilityTask.isSuccessful()) {
+                                DocumentSnapshot facilityDoc = facilityTask.getResult();
+                                String facilityName = facilityDoc.getString("facility");
+                                String facilityAddress = facilityDoc.getString("address");
+                                if (facilityName != null && facilityAddress != null) {
+                                    eventLocation.setText(facilityName + " - " + facilityAddress);
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        });
+
+
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        eventDates.setText("Enter between " + df.format(event.getStartDate()) + " - " + df.format(event.getEndDate()));
+        if (event.getStartDate() != null && event.getEndDate() != null)
+            eventDates.setText("Enter between " + df.format(event.getStartDate()) + " - " + df.format(event.getEndDate()));
         if (event.getGeo()) {
             eventGeo.setVisibility(View.VISIBLE);
             eventGeo.setText("Requires GeoLocation Tracking");

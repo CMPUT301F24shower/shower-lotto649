@@ -59,7 +59,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * https://stackoverflow.com/questions/47987649/why-getcontext-in-fragment-sometimes-returns-null
  * </p>
  */
-public class WaitingListFragment extends Fragment {
+public class EnrolledListFragment extends Fragment {
     private ArrayList<String> deviceIdList;
     private ArrayList<UserModel> dataList;
     private ListView browseProfilesList;
@@ -94,10 +94,9 @@ public class WaitingListFragment extends Fragment {
         browseProfilesList.setAdapter(profilesAdapter);
 
         backButton = view.findViewById(R.id.back_button);
-
+        MutableLiveData<Boolean> noEnrolledUsers = new MutableLiveData<>(Boolean.TRUE);
         ConstraintLayout layout = view.findViewById(R.id.browse_profiles_layout);
         Context context = getContext();
-        MutableLiveData<Boolean> noWaitingUsers = new MutableLiveData<>(Boolean.TRUE);
 
         TextView textView;
         if (context != null) {
@@ -106,7 +105,8 @@ public class WaitingListFragment extends Fragment {
             textView = null;
         }
 
-        db.collection("signUps").whereEqualTo("eventId", firestoreEventId).addSnapshotListener(new EventListener<QuerySnapshot>() {
+
+        db.collection("enrolled").whereEqualTo("eventId", firestoreEventId).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot querySnapshots, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {
@@ -114,11 +114,12 @@ public class WaitingListFragment extends Fragment {
                 }
                 if (querySnapshots != null) {
                     dataList.clear();
+                    AtomicBoolean noSignUps = new AtomicBoolean(true);
                     for (QueryDocumentSnapshot doc: querySnapshots) {
                         String deviceId = doc.getString("userId");
                         db.collection("users").document(deviceId).get().addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
-                                noWaitingUsers.setValue(Boolean.FALSE);
+                                noEnrolledUsers.setValue(Boolean.FALSE);
                                 DocumentSnapshot userDoc = task.getResult();
                                 String deviceIdText = userDoc.getId();
                                 String nameText = userDoc.getString("name");
@@ -126,6 +127,7 @@ public class WaitingListFragment extends Fragment {
                                 String phoneText = userDoc.getString("phone");
                                 Context context = getContext();
                                 UserModel newUser;
+                                noEnrolledUsers.setValue(Boolean.TRUE);
                                 if (context != null) {
                                     newUser = new UserModel(context, nameText, emailText, phoneText, null);
                                     newUser.setProfileImage(userDoc.getString("profileImage"));
@@ -140,7 +142,7 @@ public class WaitingListFragment extends Fragment {
             }
         });
 
-        noWaitingUsers.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+        noEnrolledUsers.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
                 if (Objects.equals(aBoolean, Boolean.TRUE)) {
@@ -149,7 +151,7 @@ public class WaitingListFragment extends Fragment {
                             ((ViewGroup) textView.getParent()).removeView(textView);
                         }
                         textView.setId(View.generateViewId()); // Generate an ID for the TextView
-                        textView.setText("not waiting for any users");
+                        textView.setText("No users have enrolled");
                         textView.setTextSize(24);
                         textView.setGravity(Gravity.CENTER);
                         textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black)); // Update with your color
@@ -172,6 +174,9 @@ public class WaitingListFragment extends Fragment {
                     }
                 } else {
                     if (textView != null) {
+                        if (textView.getParent() != null) {
+                            ((ViewGroup) textView.getParent()).removeView(textView);
+                        }
                         textView.setVisibility(View.GONE);
                     }
                 }
@@ -185,7 +190,7 @@ public class WaitingListFragment extends Fragment {
                 Bundle bundle = new Bundle();
                 bundle.putString("userDeviceId", chosenUserId);
                 bundle.putString("firestoreEventId", firestoreEventId);
-                WaitingListProfileFragment frag = new WaitingListProfileFragment();
+                EnrolledListProfileFragment frag = new EnrolledListProfileFragment();
                 frag.setArguments(bundle);
                 getActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.flFragment, frag, null)

@@ -26,6 +26,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -37,9 +38,9 @@ import com.example.lotto649.Views.Fragments.AdminAndUserFragment;
 import com.example.lotto649.Views.Fragments.BrowseEventsFragment;
 import com.example.lotto649.Views.Fragments.BrowseFacilitiesFragment;
 import com.example.lotto649.Views.Fragments.BrowseProfilesFragment;
+import com.example.lotto649.Views.Fragments.CameraFragment;
 import com.example.lotto649.Views.Fragments.FacilityFragment;
 import com.example.lotto649.Views.Fragments.HomeFragment;
-import com.example.lotto649.Views.Fragments.CameraFragment;
 import com.example.lotto649.Views.Fragments.JoinEventFragment;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
@@ -48,10 +49,16 @@ import com.google.android.gms.location.Priority;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import org.osmdroid.config.Configuration;
+
+import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener {
@@ -65,6 +72,7 @@ public class MainActivity extends AppCompatActivity
     public static final int LOCATION_SETTINGS_REQUEST_CODE = 100;
     FusedLocationProviderClient fusedLocationClient;
     LocationRequest locationRequest;
+    String deviceId;
 
     public void getUserLocation(Context context) {
         if (context == null) {
@@ -151,9 +159,11 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         newEventSeen = false;
+        deviceId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
+
 
         checkAndRequestNotificationPermission();
-
+        sendNotifications();
 
         // Create a LocationRequest using create() method
         LocationRequest locationRequest = LocationRequest.create();
@@ -166,6 +176,8 @@ public class MainActivity extends AppCompatActivity
         // Initialize the LocationManagerSingleton with application context
         LocationManagerSingleton.getInstance().init(getApplicationContext());
         Log.d("Jason MainActivity", "LocationManagerSingleton initialized");
+
+        FirestoreHelper.getInstance().init(getApplicationContext());
 
         // check location stuff (from ChatGPT accessed Nov 16 2024)
         // Check if the app has location permission
@@ -227,7 +239,6 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        String deviceId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
         userRef = FirebaseFirestore.getInstance().collection("users").document(deviceId);
         userRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -276,12 +287,6 @@ public class MainActivity extends AppCompatActivity
         if (isFinishing() || isDestroyed()) {
             return false; // Don't perform the transaction if the activity is finishing or destroyed
         }
-
-        NotificationHelper notis = new NotificationHelper();
-        CharSequence title = "ALERT";
-        String description = "YOU USED THE NAV BAR";
-        notis.sendNotification(getApplicationContext(), title, description );
-
         if (LocationManagerSingleton.getInstance().isLocationTrackingEnabled()) {
             if (LocationManagerSingleton.getInstance().getGeoPoint() != null) {
                 Log.e("JASON LOCATION", LocationManagerSingleton.getInstance().getGeoPoint().toString());
@@ -343,6 +348,150 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    private void sendNotifications() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("winners").whereEqualTo("userId", deviceId).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot doc : task.getResult()) {
+                    if (Boolean.FALSE.equals(doc.getBoolean("hasSeenNoti"))) {
+                        NotificationHelper notis = new NotificationHelper();
+                        CharSequence title = "Event Lottery System";
+                        String description = "You have been selected!\n Click to accept the invitation";
+                        notis.sendNotification(getApplicationContext(), title, description, doc.getString("eventId"));
+                        db.collection("winners").document(doc.getId()).update(new HashMap<String, Object>() {{
+                            put("hasSeenNoti", true);
+                        }});
+                    }
+                }
+            }
+        });
+        db.collection("winners").whereEqualTo("userId", deviceId).addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                        if (error != null) {
+                            return;
+                        }
+                        if (value != null) {
+                            for (QueryDocumentSnapshot doc : value) {
+                                if (Boolean.FALSE.equals(doc.getBoolean("hasSeenNoti"))) {
+                                    NotificationHelper notis = new NotificationHelper();
+                                    CharSequence title = "Event Lottery System";
+                                    String description = "You have been selected!\n Click to accept the invitation";
+                                    notis.sendNotification(getApplicationContext(), title, description, doc.getString("eventId"));
+                                    db.collection("winners").document(doc.getId()).update(new HashMap<String, Object>() {{
+                                        put("hasSeenNoti", true);
+                                    }});
+                                }
+                            }
+                        }
+                    }
+                });
+        db.collection("cancelled").whereEqualTo("userId", deviceId).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot doc : task.getResult()) {
+                    if (Boolean.FALSE.equals(doc.getBoolean("hasSeenNoti"))) {
+                        NotificationHelper notis = new NotificationHelper();
+                        CharSequence title = "Event Lottery System";
+                        String description = "You have been cancelled from an event";
+                        notis.sendCancelledNotification(getApplicationContext(), title, description);
+                        db.collection("cancelled").document(doc.getId()).update(new HashMap<String, Object>() {{
+                            put("hasSeenNoti", true);
+                        }});
+                    }
+                }
+            }
+        });
+        db.collection("cancelled").whereEqualTo("userId", deviceId).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    return;
+                }
+                if (value != null) {
+                    for (QueryDocumentSnapshot doc : value) {
+                        if (Boolean.FALSE.equals(doc.getBoolean("hasSeenNoti"))) {
+                            NotificationHelper notis = new NotificationHelper();
+                            CharSequence title = "Event Lottery System";
+                            String description = "You have been cancelled from an event";
+                            notis.sendCancelledNotification(getApplicationContext(), title, description);
+                            db.collection("cancelled").document(doc.getId()).update(new HashMap<String, Object>() {{
+                                put("hasSeenNoti", true);
+                            }});
+                        }
+                    }
+                }
+            }
+        });
+        db.collection("notSelected").whereEqualTo("userId", deviceId).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot doc : task.getResult()) {
+                    if (Boolean.FALSE.equals(doc.getBoolean("hasSeenNoti"))) {
+                        NotificationHelper notis = new NotificationHelper();
+                        CharSequence title = "Event Lottery System";
+                        String description = "You have NOT been chosen for an event";
+                        notis.sendNotification(getApplicationContext(), title, description, doc.getString("eventId"));
+                        db.collection("notSelected").document(doc.getId()).update(new HashMap<String, Object>() {{
+                            put("hasSeenNoti", true);
+                        }});
+                    }
+                }
+            }
+        });
+        db.collection("notSelected").whereEqualTo("userId", deviceId).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    return;
+                }
+                if (value != null) {
+                    for (QueryDocumentSnapshot doc : value) {
+                        if (Boolean.FALSE.equals(doc.getBoolean("hasSeenNoti"))) {
+                            NotificationHelper notis = new NotificationHelper();
+                            CharSequence title = "Event Lottery System";
+                            String description = "You have NOT been chosen for an event";
+                            notis.sendNotification(getApplicationContext(), title, description, doc.getString("eventId"));
+                            db.collection("notSelected").document(doc.getId()).update(new HashMap<String, Object>() {{
+                                put("hasSeenNoti", true);
+                            }});
+                        }
+                    }
+                }
+            }
+        });
+        db.collection("custom").whereEqualTo("userId", deviceId).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot doc :task.getResult()) {
+                    if (Boolean.FALSE.equals(doc.getBoolean("hasSeenNoti"))) {
+                        NotificationHelper notis = new NotificationHelper();
+                        CharSequence title = doc.getString("title");
+                        String description = doc.getString("message");
+                        notis.sendNotification(getApplicationContext(), title, description, doc.getString("eventId"));
+                        db.collection("custom").document(doc.getId()).delete();
+                    }
+                }
+            }
+        });
+        db.collection("custom").whereEqualTo("userId", deviceId).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    return;
+                }
+                if (value != null) {
+                    for (QueryDocumentSnapshot doc :value) {
+                        if (Boolean.FALSE.equals(doc.getBoolean("hasSeenNoti"))) {
+                            NotificationHelper notis = new NotificationHelper();
+                            CharSequence title = doc.getString("title");
+                            String description = doc.getString("message");
+                            notis.sendNotification(getApplicationContext(), title, description, doc.getString("eventId"));
+                            db.collection("custom").document(doc.getId()).delete();
+                        }
+                    }
+                }
+            }
+        });
+    }
+
     private void removeMenuItems() {
         bottomNavigationView.getMenu().removeItem(R.id.home);
         bottomNavigationView.getMenu().removeItem(R.id.camera);
@@ -364,6 +513,18 @@ public class MainActivity extends AppCompatActivity
             Bundle bundle = new Bundle();
             // TODO check that this is a valid event first
             bundle.putString("firestoreEventId", eventId);
+            JoinEventFragment frag = new JoinEventFragment();
+            frag.setArguments(bundle);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.flFragment, frag, null)
+                    .addToBackStack(null)
+                    .commit();
+        }
+        if (intent != null && intent.hasExtra("eventId")) {
+            Log.d("ISAAC", "OPENED FROM NOTIFICATION");
+            Bundle bundle = new Bundle();
+            // TODO check that this is a valid event first
+            bundle.putString("firestoreEventId", intent.getStringExtra("eventId"));
             JoinEventFragment frag = new JoinEventFragment();
             frag.setArguments(bundle);
             getSupportFragmentManager().beginTransaction()
@@ -428,7 +589,7 @@ public class MainActivity extends AppCompatActivity
      *                     {@link PackageManager#PERMISSION_DENIED}.
      *
      * If the requestCode matches {@link #REQUEST_CODE_POST_NOTIFICATIONS}, the method checks if the user has granted
-     * or denied the {@link andorid.Manifest.permission#POST_NOTIFICATIONS} permission:
+     * or denied the notification permission:
      * <ul>
      *     <li>If the permission is granted, proceed with posting notifications.</li>
      *     <li>If the permission is denied, handle accordingly (e.g., show a message to the user).</li>

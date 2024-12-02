@@ -11,16 +11,23 @@
  */
 package com.example.lotto649.Views.Fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import com.example.lotto649.Models.HomePageModel;
 import com.example.lotto649.MyApp;
@@ -71,6 +78,51 @@ public class HomeFragment extends Fragment {
         DocumentReference userRef = FirebaseFirestore.getInstance().collection("users").document(deviceId);
         DocumentReference facilityRef = FirebaseFirestore.getInstance().collection("facilities").document(deviceId);
 
+        MutableLiveData<Boolean> noAccepts = new MutableLiveData<>(Boolean.TRUE);
+        ConstraintLayout layout = view.findViewById(R.id.home_view);
+        Context context = getContext();
+
+        TextView textView;
+        if (context != null) {
+            textView = new TextView(context);
+        } else {
+            textView = null;
+        }
+        noAccepts.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if (Objects.equals(aBoolean, Boolean.TRUE)) {
+                    if (textView != null) {
+                        textView.setId(View.generateViewId()); // Generate an ID for the TextView
+                        textView.setText("You do not have any events. If you cannot see an add button you must create an account and a facility");
+                        textView.setTextSize(24);
+                        textView.setGravity(Gravity.CENTER);
+                        textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black)); // Update with your color
+
+                        // Set layout params for the TextView to match parent constraints
+                        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
+                                ConstraintLayout.LayoutParams.MATCH_PARENT,
+                                ConstraintLayout.LayoutParams.WRAP_CONTENT
+                        );
+
+                        params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
+                        params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
+                        params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
+                        params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
+
+                        textView.setLayoutParams(params);
+
+                        // Add the TextView to the layout
+                        layout.addView(textView);
+                    }
+                } else {
+                    if (textView != null) {
+                        textView.setVisibility(View.GONE);
+                    }
+                }
+            }
+        });
+
         userRef.get().addOnCompleteListener(task -> {
             DocumentSnapshot userDoc = task.getResult();
             boolean userExists = userDoc != null && userDoc.exists();
@@ -94,10 +146,14 @@ public class HomeFragment extends Fragment {
             public void onEventsFetched(ArrayList<EventModel> events) {
                 Log.w("Ohm", "Events fetched: " + events.size());
 
+
                 // TODO test that this doesnt introduce any bugs - so far so good
                 if (isAdded()) {
                     // Initialize and set the adapter with fetched events
-                    eventAdapter = new BrowseEventsArrayAdapter(requireContext(), events);
+                    if (!events.isEmpty()) {
+                        noAccepts.setValue(Boolean.FALSE);
+                    }
+                    eventAdapter = new BrowseEventsArrayAdapter(requireContext(), events, getViewLifecycleOwner());
                     eventsList.setAdapter(eventAdapter);
                 }
             }

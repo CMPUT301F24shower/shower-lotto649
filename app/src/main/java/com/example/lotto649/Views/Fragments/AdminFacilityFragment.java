@@ -44,7 +44,6 @@ public class AdminFacilityFragment extends Fragment {
     private CollectionReference facilitiesRef;
     private CollectionReference eventsRef;
     private String userDeviceId;
-    FirestoreHelper firestoreHelper;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -69,7 +68,6 @@ public class AdminFacilityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // get info from bundle
         userDeviceId = getArguments().getString("facilityDeviceId");
-        firestoreHelper = new FirestoreHelper();
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_admin_view_facility, container, false);
@@ -111,7 +109,7 @@ public class AdminFacilityFragment extends Fragment {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                firestoreHelper.deleteEventsFromFacility(userDeviceId);
+                FirestoreHelper.getInstance().deleteEventsFromFacility(userDeviceId);
 
                 facilitiesRef
                         .document(userDeviceId)

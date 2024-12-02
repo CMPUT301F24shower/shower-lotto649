@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -24,7 +23,6 @@ import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
@@ -33,7 +31,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -41,7 +38,7 @@ import java.util.Objects;
  * This is used by an admin user to manage a profile.
  * This fragment is reached through a list of profiles in the admin view.
  */
-public class WaitingListProfileFragment extends Fragment {
+public class EnrolledListProfileFragment extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference usersRef;
     private TextView imagePlaceholder;
@@ -53,7 +50,6 @@ public class WaitingListProfileFragment extends Fragment {
     TextView email;
     TextView phone;
     TextView roles;
-    Button removeUser;
     ExtendedFloatingActionButton backButton;
     String userDeviceId;
     String firestoreEventId;
@@ -64,7 +60,7 @@ public class WaitingListProfileFragment extends Fragment {
      * Required for proper instantiation of the fragment by the Android system.
      * </p>
      */
-    public WaitingListProfileFragment() {
+    public EnrolledListProfileFragment() {
         // Required empty public constructor
     }
 
@@ -85,17 +81,18 @@ public class WaitingListProfileFragment extends Fragment {
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_waiting_list_profile, container, false);
+        ExtendedFloatingActionButton deleteBtn = view.findViewById(R.id.admin_delete_user);
+        deleteBtn.setVisibility(View.GONE);
 
 
         // initialize Firestore
         db = FirebaseFirestore.getInstance();
-        usersRef = db.collection("signUps");
+        usersRef = db.collection("canceled");
 
         name = view.findViewById(R.id.admin_user_name);
         email = view.findViewById(R.id.admin_user_email);
         phone = view.findViewById(R.id.admin_user_phone);
         roles = view.findViewById(R.id.admin_user_roles);
-        removeUser = view.findViewById(R.id.admin_delete_user);
         profileImage = new ImageView(getContext());
         profileImage.setId(View.generateViewId());
         // TODO: This is hardcoded, but works good on my phone, not sure if this is a good idea or not
@@ -170,29 +167,6 @@ public class WaitingListProfileFragment extends Fragment {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MyApp.getInstance().popFragment();
-            }
-        });
-
-        removeUser.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                db.collection("signUps")
-                        .document(firestoreEventId + "_" + userDeviceId)
-                        .get()
-                        .addOnCompleteListener(task -> {
-                            if (task.isSuccessful() && task.getResult() != null) {
-                                DocumentSnapshot doc = task.getResult();
-                                Map<String, Object> data = doc.getData();
-                                if (data != null) {
-                                    data.put("hasSeenNoti", false);
-                                    db.collection("cancelled").document(firestoreEventId + "_" + userDeviceId).set(data);
-                                    db.collection("signUps")
-                                            .document(firestoreEventId + "_" + userDeviceId)
-                                            .delete();
-                                }
-                            }
-                        });
                 MyApp.getInstance().popFragment();
             }
         });
