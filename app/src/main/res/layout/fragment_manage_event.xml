@@ -35,6 +35,7 @@
         android:layout_width="fill_parent"
         android:layout_height="150dp"
         android:orientation="vertical"
+        android:gravity="center"
         app:layout_constraintTop_toBottomOf="@+id/eventFragment"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" >
@@ -44,7 +45,9 @@
             android:id="@+id/event_poster_placeholder"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/rounded_corners"
+            android:layout_gravity="center"
+            android:scaleType="fitCenter"
+            android:background="@color/posterBackground"
             android:contentDescription="Event Image Placeholder"
             android:src="@drawable/ic_default_event_img_foreground"/>
 

@@ -2,18 +2,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    android:background="@drawable/card_corners"
+    android:paddingVertical="16dp"
+    android:paddingHorizontal="16dp">
 
     <LinearLayout
         android:id="@+id/profile_picture_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="center" >
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="16dp"/>
+        android:gravity="center">
 
         <ImageView
             android:id="@+id/profile_image"
@@ -37,33 +37,34 @@
             android:gravity="center"
             android:textSize="24sp"
             android:text="" />
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="16dp"/>
 
     </LinearLayout>
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp">
 
         <TextView
             android:id="@+id/user_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="40sp"  />
+            android:padding="2dp"
+            android:textSize="40sp"/>
 
         <TextView
             android:id="@+id/user_email"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:padding="2dp"
             android:textSize="25sp" />
 
         <TextView
             android:id="@+id/user_phone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:padding="2dp"
             android:textSize="25sp" />
 
     </LinearLayout>
