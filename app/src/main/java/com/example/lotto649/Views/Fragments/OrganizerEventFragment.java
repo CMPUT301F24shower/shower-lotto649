@@ -728,25 +728,26 @@ public class OrganizerEventFragment extends Fragment {
                             FirestoreHelper.getInstance().getWinnersSize(firestoreEventId, numWinners);
                             FirestoreHelper.getInstance().getNotSelectedSize(firestoreEventId, numNotSelected);
                             FirestoreHelper.getInstance().getEnrolledSize(firestoreEventId, numEnrolled);
-
-                            numWinners.observe(getViewLifecycleOwner(), new Observer<Integer>() {
-                                @Override
-                                public void onChanged(Integer integer) {
-                                    checkEventStateInfo(doc);
-                                }
-                            });
-                            numNotSelected.observe(getViewLifecycleOwner(), new Observer<Integer>() {
-                                @Override
-                                public void onChanged(Integer integer) {
-                                    checkEventStateInfo(doc);
-                                }
-                            });
-                            numEnrolled.observe(getViewLifecycleOwner(), new Observer<Integer>() {
-                                @Override
-                                public void onChanged(Integer integer) {
-                                    checkEventStateInfo(doc);
-                                }
-                            });
+                            if (getView() != null) {
+                                numWinners.observe(getViewLifecycleOwner(), new Observer<Integer>() {
+                                    @Override
+                                    public void onChanged(Integer integer) {
+                                        checkEventStateInfo(doc);
+                                    }
+                                });
+                                numNotSelected.observe(getViewLifecycleOwner(), new Observer<Integer>() {
+                                    @Override
+                                    public void onChanged(Integer integer) {
+                                        checkEventStateInfo(doc);
+                                    }
+                                });
+                                numEnrolled.observe(getViewLifecycleOwner(), new Observer<Integer>() {
+                                    @Override
+                                    public void onChanged(Integer integer) {
+                                        checkEventStateInfo(doc);
+                                    }
+                                });
+                            }
                         }
                     }
                 });

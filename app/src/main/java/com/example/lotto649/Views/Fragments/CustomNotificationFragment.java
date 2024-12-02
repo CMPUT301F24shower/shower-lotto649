@@ -82,6 +82,7 @@ public class CustomNotificationFragment extends Fragment {
             case "Selected": {
                 sendNotificationsToCollection("winners", title, message, eventId);
                 sendNotificationsToCollection("enrolled", title, message, eventId);
+                break;
             }
             case "Cancelled": {
                 sendNotificationsToCollection("cancelled", title, message, eventId);
