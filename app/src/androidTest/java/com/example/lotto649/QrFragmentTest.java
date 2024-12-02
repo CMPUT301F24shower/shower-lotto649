@@ -9,10 +9,12 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.CoreMatchers.anything;
 
+import android.Manifest;
 import android.provider.Settings;
 
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import androidx.test.rule.GrantPermissionRule;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -27,6 +29,10 @@ import java.util.Date;
 import java.util.HashMap;
 
 public class QrFragmentTest {
+    @Rule
+    public GrantPermissionRule grantPermissionRule =
+            GrantPermissionRule.grant(Manifest.permission.ACCESS_FINE_LOCATION);
+
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule =
             new ActivityScenarioRule<MainActivity>(MainActivity.class);
