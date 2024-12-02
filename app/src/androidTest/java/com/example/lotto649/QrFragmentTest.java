@@ -23,7 +23,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -38,8 +37,8 @@ public class QrFragmentTest {
             new ActivityScenarioRule<MainActivity>(MainActivity.class);
 
     /**
-     * This test joins an event, scanning the QR code will be simulated by sending a deeplink
-     * This tests US 01.01.01 and US 01.06.01 and US 01.06.02 and US 01.01.02
+     * This test creates an event, and confirms that the QR Code is displayed from the organizer screen
+     * This tests US 02.01.01 and US 02.01.02
      */
     @Test
     public void testQrCodeisDisplayed() throws IOException, InterruptedException {
@@ -54,9 +53,7 @@ public class QrFragmentTest {
             put("admin", false);
             put("profileImage", "");
         }});
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date today = new Date();
-        String todayFormatted = dateFormat.format(today);
 
         // Use Calendar to calculate tomorrow's date
         Calendar calendar = Calendar.getInstance();
