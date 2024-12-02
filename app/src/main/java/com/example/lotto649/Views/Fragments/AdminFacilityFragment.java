@@ -100,7 +100,6 @@ public class AdminFacilityFragment extends Fragment {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO this might need popFragment instead to make sure andorid back button doesnt mess stuff up
                 // Havent tested yet tho
                 MyApp.getInstance().replaceFragment(new BrowseFacilitiesFragment());
             }

@@ -74,7 +74,6 @@ public class FirestoreHelper {
      * @param facilityId the id of the facility to delete
      */
     public void deleteFacility(String facilityId) {
-        // TODO make sure this works if the user doesnt have a facility
         facilitiesRef.document(facilityId).delete();
         deleteEventsFromFacility(facilityId);
     }
@@ -125,7 +124,6 @@ public class FirestoreHelper {
         }
     }
 
-    // TODO use custom notification code here instead
     /**
      * Marks entries in the signUps collection as deleted, and then deletes them
      *

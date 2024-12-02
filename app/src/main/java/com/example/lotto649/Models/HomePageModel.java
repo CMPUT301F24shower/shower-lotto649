@@ -116,7 +116,6 @@ public class HomePageModel extends AbstractModel {
      * @param callback Callback to handle the user's events once fetched.
      */
     public void getMyEvents(MyEventsCallback callback) {
-        // TODO why are we using callbacks, we dont need them
         HomePageModel.fetchEventsByOrganizerId(new HomePageModel.EventFetchCallback() {
             @Override
             public void onCallback(List<DocumentSnapshot> documents) {

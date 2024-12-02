@@ -26,7 +26,6 @@ public class QrFragmentTest {
         PermissionHandler.handlePermissions();
     }
 
-//  TODO: Fix weird crashing issue where this test fails because the app doesn't open quick enough
 //  Test currently does not work
     @Test
     public void testGenerateQrCode() {

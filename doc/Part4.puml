@@ -1,0 +1,1019 @@
+@startuml lotto
+allowmixing
+Title UML PART 4
+left to right direction
+
+abstract class AbstractView {
+    - model: AbstractModel
+    + startObserving(model: AbstractModel)
+    + closeView()
+    + update(whoUpdatedMe: AbstractModel)
+    + getModel(): AbstractModel
+}
+abstract class AbstractController {
+    - model: AbstractModel
+    + AbstractController(model: AbstractModel)
+    + getModel(): AbstractModel
+}
+abstract class AbstractModel {
+    - views: Set<AbstractView>
+    + addView(view: AbstractView)
+    + removeView(view: AbstractView)
+    + notifyViews()
+}
+AbstractModel "1" o-- "0..*" AbstractView : maintains observers
+AbstractController "0..*" o-- "1" AbstractModel : manages
+AbstractView "0..*" o-- "1" AbstractModel : observes
+
+class EventModel extends AbstractModel {
+  - title: String
+  - organizerId: String
+  - description: String
+  - numberOfSpots: int
+  - numberOfMaxEntrants: int
+  - startDate: Date
+  - endDate: Date
+  - posterImage: String
+  - geo: boolean
+  - qrCode: String
+  - state: EventState
+  - db: FirebaseFirestore
+  - savedToFirestore: boolean
+  - eventId: String
+
+  + EventModel()
+  + EventModel(db: FirebaseFirestore)
+  + EventModel(title: String, description: String, numberOfSpots: int, startDate: Date, endDate: Date, geo: boolean, state: EventState, db: FirebaseFirestore)
+  + EventModel(title: String, description: String, numberOfSpots: int, numberOfMaxEntrants: int, startDate: Date, endDate: Date, geo: boolean, state: EventState, db: FirebaseFirestore)
+  + EventModel(title: String, description: String, numberOfSpots: int, numberOfMaxEntrants: int, startDate: Date, endDate: Date, posterImage: String, geo: boolean, qrCodeUrl: String, state: EventState, db: FirebaseFirestore)
+  + getEventId(): String
+  + setDb(db: FirebaseFirestore): void
+  - clear(): void
+  + saveEventToFirestore(onSuccess: OnSuccessListener<String>): void
+  + removeEventFromFirestore(): void
+  + setEventId(eventId: String): void
+  + updateFirestore(field: String, value: Object): void
+  + getTitle(): String
+  + setTitle(title: String): void
+  + getOrganizerId(): String
+  + getLocation(callback: Consumer<String>): void
+  + setState(state: EventState): void
+  + getState(): EventState
+  + setOrganizerId(organizerId: String): void
+  + getDescription(): String
+  + setDescription(description: String): void
+  + getNumberOfSpots(): int
+  + setNumberOfSpots(numberOfSpots: int): void
+  + getNumberOfMaxEntrants(): int
+  + setNumberOfMaxEntrants(numberOfMaxEntrants: int): void
+  + getStartDate(): Date
+  + setStartDate(startDate: Date): void
+  + getEndDate(): Date
+  + setEndDate(endDate: Date): void
+  + getPosterImage(): String
+  + setPosterImage(posterImage: String): void
+  + getGeo(): boolean
+  + setGeo(geo: boolean): void
+  + getQrCode(): String
+  + setQrCode(qrCode: String): void
+  + getWaitingList(): ArrayList<String>
+  - getCurrentNumberOfWinners(callback: Consumer<Integer>): void
+  + doDraw(): void
+  + doReplacementDraw(): void
+  - generateQrCode(): void
+}
+
+class HomePageModel extends AbstractModel {
+  - myEvents: ArrayList<EventModel>
+  - db: FirebaseFirestore
+
+  + HomePageModel()
+  + fetchEventsByOrganizerId(callback: EventFetchCallback, db: FirebaseFirestore): void
+  + getEventFromFirebaseObject(doc: DocumentSnapshot): EventModel
+  + getMyEvents(callback: MyEventsCallback): void
+}
+
+folder "HomePageModel" as H {
+  interface H.EventFetchCallback {
+    + onCallback(events: List<DocumentSnapshot>): void
+  }
+
+  interface H.MyEventsCallback {
+    + onEventsFetched(events: ArrayList<EventModel>): void
+  }
+}
+HomePageModel +-- H
+
+class FacilityModel {
+  - facilityName: String
+  - address: String
+  - deviceId: String
+
+  + FacilityModel(deviceId: String)
+  + FacilityModel(deviceId: String, facilityName: String, address: String)
+  + getFacilityName(): String
+  + setFacilityName(facilityName: String): void
+  + getAddress(): String
+  + setAddress(address: String): void
+  + getDeviceId(): String
+}
+
+class QrCodeModel {
+  - bitmap: Bitmap
+
+  + generateForEvent(data: String): Bitmap
+  + generateHash(input: String): String
+}
+
+class UserModel extends AbstractModel {
+  - name: String
+  - email: String
+  - phone: String
+  - entrant: boolean
+  - organizer: boolean
+  - admin: boolean
+  - deviceId: String
+  - profileImage: String
+  - db: FirebaseFirestore
+  - savedToFirestore: boolean
+
+  + UserModel()
+  + UserModel(context: Context, db: FirebaseFirestore)
+  + UserModel(context: Context, name: String, email: String, phone: String, db: FirebaseFirestore)
+  + saveUserToFirestore(): void
+  + updateFirestore(field: String, value: Object): void
+  + getName(): String
+  + setName(name: String): void
+  + getEmail(): String
+  + setEmail(email: String): void
+  + getPhone(): String
+  + setPhone(phone: String): void
+  + setEntrant(bool: Boolean): void
+  + getEntrant(): Boolean
+  + setOrganizer(bool: Boolean): void
+  + getOrganizer(): Boolean
+  + setAdmin(bool: Boolean): void
+  + getAdmin(): Boolean
+  + getDeviceId(): String
+  + getSavedToFirestore(): boolean
+  + setSavedToFirestore(): void
+  + getInitials(): String
+  + getProfileImage(): String
+  + setProfileImage(profileImage: String): void
+}
+
+class EventController extends AbstractController{
+  + EventController(event: EventModel)
+  + getModel(): EventModel
+  + updateTitle(title: String): void
+  + updateDescription(description: String): void
+  + updateNumberOfSpots(spots: int): void
+  + updateNumberOfMaxEntrants(maxEntrants: int): void
+  + updateStartDate(startDate: Date): void
+  + updateEndDate(endDate: Date): void
+  + updateGeo(geo: boolean): void
+  + updatePoster(posterUri: String): void
+  + updateQrCode(qrCodeHash: String): void
+  + saveEventToFirestore(onSuccess: OnSuccessListener<String>): void
+}
+
+class EventsController extends AbstractController {
+  + EventsController(events: HomePageModel)
+  + getModel(): HomePageModel
+  + getMyEvents(events: HomePageModel.MyEventsCallback): void
+  + addEvent(): void
+  + editEvent(event: EventModel): void
+}
+
+class AccountUserController extends AbstractController {
+  + AccountUserController(user: UserModel)
+  + getModel(): UserModel
+  + updateName(name: String): void
+  + updateEmail(email: String): void
+  + updatePhone(phone: String): void
+  + updateImage(image: String): void
+  + getSavedToFirebase(): boolean
+  + saveToFirestore(name: String, email: String, phone: String, image: String): void
+}
+
+class FacilityController extends AbstractController {
+  - db: FirebaseFirestore
+  - facilitiesRef: CollectionReference
+
+  + FacilityController(facility: FacilityModel, db: FirebaseFirestore)
+  + getModel(): FacilityModel
+  + updateFacilityName(name: String): void
+  + updateAddress(address: String): void
+  + saveToFirestore(): void
+}
+
+class EventState {
+  <<enumeration>>
+  + OPEN
+  + WAITING
+  + CLOSED
+}
+
+class FirestoreHelper {
+  - instance: FirestoreHelper
+  - db: FirebaseFirestore
+  - eventsRef: CollectionReference
+  - usersRef: CollectionReference
+  - facilitiesRef: CollectionReference
+  - signUpRef: CollectionReference
+  - storageRef: FirebaseStorage
+  - currWaitlistSize: MutableLiveData<Integer>
+  - currWinnersSize: MutableLiveData<Integer>
+  - currEnrolledSize: MutableLiveData<Integer>
+  - currNotSelectedSize: MutableLiveData<Integer>
+  - context: Context
+  - waitingForWaitList: boolean
+  - waitlistEventId: String
+  - spinlock: boolean
+
+  + getInstance(): FirestoreHelper
+  + init(context: Context): void
+  + deleteFacility(facilityId: String): void
+  + getCurrWaitlistSize(): MutableLiveData<Integer>
+  + getCurrWinnersSize(): MutableLiveData<Integer>
+  + getCurrEnrolledSize(): MutableLiveData<Integer>
+  + getCurrNotSelectedSize(): MutableLiveData<Integer>
+  + deleteEventsFromFacility(facilityOwner: String): void
+  + deletePosterFromEvent(posterString: String): void
+  + markSignupsAsDeleted(eventId: String): void
+  + getWaitlistSize(eventId: String): void
+  + getWinnersSize(eventId: String): void
+  + getEnrolledSize(eventId: String): void
+  + getNotSelectedSize(eventId: String): void
+}
+
+class MainActivity {
+  - bottomNavigationView: BottomNavigationView
+  - whichMenuToShow: MutableLiveData<Integer>
+  - userRef: DocumentReference
+  - newEventSeen: Boolean
+  - fusedLocationClient: FusedLocationProviderClient
+  - locationRequest: LocationRequest
+  - deviceId: String
+
+  + getUserLocation(context: Context): void
+  + onCreate(savedInstanceState: Bundle): void
+  + onNavigationItemSelected(item: MenuItem): boolean
+  + onRequestPermissionsResult(requestCode: int, permissions: String[], grantResults: int[]): void
+  - checkAndRequestNotificationPermission(): void
+  - sendNotifications(): void
+  - removeMenuItems(): void
+  - handleDeeplink(): void
+  - createMenuByUserType(): void
+}
+
+class MyApp {
+  - user: UserModel
+  - instance: MyApp
+  - currentActivity: WeakReference<FragmentActivity>
+
+  + getInstance(): MyApp
+  + onCreate(): void
+  + getUserModel(): UserModel
+  + setUserModel(user: UserModel): void
+  + setCurrentActivity(activity: FragmentActivity): void
+  + replaceFragment(fragment: Fragment): void
+  + addFragmentToStack(fragment: Fragment): void
+  + popFragment(): void
+}
+
+class NotificationHelper {
+  + sendNotification(context: Context, textTitle: CharSequence, textContent: String, eventId: String): void
+  + sendCancelledNotification(context: Context, textTitle: CharSequence, textContent: String): void
+}
+
+class HomeTab {
+  - adapter: ViewPagerAdapter
+  - viewPager: ViewPager2
+  - tabLayout: TabLayout
+
+  + onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle): View
+  + onDestroyView(): void
+}
+
+class LocationManagerSingleton {
+  - instance: LocationManagerSingleton
+  - context: Context
+  - locationTrackingEnabled: boolean
+  - geoPoint: GeoPoint
+
+  + getInstance(): LocationManagerSingleton
+  + init(context: Context): void
+  + setLocationTrackingEnabled(enabled: boolean): void
+  + isLocationTrackingEnabled(): boolean
+  + getContext(): Context
+  + getGeoPoint(): GeoPoint
+  + setGeoPoint(geoPoint: GeoPoint): void
+}
+
+class ViewPagerAdapter {
+  + ViewPagerAdapter(fragmentActivity: HomeTab)
+  + createFragment(position: int): Fragment
+  + getItemCount(): int
+  + getItemId(position: int): long
+  + containsItem(itemId: long): boolean
+}
+
+class FirebaseStorageHelper {
+  // Methods
+  + uploadProfileImageToFirebaseStorage(imageUri: Uri, fileName: String, currentImageUriString: AtomicReference<String>, imageAbleToBeDeleted: MutableLiveData<Boolean>): void
+  + uploadPosterImageToFirebaseStorage(imageUri: Uri, fileName: String, currentImageUriString: AtomicReference<String>, imageAbleToBeDeleted: MutableLiveData<Boolean>): void
+}
+
+class CreateAccountView extends AbstractView {
+  - createAccountFragment: CreateAccountFragment
+  - user: UserModel
+
+  + CreateAccountView(user: UserModel, createAccountFragment: CreateAccountFragment)
+  + getModel(): UserModel
+  + update(whoUpdatedMe: AbstractModel): void
+}
+
+class EventView extends AbstractView {
+  - eventFragment: EventFragment
+
+  + EventView(event: EventModel, fragment: EventFragment)
+  + getModel(): EventModel
+  + update(whoUpdatedMe: AbstractModel): void
+}
+
+class AccountView extends AbstractView {
+  - accountFragment: AccountFragment
+  - user: UserModel
+
+  + AccountView(user: UserModel, accountFragment: AccountFragment)
+  + getModel(): UserModel
+  + update(whoUpdatedMe: AbstractModel): void
+}
+
+class FacilityView extends AbstractView {
+  - facilityFragment: FacilityFragment
+  - facility: FacilityModel
+
+  + FacilityView(facility: FacilityModel, facilityFragment: FacilityFragment)
+  + getModel(): FacilityModel
+  + update(whoUpdatedMe: AbstractModel): void
+}
+
+class BrowseEventsArrayAdapter {
+  - posterUri: Uri
+  - lifecycleOwner: LifecycleOwner
+
+  + BrowseEventsArrayAdapter(context: Context, events: ArrayList<EventModel>, lifecycleOwner: LifecycleOwner)
+  + getView(position: int, convertView: View, parent: ViewGroup): View
+}
+
+class BrowseProfilesArrayAdapter {
+  - profileUri: Uri
+
+  + BrowseProfilesArrayAdapter(context: Context, users: ArrayList<UserModel>)
+  + getView(position: int, convertView: View, parent: ViewGroup): View
+}
+
+class BrowseFacilitiesArrayAdapter {
+  + BrowseFacilitiesArrayAdapter(context: Context, facilities: ArrayList<FacilityModel>)
+  + getView(position: int, convertView: View, parent: ViewGroup): View
+}
+
+class AdminAndUserFragment {
+  - profiles: ExtendedFloatingActionButton
+  - facilities: ExtendedFloatingActionButton
+  - events: ExtendedFloatingActionButton
+
+  + AdminAndUserFragment()
+  + onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle): View
+}
+
+class AdminProfileFragment {
+  - db: FirebaseFirestore
+  - usersRef: CollectionReference
+  - imagePlaceholder: TextView
+  - linearLayout: LinearLayout
+  - profileImage: ImageView
+  - profileUri: Uri
+  - nameText: String
+  - imageAbleToBeDeleted: MutableLiveData<Boolean>
+  - name: TextView
+  - email: TextView
+  - phone: TextView
+  - roles: TextView
+  - removeImage: Button
+  - removeUser: Button
+  - backButton: ExtendedFloatingActionButton
+
+  + AdminProfileFragment()
+  + onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle): View
+}
+
+class AdminEventFragment {
+  - db : FirebaseFirestore
+  - eventsRef : CollectionReference
+  - firestoreEventId : String
+  - posterImage : ImageView
+  - name : TextView
+  - status : TextView
+  - location : TextView
+  - spotsAvail : TextView
+  - numAttendees : TextView
+  - dates : TextView
+  - geoLocation : TextView
+  - description : TextView
+  - deleteImageButton : Button
+  - deleteQRButton : Button
+  - deleteEventButton : Button
+  - backButton : ExtendedFloatingActionButton
+  - posterUri : Uri
+  - imageAbleToBeDeleted : MutableLiveData<Boolean>
+  - qrCodeAbleToBeDeleted : MutableLiveData<Boolean>
+
+  + AdminEventFragment()
+  + onCreateView(inflater : LayoutInflater, container : ViewGroup, savedInstanceState : Bundle) : View
+}
+
+class AdminFacilityFragment {
+  - db : FirebaseFirestore
+  - facilitiesRef : CollectionReference
+  - eventsRef : CollectionReference
+  - userDeviceId : String
+
+  + AdminFacilityFragment()
+  + onCreateView(inflater : LayoutInflater, container : ViewGroup, savedInstanceState : Bundle) : View
+}
+
+class BrowseEventsFragment {
+  - eventIdList : ArrayList<String>
+  - dataList : ArrayList<EventModel>
+  - browseEventsList : ListView
+  - eventsAdapter : BrowseEventsArrayAdapter
+  - db : FirebaseFirestore
+  - eventsRef : CollectionReference
+  - backButton : ExtendedFloatingActionButton
+
+  + BrowseEventsFragment()
+  + onCreateView(inflater : LayoutInflater, container : ViewGroup, savedInstanceState : Bundle) : View
+}
+
+class BrowseProfilesFragment {
+  - deviceIdList: ArrayList<String>
+  - dataList: ArrayList<UserModel>
+  - browseProfilesList: ListView
+  - profilesAdapter: BrowseProfilesArrayAdapter
+  - db: FirebaseFirestore
+  - userRef: CollectionReference
+  - mContext: Context
+  - backButton: ExtendedFloatingActionButton
+
+  + BrowseProfilesFragment()
+  + onAttach(context: Context): void
+  + onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle): View
+}
+
+class BrowseFacilitiesFragment {
+  - dataList : ArrayList<FacilityModel>
+  - browseFacilityList : ListView
+  - facilitiesAdapter : BrowseFacilitiesArrayAdapter
+  - db : FirebaseFirestore
+  - facilitiesRef : CollectionReference
+  - backButton : ExtendedFloatingActionButton
+
+  + BrowseFacilitiesFragment()
+  + onCreateView(inflater : LayoutInflater, container : ViewGroup, savedInstanceState : Bundle) : View
+}
+
+class CancelledListFragment {
+  - deviceIdList : ArrayList<String>
+  - dataList : ArrayList<UserModel>
+  - browseProfilesList : ListView
+  - profilesAdapter : BrowseProfilesArrayAdapter
+  - db : FirebaseFirestore
+  - backButton : ExtendedFloatingActionButton
+  - firestoreEventId : String
+
+  + onCreateView(inflater : LayoutInflater, container : ViewGroup, savedInstanceState : Bundle) : View
+}
+
+class CancelledListProfileFragment {
+  - db : FirebaseFirestore
+  - usersRef : CollectionReference
+  - imagePlaceholder : TextView
+  - linearLayout : LinearLayout
+  - profileImage : ImageView
+  - profileUri : Uri
+  - nameText : String
+  - name : TextView
+  - email : TextView
+  - phone : TextView
+  - roles : TextView
+  - backButton : ExtendedFloatingActionButton
+  - userDeviceId : String
+  - firestoreEventId : String
+
+  + CancelledListProfileFragment()
+  + onCreateView(inflater : LayoutInflater, container : ViewGroup, savedInstanceState : Bundle) : View
+}
+
+class EnrolledListFragment {
+  - deviceIdList : ArrayList<String>
+  - dataList : ArrayList<UserModel>
+  - browseProfilesList : ListView
+  - profilesAdapter : BrowseProfilesArrayAdapter
+  - db : FirebaseFirestore
+  - backButton : ExtendedFloatingActionButton
+  - firestoreEventId : String
+
+  + onCreateView(inflater : LayoutInflater, container : ViewGroup, savedInstanceState : Bundle) : View
+}
+
+class EnrolledListProfileFragment {
+  - db : FirebaseFirestore
+  - usersRef : CollectionReference
+  - imagePlaceholder : TextView
+  - linearLayout : LinearLayout
+  - profileImage : ImageView
+  - profileUri : Uri
+  - nameText : String
+  - name : TextView
+  - email : TextView
+  - phone : TextView
+  - roles : TextView
+  - backButton : ExtendedFloatingActionButton
+  - userDeviceId : String
+  - firestoreEventId : String
+
+  + EnrolledListProfileFragment()
+  + onCreateView(inflater : LayoutInflater, container : ViewGroup, savedInstanceState : Bundle) : View
+}
+
+class EventFragment {
+  - eventController : EventController
+  - event : EventModel
+  - mContext : Context
+  - titleInputLayout : TextInputLayout
+  - descriptionInputLayout : TextInputLayout
+  - lotteryStartDateFieldLayout : TextInputLayout
+  - lotteryEndDateFieldLayout : TextInputLayout
+  - spotsInputLayout : TextInputLayout
+  - maxEntrantsInputLayout : TextInputLayout
+  - titleEditText : TextInputEditText
+  - descriptionEditText : TextInputEditText
+  - lotteryStartDateFieldText : TextInputEditText
+  - lotteryEndDateFieldText : TextInputEditText
+  - spotsEditText : TextInputEditText
+  - maxEntrantsEditText : TextInputEditText
+  - initialTitle : String
+  - initialDescription : String
+  - initialStartDate : String
+  - initialEndDate : String
+  - initialAttendees : String
+  - initialMaxEntrants : String
+  - geoCheck : CheckBox
+  - cancelButton : ExtendedFloatingActionButton
+  - saveButton : ExtendedFloatingActionButton
+  - startDate : AtomicReference<Date>
+  - endDate : AtomicReference<Date>
+  - isAddingFirstTime : boolean
+  - posterImage : ImageView
+  - defaultImage : ImageView
+  - currentImageUri : Uri
+  - currentImageUriString : AtomicReference<String>
+  - posterLoadedInFirestore : MutableLiveData<Boolean>
+  - saveButtonShow : MutableLiveData<Boolean>
+  - PICK_IMAGE_REQUEST : static final int = 1
+  - hasSetImage : boolean
+
+  + EventFragment()
+  + EventFragment(event : EventModel)
+  + showEventDetails(event : EventModel) : void
+  + setInitialValues() : void
+  + onAttach(context : Context) : void
+  + onCreateView(inflater : LayoutInflater, container : ViewGroup, savedInstanceState : Bundle) : View
+  + onActivityResult(requestCode : int, resultCode : int, data : Intent) : void
+  - getPosterFromFirebase() : void
+  - showDatePickerDialog(dateToPick : EditText, dateReference : AtomicReference<Date>, startdate : Date) : void
+  - timePicker(dateToPick : EditText, dateReference : AtomicReference<Date>, year : int, month : int, day : int) : void
+  - DidInfoRemainConstant() : boolean
+  - SetSaveButtonVisibility(isEqual : boolean) : void
+}
+
+class HomeFragment {
+  - eventsController : EventsController
+  - addButton : ExtendedFloatingActionButton
+  - eventAdapter : BrowseEventsArrayAdapter
+  - events : HomePageModel
+
+  + HomeFragment()
+  + onCreateView(inflater : LayoutInflater, container : ViewGroup, savedInstanceState : Bundle) : View
+}
+
+class JoinedEventsFragment {
+  - eventAdapter : BrowseEventsArrayAdapter
+
+  + JoinedEventsFragment()
+  + onCreateView(inflater : LayoutInflater, container : ViewGroup, savedInstanceState : Bundle) : View
+}
+
+class JoinEventFragment {
+  - db : FirebaseFirestore
+  - eventsRef : CollectionReference
+  - firestoreEventId : String
+  - posterImage : ImageView
+  - name : TextView
+  - status : TextView
+  - location : TextView
+  - spotsAvail : TextView
+  - numAttendees : TextView
+  - dates : TextView
+  - geoLocation : TextView
+  - description : TextView
+  - joinButton : Button
+  - unjoinButton : Button
+  - backButton : ExtendedFloatingActionButton
+  - posterUri : Uri
+  - imageAbleToBeDeleted : MutableLiveData<Boolean>
+  - qrCodeAbleToBeDeleted : MutableLiveData<Boolean>
+  - startDate : Date
+  - endDate : Date
+  - curNum : int
+  - geoRequired : boolean
+  - deviceId : String
+  - isWinnerMode : boolean
+
+  + JoinEventFragment()
+  + onCreateView(inflater : LayoutInflater, container : ViewGroup, savedInstanceState : Bundle) : View
+}
+
+class CustomNotificationFragment {
+    - Spinner statusDropdown
+    - EditText titleInput
+    - EditText descriptionInput
+    - FirebaseFirestore db
+    --
+    + CustomNotificationFragment()
+    + onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) : View
+    - getCollectionForStatus(String status, String title, String message, String eventId)
+    - sendNotificationsToCollection(String collectionName, String title, String message, String eventId)
+}
+
+class OrganizerEventFragment {
+  - db : FirebaseFirestore
+  - eventsRef : CollectionReference
+  - firestoreEventId : String
+  - posterImage : ImageView
+  - eventId : String
+  - numberOfSpots : int
+  - event : EventModel
+  - name : TextView
+  - status : TextView
+  - location : TextView
+  - spotsAvail : TextView
+  - numAttendees : TextView
+  - daysLeft : TextView
+  - geoLocation : TextView
+  - description : TextView
+  - attendeesText : TextView
+  - optionsButtons : ExtendedFloatingActionButton
+  - backButton : ExtendedFloatingActionButton
+  - viewEntrantsMapButton : ExtendedFloatingActionButton
+  - qrButton : ExtendedFloatingActionButton
+  - viewEntrantsButton : ExtendedFloatingActionButton
+  - editButton : ExtendedFloatingActionButton
+  - randomButton : ExtendedFloatingActionButton
+  - cancelButton : ExtendedFloatingActionButton
+  - viewInvitedEntrantsButton : ExtendedFloatingActionButton
+  - viewCanceledEntrants : ExtendedFloatingActionButton
+  - sendCustomNotiButton : ExtendedFloatingActionButton
+  - replacementWinnerButton : ExtendedFloatingActionButton
+  - viewFinalEntrants : ExtendedFloatingActionButton
+  - hasQrCode : MutableLiveData<Boolean>
+  - canDraw : MutableLiveData<Boolean>
+  - canReplacementDraw : MutableLiveData<Boolean>
+  - posterUri : Uri
+
+  + OrganizerEventFragment()
+  + getEventFromFirebaseObject(doc : DocumentSnapshot) : EventModel
+  - hideOpenStateButtons() : void
+  - hideWaitingStateButtons() : void
+  - hideClosedStateButtons() : void
+  - showOpenStateButtons() : void
+  - showWaitingStateButtons() : void
+  - showClosedStateButtons() : void
+  - setUpOpenStateButtons(dialog : AlertDialog) : void
+  - setUpWaitingStateButtons(dialog : AlertDialog) : void
+  - setUpClosedStateButtons(dialog : AlertDialog) : void
+  + onCreateView(inflater : LayoutInflater, container : ViewGroup, savedInstanceState : Bundle) : View
+}
+
+class WaitingListFragment {
+  - deviceIdList : ArrayList<String>
+  - dataList : ArrayList<UserModel>
+  - browseProfilesList : ListView
+  - profilesAdapter : BrowseProfilesArrayAdapter
+  - db : FirebaseFirestore
+  - backButton : ExtendedFloatingActionButton
+  - firestoreEventId : String
+
+  + onCreateView(inflater : LayoutInflater, container : ViewGroup, savedInstanceState : Bundle) : View
+}
+
+class WaitingListProfileFragment {
+  - db : FirebaseFirestore
+  - usersRef : CollectionReference
+  - imagePlaceholder : TextView
+  - linearLayout : LinearLayout
+  - profileImage : ImageView
+  - profileUri : Uri
+  - nameText : String
+  - name : TextView
+  - email : TextView
+  - phone : TextView
+  - roles : TextView
+  - removeUser : Button
+  - backButton : ExtendedFloatingActionButton
+  - userDeviceId : String
+  - firestoreEventId : String
+
+  + WaitingListProfileFragment()
+  + onCreateView(inflater : LayoutInflater, container : ViewGroup, savedInstanceState : Bundle) : View
+}
+
+class WinnerListFragment {
+  - winnerList : ArrayList<String>
+  - deviceIdList : ArrayList<String>
+  - dataList : ArrayList<UserModel>
+  - browseProfilesList : ListView
+  - profilesAdapter : BrowseProfilesArrayAdapter
+  - db : FirebaseFirestore
+  - userRef : CollectionReference
+  - firestoreEventId : String
+  - mContext : Context
+  - backButton : ExtendedFloatingActionButton
+
+  + onAttach(context : Context) : void
+  + onCreateView(inflater : LayoutInflater, container : ViewGroup, savedInstanceState : Bundle) : View
+}
+
+class WinnerListProfileFragment {
+  - db : FirebaseFirestore
+  - winnersRef : CollectionReference
+  - imagePlaceholder : TextView
+  - linearLayout : LinearLayout
+  - profileImage : ImageView
+  - profileUri : Uri
+  - nameText : String
+  - name : TextView
+  - email : TextView
+  - phone : TextView
+  - roles : TextView
+  - removeUser : Button
+  - backButton : ExtendedFloatingActionButton
+
+  + WinnerListProfileFragment()
+  + onCreateView(inflater : LayoutInflater, container : ViewGroup, savedInstanceState : Bundle) : View
+}
+
+class AccountFragment {
+  - accountView : AccountView
+  - userController : AccountUserController
+  - db : FirebaseFirestore
+  - user : UserModel
+  - nameInputLayout : TextInputLayout
+  - emailInputLayout : TextInputLayout
+  - phoneInputLayout : TextInputLayout
+  - nameEditText : TextInputEditText
+  - emailEditText : TextInputEditText
+  - phoneEditText : TextInputEditText
+  - saveButton : ExtendedFloatingActionButton
+  - deleteImageButton : ExtendedFloatingActionButton
+  - initialNameInput : String
+  - initialEmailInput : String
+  - initialPhoneInput : String
+  - imagePlaceholder : TextView
+  - PICK_IMAGE_REQUEST : int {static}
+  - linearLayout : LinearLayout
+  - hasSetImage : boolean
+  - profileImage : ImageView
+  - currentImageUri : Uri
+  - currentImageUriString : AtomicReference<String>
+  - imageAbleToBeDeleted : MutableLiveData<Boolean>
+  - mContext : Context
+
+  + AccountFragment()
+  + onAttach(context : Context)
+  + onCreateView(inflater : LayoutInflater, container : ViewGroup, savedInstanceState : Bundle) : View
+  - checkUserInFirestore()
+  + showUserDetails(user : UserModel)
+  - DidInfoRemainConstant() : boolean
+  + SetSaveButtonVisibility(isEqual : boolean)
+  + onActivityResult(requestCode : int, resultCode : int, data : Intent)
+}
+
+class CameraFragment {
+  - TAG : String {static final}
+  - REQUEST_CODE_PERMISSIONS : int {static final}
+  - REQUIRED_PERMISSIONS : String[] {static final}
+
+  - previewView : PreviewView
+
+  + CameraFragment()
+  + onCreateView(inflater : LayoutInflater, container : ViewGroup, savedInstanceState : Bundle) : View
+  - allPermissionsGranted() : boolean
+  + onRequestPermissionsResult(requestCode : int, permissions : String[], grantResults : int[])
+  - startCamera()
+}
+
+class CreateAccountFragment {
+  - PICK_IMAGE_REQUEST : int {static final}
+
+  - accountView : CreateAccountView
+  - userController : AccountUserController
+  - db : FirebaseFirestore
+  - user : UserModel
+  - nameInputLayout : TextInputLayout
+  - emailInputLayout : TextInputLayout
+  - phoneInputLayout : TextInputLayout
+  - nameEditText : TextInputEditText
+  - emailEditText : TextInputEditText
+  - phoneEditText : TextInputEditText
+  - saveButton : ExtendedFloatingActionButton
+  - deleteImageButton : ExtendedFloatingActionButton
+  - initialNameInput : String
+  - initialEmailInput : String
+  - initialPhoneInput : String
+  - imagePlaceholder : TextView
+  - linearLayout : LinearLayout
+  - profileImage : ImageView
+  - currentImageUri : Uri
+  - currentImageUriString : AtomicReference<String>
+  - imageAbleToBeDeleted : MutableLiveData<Boolean>
+  - hasSetImage : boolean
+  - mContext : Context
+
+  + CreateAccountFragment()
+  + onAttach(context : Context)
+  + onCreateView(inflater : LayoutInflater, container : ViewGroup, savedInstanceState : Bundle) : View
+  - checkUserInFirestore()
+  + showUserDetails(user : UserModel)
+  - DidInfoRemainConstant() : boolean
+  - SetSaveButtonVisibility(isEqual : boolean)
+  - nameWatcher : TextWatcher
+  - emailWatcher : TextWatcher
+  - phoneWatcher : TextWatcher
+  + onActivityResult(requestCode : int, resultCode : int, data : Intent)
+}
+
+class FacilityFragment {
+  - facilityView : FacilityView
+  - facility : FacilityModel
+  - facilityController : FacilityController
+  - deviceId : String
+  - db : FirebaseFirestore
+  - facilitiesRef : CollectionReference
+  - pageTitle : TextView
+  - nameInput : TextInputEditText
+  - addressInput : TextInputEditText
+  - save : Button
+  - initialFacilityNameInput : String
+  - initialAddressInput : String
+
+  + FacilityFragment()
+  + onCreateView(inflater : LayoutInflater, container : ViewGroup, savedInstanceState : Bundle) : View
+  + showFacilityDetails(facility : FacilityModel)
+  - DidInfoRemainConstant() : boolean
+  - SetSaveButtonVisibility(isEqual : boolean)
+  - facilityNameWatcher : TextWatcher
+  - addressWatcher : TextWatcher
+}
+
+class MapFragment {
+  - REQUEST_PERMISSIONS_REQUEST_CODE : int
+  - map : MapView
+  - db : FirebaseFirestore
+  - signUpsRef : CollectionReference
+  - backButton : ExtendedFloatingActionButton
+  - coordsList : ObservableArrayList<GeoPoint>
+  - view : View
+  - listChangedCallback : ObservableList.OnListChangedCallback<ObservableArrayList>
+
+  - updateMapMarkings()
+  + onCreateView(inflater : LayoutInflater, container : ViewGroup, savedInstanceState : Bundle) : View
+}
+
+class QrFragment {
+  + newInstance(bitmap : Bitmap) : QrFragment
+  + onCreateView(inflater : LayoutInflater, container : ViewGroup, savedInstanceState : Bundle) : View
+}
+
+EventModel "1" o-- "1" QrCodeModel
+EventFragment --> QrCodeModel : uses
+OrganizerEventFragment --> QrCodeModel : uses
+HomePageModel o-- EventModel
+FacilityModel --> UserModel : "1 managed by 1"cl
+EventController "0..*" o-- "1" EventModel
+EventsController "0..*" o-- "1" HomePageModel
+AccountUserController "0..*" o-- "1" UserModel
+FacilityController "0..*" o-- "1" FacilityModel
+EventModel "0..*" o-- "1" EventState
+MainActivity "1" --> "1" LocationManagerSingleton : uses
+MainActivity --> NotificationHelper : uses
+MainActivity --> MyApp : uses
+HomeTab --> ViewPagerAdapter : uses
+ViewPagerAdapter --> HomeFragment : creates
+ViewPagerAdapter --> JoinedEventsFragment : creates
+FirebaseStorageHelper --> FirestoreHelper : uses
+NotificationHelper --> MainActivity : sends
+MyApp --> UserModel : manages
+CreateAccountView --> UserModel : observes
+CreateAccountView --> CreateAccountFragment : updates
+EventView "0..*" o-o "1" EventModel
+EventView --> EventFragment : updates
+AccountView "0..*" o-o "1" UserModel
+AccountView --> AccountFragment : updates
+FacilityView "0..*" o-o "1" FacilityModel
+FacilityView --> FacilityFragment : updates
+BrowseEventsArrayAdapter --> EventModel : maps
+BrowseProfilesArrayAdapter --> UserModel : maps
+BrowseFacilitiesArrayAdapter --> FacilityModel : maps
+AdminAndUserFragment --> BrowseProfilesFragment : navigates to
+AdminAndUserFragment --> BrowseFacilitiesFragment : navigates to
+AdminAndUserFragment --> BrowseEventsFragment : navigates to
+BrowseEventsFragment --> AdminEventFragment : navigates to
+BrowseFacilitiesFragment --> AdminFacilityFragment : navigates to
+BrowseProfilesFragment --> AdminProfileFragment : navigates to
+CancelledListFragment --> CancelledListProfileFragment : navigates to
+EnrolledListFragment --> EnrolledListProfileFragment : navigates to
+BrowseEventsFragment "0..*" o-- "1" BrowseEventsArrayAdapter
+BrowseFacilitiesFragment "0..*" o-- "1" BrowseFacilitiesArrayAdapter
+BrowseProfilesFragment "0..*" o-- "1" BrowseProfilesArrayAdapter
+CancelledListFragment "0..*" o-- "1" BrowseProfilesArrayAdapter
+EnrolledListFragment "0..*" o-- "1" BrowseProfilesArrayAdapter
+EnrolledListFragment --> EnrolledListProfileFragment : navigates to
+EventFragment "0..*" o-- "1" EventModel
+HomeFragment "1" o-- "1" EventsController
+HomeFragment "0..*" o-- "1" BrowseEventsArrayAdapter
+JoinedEventsFragment "0..*" o-- "1" BrowseEventsArrayAdapter
+JoinEventFragment --> EventModel : displays
+JoinEventFragment <-- MainActivity : creates
+JoinEventFragment <-- JoinedEventsFragment : creates
+OrganizerEventFragment --> EventModel : interacts with
+WaitingListFragment --> BrowseProfilesArrayAdapter : uses
+WaitingListFragment --> WaitingListProfileFragment : navigates to
+WinnerListFragment --> BrowseProfilesArrayAdapter : uses
+WinnerListFragment --> WinnerListProfileFragment : navigates to
+AccountFragment --> AccountView : interacts with
+AccountFragment --> AccountUserController : manages
+AccountFragment --> UserModel : updates
+CreateAccountFragment --> CreateAccountView : interacts with
+CreateAccountFragment --> AccountUserController : manages
+CreateAccountFragment --> UserModel : creates
+FacilityFragment --> FacilityView : interacts with
+FacilityFragment --> FacilityModel : manages
+FacilityFragment --> FacilityController : manages
+BrowseProfilesFragment "0..*" --> "1" MyApp : uses for navigation
+BrowseEventsFragment "0..*" --> "1" MyApp : uses for navigation
+BrowseFacilitiesFragment "0..*" --> "1" MyApp : uses for navigation
+EventFragment "0..*" --> "1" MyApp : uses for navigation
+OrganizerEventFragment "0..*" --> "1" MyApp : uses for navigation
+MainActivity "0..*" --> "1" MyApp : uses for navigation
+QrFragment "0..*" --> "1" MyApp : uses for navigation
+AdminAndUserFragment "0..*" --> "1" MyApp : uses for navigation
+AdminEventFragment "0..*" --> "1" MyApp : uses for navigation
+AdminProfileFragment "0..*" --> "1" MyApp : uses for navigation
+AdminFacilityFragment "0..*" --> "1" MyApp : uses for navigation
+AdminEventFragment "0..*" --> "1" MyApp : uses for navigation
+CustomNotificationFragment "0..*" --> "1" MyApp : uses for navigation
+WinnerListFragment "0..*" --> "1" MyApp : uses for navigation
+WinnerListProfileFragment "0..*" --> "1" MyApp : uses for navigation
+WaitingListFragment "0..*" --> "1" MyApp : uses for navigation
+WaitingListProfileFragment "0..*" --> "1" MyApp : uses for navigation
+CancelledListFragment "0..*" --> "1" MyApp : uses for navigation
+CancelledListProfileFragment "0..*" --> "1" MyApp : uses for navigation
+EnrolledListFragment "0..*" --> "1" MyApp : uses for navigation
+EnrolledListProfileFragment "0..*" --> "1" MyApp : uses for navigation
+CustomNotificationFragment "0..*" --> "1" MyApp : uses for navigation
+
+EventFragment "0..*" --> "1" FirebaseStorageHelper : uses to upload image
+AccountFragment "0..*" --> "1" FirebaseStorageHelper : uses to upload image
+CreateAccountFragment "0..*" --> "1" FirebaseStorageHelper : uses to upload image
+JoinEventFragment "0..*" --> "1" FirestoreHelper : uses to update firestore
+MainActivity "1" --> "1" FirestoreHelper : initializes
+BrowseEventsArrayAdapter "0..*" --> "1" FirestoreHelper : uses to update firestore
+AdminEventFragment "0..*" --> "1" FirestoreHelper : uses to update firestore
+AdminFacilityFragment "0..*" --> "1" FirestoreHelper : uses to update firestore
+AdminProfileFragment "0..*" --> "1" FirestoreHelper : uses to update firestore
+OrganizerEventFragment "0..*" --> "1" FirestoreHelper : uses to update firestore
+
+JoinEventFragment "0..*" --> "1" LocationManagerSingleton : uses
+
+OrganizerEventFragment --> WinnerListFragment : creates
+OrganizerEventFragment --> CancelledListFragment : creates
+OrganizerEventFragment --> WaitingListFragment : creates
+OrganizerEventFragment --> EnrolledListFragment : creates
+OrganizerEventFragment --> CustomNotificationFragment : creates
+OrganizerEventFragment --> MapFragment : creates
+
+@enduml

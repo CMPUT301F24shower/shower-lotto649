@@ -145,7 +145,6 @@ public class FacilityFragment extends Fragment {
                     if (task.isSuccessful()) {
                         DocumentSnapshot documentSnapshot = task.getResult();
                         if (documentSnapshot == null || documentSnapshot.exists()) {
-                            // TODO check if user exists, if it doesn't return
                             String facilityName = nameInput.getEditableText().toString();
                             String address = addressInput.getEditableText().toString();
                             // If no facility name given, error

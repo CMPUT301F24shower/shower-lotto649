@@ -708,7 +708,6 @@ public class OrganizerEventFragment extends Fragment {
 
         db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
-        // TODO lots of these are not displaying the right stuff
 
         name = view.findViewById(R.id.organizer_event_name);
         status = view.findViewById(R.id.organizer_event_status);

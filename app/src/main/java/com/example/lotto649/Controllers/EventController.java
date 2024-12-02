@@ -3,14 +3,14 @@ package com.example.lotto649.Controllers;
 import com.example.lotto649.AbstractClasses.AbstractController;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.MyApp;
-import com.example.lotto649.Views.Fragments.HomeFragment;
 import com.google.android.gms.tasks.OnSuccessListener;
-
 import java.util.Date;
 
 /**
  * Controller class for managing an EventModel instance.
  * Provides methods to update event properties and save/remove events from Firestore.
+ * <p>
+ * Outstanding Issue: This controller should not be reused between different fragments
  */
 public class EventController extends AbstractController {
 

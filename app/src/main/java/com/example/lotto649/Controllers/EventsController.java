@@ -51,6 +51,8 @@ public class EventsController extends AbstractController {
     /**
      * Navigates to the fragment for creating a new event.
      * Replaces the current fragment with the EventFragment for event creation.
+     * <p>
+     * Outstanding issue, this should be done in fragment class, not controller
      */
     public void addEvent() {
         EventFragment eventFragment = new EventFragment();

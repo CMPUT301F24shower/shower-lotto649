@@ -81,7 +81,6 @@ public class BrowseProfilesArrayAdapter extends ArrayAdapter<UserModel> {
                 Glide.with(getContext())
                         .load(uri)
                         .into(profileImage);
-                // TODO: This is hardcoded, but works good on my phone, not sure if this is a good idea or not
                 LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(200, 200);
                 profileImage.setLayoutParams(layoutParams);
                 profileImage.setScaleType(ImageView.ScaleType.CENTER_CROP);

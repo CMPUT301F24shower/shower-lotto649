@@ -227,7 +227,6 @@ public class EventFragment extends Fragment {
         posterImage.setVisibility(View.GONE);
         defaultImage.setVisibility(View.VISIBLE);
 
-        // TODO: This is hardcoded, but works good on my phone, not sure if this is a good idea or not
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(750, 450);
         posterImage.setLayoutParams(layoutParams);
         posterImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
