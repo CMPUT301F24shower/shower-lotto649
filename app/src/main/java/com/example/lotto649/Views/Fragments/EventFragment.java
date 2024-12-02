@@ -267,6 +267,14 @@ public class EventFragment extends Fragment {
         if (!isAddingFirstTime) {
             saveButton.setText("Save");
             ((TextView) view.findViewById(R.id.eventFragment)).setText("Edit Event");
+            spotsEditText.setFocusable(false);
+            spotsEditText.setFocusableInTouchMode(false);
+            spotsEditText.setClickable(false);
+            spotsInputLayout.setHelperText("Not editable");
+            maxEntrantsInputLayout.setHelperText("Not editable");
+            maxEntrantsEditText.setFocusable(false);
+            maxEntrantsEditText.setFocusableInTouchMode(false);
+            maxEntrantsEditText.setClickable(false);
         }
 
         currentImageUriString.set(event.getPosterImage());
