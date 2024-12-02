@@ -582,7 +582,7 @@ public class OrganizerEventFragment extends Fragment {
                             if (maxNum != -1 && getView() != null) {
                                 FirestoreHelper.getInstance().getCurrWaitlistSize().observe(getViewLifecycleOwner(), size -> {
                                     if (size != null) {
-                                        Log.d("Waitlist", "Current waitlist size: " + size);
+                                        Log.d("Waitlist organizerevenfragment", "Current waitlist size: " + size);
                                         // Perform actions with the waitlist size
                                         if (maxNum <= size) {
                                             spotsAvail.setText("FULL");
@@ -699,32 +699,50 @@ public class OrganizerEventFragment extends Fragment {
                                 hasQrCode.setValue(Boolean.TRUE);
                             }
 
+                            MutableLiveData<Integer> numWinners = new MutableLiveData<Integer>(-1);
                             FirestoreHelper.getInstance().getWinnersSize(firestoreEventId);
-                            int numWinners = FirestoreHelper.getInstance().getCurrWinnersSize().getValue();
+                            FirestoreHelper.getInstance().getCurrWaitlistSize().observe(getViewLifecycleOwner(), size -> {
+                                if (size != null) {
+                                    // Perform actions with the waitlist size
+                                    numWinners.setValue(size);
+                                }
+                            });
                             FirestoreHelper.getInstance().getNotSelectedSize(firestoreEventId);
-                            int numNotSelected = FirestoreHelper.getInstance().getCurrNotSelectedSize().getValue();
+                            MutableLiveData<Integer> numNotSelected = new MutableLiveData<Integer>(-1);
+                            FirestoreHelper.getInstance().getCurrNotSelectedSize().observe(getViewLifecycleOwner(), size -> {
+                                if (size != null) {
+                                    // Perform actions with the waitlist size
+                                    numNotSelected.setValue(size);
+                                }
+                            });
                             FirestoreHelper.getInstance().getEnrolledSize(firestoreEventId);
-                            int numEnrolled = FirestoreHelper.getInstance().getCurrEnrolledSize().getValue();
+                            MutableLiveData<Integer> numEnrolled = new MutableLiveData<Integer>(-1);
+                            FirestoreHelper.getInstance().getCurrEnrolledSize().observe(getViewLifecycleOwner(), size -> {
+                                if (size != null) {
+                                    // Perform actions with the waitlist size
+                                    numEnrolled.setValue(size);
+                                }
+                            });
 
-                            Log.e("JASON REDRAW", "numWinners: " + Integer.toString(numWinners));
-                            Log.e("JASON REDRAW", "numNotSelected: " + Integer.toString(numNotSelected));
-                            Log.e("JASON REDRAW", "numEnrolled: " + Integer.toString(numEnrolled));
+                            Log.e("JASON REDRAW", "numWinners: " + Integer.toString(numWinners.getValue()));
+                            Log.e("JASON REDRAW", "numNotSelected: " + Integer.toString(numNotSelected.getValue()));
+                            Log.e("JASON REDRAW", "numEnrolled: " + Integer.toString(numEnrolled.getValue()));
 //                            Log.e("JASON REDRAW", "numSpots: " + Integer.toString(numSpots.intValue()));
 
-                            if (numNotSelected == 0) {
+                            if (numNotSelected.getValue() == 0) {
                                 canReplacementDraw.setValue(Boolean.FALSE);
                             } else {
                                 // TODO use new method for firestore stuff
-//                                if (numWinners + numEnrolled < numSpots) {
-//                                    canReplacementDraw.setValue(Boolean.TRUE);
-//                                } else {
-//                                    canReplacementDraw.setValue(Boolean.FALSE);
-//                                }
+                               if (numWinners.getValue() + numEnrolled.getValue() < numSpots) {
+                                   canReplacementDraw.setValue(Boolean.TRUE);
+                               } else {
+                                   canReplacementDraw.setValue(Boolean.FALSE);
+                               }
                             }
 
-                            if (numWinners == 0 && event.getState().equals(EventState.WAITING)) {
+                            if (numWinners.getValue() == 0 && event.getState().equals(EventState.WAITING)) {
                                 // can't be in the waiting state and these be zero, so only change state here
-                                if (numNotSelected != 0 || numEnrolled != 0){
+                                if (numNotSelected.getValue() == 0 || (numEnrolled.getValue() == numSpots.intValue())) {
                                     event.setState(EventState.CLOSED);
                                 }
                             }
