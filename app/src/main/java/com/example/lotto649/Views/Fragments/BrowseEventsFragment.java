@@ -90,7 +90,7 @@ public class BrowseEventsFragment extends Fragment {
         eventIdList = new ArrayList<String>();
 
         browseEventsList = view.findViewById(R.id.browse_events_list);
-        eventsAdapter = new BrowseEventsArrayAdapter(view.getContext(), dataList);
+        eventsAdapter = new BrowseEventsArrayAdapter(view.getContext(), dataList, getViewLifecycleOwner());
         browseEventsList.setAdapter(eventsAdapter);
 
         eventsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -106,8 +106,14 @@ public class BrowseEventsFragment extends Fragment {
                         String title = doc.getString("title");
                         String facilityId = doc.getString("facilityId");
                         String description = doc.getString("description");
-                        int numberOfSpots = ((Long) doc.get("numberOfSpots")).intValue();
-                        int numberOfMaxEntrants = ((Long) doc.get("numberOfMaxEntrants")).intValue();
+                        Long numSpotsLong = ((Long) doc.get("numberOfSpots"));
+                        int numberOfSpots = 0;
+                        if (numSpotsLong != null)
+                            numberOfSpots = numSpotsLong.intValue();
+                        Long numMaxLong = ((Long) doc.get("numberOfMaxEntrants"));
+                        int numberOfMaxEntrants = 0;
+                        if (numMaxLong != null)
+                            numberOfMaxEntrants = numMaxLong.intValue();
                         Date startDate = doc.getDate("startDate");
                         Date endDate = doc.getDate("endDate");
                         String posterImageUriString = doc.getString("posterImage");
