@@ -15,13 +15,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-// TODO this isnt a model, just use array adapter and firestore calls from another class
 /**
  * Model class for managing a collection of events.
  * Interacts with Firebase Firestore to fetch and manage event data.
  */
 public class HomePageModel extends AbstractModel {
-    // TODO name this myCreatedEvents
     private ArrayList<EventModel> myEvents;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -112,7 +110,6 @@ public class HomePageModel extends AbstractModel {
      * @param callback Callback to handle the user's events once fetched.
      */
     public void getMyEvents(MyEventsCallback callback) {
-        // TODO why are we using callbacks, we dont need them
         HomePageModel.fetchEventsByOrganizerId(new HomePageModel.EventFetchCallback() {
             @Override
             public void onCallback(List<DocumentSnapshot> documents) {

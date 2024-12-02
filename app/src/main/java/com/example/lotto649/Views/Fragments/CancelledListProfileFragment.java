@@ -108,7 +108,6 @@ public class CancelledListProfileFragment extends Fragment {
         roles = view.findViewById(R.id.admin_user_roles);
         profileImage = new ImageView(getContext());
         profileImage.setId(View.generateViewId());
-        // TODO: This is hardcoded, but works good on my phone, not sure if this is a good idea or not
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(450, 450);
         profileImage.setLayoutParams(layoutParams);
         profileImage.setScaleType(ImageView.ScaleType.CENTER_CROP);

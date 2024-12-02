@@ -193,7 +193,6 @@ public class MainActivity extends AppCompatActivity
         Context ctx = getApplicationContext();
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
 
-        // TODO this code is incomplete, just here to fix build errors
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.getMenu().clear();
 
@@ -509,9 +508,7 @@ public class MainActivity extends AppCompatActivity
             String url = getIntent().getData().toString();
             Uri uri = Uri.parse(url);
             String eventId = uri.getQueryParameter("eventId");
-            // TODO make sure QR code hasnt been deleted, if it has dont return anything
             Bundle bundle = new Bundle();
-            // TODO check that this is a valid event first
             bundle.putString("firestoreEventId", eventId);
             JoinEventFragment frag = new JoinEventFragment();
             frag.setArguments(bundle);
@@ -521,9 +518,7 @@ public class MainActivity extends AppCompatActivity
                     .commit();
         }
         if (intent != null && intent.hasExtra("eventId")) {
-            Log.d("ISAAC", "OPENED FROM NOTIFICATION");
             Bundle bundle = new Bundle();
-            // TODO check that this is a valid event first
             bundle.putString("firestoreEventId", intent.getStringExtra("eventId"));
             JoinEventFragment frag = new JoinEventFragment();
             frag.setArguments(bundle);

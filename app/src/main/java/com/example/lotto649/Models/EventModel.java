@@ -139,7 +139,6 @@ public class EventModel extends AbstractModel implements Serializable {
      * If the event has already been saved, this method does nothing.
      */
     public void saveEventToFirestore(OnSuccessListener<String> onSuccess) {
-        // TODO move to helper
         if (savedToFirestore) return;
 
         DocumentReference eventRef =  db.collection("events").document(eventId);
@@ -170,9 +169,10 @@ public class EventModel extends AbstractModel implements Serializable {
                 });
         }
 
-    // TODO can we remove this variable
     /**
      * Retrieves if saved to firestore.
+     * <p>
+     * Outstanding issue, this is not needed anymore
      *
      * @return if saved to firestore as a boolean
      */
@@ -211,7 +211,6 @@ public class EventModel extends AbstractModel implements Serializable {
         notifyViews();
     }
 
-    // TODO this should never change
     public void setEventId(String eventId){
         //removeEventFirestore();
         this.eventId = eventId;
@@ -301,7 +300,6 @@ public class EventModel extends AbstractModel implements Serializable {
         updateFirestore("organizerId", organizerId);
         notifyViews();
     }
-    // TODO this should never be set
 
     /**
      * Retrieves the description of the event.
@@ -500,7 +498,6 @@ public class EventModel extends AbstractModel implements Serializable {
                         Collections.shuffle(docs);
                         int i = 0;
                         for (DocumentSnapshot doc : docs) {
-                            // TODO this is untested
                             HashMap<String, Object> data = new HashMap<>(doc.getData());
                             data.put("hasSeenNoti", false);
                             if (i++ < numberOfSpots) {

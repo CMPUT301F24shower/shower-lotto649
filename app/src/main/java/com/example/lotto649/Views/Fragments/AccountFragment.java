@@ -148,7 +148,6 @@ public class AccountFragment extends Fragment {
         linearLayout = view.findViewById(R.id.account_linear_layout);
         profileImage = new ImageView(getContext());
         profileImage.setId(View.generateViewId());
-        // TODO: This is hardcoded, but works good on my phone, not sure if this is a good idea or not
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(450, 450);
         profileImage.setLayoutParams(layoutParams);
         profileImage.setScaleType(ImageView.ScaleType.CENTER_CROP);

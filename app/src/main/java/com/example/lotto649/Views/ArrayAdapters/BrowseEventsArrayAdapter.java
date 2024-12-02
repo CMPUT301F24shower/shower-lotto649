@@ -142,7 +142,6 @@ public class BrowseEventsArrayAdapter extends ArrayAdapter<EventModel> {
                 Glide.with(getContext())
                         .load(uri)
                         .into(posterImage);
-                // TODO: This is hardcoded, but works good on my phone, not sure if this is a good idea or not
                 LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(900, 450);
                 posterImage.setLayoutParams(layoutParams);
                 posterImage.setScaleType(ImageView.ScaleType.CENTER_CROP);

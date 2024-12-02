@@ -72,9 +72,5 @@ public class FacilityController extends AbstractController {
         data.put("address", getModel().getAddress());
         facilitiesRef.document(getModel().getDeviceId())
                 .set(data, SetOptions.merge());
-                // TODO: add in success listener (currently breaks testing)
-                // .addOnSuccessListener(aVoid -> {
-                    // Log.d("Firestore", "Facility successfully written!");
-                // });
     }
 }

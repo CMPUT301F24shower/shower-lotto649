@@ -51,7 +51,6 @@ public class FirestoreHelper {
     }
 
     public void deleteFacility(String facilityId) {
-        // TODO make sure this works if the user doesnt have a facility
         facilitiesRef.document(facilityId).delete();
         deleteEventsFromFacility(facilityId);
     }
@@ -87,7 +86,6 @@ public class FirestoreHelper {
         }
     }
 
-    // TODO use custom notification code here instead
     public void markSignupsAsDeleted(String eventId) {
         db.collection("signUps").whereEqualTo("eventId", eventId).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {

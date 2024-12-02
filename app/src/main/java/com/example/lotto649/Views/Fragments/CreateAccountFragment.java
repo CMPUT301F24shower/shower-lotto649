@@ -169,7 +169,6 @@ public class CreateAccountFragment extends Fragment {
         linearLayout = view.findViewById(R.id.account_linear_layout);
         profileImage = new ImageView(getContext());
         profileImage.setId(View.generateViewId());
-        // TODO: This is hardcoded, but works good on my phone, not sure if this is a good idea or not
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(450, 450);
         profileImage.setLayoutParams(layoutParams);
         profileImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -214,7 +213,6 @@ public class CreateAccountFragment extends Fragment {
         checkUserInFirestore();
 
         // Initialize MVC components
-        // TODO these need their own classes
         CreateAccountView accountView = new CreateAccountView(user, this);
         userController = new AccountUserController(user);
 
@@ -259,7 +257,7 @@ public class CreateAccountFragment extends Fragment {
                     userController.updateImage(currentImageUriString.get());
                 }
                 user = userController.getModel();
-                imagePlaceholder.setText(user.getInitials()); // TODO, this isnt right
+                imagePlaceholder.setText(user.getInitials());
                 saveButton.setText("Save");
                 MyApp.getInstance().popFragment();
             }
