@@ -424,11 +424,9 @@ public class MainActivity extends AppCompatActivity
                         if (Boolean.FALSE.equals(doc.getBoolean("hasSeenNoti"))) {
                             NotificationHelper notis = new NotificationHelper();
                             CharSequence title = doc.getString("title");
-                            String description = doc.getString("description");
+                            String description = doc.getString("message");
                             notis.sendNotification(getApplicationContext(), title, description, doc.getString("eventId"));
-                            db.collection("custom").document(doc.getId()).update(new HashMap<String, Object>() {{
-                                put("hasSeenNoti", true);
-                            }});
+                            db.collection("custom").document(doc.getId()).delete();
                         }
                     }
                 }

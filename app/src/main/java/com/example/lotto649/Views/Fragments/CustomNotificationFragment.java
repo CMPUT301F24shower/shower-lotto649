@@ -75,7 +75,7 @@ public class CustomNotificationFragment extends Fragment {
 
     private void getCollectionForStatus(String status, String title, String message, String eventId) {
         switch (status) {
-            case "All": {
+            case "All users in waiting list": {
                 sendNotificationsToCollection("signUps", title, message, eventId);
                 break;
             }
