@@ -97,7 +97,7 @@ public class BrowseEventsArrayAdapter extends ArrayAdapter<EventModel> {
         if (event.getNumberOfMaxEntrants() != -1) {
             FirestoreHelper.getInstance().getCurrWaitlistSize().observe(lifecycleOwner, size -> {
                 if (size != null) {
-                    Log.d("Waitlist", "Current waitlist size: " + size);
+                    Log.d("Waitlist browseeventsarrayadapter", "Current waitlist size: " + size);
                     // Perform actions with the waitlist size
                     if (event.getNumberOfMaxEntrants() <= size) {
                         eventSpotsAvail.setText("FULL");
@@ -112,7 +112,8 @@ public class BrowseEventsArrayAdapter extends ArrayAdapter<EventModel> {
         eventNumAttendees.setText(event.getNumberOfSpots() + " Lottery Winners");
 
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        eventDates.setText("Enter between " + df.format(event.getStartDate()) + " - " + df.format(event.getEndDate()));
+        if (event.getStartDate() != null && event.getEndDate() != null)
+            eventDates.setText("Enter between " + df.format(event.getStartDate()) + " - " + df.format(event.getEndDate()));
         if (event.getGeo()) {
             eventGeo.setVisibility(View.VISIBLE);
             eventGeo.setText("Requires GeoLocation Tracking");

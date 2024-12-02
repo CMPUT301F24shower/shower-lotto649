@@ -161,7 +161,7 @@ public class AdminEventFragment extends Fragment {
                                 if (maxNum != -1 && getView() != null) {
                                     FirestoreHelper.getInstance().getCurrWaitlistSize().observe(getViewLifecycleOwner(), size -> {
                                         if (size != null) {
-                                            Log.d("Waitlist", "Current waitlist size: " + size);
+                                            Log.d("Waitlist admineventfragment", "Current waitlist size: " + size);
                                             // Perform actions with the waitlist size
                                             if (maxNum <= size) {
                                                 spotsAvail.setText("FULL");

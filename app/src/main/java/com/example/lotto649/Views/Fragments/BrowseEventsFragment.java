@@ -14,7 +14,6 @@ package com.example.lotto649.Views.Fragments;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -108,14 +107,17 @@ public class BrowseEventsFragment extends Fragment {
                     dataList.clear();
                     for (QueryDocumentSnapshot doc: querySnapshots) {
                         String eventId = doc.getId();
-                        Log.e("Ohm", "eventId: " + eventId);
                         String title = doc.getString("title");
                         String facilityId = doc.getString("facilityId");
                         String description = doc.getString("description");
-                        int numberOfSpots = ((Long) doc.get("numberOfSpots")).intValue();
-                        Log.e("Ohm", "numberOfSpots: " + String.valueOf(numberOfSpots));
-                        int numberOfMaxEntrants = ((Long) doc.get("numberOfMaxEntrants")).intValue();
-                        Log.e("Ohm", "numberOfMaxEntrants: " + String.valueOf(numberOfMaxEntrants));
+                        Long numSpotsLong = ((Long) doc.get("numberOfSpots"));
+                        int numberOfSpots = 0;
+                        if (numSpotsLong != null)
+                            numberOfSpots = numSpotsLong.intValue();
+                        Long numMaxLong = ((Long) doc.get("numberOfMaxEntrants"));
+                        int numberOfMaxEntrants = 0;
+                        if (numMaxLong != null)
+                            numberOfMaxEntrants = numMaxLong.intValue();
                         Date startDate = doc.getDate("startDate");
                         Date endDate = doc.getDate("endDate");
                         String posterImageUriString = doc.getString("posterImage");
