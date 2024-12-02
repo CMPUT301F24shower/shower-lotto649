@@ -634,22 +634,16 @@ public class OrganizerEventFragment extends Fragment {
                                                 canDraw.setValue(Boolean.FALSE);
                                             }
                                         }
-                                        String statusText;
-
-                                        if (maxNum == -1) {
-                                            statusText = "OPEN";
-                                        } else if (maxNum <= size) {
-                                            statusText = "PENDING";
-                                        } else {
-                                            statusText = "OPEN";
-                                        }
-
-
                                     }
                                 });
                             }
 
-
+                            String eventState = doc.getString("state");
+                            if (eventState != null) {
+                                status.setText(eventState);;
+                            } else {
+                                status.setText("OPEN");
+                            }
                             Long numSpots = doc.getLong("numberOfSpots");
                             if (numSpots == null) {
                                 attendeesText.setText("Unknown number of Attendees");
@@ -670,13 +664,6 @@ public class OrganizerEventFragment extends Fragment {
                             String statusText;
 
                             if (!Objects.equals(doc.getString("state"), "OPEN")) {
-                                if (Objects.equals(doc.getString("state"), "WAITING")) {
-                                    // TODO: set if replacement button can be clicked
-                                    statusText = "PENDING";
-                                } else {
-                                    statusText = "CLOSED";
-                                }
-                                status.setText(statusText);
                                 canDraw.setValue(Boolean.FALSE);
                             }
                             String posterUriString = doc.getString("posterImage");
