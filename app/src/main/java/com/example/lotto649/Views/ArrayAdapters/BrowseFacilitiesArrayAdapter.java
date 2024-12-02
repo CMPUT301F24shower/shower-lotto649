@@ -49,11 +49,8 @@ public class BrowseFacilitiesArrayAdapter extends ArrayAdapter<FacilityModel> {
             assert facility != null;
             TextView facilityName = view.findViewById(R.id.facility_name);
             TextView address = view.findViewById(R.id.facility_address);
-            TextView numOpenEvents = view.findViewById(R.id.facility_open_events);
             facilityName.setText(facility.getFacilityName());
             address.setText(facility.getAddress());
-            // TODO: update with actual number of open events at facility
-            numOpenEvents.setText("Number of Open Events: 0");
             return view;
         }
 }

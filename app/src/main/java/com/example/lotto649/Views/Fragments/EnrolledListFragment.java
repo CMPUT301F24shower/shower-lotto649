@@ -25,6 +25,8 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.MyApp;
@@ -39,6 +41,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -91,6 +94,17 @@ public class EnrolledListFragment extends Fragment {
         browseProfilesList.setAdapter(profilesAdapter);
 
         backButton = view.findViewById(R.id.back_button);
+        MutableLiveData<Boolean> noEnrolledUsers = new MutableLiveData<>(Boolean.TRUE);
+        ConstraintLayout layout = view.findViewById(R.id.browse_profiles_layout);
+        Context context = getContext();
+
+        TextView textView;
+        if (context != null) {
+            textView = new TextView(context);
+        } else {
+            textView = null;
+        }
+
 
         db.collection("enrolled").whereEqualTo("eventId", firestoreEventId).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -105,7 +119,7 @@ public class EnrolledListFragment extends Fragment {
                         String deviceId = doc.getString("userId");
                         db.collection("users").document(deviceId).get().addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
-                                noSignUps.set(false);
+                                noEnrolledUsers.setValue(Boolean.FALSE);
                                 DocumentSnapshot userDoc = task.getResult();
                                 String deviceIdText = userDoc.getId();
                                 String nameText = userDoc.getString("name");
@@ -113,6 +127,7 @@ public class EnrolledListFragment extends Fragment {
                                 String phoneText = userDoc.getString("phone");
                                 Context context = getContext();
                                 UserModel newUser;
+                                noEnrolledUsers.setValue(Boolean.TRUE);
                                 if (context != null) {
                                     newUser = new UserModel(context, nameText, emailText, phoneText, null);
                                     newUser.setProfileImage(userDoc.getString("profileImage"));
@@ -123,33 +138,46 @@ public class EnrolledListFragment extends Fragment {
                             }
                         });
                     }
-                    if (noSignUps.get()) {
-                        ConstraintLayout layout = view.findViewById(R.id.browse_profiles_layout);
-                        Context context = getContext();
-                        if (context != null) {
-                            TextView textView = new TextView(getContext());
-                            textView.setId(View.generateViewId()); // Generate an ID for the TextView
-                            textView.setText("No Users have enrolled yet");
-                            textView.setTextSize(24);
-                            textView.setGravity(Gravity.CENTER);
-                            textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black)); // Update with your color
+                }
+            }
+        });
 
-                            // Set layout params for the TextView to match parent constraints
-                            ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
-                                    ConstraintLayout.LayoutParams.MATCH_PARENT,
-                                    ConstraintLayout.LayoutParams.WRAP_CONTENT
-                            );
-
-                            params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
-                            params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
-                            params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
-                            params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
-
-                            textView.setLayoutParams(params);
-
-                            // Add the TextView to the layout
-                            layout.addView(textView);
+        noEnrolledUsers.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if (Objects.equals(aBoolean, Boolean.TRUE)) {
+                    if (textView != null) {
+                        if (textView.getParent() != null) {
+                            ((ViewGroup) textView.getParent()).removeView(textView);
                         }
+                        textView.setId(View.generateViewId()); // Generate an ID for the TextView
+                        textView.setText("No users have enrolled");
+                        textView.setTextSize(24);
+                        textView.setGravity(Gravity.CENTER);
+                        textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black)); // Update with your color
+
+                        // Set layout params for the TextView to match parent constraints
+                        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
+                                ConstraintLayout.LayoutParams.MATCH_PARENT,
+                                ConstraintLayout.LayoutParams.WRAP_CONTENT
+                        );
+
+                        params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
+                        params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
+                        params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
+                        params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
+
+                        textView.setLayoutParams(params);
+
+                        // Add the TextView to the layout
+                        layout.addView(textView);
+                    }
+                } else {
+                    if (textView != null) {
+                        if (textView.getParent() != null) {
+                            ((ViewGroup) textView.getParent()).removeView(textView);
+                        }
+                        textView.setVisibility(View.GONE);
                     }
                 }
             }

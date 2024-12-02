@@ -39,6 +39,16 @@
         app:elevation="2dp" />
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/org_dialog_send_custom_noti"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/lightSurfaceContainerHigh"
+        android:text="Send Custom Notification"
+        app:icon="@drawable/ic_person_foreground"
+        app:elevation="2dp" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/org_dialog_choose_replacement"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
