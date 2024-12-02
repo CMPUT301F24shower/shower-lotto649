@@ -118,21 +118,4 @@ public class EventController extends AbstractController {
         // TODO this shouldnt be in controller, also this should be popFragment
         MyApp.getInstance().addFragmentToStack(new HomeFragment());
     }
-
-    /**
-     * Removes the current event from Firestore and navigates to the HomeFragment.
-     */
-    public void removeEventFromFirestore() {
-        getModel().removeEventFromFirestore();
-        // TODO this shouldnt be in controller, also this should be popFragment
-        MyApp.getInstance().addFragmentToStack(new HomeFragment());
-    }
-
-    /**
-     * Navigates back to the HomeFragment, which serves as the main events screen.
-     */
-    public void returnToEvents() {
-        MyApp.getInstance().popFragment();
-    }
-    // TODO should be popFragment, shouldnt be in controller
 }
