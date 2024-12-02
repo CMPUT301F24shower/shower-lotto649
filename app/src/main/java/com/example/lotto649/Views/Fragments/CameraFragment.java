@@ -52,6 +52,7 @@ import com.google.mlkit.vision.common.InputImage;
  * <p>
  * The camera layout is inflated when the user navigates to this fragment, and the camera lifecycle is
  * managed automatically with the help of CameraX library.
+ * Known issue, this is not able to scan QR codes, must use device camera. It can also be tested using deeplinks
  * </p>
  * <p>
  * Code for the bottom navigation bar was adapted from:
