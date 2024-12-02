@@ -60,7 +60,7 @@ public class OrganizerEventFragment extends Fragment {
     TextView geoLocation;
     TextView description;
     TextView attendeesText;
-    ExtendedFloatingActionButton optionsButtons, backButton, viewEntrantsMapButton, qrButton, viewEntrantsButton, editButton, randomButton, cancelButton, viewInvitedEntrantsButton, viewCanceledEntrants, replacementWinnerButton, viewFinalEntrants;
+    ExtendedFloatingActionButton optionsButtons, backButton, viewEntrantsMapButton, qrButton, viewEntrantsButton, editButton, randomButton, cancelButton, viewInvitedEntrantsButton, viewCanceledEntrants, sendCustomNotiButton, replacementWinnerButton, viewFinalEntrants;
     private MutableLiveData<Boolean> hasQrCode;
     private MutableLiveData<Boolean> canDraw;
     private MutableLiveData<Boolean> canReplacementDraw;
@@ -230,6 +230,18 @@ public class OrganizerEventFragment extends Fragment {
             qrButton.setVisibility(View.VISIBLE);
         }
 
+        sendCustomNotiButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bundle bundle = new Bundle();
+                bundle.putString("eventId", firestoreEventId);
+                CustomNotificationFragment customNotificationFragment = new CustomNotificationFragment();
+                customNotificationFragment.setArguments(bundle);
+                MyApp.getInstance().addFragmentToStack(customNotificationFragment);
+                dialog.dismiss();;
+            }
+        });
+
         viewEntrantsMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -317,6 +329,18 @@ public class OrganizerEventFragment extends Fragment {
         } else {
             qrButton.setVisibility(View.VISIBLE);
         }
+
+        sendCustomNotiButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bundle bundle = new Bundle();
+                bundle.putString("eventId", firestoreEventId);
+                CustomNotificationFragment customNotificationFragment = new CustomNotificationFragment();
+                customNotificationFragment.setArguments(bundle);
+                MyApp.getInstance().addFragmentToStack(customNotificationFragment);
+                dialog.dismiss();
+            }
+        });
 
         viewEntrantsMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -412,6 +436,18 @@ public class OrganizerEventFragment extends Fragment {
         hideWaitingStateButtons();
         hideOpenStateButtons();
         showClosedStateButtons();
+        sendCustomNotiButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bundle bundle = new Bundle();
+                bundle.putString("eventId", firestoreEventId);
+                CustomNotificationFragment customNotificationFragment = new CustomNotificationFragment();
+                customNotificationFragment.setArguments(bundle);
+                MyApp.getInstance().addFragmentToStack(customNotificationFragment);
+                dialog.dismiss();;
+            }
+        });
+
         viewEntrantsMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -472,6 +508,7 @@ public class OrganizerEventFragment extends Fragment {
         viewInvitedEntrantsButton = dialogView.findViewById(R.id.org_dialog_view_invited_entrants);
         viewCanceledEntrants = dialogView.findViewById(R.id.org_dialog_view_canceled_entrants);
         replacementWinnerButton = dialogView.findViewById(R.id.org_dialog_choose_replacement);
+        sendCustomNotiButton = dialogView.findViewById(R.id.org_dialog_send_custom_noti);
         editButton = dialogView.findViewById(R.id.org_dialog_edit);
         cancelButton = dialogView.findViewById(R.id.org_dialog_cancel);
         viewEntrantsButton = dialogView.findViewById(R.id.org_dialog_view_entrants);
