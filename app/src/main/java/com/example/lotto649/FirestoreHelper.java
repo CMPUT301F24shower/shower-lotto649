@@ -33,6 +33,9 @@ public class FirestoreHelper {
     private MutableLiveData<Integer> currEnrolledSize;
     private MutableLiveData<Integer> currNotSelectedSize;
     private Context context;
+    boolean waitingForWaitList;
+    String waitlistEventId;
+    boolean spinlock;
 
     // Private constructor to prevent instantiation
     private FirestoreHelper() {
@@ -46,6 +49,7 @@ public class FirestoreHelper {
         currWinnersSize = new MutableLiveData<Integer>(0);
         currEnrolledSize = new MutableLiveData<Integer>(0);
         currNotSelectedSize = new MutableLiveData<Integer>(0);
+        waitingForWaitList = false;
     }
 
     // Get the singleton instance
@@ -69,7 +73,47 @@ public class FirestoreHelper {
         }
     }
 
+//    public MutableLiveData<Integer> getCurrWaitlistSize() {
+//        spinlock = true;
+//        if (waitingForWaitList) {
+//            db.collection("signUps")
+//                    .whereEqualTo("eventId", waitlistEventId)
+//                    .get()
+//                    .addOnCompleteListener(task -> {
+//                        if (task.isSuccessful()) {
+//                            currWaitlistSize.setValue(task.getResult().size()); // Store the result
+//                        }
+//                        waitingForWaitList = false;
+//                        spinlock = false;
+//                    });
+//        }
+//        while(spinlock) {
+//            ; // busy wait
+//        }
+//        return currWaitlistSize;
+//    }
+
     public MutableLiveData<Integer> getCurrWaitlistSize() {
+        if (waitingForWaitList) {
+            // If a query is already in progress, just return the LiveData
+            return currWaitlistSize;
+        }
+
+        // If no query is in progress, trigger a new one
+        waitingForWaitList = true;
+        db.collection("signUps")
+                .whereEqualTo("eventId", waitlistEventId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        currWaitlistSize.setValue(task.getResult().size()); // Update LiveData
+                    } else {
+                        Log.e("Firestore", "Error fetching waitlist size", task.getException());
+                        currWaitlistSize.setValue(0); // Default value in case of error
+                    }
+                    waitingForWaitList = false;
+                });
+
         return currWaitlistSize;
     }
 
@@ -163,6 +207,8 @@ public class FirestoreHelper {
 
     public void getWaitlistSize(String eventId) {
         Log.e("JASON LATCH", "start");
+        waitingForWaitList = true;
+        waitlistEventId = eventId;
 
         db.collection("signUps")
                 .whereEqualTo("eventId", eventId)
@@ -171,6 +217,7 @@ public class FirestoreHelper {
                     if (task.isSuccessful()) {
                         currWaitlistSize.setValue(task.getResult().size()); // Store the result
                     }
+                    waitingForWaitList = false;
                 });
     }
 

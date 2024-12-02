@@ -5,6 +5,7 @@
  */
 package com.example.lotto649.Views.Fragments;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -20,7 +21,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewTreeLifecycleOwner;
 
 import com.bumptech.glide.Glide;
 import com.example.lotto649.FirestoreHelper;
@@ -153,30 +156,36 @@ public class JoinEventFragment extends Fragment {
                                 // TODO check same thing in enrolled, cancelled ...
                                 String nameText = doc.getString("title");
                                 Long maxEntrants = (Long) doc.get("numberOfMaxEntrants");
-                                int maxNum = 0;
+                                int maxNum;
                                 if (maxEntrants != null)
                                     maxNum = (maxEntrants).intValue();
+                                else {
+                                    maxNum = 0;
+                                }
 
                                 FirestoreHelper.getInstance().getWaitlistSize(firestoreEventId);
-                                curNum = FirestoreHelper.getInstance().getCurrWaitlistSize().getValue();
-                                String spotsAvailText;
-                                if (maxNum == -1) {
-                                    spotsAvailText = "OPEN";
-                                } else if (maxNum <= curNum) {
-                                    spotsAvailText = "FULL";
-                                    joinButton.setVisibility(View.GONE);
-                                } else {
-                                    // TODO please fix this
-//                                spotsAvailText = "TODO";
-//                                spotsAvailText = Integer.toString(maxNum - ((List<String>) doc.get("waitingList")).size()) + " Spots Available";
-                                    spotsAvailText = Integer.toString(maxNum - curNum) + " Spots Available";
+
+                                spotsAvail.setText("OPEN");
+                                if (maxNum != -1 && getView() != null) {
+                                    FirestoreHelper.getInstance().getCurrWaitlistSize().observe(getViewLifecycleOwner(), size -> {
+                                        if (size != null) {
+                                            Log.d("Waitlist", "Current waitlist size: " + size);
+                                            // Perform actions with the waitlist size
+                                            if (maxNum <= size) {
+                                                spotsAvail.setText("FULL");
+                                            } else {
+                                                String newText = size + "/" + maxNum + " Spots Full";
+                                                spotsAvail.setText(newText);
+                                            }
+                                        }
+                                    });
                                 }
                                 Long numSpots = doc.getLong("numberOfSpots");
                                 String numAttendeesText;
                                 if (numSpots == null) {
                                     numAttendeesText = "Unknown number of Attendees";
                                 } else {
-                                    numAttendeesText = numSpots + " Attendees";
+                                    numAttendeesText = numSpots + " Lottery Winners";
                                 }
                                 DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
                                 startDate = doc.getDate("startDate");
@@ -192,11 +201,34 @@ public class JoinEventFragment extends Fragment {
                                 geoRequired = Boolean.TRUE.equals(isGeo);
                                 String descriptionText = doc.getString("description");
                                 name.setText(nameText);
-                                // TODO: set to actual event status
-                                status.setText("OPEN");
-                                // TODO: set to actual location
-                                location.setText("LOCATION");
-                                spotsAvail.setText(spotsAvailText);
+                                String eventState = doc.getString("state");
+                                if (eventState != null) {
+                                    status.setText(eventState);
+                                    if (!eventState.equals("OPEN")) {
+                                        joinButton.setVisibility(View.GONE);
+                                    }
+                                } else {
+                                    status.setText("OPEN");
+                                }
+                                String facilityId = doc.getString("organizerId");
+                                if (facilityId != null) {
+                                    db.collection("facilities").document(facilityId).get().addOnCompleteListener(facilityTask -> {
+                                        if (facilityTask.isSuccessful()) {
+                                            DocumentSnapshot facilityDoc = facilityTask.getResult();
+                                            String facilityName = facilityDoc.getString("facility");
+                                            String facilityAddress = facilityDoc.getString("address");
+                                            if (facilityName != null && facilityAddress != null) {
+                                                location.setText(facilityName + " - " + facilityAddress);
+                                            } else {
+                                                location.setText("LOCATION");
+                                            }
+                                        } else {
+                                            location.setText("LOCATION");
+                                        }
+                                    });
+                                } else {
+                                    location.setText("LOCATION");
+                                }
                                 numAttendees.setText(numAttendeesText);
                                 dates.setText(datesText);
                                 if (Boolean.TRUE.equals(isGeo)) {
@@ -209,15 +241,20 @@ public class JoinEventFragment extends Fragment {
 
                                 //     poster
                                 String posterUriString = doc.getString("posterImage");
-                                if (!Objects.equals(posterUriString, "")) {
+                                if (posterUriString != null && !Objects.equals(posterUriString, "")) {
                                     posterUri = Uri.parse(posterUriString);
                                     StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(posterUriString);
                                     imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                                         posterUri = uri;
                                         if (isAdded()) {
-                                            Glide.with(getContext())
-                                                    .load(uri)
-                                                    .into(posterImage);
+                                            Context context = getContext();
+                                            if (context != null) {
+                                                Glide.with(context)
+                                                        .load(uri)
+                                                        .into(posterImage);
+                                            } else {
+                                                posterUri = null;
+                                            }
                                         }
                                         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(900, 450);
                                         posterImage.setLayoutParams(layoutParams);
@@ -243,7 +280,6 @@ public class JoinEventFragment extends Fragment {
             public void onClick(View view) {
                 if (isWinnerMode) {
                     // Accepted
-                    // TODO Delete this entry, create same entry in enrolled
                     db.collection("winners")
                             .document(firestoreEventId + "_" + deviceId)
                             .get()
@@ -268,7 +304,7 @@ public class JoinEventFragment extends Fragment {
                         if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
                             // TODO do we need entrant to be saved at all
-                            if (!document.exists() || !document.getBoolean("entrant")) {
+                            if (!document.exists() || Boolean.FALSE.equals(document.getBoolean("entrant"))) {
                                 MyApp.getInstance().addFragmentToStack(new CreateAccountFragment());
                             } else if (document.exists()) {
                                 // Perform signup
@@ -324,7 +360,6 @@ public class JoinEventFragment extends Fragment {
             public void onClick(View view) {
                 if (isWinnerMode) {
                     // Decline
-                    // TODO Delete this entry, create same entry in cancelled
                     db.collection("winners")
                             .document(firestoreEventId + "_" + deviceId)
                             .get()

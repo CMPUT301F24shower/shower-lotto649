@@ -153,7 +153,7 @@ public class HomeFragment extends Fragment {
                     if (!events.isEmpty()) {
                         noAccepts.setValue(Boolean.FALSE);
                     }
-                    eventAdapter = new BrowseEventsArrayAdapter(requireContext(), events);
+                    eventAdapter = new BrowseEventsArrayAdapter(requireContext(), events, getViewLifecycleOwner());
                     eventsList.setAdapter(eventAdapter);
                 }
             }
