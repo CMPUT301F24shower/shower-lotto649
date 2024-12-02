@@ -16,6 +16,8 @@
         android:paddingHorizontal="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:dividerHeight="16dp"
+        android:divider="@color/colorBackground"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
