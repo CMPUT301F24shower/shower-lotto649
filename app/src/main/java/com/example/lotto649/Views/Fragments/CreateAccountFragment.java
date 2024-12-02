@@ -1,5 +1,5 @@
 /**
- * AccountFragment class manages the account details of the user in the application.
+ * CreateAccountFragment class manages the account details of the user in the application.
  * <p>
  * This fragment is responsible for displaying and updating the user's account information
  * (name, email, and phone number) using a form. The user information is retrieved from and
@@ -18,7 +18,6 @@
  * Code for Glide image was adapted from this thread:
  * https://stackoverflow.com/questions/44761720/save-picture-to-storage-using-glide
  * </p>
- * KNOWN ISSUE: removing profile image from profile page after just uploading image fails
  */
 package com.example.lotto649.Views.Fragments;
 
@@ -52,7 +51,6 @@ import com.example.lotto649.FirebaseStorageHelper;
 import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
-import com.example.lotto649.Views.AccountView;
 import com.example.lotto649.Views.CreateAccountView;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
@@ -70,10 +68,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * The AccountFragment class handles the user interface for viewing and editing account details.
+ * The CreateAccountFragment class handles creating user account when trying to join an event without an account
  */
 public class CreateAccountFragment extends Fragment {
-    private AccountView accountView;
+    private static final int PICK_IMAGE_REQUEST = 1;
+    ImageView profileImage;
+    Uri currentImageUri;
     private AccountUserController userController;
     private FirebaseFirestore db;
     private UserModel user;
@@ -82,12 +82,51 @@ public class CreateAccountFragment extends Fragment {
     private ExtendedFloatingActionButton saveButton;
     private ExtendedFloatingActionButton deleteImageButton;
     private String initialNameInput, initialEmailInput, initialPhoneInput;
+    /**
+     * Watches the name EditText for changes, and calls to possibly change the save button colour
+     */
+    private final TextWatcher nameWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {
+        }
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
+    /**
+     * Watches the email EditText for changes, and calls to possibly change the save button colour
+     */
+    private final TextWatcher emailWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {
+        }
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
+    /**
+     * Watches the phone EditText for changes, and calls to possibly change the save button colour
+     */
+    private final TextWatcher phoneWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {
+        }
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
     private TextView imagePlaceholder;
-    private static final int PICK_IMAGE_REQUEST = 1;
     private LinearLayout linearLayout;
     private boolean hasSetImage;
-    ImageView profileImage;
-    Uri currentImageUri;
     private AtomicReference<String> currentImageUriString;
     private MutableLiveData<Boolean> imageAbleToBeDeleted;
     private Context mContext;
@@ -101,6 +140,7 @@ public class CreateAccountFragment extends Fragment {
 
     /**
      * Attaches the fragment to the app, and sets the context
+     *
      * @param context the given context
      */
     @Override
@@ -113,8 +153,8 @@ public class CreateAccountFragment extends Fragment {
      * Called to create the view hierarchy for this fragment.
      * This method inflates the layout for the account fragment and initializes the UI components.
      *
-     * @param inflater  LayoutInflater object used to inflate any views in the fragment
-     * @param container The parent view that the fragment's UI should be attached to
+     * @param inflater           LayoutInflater object used to inflate any views in the fragment
+     * @param container          The parent view that the fragment's UI should be attached to
      * @param savedInstanceState Bundle containing data about the previous state (if any)
      * @return View for the account fragment's UI
      */
@@ -171,7 +211,6 @@ public class CreateAccountFragment extends Fragment {
         linearLayout = view.findViewById(R.id.account_linear_layout);
         profileImage = new ImageView(getContext());
         profileImage.setId(View.generateViewId());
-        // TODO: This is hardcoded, but works good on my phone, not sure if this is a good idea or not
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(450, 450);
         profileImage.setLayoutParams(layoutParams);
         profileImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -216,7 +255,6 @@ public class CreateAccountFragment extends Fragment {
         checkUserInFirestore();
 
         // Initialize MVC components
-        // TODO these need their own classes
         CreateAccountView accountView = new CreateAccountView(user, this);
         userController = new AccountUserController(user);
 
@@ -261,7 +299,7 @@ public class CreateAccountFragment extends Fragment {
                     userController.updateImage(currentImageUriString.get());
                 }
                 user = userController.getModel();
-                imagePlaceholder.setText(user.getInitials()); // TODO, this isnt right
+                imagePlaceholder.setText(user.getInitials());
                 saveButton.setText("Save");
                 MyApp.getInstance().popFragment();
             }
@@ -423,45 +461,6 @@ public class CreateAccountFragment extends Fragment {
     private boolean DidInfoRemainConstant() {
         return Objects.equals(nameEditText.getEditableText().toString(), initialNameInput) && Objects.equals(emailEditText.getEditableText().toString(), initialEmailInput) && Objects.equals(phoneEditText.getEditableText().toString(), initialPhoneInput);
     }
-
-    /**
-     * Watches the name EditText for changes, and calls to possibly change the save button colour
-     */
-    private final TextWatcher nameWatcher = new TextWatcher() {
-        public void afterTextChanged(Editable s) {}
-
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SetSaveButtonVisibility(DidInfoRemainConstant());
-        }
-    };
-
-    /**
-     * Watches the email EditText for changes, and calls to possibly change the save button colour
-     */
-    private final TextWatcher emailWatcher = new TextWatcher() {
-        public void afterTextChanged(Editable s) {}
-
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SetSaveButtonVisibility(DidInfoRemainConstant());
-        }
-    };
-
-    /**
-     * Watches the phone EditText for changes, and calls to possibly change the save button colour
-     */
-    private final TextWatcher phoneWatcher = new TextWatcher() {
-        public void afterTextChanged(Editable s) {}
-
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SetSaveButtonVisibility(DidInfoRemainConstant());
-        }
-    };
 
     /**
      * Sets the save button's colour depending on whether information on the page changed.

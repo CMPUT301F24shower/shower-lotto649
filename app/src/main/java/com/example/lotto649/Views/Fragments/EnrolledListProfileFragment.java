@@ -1,7 +1,10 @@
 /**
- * A fragment to display a given profile's information.
- * This is used by an admin user to manage a profile.
- * This fragment is reached through a list of profiles in the admin view.
+ * EnrolledListProfileFragment class represents a fragment for viewing detailed information about an enrolled user.
+ * <p>
+ * This fragment fetches and displays user details (name, email, phone, roles) for a selected user from Firestore.
+ * It also attempts to retrieve and display the user's profile image from Firebase Storage. If the profile image
+ * is unavailable, a placeholder is shown.
+ * </p>
  */
 package com.example.lotto649.Views.Fragments;
 
@@ -34,18 +37,14 @@ import com.google.firebase.storage.StorageReference;
 import java.util.Objects;
 
 /**
- * A fragment to display a given profile's information.
- * This is used by an admin user to manage a profile.
- * This fragment is reached through a list of profiles in the admin view.
+ * EnrolledListProfileFragment class represents a fragment for viewing detailed information about an enrolled user.
+ * <p>
+ * This fragment fetches and displays user details (name, email, phone, roles) for a selected user from Firestore.
+ * It also attempts to retrieve and display the user's profile image from Firebase Storage. If the profile image
+ * is unavailable, a placeholder is shown.
+ * </p>
  */
 public class EnrolledListProfileFragment extends Fragment {
-    private FirebaseFirestore db;
-    private CollectionReference usersRef;
-    private TextView imagePlaceholder;
-    private LinearLayout linearLayout;
-    private ImageView profileImage;
-    private Uri profileUri;
-    private String nameText;
     TextView name;
     TextView email;
     TextView phone;
@@ -53,6 +52,13 @@ public class EnrolledListProfileFragment extends Fragment {
     ExtendedFloatingActionButton backButton;
     String userDeviceId;
     String firestoreEventId;
+    private FirebaseFirestore db;
+    private CollectionReference usersRef;
+    private TextView imagePlaceholder;
+    private LinearLayout linearLayout;
+    private ImageView profileImage;
+    private Uri profileUri;
+    private String nameText;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -65,13 +71,16 @@ public class EnrolledListProfileFragment extends Fragment {
     }
 
     /**
-     * Called to create the view hierarchy associated with this fragment.
-     * This method inflates the layout defined in `fragment_browse_events.xml`.
+     * Initializes the fragment's view hierarchy.
+     * <p>
+     * This method inflates the layout, retrieves user information from Firestore, sets up UI components,
+     * and configures listeners for user interaction. It also handles fetching the user's profile image.
+     * </p>
      *
-     * @param inflater LayoutInflater object used to inflate any views in the fragment
-     * @param container The parent view that the fragment's UI should be attached to
+     * @param inflater           LayoutInflater object used to inflate any views in the fragment
+     * @param container          The parent view that the fragment's UI should be attached to
      * @param savedInstanceState Bundle containing data about the previous state (if any)
-     * @return View for the camera fragment's UI
+     * @return View for the profile fragment's UI
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -95,7 +104,6 @@ public class EnrolledListProfileFragment extends Fragment {
         roles = view.findViewById(R.id.admin_user_roles);
         profileImage = new ImageView(getContext());
         profileImage.setId(View.generateViewId());
-        // TODO: This is hardcoded, but works good on my phone, not sure if this is a good idea or not
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(450, 450);
         profileImage.setLayoutParams(layoutParams);
         profileImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -108,6 +116,13 @@ public class EnrolledListProfileFragment extends Fragment {
                 .document(userDeviceId)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    /**
+                     * Fetches and displays user information from Firestore.
+                     * <p>
+                     * Retrieves the user's name, email, phone number, and roles (Admin, Organizer, Entrant) from the Firestore
+                     * "users" collection. The user's phone number visibility is toggled based on availability.
+                     * </p>
+                     */
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
@@ -140,7 +155,7 @@ public class EnrolledListProfileFragment extends Fragment {
                             }
                             roles.setText(rolesText);
 
-                        //     getting profile image
+                            //     getting profile image
                             imagePlaceholder.setText(new UserModel(getContext(), nameText, emailText).getInitials());
                             String profileUriString = doc.getString("profileImage");
                             if (!Objects.equals(profileUriString, "")) {
@@ -165,6 +180,13 @@ public class EnrolledListProfileFragment extends Fragment {
                 });
 
         backButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Configures the "Back" button to return to the previous fragment.
+             * <p>
+             * Uses the `MyApp` utility to pop the current fragment from the stack, returning the user to the
+             * previous screen.
+             * </p>
+             */
             @Override
             public void onClick(View view) {
                 MyApp.getInstance().popFragment();

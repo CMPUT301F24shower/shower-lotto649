@@ -5,8 +5,8 @@ package com.example.lotto649.Views;
 
 import com.example.lotto649.AbstractClasses.AbstractModel;
 import com.example.lotto649.AbstractClasses.AbstractView;
-import com.example.lotto649.Views.Fragments.FacilityFragment;
 import com.example.lotto649.Models.FacilityModel;
+import com.example.lotto649.Views.Fragments.FacilityFragment;
 
 /**
  * FacilityView is part of the Model-View-Controller (MVC) architecture.
@@ -27,7 +27,7 @@ public class FacilityView extends AbstractView {
      * Initializes the view with the specified facility model and fragment,
      * and starts observing changes in the facility model.
      *
-     * @param facility the model to be observed by this view
+     * @param facility         the model to be observed by this view
      * @param facilityFragment the fragment in which user details will be displayed
      */
     public FacilityView(FacilityModel facility, FacilityFragment facilityFragment) {

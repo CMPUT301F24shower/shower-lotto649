@@ -7,7 +7,6 @@ package com.example.lotto649.Views.ArrayAdapters;
 
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +14,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -39,8 +37,9 @@ public class BrowseProfilesArrayAdapter extends ArrayAdapter<UserModel> {
 
     /**
      * Constructor for the array adapter
+     *
      * @param context the context of the adapter
-     * @param users the user models to be adapted
+     * @param users   the user models to be adapted
      */
     public BrowseProfilesArrayAdapter(Context context, ArrayList<UserModel> users) {
         super(context, 0, users);
@@ -48,9 +47,10 @@ public class BrowseProfilesArrayAdapter extends ArrayAdapter<UserModel> {
 
     /**
      * Gets the list view item and displays information
-     * @param position the position in the ListView that the adapter is for
+     *
+     * @param position    the position in the ListView that the adapter is for
      * @param convertView gives the ability to reuse an old view
-     * @param parent the parent of the adapter
+     * @param parent      the parent of the adapter
      */
     @NonNull
     @Override
@@ -81,7 +81,6 @@ public class BrowseProfilesArrayAdapter extends ArrayAdapter<UserModel> {
                 Glide.with(getContext())
                         .load(uri)
                         .into(profileImage);
-                // TODO: This is hardcoded, but works good on my phone, not sure if this is a good idea or not
                 LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(200, 200);
                 profileImage.setLayoutParams(layoutParams);
                 profileImage.setScaleType(ImageView.ScaleType.CENTER_CROP);

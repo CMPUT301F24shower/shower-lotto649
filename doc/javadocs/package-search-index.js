@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.example.lotto649"},{"l":"com.example.lotto649.AbstractClasses"},{"l":"com.example.lotto649.Controllers"},{"l":"com.example.lotto649.Models"},{"l":"com.example.lotto649.Views"},{"l":"com.example.lotto649.Views.ArrayAdapters"},{"l":"com.example.lotto649.Views.Fragments"}];updateSearchResults();

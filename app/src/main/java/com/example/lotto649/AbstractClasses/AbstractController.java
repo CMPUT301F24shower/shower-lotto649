@@ -14,6 +14,7 @@ public abstract class AbstractController {
 
     /**
      * Constructor
+     *
      * @param model Model class being controlled
      */
     public AbstractController(AbstractModel model) {

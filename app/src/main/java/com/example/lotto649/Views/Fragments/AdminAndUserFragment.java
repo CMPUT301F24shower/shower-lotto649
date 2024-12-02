@@ -1,7 +1,7 @@
 /**
- * CameraFragment class represents a fragment for camera-related functionality in the application.
+ * AdminAndUserFragment class represents a fragment for a user who is an admin and some other user type.
  * <p>
- * This fragment inflates the camera layout when the user navigates to the camera section of the app.
+ * This fragment inflates the AdminAndUser layout when the user loads the app.
  * It is part of the bottom navigation bar implementation used in the application.
  * </p>
  * <p>
@@ -21,8 +21,18 @@ import androidx.fragment.app.Fragment;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+/**
+ * AdminAndUserFragment class represents a fragment for a user who is an admin and some other user type.
+ * <p>
+ * This fragment inflates the AdminAndUser layout when the user loads the app.
+ * It is part of the bottom navigation bar implementation used in the application.
+ * </p>
+ * <p>
+ * Code for the bottom navigation bar was adapted from:
+ * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
+ * </p>
+ */
 public class AdminAndUserFragment extends Fragment {
     private ExtendedFloatingActionButton profiles, facilities, events;
 
@@ -38,12 +48,11 @@ public class AdminAndUserFragment extends Fragment {
 
     /**
      * Called to create the view hierarchy associated with this fragment.
-     * This method inflates the layout defined in `fragment_camera.xml`.
      *
-     * @param inflater LayoutInflater object used to inflate any views in the fragment
-     * @param container The parent view that the fragment's UI should be attached to
+     * @param inflater           LayoutInflater object used to inflate any views in the fragment
+     * @param container          The parent view that the fragment's UI should be attached to
      * @param savedInstanceState Bundle containing data about the previous state (if any)
-     * @return View for the camera fragment's UI
+     * @return View for the fragment's UI
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

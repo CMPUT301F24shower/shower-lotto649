@@ -14,7 +14,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.lotto649.HomeTab;
-import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
@@ -32,7 +31,7 @@ public class QrFragment extends Fragment {
      * @param bitmap The bitmap of the QR code to display.
      * @return A new instance of QrFragment containing the QR code image.
      */
-    public static QrFragment newInstance(Bitmap bitmap){
+    public static QrFragment newInstance(Bitmap bitmap) {
         QrFragment fragment = new QrFragment();
         Bundle args = new Bundle();
 
@@ -50,8 +49,8 @@ public class QrFragment extends Fragment {
      * Inflates the fragment's view, retrieves the QR code image from the arguments,
      * and displays it in an ImageView. Also sets up a back button to navigate to the HomeFragment.
      *
-     * @param inflater The LayoutInflater object that can be used to inflate views in the fragment.
-     * @param container The parent view that the fragment's UI should be attached to.
+     * @param inflater           The LayoutInflater object that can be used to inflate views in the fragment.
+     * @param container          The parent view that the fragment's UI should be attached to.
      * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state.
      * @return The View for the fragment's UI.
      */
@@ -73,8 +72,6 @@ public class QrFragment extends Fragment {
         }
 
         backButton.setOnClickListener(v -> {
-            // TODO make sure this doesn't mess up logic elsewhere
-            // Don't think this is right for when we are viewing QR code after creating, that being said maybe its fine anyways
             getParentFragmentManager().beginTransaction()
                     .replace(R.id.flFragment, new HomeTab())
                     .commit();

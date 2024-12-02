@@ -1,8 +1,3 @@
-/**
- * A fragment to display a given event's information.
- * This is used by an admin user to manage an event.
- * This fragment is reached through a list of events in the admin view.
- */
 package com.example.lotto649.Views.Fragments;
 
 import android.content.Context;
@@ -21,9 +16,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewTreeLifecycleOwner;
 
 import com.bumptech.glide.Glide;
 import com.example.lotto649.FirestoreHelper;
@@ -40,40 +33,37 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 /**
- * A fragment to display a given event's information.
- * This is used by an admin user to manage an event.
- * This fragment is reached through a list of events in the admin view.
+ * Fragment that allows users to join or unjoin an event.
+ * Displays event details such as name, status, location, available spots, start/end dates, and event poster.
+ * Provides functionality to join or leave the event depending on the user's status.
  */
 public class JoinEventFragment extends Fragment {
+    TextView name, status, location, spotsAvail, numAttendees, dates, geoLocation, description;
+    Button joinButton, unjoinButton;
+    ExtendedFloatingActionButton backButton;
+    String deviceId;
+    boolean isWinnerMode;
+    boolean noQr;
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
     private String firestoreEventId;
     private ImageView posterImage;
-    TextView name, status, location, spotsAvail, numAttendees, dates, geoLocation, description;
-    Button joinButton, unjoinButton;
-    ExtendedFloatingActionButton backButton;
     private Uri posterUri;
     private MutableLiveData<Boolean> imageAbleToBeDeleted, qrCodeAbleToBeDeleted;
     private Date startDate, endDate;
     private int curNum;
     private boolean geoRequired;
-    String deviceId;
-    boolean isWinnerMode;
-    boolean noQr;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -86,13 +76,13 @@ public class JoinEventFragment extends Fragment {
     }
 
     /**
-     * Called to create the view hierarchy associated with this fragment.
-     * This method inflates the layout defined in `fragment_browse_events.xml`.
+     * Called to create the view for the fragment.
+     * Sets up UI components, event listeners, and retrieves event data from Firestore.
      *
-     * @param inflater LayoutInflater object used to inflate any views in the fragment
-     * @param container The parent view that the fragment's UI should be attached to
-     * @param savedInstanceState Bundle containing data about the previous state (if any)
-     * @return View for the camera fragment's UI
+     * @param inflater           The LayoutInflater object to inflate the layout.
+     * @param container          The container that holds the fragment's view.
+     * @param savedInstanceState The saved instance state for the fragment (can be null).
+     * @return The view for this fragment.
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -155,7 +145,6 @@ public class JoinEventFragment extends Fragment {
                                         }
                                     }
                                 });
-                                // TODO check same thing in enrolled, cancelled ...
                                 String nameText = doc.getString("title");
                                 Long maxEntrants = (Long) doc.get("numberOfMaxEntrants");
                                 int maxNum;
@@ -319,7 +308,6 @@ public class JoinEventFragment extends Fragment {
                     doc.get().addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
-                            // TODO do we need entrant to be saved at all
                             if (!document.exists() || Boolean.FALSE.equals(document.getBoolean("entrant"))) {
                                 MyApp.getInstance().addFragmentToStack(new CreateAccountFragment());
                             } else if (document.exists()) {
@@ -337,8 +325,6 @@ public class JoinEventFragment extends Fragment {
                                     signUp.put("timestamp", FieldValue.serverTimestamp());
                                     signUp.put("eventDeleted", false);
                                     signUp.put("lottoStatus", "Waiting");
-
-                                    // TODO add geolocation data here
                                     if (geoRequired) {
                                         ((MainActivity) getActivity()).getUserLocation(getContext());
                                     }
@@ -358,10 +344,8 @@ public class JoinEventFragment extends Fragment {
                                         signUp.put("latitude", "");
                                     }
                                     db.collection("signUps").document(firestoreEventId + "_" + deviceId).set(signUp).addOnSuccessListener(listener -> {
-                                        // TODO set flags for entrant state, (in list, chosen, waiting for response...)
                                         joinButton.setVisibility(View.GONE);
                                         unjoinButton.setVisibility(View.VISIBLE);
-                                        // TODO make sure this event is added to home screen
                                     });
                                 }
                             }

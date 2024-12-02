@@ -166,7 +166,6 @@ public class UserModelTest {
         verify(mockFirestore).collection("users");
         verify(mockCollectionReference).document(mockDeviceId);
         verify(mockDocumentReference).update("field", "value");
-        // TODO: Add error handling to test for failure
 
     }
 
@@ -188,7 +187,6 @@ public class UserModelTest {
         verify(mockFirestore).collection("users");
         verify(mockCollectionReference).document(mockDeviceId);
         verify(mockDocumentReference).update("field", "value");
-        // TODO: Add error handling to test for failure
     }
 
 

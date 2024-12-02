@@ -1,7 +1,13 @@
 /**
  * A fragment to display a given profile's information.
- * This is used by an admin user to manage a profile.
- * This fragment is reached through a list of profiles in the admin view.
+ * <p>
+ * This fragment is used by an admin user to view and manage a user's profile.
+ * It is accessible from a list of profiles displayed in the admin view.
+ * </p>
+ * <p>
+ * Code for profile image fetching and display was implemented using the Glide library:
+ * https://github.com/bumptech/glide
+ * </p>
  */
 package com.example.lotto649.Views.Fragments;
 
@@ -10,7 +16,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -24,7 +29,6 @@ import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
@@ -36,18 +40,13 @@ import com.google.firebase.storage.StorageReference;
 import java.util.Objects;
 
 /**
- * A fragment to display a given profile's information.
- * This is used by an admin user to manage a profile.
- * This fragment is reached through a list of profiles in the admin view.
+ * A fragment to display and manage a user's profile information.
+ * <p>
+ * The fragment displays the user's name, email, phone number, roles, and profile image.
+ * Admin users can access this fragment to view specific user details from a list of profiles.
+ * </p>
  */
 public class CancelledListProfileFragment extends Fragment {
-    private FirebaseFirestore db;
-    private CollectionReference usersRef;
-    private TextView imagePlaceholder;
-    private LinearLayout linearLayout;
-    private ImageView profileImage;
-    private Uri profileUri;
-    private String nameText;
     TextView name;
     TextView email;
     TextView phone;
@@ -55,9 +54,16 @@ public class CancelledListProfileFragment extends Fragment {
     ExtendedFloatingActionButton backButton;
     String userDeviceId;
     String firestoreEventId;
+    private FirebaseFirestore db;
+    private CollectionReference usersRef;
+    private TextView imagePlaceholder;
+    private LinearLayout linearLayout;
+    private ImageView profileImage;
+    private Uri profileUri;
+    private String nameText;
 
     /**
-     * Public empty constructor for BrowseEventsFragment.
+     * Public empty constructor for CancelledListProfileFragment.
      * <p>
      * Required for proper instantiation of the fragment by the Android system.
      * </p>
@@ -68,12 +74,15 @@ public class CancelledListProfileFragment extends Fragment {
 
     /**
      * Called to create the view hierarchy associated with this fragment.
-     * This method inflates the layout defined in `fragment_browse_events.xml`.
+     * <p>
+     * This method inflates the layout defined in `fragment_waiting_list_profile.xml`
+     * and initializes the UI components to display user profile details.
+     * </p>
      *
-     * @param inflater LayoutInflater object used to inflate any views in the fragment
-     * @param container The parent view that the fragment's UI should be attached to
+     * @param inflater           LayoutInflater object used to inflate any views in the fragment
+     * @param container          The parent view that the fragment's UI should be attached to
      * @param savedInstanceState Bundle containing data about the previous state (if any)
-     * @return View for the camera fragment's UI
+     * @return View for the fragment's UI
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -97,7 +106,6 @@ public class CancelledListProfileFragment extends Fragment {
         roles = view.findViewById(R.id.admin_user_roles);
         profileImage = new ImageView(getContext());
         profileImage.setId(View.generateViewId());
-        // TODO: This is hardcoded, but works good on my phone, not sure if this is a good idea or not
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(450, 450);
         profileImage.setLayoutParams(layoutParams);
         profileImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -142,7 +150,7 @@ public class CancelledListProfileFragment extends Fragment {
                             }
                             roles.setText(rolesText);
 
-                        //     getting profile image
+                            //     getting profile image
                             imagePlaceholder.setText(new UserModel(getContext(), nameText, emailText).getInitials());
                             String profileUriString = doc.getString("profileImage");
                             if (!Objects.equals(profileUriString, "")) {

@@ -1,16 +1,5 @@
 package com.example.lotto649.Views.Fragments;
 
-/**
- * HomeFragment is a fragment class representing the home screen of the application.
- * <p>
- * This class inflates the layout for the home fragment and displays its content
- * when the fragment is created.
- * </p>
- * <p>
- * Code adapted from the following source for implementing a bottom navigation bar:
- * <a href="https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/">GeeksforGeeks: Bottom Navigation Bar in Android</a>
- * </p>
- */
 import android.content.Context;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -28,9 +17,9 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
-import com.example.lotto649.Views.ArrayAdapters.BrowseEventsArrayAdapter;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.R;
+import com.example.lotto649.Views.ArrayAdapters.BrowseEventsArrayAdapter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -38,6 +27,13 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.Objects;
 
+/**
+ * JoinedEventsFragment class displays the events that the user has joined and allows interaction with them.
+ * <p>
+ * This fragment fetches and displays a list of events the user is signed up for from Firestore.
+ * It shows a message if the user has not joined any events and allows navigation to a specific event's details.
+ * </p>
+ */
 public class JoinedEventsFragment extends Fragment {
     private BrowseEventsArrayAdapter eventAdapter;
 
@@ -49,10 +45,14 @@ public class JoinedEventsFragment extends Fragment {
     }
 
     /**
-     * Called to inflate the fragment's layout when it is created.
+     * Initializes the fragment's view hierarchy and fetches the events the user has joined.
+     * <p>
+     * This method inflates the layout, checks the user's account and facility status,
+     * retrieves the events the user has signed up for from Firestore, and updates the UI accordingly.
+     * </p>
      *
-     * @param inflater The LayoutInflater object that can be used to inflate views in the fragment.
-     * @param container If non-null, this is the parent view that the fragment's UI should be attached to.
+     * @param inflater           The LayoutInflater object that can be used to inflate views in the fragment.
+     * @param container          If non-null, this is the parent view that the fragment's UI should be attached to.
      * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state.
      * @return The View for the fragment's UI.
      */
@@ -104,6 +104,13 @@ public class JoinedEventsFragment extends Fragment {
             textView = null;
         }
         noJoinedEvents.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            /**
+             * Observes the status of the joined events and updates the UI accordingly.
+             * <p>
+             * If the user has not joined any events, a TextView is added to the layout to inform the user
+             * to scan a QR code to join an event. If events are available, the TextView is hidden.
+             * </p>
+             */
             @Override
             public void onChanged(Boolean aBoolean) {
                 if (Objects.equals(aBoolean, Boolean.TRUE)) {
@@ -139,13 +146,18 @@ public class JoinedEventsFragment extends Fragment {
         });
 
         eventsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            /**
+             * Handles interaction with the list of joined events.
+             * <p>
+             * When the user clicks on a joined event, the details of the event are opened in a new fragment.
+             * </p>
+             */
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 EventModel event = (EventModel) adapterView.getItemAtPosition(i);
 
                 String eventId = event.getEventId();
                 Bundle bundle = new Bundle();
-                // TODO check that this is a valid event first
                 bundle.putString("firestoreEventId", eventId);
                 JoinEventFragment frag = new JoinEventFragment();
                 frag.setArguments(bundle);

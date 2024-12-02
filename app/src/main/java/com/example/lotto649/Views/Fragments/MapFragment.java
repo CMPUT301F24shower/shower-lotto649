@@ -2,62 +2,39 @@ package com.example.lotto649.Views.Fragments;
 
 import static java.lang.Math.abs;
 
-import android.Manifest;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.databinding.ObservableArrayList;
 import androidx.databinding.ObservableList;
 import androidx.fragment.app.Fragment;
 
-import com.bumptech.glide.Glide;
-import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
-import org.checkerframework.checker.units.qual.A;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.ItemizedIconOverlay;
-import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
 import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.OverlayItem;
 
-import java.lang.reflect.Array;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-
+/**
+ * A Fragment that displays a map with coordinates from Firestore sign-ups.
+ * It updates markers on the map based on user sign-up locations and adjusts the map's zoom and center.
+ */
 public class MapFragment extends Fragment {
     private final int REQUEST_PERMISSIONS_REQUEST_CODE = 1;
     private MapView map = null;
@@ -95,8 +72,12 @@ public class MapFragment extends Fragment {
         }
     };
 
+    /**
+     * Updates the map with markers based on the coordinates in the coordsList.
+     * It also adjusts the map's zoom and center to fit all the markers.
+     */
     private void updateMapMarkings() {
-        map = (MapView) view.findViewById(R.id.map);
+        map = view.findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
@@ -108,7 +89,7 @@ public class MapFragment extends Fragment {
         mapController.setCenter(startPoint);
 
         // must have map showing on screen to be able to make changes - return otherwise
-        if (getActivity() == null || getActivity().isDestroyed()){
+        if (getActivity() == null || getActivity().isDestroyed()) {
             Log.e("JASON MAP", "Map is null - return");
             return;
         }
@@ -120,7 +101,7 @@ public class MapFragment extends Fragment {
         Double westPoint = 180.0;
 
         // Good resource for changing location on emulator: https://stackoverflow.com/questions/2279647/how-to-emulate-gps-location-in-the-android-emulator (second answer)
-        for (GeoPoint coord: coordsList) {
+        for (GeoPoint coord : coordsList) {
             // find new bounding points
             if (coord.getLatitude() > northPoint) northPoint = coord.getLatitude();
             if (coord.getLatitude() < southPoint) southPoint = coord.getLatitude();
@@ -143,6 +124,15 @@ public class MapFragment extends Fragment {
         }
     }
 
+    /**
+     * Called to create the fragment's view.
+     * Initializes the map, sets up the back button, and fetches sign-up data from Firestore.
+     *
+     * @param inflater           The LayoutInflater to inflate the layout.
+     * @param container          The container in which the view will be placed.
+     * @param savedInstanceState A bundle containing saved instance state (if any).
+     * @return The fragment's root view.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -155,7 +145,6 @@ public class MapFragment extends Fragment {
 
         backButton = view.findViewById(R.id.back_button);
 
-        // TODO: replace this with Isaac's stack replace code
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -176,7 +165,7 @@ public class MapFragment extends Fragment {
                 if (querySnapshots != null) {
                     Log.e("JASON MAP", "Getting signup information");
                     coordsList.clear();
-                    for (QueryDocumentSnapshot doc: querySnapshots) {
+                    for (QueryDocumentSnapshot doc : querySnapshots) {
                         String eventIdStr = doc.getString("eventId");
                         if (!eventIdStr.equals(eventId)) {
                             continue;

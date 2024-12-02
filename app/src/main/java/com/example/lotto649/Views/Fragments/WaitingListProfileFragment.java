@@ -1,8 +1,3 @@
-/**
- * A fragment to display a given profile's information.
- * This is used by an admin user to manage a profile.
- * This fragment is reached through a list of profiles in the admin view.
- */
 package com.example.lotto649.Views.Fragments;
 
 import android.net.Uri;
@@ -24,7 +19,6 @@ import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
@@ -37,18 +31,11 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * A fragment to display a given profile's information.
- * This is used by an admin user to manage a profile.
- * This fragment is reached through a list of profiles in the admin view.
+ * A fragment that displays the profile details of a user who is waiting for an event, including their
+ * name, email, phone, roles, and profile image. It provides an option to remove the user from the event
+ * and navigate back to the previous screen.
  */
 public class WaitingListProfileFragment extends Fragment {
-    private FirebaseFirestore db;
-    private CollectionReference usersRef;
-    private TextView imagePlaceholder;
-    private LinearLayout linearLayout;
-    private ImageView profileImage;
-    private Uri profileUri;
-    private String nameText;
     TextView name;
     TextView email;
     TextView phone;
@@ -57,6 +44,13 @@ public class WaitingListProfileFragment extends Fragment {
     ExtendedFloatingActionButton backButton;
     String userDeviceId;
     String firestoreEventId;
+    private FirebaseFirestore db;
+    private CollectionReference usersRef;
+    private TextView imagePlaceholder;
+    private LinearLayout linearLayout;
+    private ImageView profileImage;
+    private Uri profileUri;
+    private String nameText;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -69,13 +63,13 @@ public class WaitingListProfileFragment extends Fragment {
     }
 
     /**
-     * Called to create the view hierarchy associated with this fragment.
-     * This method inflates the layout defined in `fragment_browse_events.xml`.
+     * Called to create and initialize the fragment's view. It retrieves the user details from Firestore,
+     * sets up the profile UI elements, and handles user actions like removing the user or navigating back.
      *
-     * @param inflater LayoutInflater object used to inflate any views in the fragment
-     * @param container The parent view that the fragment's UI should be attached to
-     * @param savedInstanceState Bundle containing data about the previous state (if any)
-     * @return View for the camera fragment's UI
+     * @param inflater           The LayoutInflater used to inflate the fragment's view.
+     * @param container          The parent view that the fragment's UI will be attached to.
+     * @param savedInstanceState A bundle containing the state of the fragment if it was previously saved.
+     * @return The root view of the fragment.
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -98,7 +92,6 @@ public class WaitingListProfileFragment extends Fragment {
         removeUser = view.findViewById(R.id.admin_delete_user);
         profileImage = new ImageView(getContext());
         profileImage.setId(View.generateViewId());
-        // TODO: This is hardcoded, but works good on my phone, not sure if this is a good idea or not
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(450, 450);
         profileImage.setLayoutParams(layoutParams);
         profileImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -143,7 +136,7 @@ public class WaitingListProfileFragment extends Fragment {
                             }
                             roles.setText(rolesText);
 
-                        //     getting profile image
+                            //     getting profile image
                             imagePlaceholder.setText(new UserModel(getContext(), nameText, emailText).getInitials());
                             String profileUriString = doc.getString("profileImage");
                             if (!Objects.equals(profileUriString, "")) {
