@@ -26,15 +26,4 @@
         android:textColor="@color/lightOnSurfaceVariant"
         android:textSize="25sp" />
 
-    <TextView
-        android:id="@+id/facility_open_events"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="start"
-        android:fontFamily="sans-serif-medium"
-        android:text="Open Events"
-        android:padding="2dp"
-        android:textColor="@color/lightOnSurfaceVariant"
-        android:textSize="25sp" />
-
 </LinearLayout>
