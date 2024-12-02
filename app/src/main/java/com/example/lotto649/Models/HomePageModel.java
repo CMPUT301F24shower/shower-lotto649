@@ -1,14 +1,11 @@
 package com.example.lotto649.Models;
 
-import android.util.Log;
-
 import com.example.lotto649.AbstractClasses.AbstractModel;
 import com.example.lotto649.EventState;
 import com.example.lotto649.MyApp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,34 +17,8 @@ import java.util.Objects;
  * Interacts with Firebase Firestore to fetch and manage event data.
  */
 public class HomePageModel extends AbstractModel {
-    private ArrayList<EventModel> myEvents;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-    /**
-     * Callback interface for fetching event documents.
-     */
-    public interface EventFetchCallback {
-
-        /**
-         * Called when events are fetched from Firestore.
-         *
-         * @param events List of DocumentSnapshot objects representing events.
-         */
-        void onCallback(List<DocumentSnapshot> events);
-    }
-
-    /**
-     * Callback interface for retrieving the current user's events.
-     */
-    public interface MyEventsCallback {
-
-        /**
-         * Called when the user's events have been fetched.
-         *
-         * @param events ArrayList of EventModel instances representing the user's events.
-         */
-        void onEventsFetched(ArrayList<EventModel> events);
-    }
+    private final ArrayList<EventModel> myEvents;
 
     /**
      * Constructs an HomePageModel with an empty list of events.
@@ -126,5 +97,31 @@ public class HomePageModel extends AbstractModel {
                 callback.onEventsFetched(myEvents);
             }
         }, db);
+    }
+
+    /**
+     * Callback interface for fetching event documents.
+     */
+    public interface EventFetchCallback {
+
+        /**
+         * Called when events are fetched from Firestore.
+         *
+         * @param events List of DocumentSnapshot objects representing events.
+         */
+        void onCallback(List<DocumentSnapshot> events);
+    }
+
+    /**
+     * Callback interface for retrieving the current user's events.
+     */
+    public interface MyEventsCallback {
+
+        /**
+         * Called when the user's events have been fetched.
+         *
+         * @param events ArrayList of EventModel instances representing the user's events.
+         */
+        void onEventsFetched(ArrayList<EventModel> events);
     }
 }

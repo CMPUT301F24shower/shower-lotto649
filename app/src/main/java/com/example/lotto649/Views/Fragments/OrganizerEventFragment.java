@@ -1,8 +1,8 @@
 package com.example.lotto649.Views.Fragments;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.app.AlertDialog;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -47,13 +47,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Changes when the state of the event changes, and updates states on certain conditions.
  */
 public class OrganizerEventFragment extends Fragment {
-    private FirebaseFirestore db;
-    private CollectionReference eventsRef;
-    private String firestoreEventId;
-    private ImageView posterImage;
-    private String eventId;
-    private int numberOfSpots;
-    private EventModel event;
     TextView name;
     TextView status;
     TextView location;
@@ -64,6 +57,13 @@ public class OrganizerEventFragment extends Fragment {
     TextView description;
     TextView attendeesText;
     ExtendedFloatingActionButton optionsButtons, backButton, viewEntrantsMapButton, qrButton, viewEntrantsButton, editButton, randomButton, cancelButton, viewInvitedEntrantsButton, viewCanceledEntrants, sendCustomNotiButton, replacementWinnerButton, viewFinalEntrants;
+    private FirebaseFirestore db;
+    private CollectionReference eventsRef;
+    private String firestoreEventId;
+    private ImageView posterImage;
+    private String eventId;
+    private int numberOfSpots;
+    private EventModel event;
     private MutableLiveData<Boolean> hasQrCode;
     private MutableLiveData<Boolean> canDraw;
     private MutableLiveData<Boolean> canReplacementDraw;
@@ -88,8 +88,8 @@ public class OrganizerEventFragment extends Fragment {
      *            description, startDate, endDate, geo, numberOfMaxEntrants, numberOfSpots, organizerId, posterImage,
      *            qrCode, state, and title.
      * @return a new EventModel object populated with data from the provided DocumentSnapshot.
-     *         The EventModel is initialized with event-specific details like title, description, number of spots,
-     *         start and end dates, and state.
+     * The EventModel is initialized with event-specific details like title, description, number of spots,
+     * start and end dates, and state.
      */
     public EventModel getEventFromFirebaseObject(DocumentSnapshot doc) {
         String eventId = doc.getId();
@@ -340,7 +340,7 @@ public class OrganizerEventFragment extends Fragment {
                 CustomNotificationFragment customNotificationFragment = new CustomNotificationFragment();
                 customNotificationFragment.setArguments(bundle);
                 MyApp.getInstance().addFragmentToStack(customNotificationFragment);
-                dialog.dismiss();;
+                dialog.dismiss();
             }
         });
 
@@ -579,7 +579,7 @@ public class OrganizerEventFragment extends Fragment {
                 CustomNotificationFragment customNotificationFragment = new CustomNotificationFragment();
                 customNotificationFragment.setArguments(bundle);
                 MyApp.getInstance().addFragmentToStack(customNotificationFragment);
-                dialog.dismiss();;
+                dialog.dismiss();
             }
         });
 
@@ -633,8 +633,8 @@ public class OrganizerEventFragment extends Fragment {
      * This method is called to create and initialize the view hierarchy of the fragment. It retrieves the event ID passed in the fragment's arguments and prepares the necessary layout for display.
      * </p>
      *
-     * @param inflater the LayoutInflater object that can be used to inflate any views in the fragment
-     * @param container the parent view that the fragment's UI should be attached to, or null if it does not have one
+     * @param inflater           the LayoutInflater object that can be used to inflate any views in the fragment
+     * @param container          the parent view that the fragment's UI should be attached to, or null if it does not have one
      * @param savedInstanceState if non-null, this fragment is being re-constructed from a previous saved state as given here
      * @return the view for the fragment's UI
      */
@@ -789,7 +789,7 @@ public class OrganizerEventFragment extends Fragment {
 
                             String eventState = doc.getString("state");
                             if (eventState != null) {
-                                status.setText(eventState);;
+                                status.setText(eventState);
                             } else {
                                 status.setText("OPEN");
                             }
@@ -915,9 +915,9 @@ public class OrganizerEventFragment extends Fragment {
      * @param doc the DocumentSnapshot containing event data retrieved from Firestore
      */
     private void checkEventStateInfo(DocumentSnapshot doc) {
-        Log.e("JASON REDRAW", "numWinners: " + Integer.toString(numWinners.getValue()));
-        Log.e("JASON REDRAW", "numNotSelected: " + Integer.toString(numNotSelected.getValue()));
-        Log.e("JASON REDRAW", "numEnrolled: " + Integer.toString(numEnrolled.getValue()));
+        Log.e("JASON REDRAW", "numWinners: " + numWinners.getValue());
+        Log.e("JASON REDRAW", "numNotSelected: " + numNotSelected.getValue());
+        Log.e("JASON REDRAW", "numEnrolled: " + numEnrolled.getValue());
 //                            Log.e("JASON REDRAW", "numSpots: " + Integer.toString(numSpots.intValue()));
         Long numSpotsLong = doc.getLong("numberOfSpots");
         int numSpots = 0;

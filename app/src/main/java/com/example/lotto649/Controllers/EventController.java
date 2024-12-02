@@ -4,6 +4,7 @@ import com.example.lotto649.AbstractClasses.AbstractController;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.MyApp;
 import com.google.android.gms.tasks.OnSuccessListener;
+
 import java.util.Date;
 
 /**
@@ -65,7 +66,9 @@ public class EventController extends AbstractController {
      *
      * @param maxEntrants The maximum number of entrants.
      */
-    public void updateNumberOfMaxEntrants(int maxEntrants) { getModel().setNumberOfMaxEntrants(maxEntrants); }
+    public void updateNumberOfMaxEntrants(int maxEntrants) {
+        getModel().setNumberOfMaxEntrants(maxEntrants);
+    }
 
     /**
      * Updates the start date of the event.
@@ -102,12 +105,13 @@ public class EventController extends AbstractController {
     public void updatePoster(String posterUri) {
         getModel().setPosterImage(posterUri);
     }
+
     /**
      * Updates QR Code hash
      *
      * @param qrCodeHash The hash of the new QR code.
      */
-    public void updateQrCode(String qrCodeHash){
+    public void updateQrCode(String qrCodeHash) {
         getModel().setQrCode(qrCodeHash);
     }
 

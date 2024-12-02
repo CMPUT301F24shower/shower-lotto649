@@ -13,7 +13,7 @@ import com.example.lotto649.AbstractClasses.AbstractModel;
 public class FacilityModel extends AbstractModel {
     private String facilityName;
     private String address;
-    private String deviceId;
+    private final String deviceId;
 
     /**
      * Constructor to create a new facility with only a deviceId.
@@ -30,9 +30,9 @@ public class FacilityModel extends AbstractModel {
     /**
      * Constructor to create a new facility with a deviceId, facility name, and optional address.
      *
-     * @param deviceId the deviceId of the organizer that created the facility
+     * @param deviceId     the deviceId of the organizer that created the facility
      * @param facilityName the name of the facility being created
-     * @param address the address of the facility being created
+     * @param address      the address of the facility being created
      */
     public FacilityModel(String deviceId, String facilityName, String address) {
         this.facilityName = facilityName;

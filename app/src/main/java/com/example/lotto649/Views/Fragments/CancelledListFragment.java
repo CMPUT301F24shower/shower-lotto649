@@ -73,20 +73,20 @@ import java.util.Objects;
  * </p>
  */
 public class CancelledListFragment extends Fragment {
+    ExtendedFloatingActionButton backButton;
     private ArrayList<String> deviceIdList;
     private ArrayList<UserModel> dataList;
     private ListView browseProfilesList;
     private BrowseProfilesArrayAdapter profilesAdapter;
     private FirebaseFirestore db;
-    ExtendedFloatingActionButton backButton;
     private String firestoreEventId;
 
     /**
      * Called to create the view hierarchy associated with this fragment.
      * Initializes the layout, retrieves data from Firestore, and sets up UI components.
      *
-     * @param inflater LayoutInflater object used to inflate the fragment's layout
-     * @param container The parent view that this fragment's UI should be attached to
+     * @param inflater           LayoutInflater object used to inflate the fragment's layout
+     * @param container          The parent view that this fragment's UI should be attached to
      * @param savedInstanceState Bundle containing the previous state of the fragment (if any)
      * @return The root view of this fragment
      */
@@ -128,7 +128,7 @@ public class CancelledListFragment extends Fragment {
                 }
                 if (querySnapshots != null) {
                     dataList.clear();
-                    for (QueryDocumentSnapshot doc: querySnapshots) {
+                    for (QueryDocumentSnapshot doc : querySnapshots) {
                         String deviceId = doc.getString("userId");
                         db.collection("users").document(deviceId).get().addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
@@ -195,7 +195,7 @@ public class CancelledListFragment extends Fragment {
         browseProfilesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String chosenUserId = (String) deviceIdList.get(i);
+                String chosenUserId = deviceIdList.get(i);
                 Bundle bundle = new Bundle();
                 bundle.putString("userDeviceId", chosenUserId);
                 bundle.putString("firestoreEventId", firestoreEventId);

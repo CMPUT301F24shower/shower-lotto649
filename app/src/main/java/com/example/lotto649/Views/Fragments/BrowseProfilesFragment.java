@@ -13,7 +13,6 @@ package com.example.lotto649.Views.Fragments;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,16 +23,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.lotto649.Models.FacilityModel;
 import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
-import com.example.lotto649.Views.ArrayAdapters.BrowseFacilitiesArrayAdapter;
 import com.example.lotto649.Views.ArrayAdapters.BrowseProfilesArrayAdapter;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -80,6 +74,7 @@ public class BrowseProfilesFragment extends Fragment {
 
     /**
      * Attaches the fragment to the app, and sets the context
+     *
      * @param context the given context
      */
     @Override
@@ -91,8 +86,8 @@ public class BrowseProfilesFragment extends Fragment {
     /**
      * Called to create the view hierarchy associated with this fragment.
      *
-     * @param inflater LayoutInflater object used to inflate any views in the fragment
-     * @param container The parent view that the fragment's UI should be attached to
+     * @param inflater           LayoutInflater object used to inflate any views in the fragment
+     * @param container          The parent view that the fragment's UI should be attached to
      * @param savedInstanceState Bundle containing data about the previous state (if any)
      * @return View for this fragment
      */
@@ -122,7 +117,7 @@ public class BrowseProfilesFragment extends Fragment {
                 }
                 if (querySnapshots != null) {
                     dataList.clear();
-                    for (QueryDocumentSnapshot doc: querySnapshots) {
+                    for (QueryDocumentSnapshot doc : querySnapshots) {
                         String deviceIdText = doc.getId();
                         String nameText = doc.getString("name");
                         String emailText = doc.getString("email");
@@ -140,7 +135,7 @@ public class BrowseProfilesFragment extends Fragment {
         browseProfilesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String chosenUserId = (String) deviceIdList.get(i);
+                String chosenUserId = deviceIdList.get(i);
                 Bundle bundle = new Bundle();
                 bundle.putString("userDeviceId", chosenUserId);
                 AdminProfileFragment frag = new AdminProfileFragment();

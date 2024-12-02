@@ -21,7 +21,6 @@ import androidx.fragment.app.Fragment;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 /**
  * AdminAndUserFragment class represents a fragment for a user who is an admin and some other user type.
@@ -50,8 +49,8 @@ public class AdminAndUserFragment extends Fragment {
     /**
      * Called to create the view hierarchy associated with this fragment.
      *
-     * @param inflater LayoutInflater object used to inflate any views in the fragment
-     * @param container The parent view that the fragment's UI should be attached to
+     * @param inflater           LayoutInflater object used to inflate any views in the fragment
+     * @param container          The parent view that the fragment's UI should be attached to
      * @param savedInstanceState Bundle containing data about the previous state (if any)
      * @return View for the fragment's UI
      */

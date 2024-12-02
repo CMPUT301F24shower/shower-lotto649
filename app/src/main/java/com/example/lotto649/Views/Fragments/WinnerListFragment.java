@@ -1,9 +1,7 @@
-
 package com.example.lotto649.Views.Fragments;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,24 +26,20 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A fragment that displays the list of winners for a specific event. It retrieves the winners from Firestore
  * and displays their profiles in a list. If there are no winners, a message is shown.
  */
 public class WinnerListFragment extends Fragment {
+    ExtendedFloatingActionButton backButton;
     private ArrayList<String> winnerList, deviceIdList;
     private ArrayList<UserModel> dataList;
     private ListView browseProfilesList;
@@ -53,7 +47,6 @@ public class WinnerListFragment extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference userRef;
     private Context mContext;
-    ExtendedFloatingActionButton backButton;
     private String firestoreEventId;
 
     /**
@@ -68,6 +61,7 @@ public class WinnerListFragment extends Fragment {
 
     /**
      * Attaches the fragment to the app, and sets the context
+     *
      * @param context the given context
      */
     @Override
@@ -81,8 +75,8 @@ public class WinnerListFragment extends Fragment {
      * fetching the list of winners, and updating the UI when data is retrieved.
      * If no winners are found, a message will be displayed.
      *
-     * @param inflater The LayoutInflater used to inflate the fragment's view.
-     * @param container The parent view that the fragment's UI will be attached to.
+     * @param inflater           The LayoutInflater used to inflate the fragment's view.
+     * @param container          The parent view that the fragment's UI will be attached to.
      * @param savedInstanceState A bundle containing the state of the fragment if it was previously saved.
      * @return The root view of the fragment.
      */
@@ -124,7 +118,7 @@ public class WinnerListFragment extends Fragment {
                 if (querySnapshots != null) {
                     dataList.clear();
 
-                    for (QueryDocumentSnapshot doc: querySnapshots) {
+                    for (QueryDocumentSnapshot doc : querySnapshots) {
                         String deviceId = doc.getString("userId");
                         db.collection("users").document(deviceId).get().addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
@@ -193,7 +187,7 @@ public class WinnerListFragment extends Fragment {
         browseProfilesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String userId = (String) deviceIdList.get(i);
+                String userId = deviceIdList.get(i);
                 Bundle bundle = new Bundle();
                 bundle.putString("eventId", firestoreEventId);
                 bundle.putString("userId", userId);

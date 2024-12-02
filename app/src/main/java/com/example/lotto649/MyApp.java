@@ -7,8 +7,6 @@
  */
 package com.example.lotto649;
 
-import static android.app.PendingIntent.getActivity;
-
 import android.app.Application;
 
 import androidx.fragment.app.Fragment;
@@ -21,8 +19,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.lang.ref.WeakReference;
 
 public class MyApp extends Application {
-    private UserModel user;
     private static MyApp instance;
+    private UserModel user;
     private WeakReference<FragmentActivity> currentActivity;
 
     /**
@@ -32,6 +30,15 @@ public class MyApp extends Application {
      */
     public static MyApp getInstance() {
         return instance;
+    }
+
+    /**
+     * Sets the singleton instance of MyApp.
+     *
+     * @param instance The MyApp instance to set.
+     */
+    public static void setInstance(MyApp instance) {
+        MyApp.instance = instance;
     }
 
     /**
@@ -53,15 +60,6 @@ public class MyApp extends Application {
      */
     public UserModel getUserModel() {
         return user;
-    }
-
-    /**
-     * Sets the singleton instance of MyApp.
-     *
-     * @param instance The MyApp instance to set.
-     */
-    public static void setInstance(MyApp instance) {
-        MyApp.instance = instance;
     }
 
     /**

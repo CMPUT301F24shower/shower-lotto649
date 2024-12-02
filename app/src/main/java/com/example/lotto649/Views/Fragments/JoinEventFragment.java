@@ -1,4 +1,3 @@
-
 package com.example.lotto649.Views.Fragments;
 
 import android.content.Context;
@@ -17,9 +16,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewTreeLifecycleOwner;
 
 import com.bumptech.glide.Glide;
 import com.example.lotto649.FirestoreHelper;
@@ -36,16 +33,13 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -55,21 +49,21 @@ import java.util.Objects;
  * Provides functionality to join or leave the event depending on the user's status.
  */
 public class JoinEventFragment extends Fragment {
+    TextView name, status, location, spotsAvail, numAttendees, dates, geoLocation, description;
+    Button joinButton, unjoinButton;
+    ExtendedFloatingActionButton backButton;
+    String deviceId;
+    boolean isWinnerMode;
+    boolean noQr;
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
     private String firestoreEventId;
     private ImageView posterImage;
-    TextView name, status, location, spotsAvail, numAttendees, dates, geoLocation, description;
-    Button joinButton, unjoinButton;
-    ExtendedFloatingActionButton backButton;
     private Uri posterUri;
     private MutableLiveData<Boolean> imageAbleToBeDeleted, qrCodeAbleToBeDeleted;
     private Date startDate, endDate;
     private int curNum;
     private boolean geoRequired;
-    String deviceId;
-    boolean isWinnerMode;
-    boolean noQr;
 
     /**
      * Public empty constructor for BrowseEventsFragment.

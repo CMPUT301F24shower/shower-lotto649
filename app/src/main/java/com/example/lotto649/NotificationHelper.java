@@ -11,6 +11,7 @@ import android.os.Build;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+
 /**
  * Helper class to manage sending notifications in the app.
  * <p>This class provides methods to send notifications to the user with customizable titles, content, and event data.</p>
@@ -22,10 +23,10 @@ public class NotificationHelper {
      * <p>This method creates a notification with a given title, content, and event ID. If the device's SDK version is Oreo or higher,
      * it also creates a notification channel. The notification will navigate to the {@link MainActivity} when clicked.</p>
      *
-     * @param context The context from which the notification is sent.
-     * @param textTitle The title of the notification.
+     * @param context     The context from which the notification is sent.
+     * @param textTitle   The title of the notification.
      * @param textContent The content of the notification.
-     * @param eventId A unique event identifier passed to {@link MainActivity}.
+     * @param eventId     A unique event identifier passed to {@link MainActivity}.
      */
     public void sendNotification(Context context, CharSequence textTitle, String textContent, String eventId) {
         String CHANNEL_ID = "test_channel";
@@ -83,8 +84,8 @@ public class NotificationHelper {
      * <p>This method creates a notification with a given title and content, and if the device's SDK version is Oreo or higher,
      * it also creates a notification channel. The notification will navigate to the {@link MainActivity} when clicked.</p>
      *
-     * @param context The context from which the notification is sent.
-     * @param textTitle The title of the notification.
+     * @param context     The context from which the notification is sent.
+     * @param textTitle   The title of the notification.
      * @param textContent The content of the notification.
      */
     public void sendCancelledNotification(Context context, CharSequence textTitle, String textContent) {

@@ -12,7 +12,6 @@
 
 package com.example.lotto649.Views.Fragments;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +24,6 @@ import androidx.fragment.app.Fragment;
 
 import com.example.lotto649.EventState;
 import com.example.lotto649.Models.EventModel;
-import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.example.lotto649.Views.ArrayAdapters.BrowseEventsArrayAdapter;
@@ -74,8 +72,8 @@ public class BrowseEventsFragment extends Fragment {
     /**
      * Called to create the view hierarchy associated with this fragment.
      *
-     * @param inflater LayoutInflater object used to inflate any views in the fragment
-     * @param container The parent view that the fragment's UI should be attached to
+     * @param inflater           LayoutInflater object used to inflate any views in the fragment
+     * @param container          The parent view that the fragment's UI should be attached to
      * @param savedInstanceState Bundle containing data about the previous state (if any)
      * @return View for this fragment
      */
@@ -105,7 +103,7 @@ public class BrowseEventsFragment extends Fragment {
                 }
                 if (querySnapshots != null) {
                     dataList.clear();
-                    for (QueryDocumentSnapshot doc: querySnapshots) {
+                    for (QueryDocumentSnapshot doc : querySnapshots) {
                         String eventId = doc.getId();
                         String title = doc.getString("title");
                         String facilityId = doc.getString("organizerId");
@@ -130,7 +128,7 @@ public class BrowseEventsFragment extends Fragment {
                         } else if (Objects.equals(stateStr, "CLOSED")) {
                             state = EventState.CLOSED;
                         }
-                        EventModel event =  new EventModel(title, description, numberOfSpots,
+                        EventModel event = new EventModel(title, description, numberOfSpots,
                                 numberOfMaxEntrants, startDate, endDate, posterImageUriString, geo, qrCodeHash,
                                 state, null);
                         event.setEventId(eventId);

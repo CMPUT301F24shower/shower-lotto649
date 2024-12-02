@@ -6,7 +6,6 @@
 package com.example.lotto649.Views.Fragments;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,9 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.lotto649.FirestoreHelper;
-import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.MyApp;
-import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -28,11 +25,6 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 /**
  * A fragment to display a given facility's information.
@@ -59,8 +51,8 @@ public class AdminFacilityFragment extends Fragment {
      * Called to create the view hierarchy associated with this fragment.
      * This method inflates the layout defined in `fragment_admin_view_facility.xml`.
      *
-     * @param inflater LayoutInflater object used to inflate any views in the fragment
-     * @param container The parent view that the fragment's UI should be attached to
+     * @param inflater           LayoutInflater object used to inflate any views in the fragment
+     * @param container          The parent view that the fragment's UI should be attached to
      * @param savedInstanceState Bundle containing data about the previous state (if any)
      * @return View for the fragment's UI
      */
@@ -78,7 +70,7 @@ public class AdminFacilityFragment extends Fragment {
         eventsRef = db.collection("events");
 
         TextView name = view.findViewById(R.id.admin_facility_name);
-        TextView address  = view.findViewById(R.id.admin_facility_address);
+        TextView address = view.findViewById(R.id.admin_facility_address);
         Button deleteButton = view.findViewById(R.id.admin_delete_facility);
         ExtendedFloatingActionButton backButton = view.findViewById(R.id.back_button);
 
@@ -121,7 +113,7 @@ public class AdminFacilityFragment extends Fragment {
                                         .replace(R.id.flFragment, frag, null)
                                         .addToBackStack(null)
                                         .commit();
-                            //     add success log
+                                //     add success log
                             }
                         });
             }

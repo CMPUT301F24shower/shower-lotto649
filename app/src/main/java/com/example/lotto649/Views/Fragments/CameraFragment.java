@@ -80,8 +80,8 @@ public class CameraFragment extends Fragment {
      * This method inflates the layout defined in `fragment_camera.xml` and initializes
      * the camera if permissions are granted, or requests permissions otherwise.
      *
-     * @param inflater LayoutInflater object used to inflate any views in the fragment.
-     * @param container The parent view that the fragment's UI should be attached to.
+     * @param inflater           LayoutInflater object used to inflate any views in the fragment.
+     * @param container          The parent view that the fragment's UI should be attached to.
      * @param savedInstanceState Bundle containing data about the previous state (if any).
      * @return View for the camera fragment's UI.
      */
@@ -172,8 +172,8 @@ public class CameraFragment extends Fragment {
      * it logs an error indicating that permissions were not granted.
      * </p>
      *
-     * @param requestCode The request code passed in requestPermissions().
-     * @param permissions The requested permissions.
+     * @param requestCode  The request code passed in requestPermissions().
+     * @param permissions  The requested permissions.
      * @param grantResults The grant results for the corresponding permissions.
      */
     @Override

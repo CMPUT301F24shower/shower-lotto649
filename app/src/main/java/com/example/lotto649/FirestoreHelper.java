@@ -9,7 +9,6 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -18,7 +17,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * Helper class for doing common operations with our Firestore databse.
@@ -30,14 +28,14 @@ import java.util.concurrent.CountDownLatch;
  */
 public class FirestoreHelper {
     private static FirestoreHelper instance;
-    private FirebaseFirestore db;
-    private CollectionReference eventsRef;
-    private CollectionReference usersRef;
-    private CollectionReference facilitiesRef;
-    private CollectionReference signUpRef;
-    private FirebaseStorage storageRef;
-    private Context context;
     boolean waitingForWaitList;
+    private final FirebaseFirestore db;
+    private final CollectionReference eventsRef;
+    private final CollectionReference usersRef;
+    private final CollectionReference facilitiesRef;
+    private final CollectionReference signUpRef;
+    private final FirebaseStorage storageRef;
+    private Context context;
 
     // Private constructor to prevent instantiation
 
@@ -79,6 +77,7 @@ public class FirestoreHelper {
     }
 
     // Initialize with context (call this from your Activity)
+
     /**
      * Initializes the singleton using a given context
      *
@@ -184,7 +183,7 @@ public class FirestoreHelper {
      * Gets the current size of the waiting list for the given event
      *
      * @param eventId the id of the given event
-     * @param data a MutableLiveData object to be used by caller
+     * @param data    a MutableLiveData object to be used by caller
      */
     public void getWaitlistSize(String eventId, MutableLiveData<Integer> data) {
         db.collection("signUps")
@@ -203,7 +202,7 @@ public class FirestoreHelper {
      * Gets the current size of the winners list for the given event
      *
      * @param eventId the id of the given event
-     * @param data a MutableLiveData object to be used by caller
+     * @param data    a MutableLiveData object to be used by caller
      */
     public void getWinnersSize(String eventId, MutableLiveData<Integer> data) {
         db.collection("winners")
@@ -224,7 +223,7 @@ public class FirestoreHelper {
      * Gets the current size of the enrolled list for the given event
      *
      * @param eventId the id of the given event
-     * @param data a MutableLiveData object to be used by caller
+     * @param data    a MutableLiveData object to be used by caller
      */
     public void getEnrolledSize(String eventId, MutableLiveData<Integer> data) {
         db.collection("enrolled")
@@ -243,7 +242,7 @@ public class FirestoreHelper {
      * Gets the current size of the not selected list for the given event
      *
      * @param eventId the id of the given event
-     * @param data a MutableLiveData object to be used by caller
+     * @param data    a MutableLiveData object to be used by caller
      */
     public void getNotSelectedSize(String eventId, MutableLiveData<Integer> data) {
         db.collection("notSelected")

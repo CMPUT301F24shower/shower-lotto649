@@ -18,11 +18,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+
 /**
  * Helper class for uploading images to Firebase Storage and updating user profile information in Firestore.
  *
@@ -42,8 +39,8 @@ public class FirebaseStorageHelper {
      * the URL of the uploaded image. The Firestore document is identified by removing the ".jpg"
      * extension from the provided file name.</p>
      *
-     * @param imageUri   The Uri of the image to upload.
-     * @param fileName   The name to use for the image file in Firebase Storage (e.g., "user123.jpg").
+     * @param imageUri The Uri of the image to upload.
+     * @param fileName The name to use for the image file in Firebase Storage (e.g., "user123.jpg").
      */
     public static void uploadProfileImageToFirebaseStorage(Uri imageUri, String fileName, AtomicReference<String> currentImageUriString, MutableLiveData<Boolean> imageAbleToBeDeleted) {
         Log.e("JASON TEST", "uploadProfileImageToFirebaseStorage");
@@ -67,7 +64,6 @@ public class FirebaseStorageHelper {
     }
 
 
-
     /**
      * Uploads a poster image to Firebase Storage.
      *
@@ -76,8 +72,8 @@ public class FirebaseStorageHelper {
      * the URL of the uploaded image. The Firestore document is identified by removing the ".jpg"
      * extension from the provided file name.</p>
      *
-     * @param imageUri   The Uri of the image to upload.
-     * @param fileName   The name to use for the image file in Firebase Storage (e.g., "user123.jpg").
+     * @param imageUri The Uri of the image to upload.
+     * @param fileName The name to use for the image file in Firebase Storage (e.g., "user123.jpg").
      */
     public static void uploadPosterImageToFirebaseStorage(Uri imageUri, String fileName, AtomicReference<String> currentImageUriString, MutableLiveData<Boolean> imageAbleToBeDeleted) {
         if (imageUri == null) {

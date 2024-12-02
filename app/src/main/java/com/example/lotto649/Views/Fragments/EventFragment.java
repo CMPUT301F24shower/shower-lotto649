@@ -51,28 +51,130 @@ import java.util.concurrent.atomic.AtomicReference;
  * Allows users to view, modify, and save event information to Firestore.
  */
 public class EventFragment extends Fragment {
+    private static final int PICK_IMAGE_REQUEST = 1;
+    ImageView posterImage;
+    ImageView defaultImage;
+    Uri currentImageUri;
     private EventController eventController;
     private EventModel event;
     private Context mContext;
-
     private TextInputLayout titleInputLayout, descriptionInputLayout, lotteryStartDateFieldLayout, lotteryEndDateFieldLayout, spotsInputLayout, maxEntrantsInputLayout;
     private TextInputEditText titleEditText, descriptionEditText, lotteryStartDateFieldText, lotteryEndDateFieldText, spotsEditText, maxEntrantsEditText;
     private String initialTitle, initialDescription, initialStartDate, initialEndDate, initialAttendees, initialMaxEntrants;
     private CheckBox geoCheck;
     private ExtendedFloatingActionButton cancelButton, saveButton;
-
-    private AtomicReference<Date> startDate = new AtomicReference<>(new Date());
-    private AtomicReference<Date> endDate = new AtomicReference<>(new Date());
+    private final AtomicReference<Date> startDate = new AtomicReference<>(new Date());
+    private final AtomicReference<Date> endDate = new AtomicReference<>(new Date());
     private boolean isAddingFirstTime;
-
-    private static final int PICK_IMAGE_REQUEST = 1;
     private boolean hasSetImage;
-    ImageView posterImage;
-    ImageView defaultImage;
-    Uri currentImageUri;
     private AtomicReference<String> currentImageUriString;
     private MutableLiveData<Boolean> posterLoadedInFirestore;
     private MutableLiveData<Boolean> saveButtonShow;
+    /**
+     * Text watcher for the event title
+     */
+    private final TextWatcher titleWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {
+        }
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
+    /**
+     * Text watcher for the event description
+     */
+    private final TextWatcher descriptionWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {
+        }
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
+    /**
+     * Text watcher for the event start date
+     */
+    private final TextWatcher startDateWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {
+        }
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
+    /**
+     * Text watcher for the event end date
+     */
+    private final TextWatcher endDateWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {
+        }
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
+    /**
+     * Text watcher for the event attendees
+     */
+    private final TextWatcher attendeesWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {
+        }
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
+    /**
+     * Text watcher for the event maximum wait list size
+     */
+    private final TextWatcher maxSizeWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {
+        }
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
+
+    /**
+     * Default constructor, indicating that this is a new event.
+     */
+    public EventFragment() {
+        Log.e("Ohm", "Construct");
+        isAddingFirstTime = true;
+    }
+
+    /**
+     * Constructor to edit an existing event.
+     *
+     * @param event The existing EventModel to be edited.
+     */
+    public EventFragment(EventModel event) {
+        Log.e("Ohm", "Contruct Event");
+        isAddingFirstTime = false;
+        this.event = event;
+    }
+
+    // https://stackoverflow.com/questions/38604157/android-date-time-picker-in-one-dialog
 
     /**
      * Displays details of the provided EventModel in the UI components.
@@ -143,25 +245,6 @@ public class EventFragment extends Fragment {
             this.event.setEventId(String.valueOf(System.currentTimeMillis()));
         }
         mContext = context;
-    }
-
-    /**
-     * Default constructor, indicating that this is a new event.
-     */
-    public EventFragment() {
-        Log.e("Ohm", "Construct");
-        isAddingFirstTime = true;
-    }
-
-    /**
-     * Constructor to edit an existing event.
-     *
-     * @param event The existing EventModel to be edited.
-     */
-    public EventFragment(EventModel event) {
-        Log.e("Ohm", "Contruct Event");
-        isAddingFirstTime = false;
-        this.event = event;
     }
 
     /**
@@ -376,22 +459,21 @@ public class EventFragment extends Fragment {
             if (spotsStr.isBlank()) {
                 spotsInputLayout.setError("Please enter valid number of attendees of your event");
                 hasError = true;
-            } else if (spotsStr.equals("0")){
+            } else if (spotsStr.equals("0")) {
                 spotsInputLayout.setError("Please enter a positive number");
                 hasError = true;
             } else {
                 spots = Integer.parseInt(spotsStr);
                 spotsInputLayout.setError(null);
             }
-            if (maxEntrantsStr.equals("0")){
+            if (maxEntrantsStr.equals("0")) {
                 maxEntrantsInputLayout.setError("Please enter a positive number");
                 hasError = true;
             } else if (!maxEntrantsStr.isBlank()) {
                 if (Integer.parseInt(maxEntrantsStr) < Integer.parseInt(spotsStr)) {
                     maxEntrantsInputLayout.setError("Waiting List Size must be at least as large as number of possible attendees.");
                     hasError = true;
-                }
-                else {
+                } else {
                     maxEntrants = Integer.parseInt(maxEntrantsStr);
                 }
             }
@@ -442,7 +524,7 @@ public class EventFragment extends Fragment {
     /**
      * Displays a date picker dialog and updates the selected date in the specified EditText field.
      *
-     * @param dateToPick   The EditText field to update with the selected date.
+     * @param dateToPick    The EditText field to update with the selected date.
      * @param dateReference The AtomicReference to hold the selected date.
      * @param startdate     The starting date for the date picker.
      */
@@ -469,15 +551,14 @@ public class EventFragment extends Fragment {
         datePickerDialog.show();
     }
 
-    // https://stackoverflow.com/questions/38604157/android-date-time-picker-in-one-dialog
     /**
      * Displays a time picker dialog and updates the selected time in the specified EditText field.
      *
-     * @param dateToPick   The EditText field to update with the selected date.
+     * @param dateToPick    The EditText field to update with the selected date.
      * @param dateReference The AtomicReference to hold the selected date.
-     * @param year the year from the previous date picked
-     * @param month the month from the previous date picked
-     * @param day the day from the previous date picked
+     * @param year          the year from the previous date picked
+     * @param month         the month from the previous date picked
+     * @param day           the day from the previous date picked
      */
     private void timePicker(EditText dateToPick, AtomicReference<Date> dateReference, int year, int month, int day) {
         final Calendar calendar = Calendar.getInstance();
@@ -487,23 +568,22 @@ public class EventFragment extends Fragment {
         // Launch Time Picker Dialog
         TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(),
                 (view, hourOfDay, minuteOfDay) -> {
-            String hourText = String.format("%02d", hourOfDay);
-            String minuteText = String.format("%02d", minuteOfDay);
+                    String hourText = String.format("%02d", hourOfDay);
+                    String minuteText = String.format("%02d", minuteOfDay);
 
-            dateToPick.setText(dateToPick.getText().toString() + " (" + hourText + ":" + minuteText + " MST)");
+                    dateToPick.setText(dateToPick.getText().toString() + " (" + hourText + ":" + minuteText + " MST)");
 
-            // Update the date reference with the selected date
-                Calendar setCal = Calendar.getInstance();
-                setCal.set(Calendar.YEAR, year);
-                setCal.set(Calendar.MONTH, month);
-                setCal.set(Calendar.DAY_OF_MONTH, day);
-                setCal.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                setCal.set(Calendar.MINUTE, minuteOfDay);
-                dateReference.set(setCal.getTime());
-            }, hour, minute, true);
+                    // Update the date reference with the selected date
+                    Calendar setCal = Calendar.getInstance();
+                    setCal.set(Calendar.YEAR, year);
+                    setCal.set(Calendar.MONTH, month);
+                    setCal.set(Calendar.DAY_OF_MONTH, day);
+                    setCal.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                    setCal.set(Calendar.MINUTE, minuteOfDay);
+                    dateReference.set(setCal.getTime());
+                }, hour, minute, true);
         timePickerDialog.show();
     }
-
 
     /**
      * checks if the information in the edit text boxes changed
@@ -518,84 +598,6 @@ public class EventFragment extends Fragment {
                 && Objects.equals(spotsEditText.getEditableText().toString(), initialAttendees)
                 && Objects.equals(maxEntrantsEditText.getEditableText().toString(), initialMaxEntrants);
     }
-
-    /**
-     * Text watcher for the event title
-     */
-    private final TextWatcher titleWatcher = new TextWatcher() {
-        public void afterTextChanged(Editable s) {}
-
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SetSaveButtonVisibility(DidInfoRemainConstant());
-        }
-    };
-
-    /**
-     * Text watcher for the event description
-     */
-    private final TextWatcher descriptionWatcher = new TextWatcher() {
-        public void afterTextChanged(Editable s) {}
-
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SetSaveButtonVisibility(DidInfoRemainConstant());
-        }
-    };
-
-    /**
-     * Text watcher for the event start date
-     */
-    private final TextWatcher startDateWatcher = new TextWatcher() {
-        public void afterTextChanged(Editable s) {}
-
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SetSaveButtonVisibility(DidInfoRemainConstant());
-        }
-    };
-
-    /**
-     * Text watcher for the event end date
-     */
-    private final TextWatcher endDateWatcher = new TextWatcher() {
-        public void afterTextChanged(Editable s) {}
-
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SetSaveButtonVisibility(DidInfoRemainConstant());
-        }
-    };
-
-    /**
-     * Text watcher for the event attendees
-     */
-    private final TextWatcher attendeesWatcher = new TextWatcher() {
-        public void afterTextChanged(Editable s) {}
-
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SetSaveButtonVisibility(DidInfoRemainConstant());
-        }
-    };
-
-    /**
-     * Text watcher for the event maximum wait list size
-     */
-    private final TextWatcher maxSizeWatcher = new TextWatcher() {
-        public void afterTextChanged(Editable s) {}
-
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SetSaveButtonVisibility(DidInfoRemainConstant());
-        }
-    };
 
     /**
      * Sets the save button visibility

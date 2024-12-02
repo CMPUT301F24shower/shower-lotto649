@@ -70,6 +70,9 @@ import java.util.regex.Pattern;
  * The AccountFragment class handles the user interface for viewing and editing account details.
  */
 public class AccountFragment extends Fragment {
+    private static final int PICK_IMAGE_REQUEST = 1;
+    ImageView profileImage;
+    Uri currentImageUri;
     private AccountView accountView;
     private AccountUserController userController;
     private FirebaseFirestore db;
@@ -79,12 +82,51 @@ public class AccountFragment extends Fragment {
     private ExtendedFloatingActionButton saveButton;
     private ExtendedFloatingActionButton deleteImageButton;
     private String initialNameInput, initialEmailInput, initialPhoneInput;
+    /**
+     * Watches the name EditText for changes, and calls to possibly change the save button colour
+     */
+    private final TextWatcher nameWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {
+        }
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
+    /**
+     * Watches the email EditText for changes, and calls to possibly change the save button colour
+     */
+    private final TextWatcher emailWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {
+        }
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
+    /**
+     * Watches the phone EditText for changes, and calls to possibly change the save button colour
+     */
+    private final TextWatcher phoneWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {
+        }
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
     private TextView imagePlaceholder;
-    private static final int PICK_IMAGE_REQUEST = 1;
     private LinearLayout linearLayout;
     private boolean hasSetImage;
-    ImageView profileImage;
-    Uri currentImageUri;
     private AtomicReference<String> currentImageUriString;
     private MutableLiveData<Boolean> imageAbleToBeDeleted;
     private Context mContext;
@@ -98,6 +140,7 @@ public class AccountFragment extends Fragment {
 
     /**
      * Attaches the fragment to the app, and sets the context
+     *
      * @param context the given context
      */
     @Override
@@ -110,8 +153,8 @@ public class AccountFragment extends Fragment {
      * Called to create the view hierarchy for this fragment.
      * This method inflates the layout for the account fragment and initializes the UI components.
      *
-     * @param inflater  LayoutInflater object used to inflate any views in the fragment
-     * @param container The parent view that the fragment's UI should be attached to
+     * @param inflater           LayoutInflater object used to inflate any views in the fragment
+     * @param container          The parent view that the fragment's UI should be attached to
      * @param savedInstanceState Bundle containing data about the previous state (if any)
      * @return View for the account fragment's UI
      */
@@ -298,69 +341,53 @@ public class AccountFragment extends Fragment {
         String deviceId = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
         DocumentReference doc = db.collection("users").document(deviceId);
         doc.get().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        UserModel user = document.toObject(UserModel.class);
-                        if (user != null) {
-                            saveButton.setText("Save");
-                            String name = user.getName();
-                            String email = user.getEmail();
-                            String phone = user.getPhone();
-                            String profileImageUri = user.getProfileImage();
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    UserModel user = document.toObject(UserModel.class);
+                    if (user != null) {
+                        saveButton.setText("Save");
+                        String name = user.getName();
+                        String email = user.getEmail();
+                        String phone = user.getPhone();
+                        String profileImageUri = user.getProfileImage();
 
-                            userController.updateName(name);
-                            userController.updateEmail(email);
-                            userController.updatePhone(phone);
-                            user = userController.getModel();
-                            nameEditText.setText(user.getName());
-                            emailEditText.setText(user.getEmail());
-                            phoneEditText.setText(user.getPhone());
-
-                            initialNameInput = name;
-                            initialEmailInput = email;
-                            initialPhoneInput = phone;
-                            imagePlaceholder.setText(user.getInitials());
-                            SetSaveButtonVisibility(true);
-
-                            // Update profile Image
-                            if (!Objects.equals(profileImageUri, "")) {
-                                StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(profileImageUri);
-                                imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                                            currentImageUri = uri;
-                                            currentImageUriString.set(profileImageUri);
-                                            imageAbleToBeDeleted.setValue(Boolean.TRUE);
-                                            Glide.with(mContext)
-                                                    .load(uri)
-                                                    .into(profileImage);
-                                            linearLayout.removeView(imagePlaceholder);
-                                            linearLayout.addView(profileImage, 2);
-                                            hasSetImage = true;
-                                        })
-                                        .addOnFailureListener(e -> {
-                                            Toast.makeText(getActivity(), "Unable to fetch profile image", Toast.LENGTH_SHORT).show();
-                                        });
-                            }
-                        }
-                    } else {
-                        // No user found, create a new one
-                        saveButton.setText("Create");
-                        userController.updateName("");
-                        userController.updateEmail("");
-                        userController.updatePhone("");
+                        userController.updateName(name);
+                        userController.updateEmail(email);
+                        userController.updatePhone(phone);
                         user = userController.getModel();
                         nameEditText.setText(user.getName());
                         emailEditText.setText(user.getEmail());
                         phoneEditText.setText(user.getPhone());
 
-                        initialNameInput = "";
-                        initialEmailInput = "";
-                        initialPhoneInput = "";
+                        initialNameInput = name;
+                        initialEmailInput = email;
+                        initialPhoneInput = phone;
                         imagePlaceholder.setText(user.getInitials());
                         SetSaveButtonVisibility(true);
+
+                        // Update profile Image
+                        if (!Objects.equals(profileImageUri, "")) {
+                            StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(profileImageUri);
+                            imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                                        currentImageUri = uri;
+                                        currentImageUriString.set(profileImageUri);
+                                        imageAbleToBeDeleted.setValue(Boolean.TRUE);
+                                        Glide.with(mContext)
+                                                .load(uri)
+                                                .into(profileImage);
+                                        linearLayout.removeView(imagePlaceholder);
+                                        linearLayout.addView(profileImage, 2);
+                                        hasSetImage = true;
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(getActivity(), "Unable to fetch profile image", Toast.LENGTH_SHORT).show();
+                                    });
+                        }
                     }
                 } else {
-                    // Failure, return a new default user
+                    // No user found, create a new one
+                    saveButton.setText("Create");
                     userController.updateName("");
                     userController.updateEmail("");
                     userController.updatePhone("");
@@ -375,6 +402,22 @@ public class AccountFragment extends Fragment {
                     imagePlaceholder.setText(user.getInitials());
                     SetSaveButtonVisibility(true);
                 }
+            } else {
+                // Failure, return a new default user
+                userController.updateName("");
+                userController.updateEmail("");
+                userController.updatePhone("");
+                user = userController.getModel();
+                nameEditText.setText(user.getName());
+                emailEditText.setText(user.getEmail());
+                phoneEditText.setText(user.getPhone());
+
+                initialNameInput = "";
+                initialEmailInput = "";
+                initialPhoneInput = "";
+                imagePlaceholder.setText(user.getInitials());
+                SetSaveButtonVisibility(true);
+            }
         });
     }
 
@@ -398,45 +441,6 @@ public class AccountFragment extends Fragment {
     private boolean DidInfoRemainConstant() {
         return Objects.equals(nameEditText.getEditableText().toString(), initialNameInput) && Objects.equals(emailEditText.getEditableText().toString(), initialEmailInput) && Objects.equals(phoneEditText.getEditableText().toString(), initialPhoneInput);
     }
-
-    /**
-     * Watches the name EditText for changes, and calls to possibly change the save button colour
-     */
-    private final TextWatcher nameWatcher = new TextWatcher() {
-        public void afterTextChanged(Editable s) {}
-
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SetSaveButtonVisibility(DidInfoRemainConstant());
-        }
-    };
-
-    /**
-     * Watches the email EditText for changes, and calls to possibly change the save button colour
-     */
-    private final TextWatcher emailWatcher = new TextWatcher() {
-        public void afterTextChanged(Editable s) {}
-
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SetSaveButtonVisibility(DidInfoRemainConstant());
-        }
-    };
-
-    /**
-     * Watches the phone EditText for changes, and calls to possibly change the save button colour
-     */
-    private final TextWatcher phoneWatcher = new TextWatcher() {
-        public void afterTextChanged(Editable s) {}
-
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SetSaveButtonVisibility(DidInfoRemainConstant());
-        }
-    };
 
     /**
      * Sets the save button's colour depending on whether information on the page changed.

@@ -31,6 +31,7 @@ public class UserModel extends AbstractModel {
     // Firestore instance for saving and updating user data
     private FirebaseFirestore db;
     private boolean savedToFirestore = false;
+
     /**
      * No-argument constructor for Firestore deserialization.
      * This constructor is required for creating instances of the `UserModel` when
@@ -46,7 +47,7 @@ public class UserModel extends AbstractModel {
      * Also retrieves the device ID of the current device and immediately saves the user to Firestore.
      *
      * @param context the application context used to retrieve the device ID
-     * @param db the firestore database containing user info
+     * @param db      the firestore database containing user info
      */
     public UserModel(Context context, FirebaseFirestore db) {
         this.name = "";
@@ -65,10 +66,10 @@ public class UserModel extends AbstractModel {
      * Also retrieves the device ID of the current device and immediately saves the user to Firestore.
      *
      * @param context the application context used to retrieve the device ID
-     * @param name the name of the user
-     * @param email the email of the user
-     * @param phone the phone number of the user (optional)
-     * @param db the Firestore database object
+     * @param name    the name of the user
+     * @param email   the email of the user
+     * @param phone   the phone number of the user (optional)
+     * @param db      the Firestore database object
      */
     public UserModel(Context context, String name, String email, String phone, FirebaseFirestore db) {
         this.name = name;
@@ -88,8 +89,8 @@ public class UserModel extends AbstractModel {
      * Constructor to create a new user model with the given name and email.
      *
      * @param context the application context used to retrieve the device ID
-     * @param name the name of the user
-     * @param email the email of the user
+     * @param name    the name of the user
+     * @param email   the email of the user
      */
     public UserModel(Context context, String name, String email) {
         this(context, name, email, null, null);
@@ -105,12 +106,12 @@ public class UserModel extends AbstractModel {
         db.collection("users")
                 .document(deviceId)
                 .set(new HashMap<String, Object>() {{
-                        put("name", name);
-                        put("email", email);
-                        put("phone", phone);
-                        put("entrant", entrant);
-                        put("organizer", organizer);
-                        put("profileImage", profileImage);
+                    put("name", name);
+                    put("email", email);
+                    put("phone", phone);
+                    put("entrant", entrant);
+                    put("organizer", organizer);
+                    put("profileImage", profileImage);
                 }}, SetOptions.merge())  // Saves the current user object to Firestore
                 .addOnSuccessListener(aVoid -> {
                     System.out.println("User saved successfully!");
@@ -200,6 +201,15 @@ public class UserModel extends AbstractModel {
     }
 
     /**
+     * Gets the user's entrant privilege.
+     *
+     * @return the entrant privilege of the user
+     */
+    public Boolean getEntrant() {
+        return entrant;
+    }
+
+    /**
      * Sets the user's entrant privilege and updates Firestore.
      * Notifies the views about the change.
      *
@@ -212,12 +222,12 @@ public class UserModel extends AbstractModel {
     }
 
     /**
-     * Gets the user's entrant privilege.
+     * Gets the user's organizer privilege.
      *
-     * @return the entrant privilege of the user
+     * @return the organizer privilege of the user
      */
-    public Boolean getEntrant() {
-        return entrant;
+    public Boolean getOrganizer() {
+        return organizer;
     }
 
     /**
@@ -232,12 +242,12 @@ public class UserModel extends AbstractModel {
     }
 
     /**
-     * Gets the user's organizer privilege.
+     * Gets the user's admin privilege.
      *
-     * @return the organizer privilege of the user
+     * @return the admin privilege of the user
      */
-    public Boolean getOrganizer() {
-        return organizer;
+    public Boolean getAdmin() {
+        return admin;
     }
 
     /**
@@ -249,15 +259,6 @@ public class UserModel extends AbstractModel {
     public void setAdmin(Boolean bool) {
         updateFirestore("admin", bool);
         notifyViews();
-    }
-
-    /**
-     * Gets the user's admin privilege.
-     *
-     * @return the admin privilege of the user
-     */
-    public Boolean getAdmin() {
-        return admin;
     }
 
     /**
@@ -290,6 +291,7 @@ public class UserModel extends AbstractModel {
 
     /**
      * Get the users initials for the generated profile pic should they not have an image saved
+     *
      * @return The users initials
      */
     public String getInitials() {

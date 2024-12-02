@@ -19,15 +19,15 @@ import java.util.HashMap;
  * synchronized with any changes made by the user.
  */
 public class FacilityController extends AbstractController {
-    private FirebaseFirestore db;
-    private CollectionReference facilitiesRef;
+    private final FirebaseFirestore db;
+    private final CollectionReference facilitiesRef;
 
     /**
      * Constructor for the FacilityController class. Takes in a FacilityModel to change.
      * Also takes a Firestore instance and gets the facilities collection.
      *
      * @param facility the facility model to change
-     * @param db the Firestore db instance
+     * @param db       the Firestore db instance
      */
     public FacilityController(FacilityModel facility, FirebaseFirestore db) {
         super(facility);

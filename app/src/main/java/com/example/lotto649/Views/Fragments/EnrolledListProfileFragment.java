@@ -45,13 +45,6 @@ import java.util.Objects;
  * </p>
  */
 public class EnrolledListProfileFragment extends Fragment {
-    private FirebaseFirestore db;
-    private CollectionReference usersRef;
-    private TextView imagePlaceholder;
-    private LinearLayout linearLayout;
-    private ImageView profileImage;
-    private Uri profileUri;
-    private String nameText;
     TextView name;
     TextView email;
     TextView phone;
@@ -59,6 +52,13 @@ public class EnrolledListProfileFragment extends Fragment {
     ExtendedFloatingActionButton backButton;
     String userDeviceId;
     String firestoreEventId;
+    private FirebaseFirestore db;
+    private CollectionReference usersRef;
+    private TextView imagePlaceholder;
+    private LinearLayout linearLayout;
+    private ImageView profileImage;
+    private Uri profileUri;
+    private String nameText;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -77,8 +77,8 @@ public class EnrolledListProfileFragment extends Fragment {
      * and configures listeners for user interaction. It also handles fetching the user's profile image.
      * </p>
      *
-     * @param inflater LayoutInflater object used to inflate any views in the fragment
-     * @param container The parent view that the fragment's UI should be attached to
+     * @param inflater           LayoutInflater object used to inflate any views in the fragment
+     * @param container          The parent view that the fragment's UI should be attached to
      * @param savedInstanceState Bundle containing data about the previous state (if any)
      * @return View for the profile fragment's UI
      */
@@ -155,7 +155,7 @@ public class EnrolledListProfileFragment extends Fragment {
                             }
                             roles.setText(rolesText);
 
-                        //     getting profile image
+                            //     getting profile image
                             imagePlaceholder.setText(new UserModel(getContext(), nameText, emailText).getInitials());
                             String profileUriString = doc.getString("profileImage");
                             if (!Objects.equals(profileUriString, "")) {

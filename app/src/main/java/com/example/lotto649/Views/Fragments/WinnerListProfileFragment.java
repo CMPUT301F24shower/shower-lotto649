@@ -24,7 +24,6 @@ import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
@@ -42,6 +41,12 @@ import java.util.Objects;
  * This fragment is reached through a list of profiles in the admin view.
  */
 public class WinnerListProfileFragment extends Fragment {
+    TextView name;
+    TextView email;
+    TextView phone;
+    TextView roles;
+    Button removeUser;
+    ExtendedFloatingActionButton backButton;
     private FirebaseFirestore db;
     private CollectionReference winnersRef;
     private TextView imagePlaceholder;
@@ -49,12 +54,6 @@ public class WinnerListProfileFragment extends Fragment {
     private ImageView profileImage;
     private Uri profileUri;
     private String nameText;
-    TextView name;
-    TextView email;
-    TextView phone;
-    TextView roles;
-    Button removeUser;
-    ExtendedFloatingActionButton backButton;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -70,8 +69,8 @@ public class WinnerListProfileFragment extends Fragment {
      * Called to create the view hierarchy associated with this fragment.
      * This method inflates the layout defined in `fragment_browse_events.xml`.
      *
-     * @param inflater LayoutInflater object used to inflate any views in the fragment
-     * @param container The parent view that the fragment's UI should be attached to
+     * @param inflater           LayoutInflater object used to inflate any views in the fragment
+     * @param container          The parent view that the fragment's UI should be attached to
      * @param savedInstanceState Bundle containing data about the previous state (if any)
      * @return View for the camera fragment's UI
      */
@@ -140,7 +139,7 @@ public class WinnerListProfileFragment extends Fragment {
                             }
                             roles.setText(rolesText);
 
-                        //     getting profile image
+                            //     getting profile image
                             imagePlaceholder.setText(new UserModel(getContext(), nameText, emailText).getInitials());
                             String profileUriString = doc.getString("profileImage");
                             if (!Objects.equals(profileUriString, "")) {

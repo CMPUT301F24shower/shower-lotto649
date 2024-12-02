@@ -1,4 +1,3 @@
-
 package com.example.lotto649.Views.Fragments;
 
 import android.content.Context;
@@ -19,12 +18,12 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
-import com.example.lotto649.Models.HomePageModel;
-import com.example.lotto649.MyApp;
-import com.example.lotto649.Views.ArrayAdapters.BrowseEventsArrayAdapter;
 import com.example.lotto649.Controllers.EventsController;
 import com.example.lotto649.Models.EventModel;
+import com.example.lotto649.Models.HomePageModel;
+import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
+import com.example.lotto649.Views.ArrayAdapters.BrowseEventsArrayAdapter;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -62,8 +61,8 @@ public class HomeFragment extends Fragment {
      * It also handles the fetching and displaying of the user's events from Firestore.
      * </p>
      *
-     * @param inflater The LayoutInflater object that can be used to inflate views in the fragment.
-     * @param container If non-null, this is the parent view that the fragment's UI should be attached to.
+     * @param inflater           The LayoutInflater object that can be used to inflate views in the fragment.
+     * @param container          If non-null, this is the parent view that the fragment's UI should be attached to.
      * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state.
      * @return The View for the fragment's UI.
      */
@@ -139,7 +138,7 @@ public class HomeFragment extends Fragment {
             if (!userExists) {
                 addButton.setVisibility(View.GONE);
             }
-        }).addOnFailureListener(task -> addButton.setVisibility(View.GONE));;
+        }).addOnFailureListener(task -> addButton.setVisibility(View.GONE));
         facilityRef.get().addOnCompleteListener(task -> {
             DocumentSnapshot facilityDoc = task.getResult();
             boolean facilityExists = facilityDoc != null && facilityDoc.exists();

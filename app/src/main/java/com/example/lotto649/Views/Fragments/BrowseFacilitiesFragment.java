@@ -67,8 +67,8 @@ public class BrowseFacilitiesFragment extends Fragment {
     /**
      * Called to create the view hierarchy associated with this fragment.
      *
-     * @param inflater LayoutInflater object used to inflate any views in the fragment
-     * @param container The parent view that the fragment's UI should be attached to
+     * @param inflater           LayoutInflater object used to inflate any views in the fragment
+     * @param container          The parent view that the fragment's UI should be attached to
      * @param savedInstanceState Bundle containing data about the previous state (if any)
      * @return View for this fragment
      */
@@ -97,7 +97,7 @@ public class BrowseFacilitiesFragment extends Fragment {
                 }
                 if (querySnapshots != null) {
                     dataList.clear();
-                    for (QueryDocumentSnapshot doc: querySnapshots) {
+                    for (QueryDocumentSnapshot doc : querySnapshots) {
                         String deviceIdText = doc.getId();
                         String nameText = doc.getString("facility");
                         String addressText = doc.getString("address");

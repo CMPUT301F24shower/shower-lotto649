@@ -17,9 +17,9 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
-import com.example.lotto649.Views.ArrayAdapters.BrowseEventsArrayAdapter;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.R;
+import com.example.lotto649.Views.ArrayAdapters.BrowseEventsArrayAdapter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -51,8 +51,8 @@ public class JoinedEventsFragment extends Fragment {
      * retrieves the events the user has signed up for from Firestore, and updates the UI accordingly.
      * </p>
      *
-     * @param inflater The LayoutInflater object that can be used to inflate views in the fragment.
-     * @param container If non-null, this is the parent view that the fragment's UI should be attached to.
+     * @param inflater           The LayoutInflater object that can be used to inflate views in the fragment.
+     * @param container          If non-null, this is the parent view that the fragment's UI should be attached to.
      * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state.
      * @return The View for the fragment's UI.
      */

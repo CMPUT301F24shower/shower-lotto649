@@ -3,6 +3,7 @@
  * into a working application.
  */
 package com.example.lotto649.Views.Fragments;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -32,7 +33,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * FacilityFragment class manages the facility details of the user in the application.
@@ -58,11 +58,39 @@ public class FacilityFragment extends Fragment {
     private Button save;
     private String initialFacilityNameInput;
     private String initialAddressInput;
+    /**
+     * Watches the facility name EditText for changes, and calls to possibly change the save button colour
+     */
+    private final TextWatcher facilityNameWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {
+        }
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
+    /**
+     * Watches the address EditText for changes, and calls to possibly change the save button colour
+     */
+    private final TextWatcher addressWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {
+        }
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            SetSaveButtonVisibility(DidInfoRemainConstant());
+        }
+    };
 
     /**
      * Empty constructor that fragment needs.
      */
-    public FacilityFragment(){
+    public FacilityFragment() {
         // require a empty public constructor
     }
 
@@ -70,8 +98,8 @@ public class FacilityFragment extends Fragment {
      * Called to create the view hierarchy for this fragment.
      * This method inflates the layout for the facility fragment and initializes the UI components.
      *
-     * @param inflater  LayoutInflater object used to inflate any views in the fragment
-     * @param container The parent view that the fragment's UI should be attached to
+     * @param inflater           LayoutInflater object used to inflate any views in the fragment
+     * @param container          The parent view that the fragment's UI should be attached to
      * @param savedInstanceState Bundle containing data about the previous state (if any)
      * @return View for the facility fragment's UI
      */
@@ -217,30 +245,4 @@ public class FacilityFragment extends Fragment {
             save.setVisibility(View.VISIBLE);
         }
     }
-
-    /**
-     * Watches the facility name EditText for changes, and calls to possibly change the save button colour
-     */
-    private TextWatcher facilityNameWatcher = new TextWatcher() {
-        public void afterTextChanged(Editable s) {}
-
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SetSaveButtonVisibility(DidInfoRemainConstant());
-        }
-    };
-
-    /**
-     * Watches the address EditText for changes, and calls to possibly change the save button colour
-     */
-    private TextWatcher addressWatcher = new TextWatcher() {
-        public void afterTextChanged(Editable s) {}
-
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SetSaveButtonVisibility(DidInfoRemainConstant());
-        }
-    };
 }

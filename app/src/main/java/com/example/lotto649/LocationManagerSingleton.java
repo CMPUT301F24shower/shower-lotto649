@@ -1,7 +1,6 @@
 package com.example.lotto649;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.google.firebase.firestore.GeoPoint;
 
@@ -18,7 +17,8 @@ public class LocationManagerSingleton {
     /**
      * Private constructor to prevent instantiation
      */
-    private LocationManagerSingleton() {}=
+    private LocationManagerSingleton() {
+    }
 
     /**
      * Gets the singleton instance of the location manager
@@ -48,23 +48,23 @@ public class LocationManagerSingleton {
     // Set location tracking flag
 
     /**
-     * Sets whether this user can be location tracked
-     *
-     * @param enabled whether this user can be location tracked
-     */
-    public void setLocationTrackingEnabled(boolean enabled) {
-        locationTrackingEnabled = enabled;
-    }
-
-    // Get location tracking flag
-
-    /**
      * Gets if this user can be location tracked
      *
      * @return whether this user can be location tracked
      */
     public boolean isLocationTrackingEnabled() {
         return locationTrackingEnabled;
+    }
+
+    // Get location tracking flag
+
+    /**
+     * Sets whether this user can be location tracked
+     *
+     * @param enabled whether this user can be location tracked
+     */
+    public void setLocationTrackingEnabled(boolean enabled) {
+        locationTrackingEnabled = enabled;
     }
 
     // Safely use context in singleton methods

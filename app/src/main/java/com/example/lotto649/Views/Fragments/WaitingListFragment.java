@@ -1,4 +1,3 @@
-
 package com.example.lotto649.Views.Fragments;
 
 import android.content.Context;
@@ -32,7 +31,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A fragment that displays a list of users who are waiting for an event. The list is populated
@@ -40,12 +38,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * to navigate back to the previous screen.
  */
 public class WaitingListFragment extends Fragment {
+    ExtendedFloatingActionButton backButton;
     private ArrayList<String> deviceIdList;
     private ArrayList<UserModel> dataList;
     private ListView browseProfilesList;
     private BrowseProfilesArrayAdapter profilesAdapter;
     private FirebaseFirestore db;
-    ExtendedFloatingActionButton backButton;
     private String firestoreEventId;
 
     /**
@@ -53,8 +51,8 @@ public class WaitingListFragment extends Fragment {
      * fetches the users' data, binds the data to the list view, and sets up event listeners
      * for user interactions.
      *
-     * @param inflater The LayoutInflater used to inflate the fragment's view.
-     * @param container The parent view that the fragment's UI will be attached to.
+     * @param inflater           The LayoutInflater used to inflate the fragment's view.
+     * @param container          The parent view that the fragment's UI will be attached to.
      * @param savedInstanceState A bundle containing the state of the fragment if it was previously saved.
      * @return The root view of the fragment.
      */
@@ -96,7 +94,7 @@ public class WaitingListFragment extends Fragment {
                 }
                 if (querySnapshots != null) {
                     dataList.clear();
-                    for (QueryDocumentSnapshot doc: querySnapshots) {
+                    for (QueryDocumentSnapshot doc : querySnapshots) {
                         String deviceId = doc.getString("userId");
                         db.collection("users").document(deviceId).get().addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
@@ -163,7 +161,7 @@ public class WaitingListFragment extends Fragment {
         browseProfilesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String chosenUserId = (String) deviceIdList.get(i);
+                String chosenUserId = deviceIdList.get(i);
                 Bundle bundle = new Bundle();
                 bundle.putString("userDeviceId", chosenUserId);
                 bundle.putString("firestoreEventId", firestoreEventId);

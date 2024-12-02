@@ -18,7 +18,7 @@ public class EventView extends AbstractView {
     /**
      * Constructs an EventView with the specified model and fragment.
      *
-     * @param event The model representing the event data.
+     * @param event    The model representing the event data.
      * @param fragment The fragment used to display event details.
      */
 

@@ -16,7 +16,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -30,7 +29,6 @@ import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
@@ -49,13 +47,6 @@ import java.util.Objects;
  * </p>
  */
 public class CancelledListProfileFragment extends Fragment {
-    private FirebaseFirestore db;
-    private CollectionReference usersRef;
-    private TextView imagePlaceholder;
-    private LinearLayout linearLayout;
-    private ImageView profileImage;
-    private Uri profileUri;
-    private String nameText;
     TextView name;
     TextView email;
     TextView phone;
@@ -63,6 +54,13 @@ public class CancelledListProfileFragment extends Fragment {
     ExtendedFloatingActionButton backButton;
     String userDeviceId;
     String firestoreEventId;
+    private FirebaseFirestore db;
+    private CollectionReference usersRef;
+    private TextView imagePlaceholder;
+    private LinearLayout linearLayout;
+    private ImageView profileImage;
+    private Uri profileUri;
+    private String nameText;
 
     /**
      * Public empty constructor for CancelledListProfileFragment.
@@ -81,8 +79,8 @@ public class CancelledListProfileFragment extends Fragment {
      * and initializes the UI components to display user profile details.
      * </p>
      *
-     * @param inflater LayoutInflater object used to inflate any views in the fragment
-     * @param container The parent view that the fragment's UI should be attached to
+     * @param inflater           LayoutInflater object used to inflate any views in the fragment
+     * @param container          The parent view that the fragment's UI should be attached to
      * @param savedInstanceState Bundle containing data about the previous state (if any)
      * @return View for the fragment's UI
      */
@@ -152,7 +150,7 @@ public class CancelledListProfileFragment extends Fragment {
                             }
                             roles.setText(rolesText);
 
-                        //     getting profile image
+                            //     getting profile image
                             imagePlaceholder.setText(new UserModel(getContext(), nameText, emailText).getInitials());
                             String profileUriString = doc.getString("profileImage");
                             if (!Objects.equals(profileUriString, "")) {

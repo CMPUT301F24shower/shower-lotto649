@@ -75,8 +75,8 @@ public class CustomNotificationFragment extends Fragment {
      * and sets up click listeners for navigation and notification submission.
      * </p>
      *
-     * @param inflater  The `LayoutInflater` object to inflate views in the fragment.
-     * @param container The parent view that this fragment's UI will be attached to.
+     * @param inflater           The `LayoutInflater` object to inflate views in the fragment.
+     * @param container          The parent view that this fragment's UI will be attached to.
      * @param savedInstanceState A `Bundle` containing the saved state of the fragment, if available.
      * @return A `View` object representing the root view of the fragment's UI.
      */
@@ -128,10 +128,10 @@ public class CustomNotificationFragment extends Fragment {
      * to users in corresponding Firestore collections.
      * </p>
      *
-     * @param status    The selected status group ("All," "Selected," or "Cancelled").
-     * @param title     The title of the notification.
-     * @param message   The message body of the notification.
-     * @param eventId   The ID of the event associated with the notification.
+     * @param status  The selected status group ("All," "Selected," or "Cancelled").
+     * @param title   The title of the notification.
+     * @param message The message body of the notification.
+     * @param eventId The ID of the event associated with the notification.
      */
     private void getCollectionForStatus(String status, String title, String message, String eventId) {
         switch (status) {
@@ -147,7 +147,8 @@ public class CustomNotificationFragment extends Fragment {
             case "Cancelled": {
                 sendNotificationsToCollection("cancelled", title, message, eventId);
                 break;
-            } default: {
+            }
+            default: {
                 Toast.makeText(getContext(), "Invalid status selected", Toast.LENGTH_SHORT).show();
                 break;
             }
@@ -169,34 +170,34 @@ public class CustomNotificationFragment extends Fragment {
     private void sendNotificationsToCollection(String collectionName, String title, String message, String eventId) {
         db = FirebaseFirestore.getInstance();
 
-        db.collection(collectionName).whereEqualTo("eventId", eventId).get().addOnCompleteListener( task -> {
+        db.collection(collectionName).whereEqualTo("eventId", eventId).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                    // Task succeeded and documents exist
-                    for (QueryDocumentSnapshot doc : task.getResult()) {
-                        String deviceId = doc.getString("userId");
+                // Task succeeded and documents exist
+                for (QueryDocumentSnapshot doc : task.getResult()) {
+                    String deviceId = doc.getString("userId");
 
-                        if (deviceId != null) {
-                            // Create a new document in the "custom" collection
-                            Map<String, Object> notificationData = new HashMap<>();
-                            notificationData.put("userId", deviceId);
-                            notificationData.put("title", title);
-                            notificationData.put("message", message);
-                            notificationData.put("hasSeenNoti", false);
-                            notificationData.put("eventId", eventId);
+                    if (deviceId != null) {
+                        // Create a new document in the "custom" collection
+                        Map<String, Object> notificationData = new HashMap<>();
+                        notificationData.put("userId", deviceId);
+                        notificationData.put("title", title);
+                        notificationData.put("message", message);
+                        notificationData.put("hasSeenNoti", false);
+                        notificationData.put("eventId", eventId);
 
-                            db.collection("custom").add(notificationData)
-                                    .addOnSuccessListener(documentReference -> {
-                                        Log.d("Custom Notifications", "Notification sent to: " + deviceId);
-                                        MyApp.getInstance().popFragment();
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Log.e("FirestoreError", "Error sending notification: " + e.getMessage());
-                                        MyApp.getInstance().popFragment();
-                                    });
-                        } else {
-                            Log.w("FirestoreWarning", "User ID is null for document: " + doc.getId());
-                        }
+                        db.collection("custom").add(notificationData)
+                                .addOnSuccessListener(documentReference -> {
+                                    Log.d("Custom Notifications", "Notification sent to: " + deviceId);
+                                    MyApp.getInstance().popFragment();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("FirestoreError", "Error sending notification: " + e.getMessage());
+                                    MyApp.getInstance().popFragment();
+                                });
+                    } else {
+                        Log.w("FirestoreWarning", "User ID is null for document: " + doc.getId());
                     }
+                }
             } else {
                 // Task failed
                 Log.e("FirestoreError", "Error fetching users: " + (task.getException() != null ? task.getException().getMessage() : "Unknown error"));

@@ -41,13 +41,14 @@ import java.util.Objects;
  * to a ListView to display the needed information
  */
 public class BrowseEventsArrayAdapter extends ArrayAdapter<EventModel> {
-    private Uri posterUri;
     private final LifecycleOwner lifecycleOwner;
+    private Uri posterUri;
 
     /**
      * Constructor for the array adapter
+     *
      * @param context the context of the adapter
-     * @param events the user models to be adapted
+     * @param events  the user models to be adapted
      */
     public BrowseEventsArrayAdapter(Context context, ArrayList<EventModel> events, LifecycleOwner lifecycleOwner) {
         super(context, 0, events);
@@ -56,9 +57,10 @@ public class BrowseEventsArrayAdapter extends ArrayAdapter<EventModel> {
 
     /**
      * Gets the list view item and displays information
-     * @param position the position in the ListView that the adapter is for
+     *
+     * @param position    the position in the ListView that the adapter is for
      * @param convertView gives the ability to reuse an old view
-     * @param parent the parent of the adapter
+     * @param parent      the parent of the adapter
      */
     @NonNull
     @Override

@@ -51,12 +51,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * </p>
  */
 public class EnrolledListFragment extends Fragment {
+    ExtendedFloatingActionButton backButton;
     private ArrayList<String> deviceIdList;
     private ArrayList<UserModel> dataList;
     private ListView browseProfilesList;
     private BrowseProfilesArrayAdapter profilesAdapter;
     private FirebaseFirestore db;
-    ExtendedFloatingActionButton backButton;
     private String firestoreEventId;
 
 
@@ -67,8 +67,8 @@ public class EnrolledListFragment extends Fragment {
      * and configures observers and listeners for handling Firestore data changes and user interactions.
      * </p>
      *
-     * @param inflater  The `LayoutInflater` object for inflating the fragment's layout.
-     * @param container The parent view that the fragment's UI should attach to.
+     * @param inflater           The `LayoutInflater` object for inflating the fragment's layout.
+     * @param container          The parent view that the fragment's UI should attach to.
      * @param savedInstanceState A `Bundle` containing the fragment's previous state, if available.
      * @return The root `View` for this fragment.
      */
@@ -119,7 +119,7 @@ public class EnrolledListFragment extends Fragment {
                 if (querySnapshots != null) {
                     dataList.clear();
                     AtomicBoolean noSignUps = new AtomicBoolean(true);
-                    for (QueryDocumentSnapshot doc: querySnapshots) {
+                    for (QueryDocumentSnapshot doc : querySnapshots) {
                         String deviceId = doc.getString("userId");
                         db.collection("users").document(deviceId).get().addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
@@ -204,7 +204,7 @@ public class EnrolledListFragment extends Fragment {
              */
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String chosenUserId = (String) deviceIdList.get(i);
+                String chosenUserId = deviceIdList.get(i);
                 Bundle bundle = new Bundle();
                 bundle.putString("userDeviceId", chosenUserId);
                 bundle.putString("firestoreEventId", firestoreEventId);
