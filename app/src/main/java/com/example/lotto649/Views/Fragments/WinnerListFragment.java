@@ -46,18 +46,16 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * BrowseProfilesFragment class represents a fragment for the admin to browse all profiles in the application.
+ * WinnerListFragment class represents a fragment for the admin to view and manage
+ * the winners of an event in the application.
  * <p>
- * This fragment shows a list view of every profile, selecting the event will show its full details and allow for it to be deleted.
- * This page is only accessible to users with 'admin' status
+ * This fragment displays a list of winners selected for an event. The admin can view detailed
+ * information about each winner by selecting an item from the list. The page also ensures that
+ * the correct number of winners is maintained based on the event configuration.
  * </p>
  * <p>
  * Code for the bottom navigation bar was adapted from:
  * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
- * </p>
- * <p>
- * Code for creating context from:
- * https://stackoverflow.com/questions/47987649/why-getcontext-in-fragment-sometimes-returns-null
  * </p>
  */
 public class WinnerListFragment extends Fragment {
@@ -74,7 +72,8 @@ public class WinnerListFragment extends Fragment {
     private int numberOfSpots;
 
     /**
-     * Attaches the fragment to the app, and sets the context
+     * Attaches the fragment to the app, and sets the context.
+     *
      * @param context the given context
      */
     @Override
@@ -85,11 +84,15 @@ public class WinnerListFragment extends Fragment {
 
     /**
      * Called to create the view hierarchy associated with this fragment.
+     * <p>
+     * This method inflates the layout for the winner list fragment and initializes all required
+     * components, such as the list view, Firestore database references, and adapter for displaying winners.
+     * </p>
      *
-     * @param inflater LayoutInflater object used to inflate any views in the fragment
+     * @param inflater  LayoutInflater object used to inflate any views in the fragment
      * @param container The parent view that the fragment's UI should be attached to
      * @param savedInstanceState Bundle containing data about the previous state (if any)
-     * @return View for this fragment
+     * @return View for the fragment's UI
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

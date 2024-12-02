@@ -36,9 +36,13 @@ import com.google.firebase.storage.StorageReference;
 import java.util.Objects;
 
 /**
- * A fragment to display a given profile's information.
- * This is used by an admin user to manage a profile.
- * This fragment is reached through a list of profiles in the admin view.
+ * A fragment to display and manage a specific profile's information.
+ * <p>
+ * This fragment is used by an admin user to view and manage the details of a winner's profile.
+ * Admins can see the winner's name, email, phone, roles, and profile picture. Additionally,
+ * they can remove the user from the winners' list. This fragment is accessed from the
+ * winner list in the admin view.
+ * </p>
  */
 public class WinnerListProfileFragment extends Fragment {
     private FirebaseFirestore db;
@@ -56,7 +60,7 @@ public class WinnerListProfileFragment extends Fragment {
     ExtendedFloatingActionButton backButton;
 
     /**
-     * Public empty constructor for BrowseEventsFragment.
+     * Public empty constructor for WinnerListProfileFragment.
      * <p>
      * Required for proper instantiation of the fragment by the Android system.
      * </p>
@@ -67,12 +71,15 @@ public class WinnerListProfileFragment extends Fragment {
 
     /**
      * Called to create the view hierarchy associated with this fragment.
-     * This method inflates the layout defined in `fragment_browse_events.xml`.
+     * <p>
+     * This method inflates the layout for the winner profile fragment, fetches the profile details
+     * from Firestore, and sets up the UI components for managing the winner's profile.
+     * </p>
      *
-     * @param inflater LayoutInflater object used to inflate any views in the fragment
+     * @param inflater  LayoutInflater object used to inflate any views in the fragment
      * @param container The parent view that the fragment's UI should be attached to
      * @param savedInstanceState Bundle containing data about the previous state (if any)
-     * @return View for the camera fragment's UI
+     * @return View for the fragment's UI
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

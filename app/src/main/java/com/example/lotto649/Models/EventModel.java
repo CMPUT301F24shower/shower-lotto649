@@ -50,10 +50,21 @@ public class EventModel extends AbstractModel implements Serializable {
     private FirebaseFirestore db;
     private boolean savedToFirestore = false;
     private String eventId;
+
+    /**
+     * Retrieves the eventId of the event.
+     *
+     * @return the eventId as a string
+     */
     public String getEventId() {
         return eventId;
     }
 
+    /**
+     * Sets the database.
+     *
+     * @param db the database
+     */
     public void setDb(FirebaseFirestore db) {
         this.db = db;
     }
@@ -67,6 +78,9 @@ public class EventModel extends AbstractModel implements Serializable {
         // No initialization required
     }
 
+    /**
+     * Sets all event fields to default values.
+     */
     private void clear(){
         this.title = "";
         this.organizerId = "";
@@ -105,6 +119,9 @@ public class EventModel extends AbstractModel implements Serializable {
      * @param title the title of the event
      * @param description a description of the event
      * @param numberOfSpots the number of spots available for the event
+     * @param startDate the start date of the event
+     * @param endDate the end date of the event
+     * @param geo a boolean indicating whether geolocation is enabled for the event
      * @param db the Firestore database instance
      */
     public EventModel(Context context, String title, String description, int numberOfSpots,
@@ -113,6 +130,20 @@ public class EventModel extends AbstractModel implements Serializable {
                 -1, startDate, endDate, null, geo, null, 0, false, db);
     }
 
+    /**
+     * Constructor to create an EventModel instance.
+     * Automatically generates a QR code and initializes the Firestore database instance.
+     *
+     * @param context the application context
+     * @param title the title of the event
+     * @param description a description of the event
+     * @param numberOfSpots the number of spots available for the event
+     * @param numberOfMaxEntrants the maximum number of entrants allowed for the event
+     * @param startDate the start date of the event
+     * @param endDate the end date of the event
+     * @param geo a boolean indicating whether geolocation is enabled for the event
+     * @param db the Firestore database instance
+     */
     public EventModel(Context context, String title, String description, int numberOfSpots,
                       int numberOfMaxEntrants, Date startDate, Date endDate, boolean geo, FirebaseFirestore db) {
         this(context, title, description, numberOfSpots,
@@ -185,23 +216,6 @@ public class EventModel extends AbstractModel implements Serializable {
                 });
         }
 
-    // TODO can we remove this variable
-    /**
-     * Retrieves if saved to firestore.
-     *
-     * @return if saved to firestore as a boolean
-     */
-    public boolean getSavedToFirestore() { return savedToFirestore; }
-
-    /**
-     * Sets the Firestore save status.
-     *
-     * @param savedToFirestore the new Firestore save status
-     */
-    public void setSavedToFirestore(boolean savedToFirestore) {
-        this.savedToFirestore = savedToFirestore;
-    }
-
     /**
      * Removes the event data to Firestore.
      * If the event has already been removed, this method does nothing.
@@ -228,9 +242,7 @@ public class EventModel extends AbstractModel implements Serializable {
 
     // TODO this should never change
     public void setEventId(String eventId){
-        //removeEventFirestore();
         this.eventId = eventId;
-        //saveEventToFirestore();
     }
 
     /**
@@ -250,7 +262,6 @@ public class EventModel extends AbstractModel implements Serializable {
                     System.err.println("Error updating event: " + e.getMessage());
                 });
     }
-
 
     /**
      * Retrieves the title of the event.
@@ -277,9 +288,7 @@ public class EventModel extends AbstractModel implements Serializable {
      *
      * @return the organizer ID as a string
      */
-    public String getOrganizerId() {
-        return organizerId;
-    }
+    public String getOrganizerId() { return organizerId; }
 
     public void getLocation(Consumer<String> callback) {
         db.collection("facilities").document(organizerId).get().addOnSuccessListener(
@@ -295,20 +304,6 @@ public class EventModel extends AbstractModel implements Serializable {
             callback.accept(null); // Handle errors
         });
     }
-
-
-
-    /**
-     * Sets the organizer ID associated with this event and updates Firestore.
-     *
-     * @param organizerId the new organizer ID
-     */
-    public void setOrganizerId(String organizerId) {
-        this.organizerId = organizerId;
-        updateFirestore("organizerId", organizerId);
-        notifyViews();
-    }
-    // TODO this should never be set
 
     /**
      * Retrieves the description of the event.
@@ -472,7 +467,6 @@ public class EventModel extends AbstractModel implements Serializable {
         notifyViews();
     }
 
-
     /**
      * Retrieves the list of users on the waiting list for this event.
      *
@@ -494,6 +488,9 @@ public class EventModel extends AbstractModel implements Serializable {
         return waitingList;
     }
 
+    /**
+     * Retrieves the number of winners that have been selected for associated with the event.
+     */
     private void getCurrentNumberOfWinners(Consumer<Integer> callback) {
         db.collection("winners")
                 .whereEqualTo("eventId", eventId)
@@ -508,11 +505,18 @@ public class EventModel extends AbstractModel implements Serializable {
                 });
     }
 
-
+    /**
+     * Retrieves if the winners have been selected for associated with the event.
+     *
+     * @return if the winners have been selected as a boolean
+     */
     public boolean isDrawn() {
         return drawn;
     }
 
+    /**
+     * Selects the winners for the event and saves them to the database.
+     */
     public void doDraw() {
         if (drawn) return;
 

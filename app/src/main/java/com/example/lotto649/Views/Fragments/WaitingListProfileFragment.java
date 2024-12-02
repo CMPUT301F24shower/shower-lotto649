@@ -36,9 +36,14 @@ import com.google.firebase.storage.StorageReference;
 import java.util.Objects;
 
 /**
- * A fragment to display a given profile's information.
- * This is used by an admin user to manage a profile.
- * This fragment is reached through a list of profiles in the admin view.
+ * A fragment to display and manage a user's profile information.
+ * <p>
+ * This fragment is used by an organizer user to view and manage a profile.
+ * It allows the organizer to see details such as name, email, phone, roles,
+ * and profile picture of the user. The organizer can also remove the user
+ * from the event. This fragment is reached through a list of profiles
+ * in the organizer view.
+ * </p>
  */
 public class WaitingListProfileFragment extends Fragment {
     private FirebaseFirestore db;
@@ -58,7 +63,7 @@ public class WaitingListProfileFragment extends Fragment {
     String firestoreEventId;
 
     /**
-     * Public empty constructor for BrowseEventsFragment.
+     * Public empty constructor for WaitingListProfileFragment.
      * <p>
      * Required for proper instantiation of the fragment by the Android system.
      * </p>
@@ -69,12 +74,15 @@ public class WaitingListProfileFragment extends Fragment {
 
     /**
      * Called to create the view hierarchy associated with this fragment.
-     * This method inflates the layout defined in `fragment_browse_events.xml`.
+     * <p>
+     * This method inflates the layout defined in `fragment_waiting_list_profile.xml`,
+     * fetches the user profile details from Firestore, and initializes the UI components.
+     * </p>
      *
-     * @param inflater LayoutInflater object used to inflate any views in the fragment
+     * @param inflater  LayoutInflater object used to inflate any views in the fragment
      * @param container The parent view that the fragment's UI should be attached to
      * @param savedInstanceState Bundle containing data about the previous state (if any)
-     * @return View for the camera fragment's UI
+     * @return View for the fragment's UI
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -186,7 +194,6 @@ public class WaitingListProfileFragment extends Fragment {
                         });
             }
         });
-
 
         return view;
     }
