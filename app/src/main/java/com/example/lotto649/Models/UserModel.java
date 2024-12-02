@@ -5,6 +5,7 @@ import android.provider.Settings;
 
 import com.example.lotto649.AbstractClasses.AbstractModel;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.HashMap;
 
@@ -109,9 +110,8 @@ public class UserModel extends AbstractModel {
                         put("phone", phone);
                         put("entrant", entrant);
                         put("organizer", organizer);
-                        put("admin", admin);
                         put("profileImage", profileImage);
-                }})  // Saves the current user object to Firestore
+                }}, SetOptions.merge())  // Saves the current user object to Firestore
                 .addOnSuccessListener(aVoid -> {
                     System.out.println("User saved successfully!");
                     savedToFirestore = true;

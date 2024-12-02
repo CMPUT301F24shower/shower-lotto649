@@ -26,8 +26,10 @@ import androidx.fragment.app.Fragment;
 import com.example.lotto649.EventState;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.Models.UserModel;
+import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.example.lotto649.Views.ArrayAdapters.BrowseEventsArrayAdapter;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -57,6 +59,7 @@ public class BrowseEventsFragment extends Fragment {
     private BrowseEventsArrayAdapter eventsAdapter;
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
+    private ExtendedFloatingActionButton backButton;
 
     /**
      * Public empty constructor for BrowseFacilitiesFragment.
@@ -92,6 +95,7 @@ public class BrowseEventsFragment extends Fragment {
         browseEventsList = view.findViewById(R.id.browse_events_list);
         eventsAdapter = new BrowseEventsArrayAdapter(view.getContext(), dataList, getViewLifecycleOwner());
         browseEventsList.setAdapter(eventsAdapter);
+        backButton = view.findViewById(R.id.back_button);
 
         eventsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -153,7 +157,12 @@ public class BrowseEventsFragment extends Fragment {
             }
         });
 
-        // TODO needs a back button
+        backButton.setOnClickListener(new ExtendedFloatingActionButton.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MyApp.getInstance().popFragment();
+            }
+        });
 
         return view;
     }
