@@ -74,5 +74,4 @@ dependencies {
     implementation("androidx.camera:camera-camera2:1.4.0")
     implementation("com.google.mlkit:barcode-scanning:17.3.0")
     androidTestImplementation("androidx.test.uiautomator:uiautomator:2.2.0")
-
 }
