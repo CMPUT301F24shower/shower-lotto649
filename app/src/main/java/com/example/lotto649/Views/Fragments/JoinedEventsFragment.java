@@ -89,7 +89,7 @@ public class JoinedEventsFragment extends Fragment {
                 }
                 Context context = getContext();
                 if (context == null) return;
-                eventAdapter = new BrowseEventsArrayAdapter(context, eventArrayList);
+                eventAdapter = new BrowseEventsArrayAdapter(context, eventArrayList, getViewLifecycleOwner());
                 eventsList.setAdapter(eventAdapter);
             }
         });
