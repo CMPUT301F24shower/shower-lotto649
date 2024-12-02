@@ -67,22 +67,11 @@ public class WinnerListFragment extends Fragment {
     private BrowseProfilesArrayAdapter profilesAdapter;
     private FirebaseFirestore db;
     private CollectionReference userRef;
-    private String eventId;
+    private String firestoreEventId;
     private Context mContext;
     ExtendedFloatingActionButton backButton;
 
     private int numberOfSpots;
-    /**
-     * Public empty constructor for BrowseFacilitiesFragment.
-     * <p>
-     * Required for proper instantiation of the fragment by the Android system.
-     * </p>
-     */
-    public WinnerListFragment(String eventId) {
-        this.eventId = eventId;
-        Log.e("Ohm","eventId: " + eventId);
-        // Required empty public constructor
-    }
 
     /**
      * Attaches the fragment to the app, and sets the context
@@ -105,7 +94,8 @@ public class WinnerListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_waiting_list, container, false);
+        firestoreEventId = getArguments().getString("firestoreEventId");
+        View view = inflater.inflate(R.layout.fragment_browse_profiles, container, false);
 
         // initialize Firestore
         db = FirebaseFirestore.getInstance();
@@ -123,7 +113,7 @@ public class WinnerListFragment extends Fragment {
         backButton = view.findViewById(R.id.back_button);
 
 //        db.collection("winners")
-//                .whereEqualTo("eventId", eventId)
+//                .whereEqualTo("firestoreEventId", firestoreEventId)
 //                .get()
 //                .addOnCompleteListener(task -> {
 //                    if (task.isSuccessful() && task.getResult() != null) {
@@ -138,7 +128,7 @@ public class WinnerListFragment extends Fragment {
 //                });
 
 //        db.collection("signUps")
-//                .whereEqualTo("eventId", eventId)
+//                .whereEqualTo("firestoreEventId", firestoreEventId)
 //                .get()
 //                .addOnCompleteListener(task -> {
 //                    if (task.isSuccessful() && task.getResult() != null) {
@@ -155,7 +145,7 @@ public class WinnerListFragment extends Fragment {
 //                    }
 //                });
 
-        db.collection("events").document(eventId)
+        db.collection("events").document(firestoreEventId)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -164,11 +154,11 @@ public class WinnerListFragment extends Fragment {
                 });
 
         db.collection("winners")
-                .whereEqualTo("eventId", eventId)
+                .whereEqualTo("firestoreEventId", firestoreEventId)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult().size() <= numberOfSpots) {
-                        db.collection("events").document(eventId).update("drawn",false);
+                        db.collection("events").document(firestoreEventId).update("drawn",false);
                     } else if (task.isSuccessful() && task.getResult() != null) {
                         winnerList.clear();
                         deviceIdList.clear();
