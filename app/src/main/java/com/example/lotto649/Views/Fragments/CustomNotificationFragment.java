@@ -68,27 +68,28 @@ public class CustomNotificationFragment extends Fragment {
                 return;
             }
 
-            String collectionName = getCollectionForStatus(selectedStatus);
-
-            if (collectionName != null) {
-                sendNotificationsToCollection(collectionName, title, description, eventId);
-            } else {
-                Toast.makeText(getContext(), "Invalid status selected", Toast.LENGTH_SHORT).show();
-            }
+            getCollectionForStatus(selectedStatus, title, description, eventId);
         });
         return view;
     }
 
-    private String getCollectionForStatus(String status) {
+    private void getCollectionForStatus(String status, String title, String message, String eventId) {
         switch (status) {
-            case "All":
-                return "signUps";
-            case "Selected":
-                return "winners";
-            case "Cancelled":
-                return "cancelled";
-            default:
-                return null;
+            case "All": {
+                sendNotificationsToCollection("signUps", title, message, eventId);
+                break;
+            }
+            case "Selected": {
+                sendNotificationsToCollection("winners", title, message, eventId);
+                sendNotificationsToCollection("enrolled", title, message, eventId);
+            }
+            case "Cancelled": {
+                sendNotificationsToCollection("cancelled", title, message, eventId);
+                break;
+            } default: {
+                Toast.makeText(getContext(), "Invalid status selected", Toast.LENGTH_SHORT).show();
+                break;
+            }
         }
     }
 
