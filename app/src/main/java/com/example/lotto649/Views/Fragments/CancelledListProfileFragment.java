@@ -1,7 +1,13 @@
 /**
  * A fragment to display a given profile's information.
- * This is used by an admin user to manage a profile.
- * This fragment is reached through a list of profiles in the admin view.
+ * <p>
+ * This fragment is used by an admin user to view and manage a user's profile.
+ * It is accessible from a list of profiles displayed in the admin view.
+ * </p>
+ * <p>
+ * Code for profile image fetching and display was implemented using the Glide library:
+ * https://github.com/bumptech/glide
+ * </p>
  */
 package com.example.lotto649.Views.Fragments;
 
@@ -36,9 +42,11 @@ import com.google.firebase.storage.StorageReference;
 import java.util.Objects;
 
 /**
- * A fragment to display a given profile's information.
- * This is used by an admin user to manage a profile.
- * This fragment is reached through a list of profiles in the admin view.
+ * A fragment to display and manage a user's profile information.
+ * <p>
+ * The fragment displays the user's name, email, phone number, roles, and profile image.
+ * Admin users can access this fragment to view specific user details from a list of profiles.
+ * </p>
  */
 public class CancelledListProfileFragment extends Fragment {
     private FirebaseFirestore db;
@@ -57,7 +65,7 @@ public class CancelledListProfileFragment extends Fragment {
     String firestoreEventId;
 
     /**
-     * Public empty constructor for BrowseEventsFragment.
+     * Public empty constructor for CancelledListProfileFragment.
      * <p>
      * Required for proper instantiation of the fragment by the Android system.
      * </p>
@@ -68,12 +76,15 @@ public class CancelledListProfileFragment extends Fragment {
 
     /**
      * Called to create the view hierarchy associated with this fragment.
-     * This method inflates the layout defined in `fragment_browse_events.xml`.
+     * <p>
+     * This method inflates the layout defined in `fragment_waiting_list_profile.xml`
+     * and initializes the UI components to display user profile details.
+     * </p>
      *
      * @param inflater LayoutInflater object used to inflate any views in the fragment
      * @param container The parent view that the fragment's UI should be attached to
      * @param savedInstanceState Bundle containing data about the previous state (if any)
-     * @return View for the camera fragment's UI
+     * @return View for the fragment's UI
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

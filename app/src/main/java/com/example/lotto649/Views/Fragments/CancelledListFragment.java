@@ -1,12 +1,21 @@
 /**
- * BrowseProfilesFragment class represents a fragment for the admin to browse all profiles in the application.
+ * CancelledListFragment class represents a fragment that displays a list of users
+ * who have canceled their participation in a specific event.
  * <p>
- * This fragment shows a list view of every profile, selecting the event will show its full details and allow for it to be deleted.
- * This page is only accessible to users with 'admin' status
+ * This fragment retrieves and shows the canceled users based on an event ID from Firestore.
+ * The list includes user details like name, email, phone number, and profile image.
+ * Administrators can select a user to view their detailed profile in a new fragment.
+ * </p>
+ * <p>
+ * If no users are found, a message indicating "No users have cancelled" is displayed on the screen.
  * </p>
  * <p>
  * Code for the bottom navigation bar was adapted from:
  * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
+ * </p>
+ * <p>
+ * Code for creating context was referenced from:
+ * https://stackoverflow.com/questions/47987649/why-getcontext-in-fragment-sometimes-returns-null
  * </p>
  */
 package com.example.lotto649.Views.Fragments;
@@ -42,23 +51,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * BrowseProfilesFragment class represents a fragment for the admin to browse all profiles in the application.
- * <p>
- * This fragment shows a list view of every profile, selecting the event will show its full details and allow for it to be deleted.
- * This page is only accessible to users with 'admin' status
- * </p>
- * <p>
- * Code for the bottom navigation bar was adapted from:
- * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
- * </p>
- * <p>
- * Code for creating context from:
- * https://stackoverflow.com/questions/47987649/why-getcontext-in-fragment-sometimes-returns-null
- * </p>
- */
 public class CancelledListFragment extends Fragment {
     private ArrayList<String> deviceIdList;
     private ArrayList<UserModel> dataList;
@@ -70,11 +63,12 @@ public class CancelledListFragment extends Fragment {
 
     /**
      * Called to create the view hierarchy associated with this fragment.
+     * Initializes the layout, retrieves data from Firestore, and sets up UI components.
      *
-     * @param inflater LayoutInflater object used to inflate any views in the fragment
-     * @param container The parent view that the fragment's UI should be attached to
-     * @param savedInstanceState Bundle containing data about the previous state (if any)
-     * @return View for this fragment
+     * @param inflater LayoutInflater object used to inflate the fragment's layout
+     * @param container The parent view that this fragment's UI should be attached to
+     * @param savedInstanceState Bundle containing the previous state of the fragment (if any)
+     * @return The root view of this fragment
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

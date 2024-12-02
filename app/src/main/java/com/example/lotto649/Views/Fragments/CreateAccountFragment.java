@@ -1,5 +1,5 @@
 /**
- * AccountFragment class manages the account details of the user in the application.
+ * CreateAccountFragment class manages the account details of the user in the application.
  * <p>
  * This fragment is responsible for displaying and updating the user's account information
  * (name, email, and phone number) using a form. The user information is retrieved from and
@@ -18,7 +18,6 @@
  * Code for Glide image was adapted from this thread:
  * https://stackoverflow.com/questions/44761720/save-picture-to-storage-using-glide
  * </p>
- * KNOWN ISSUE: removing profile image from profile page after just uploading image fails
  */
 package com.example.lotto649.Views.Fragments;
 
@@ -70,10 +69,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * The AccountFragment class handles the user interface for viewing and editing account details.
+ * The CreateAccountFragment class handles creating user account when trying to join an event without an account
  */
 public class CreateAccountFragment extends Fragment {
-    private AccountView accountView;
     private AccountUserController userController;
     private FirebaseFirestore db;
     private UserModel user;

@@ -58,6 +58,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * A Fragment that displays a map with coordinates from Firestore sign-ups.
+ * It updates markers on the map based on user sign-up locations and adjusts the map's zoom and center.
+ */
 public class MapFragment extends Fragment {
     private final int REQUEST_PERMISSIONS_REQUEST_CODE = 1;
     private MapView map = null;
@@ -95,6 +99,10 @@ public class MapFragment extends Fragment {
         }
     };
 
+    /**
+     * Updates the map with markers based on the coordinates in the coordsList.
+     * It also adjusts the map's zoom and center to fit all the markers.
+     */
     private void updateMapMarkings() {
         map = (MapView) view.findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
@@ -143,6 +151,15 @@ public class MapFragment extends Fragment {
         }
     }
 
+    /**
+     * Called to create the fragment's view.
+     * Initializes the map, sets up the back button, and fetches sign-up data from Firestore.
+     *
+     * @param inflater The LayoutInflater to inflate the layout.
+     * @param container The container in which the view will be placed.
+     * @param savedInstanceState A bundle containing saved instance state (if any).
+     * @return The fragment's root view.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -155,7 +172,6 @@ public class MapFragment extends Fragment {
 
         backButton = view.findViewById(R.id.back_button);
 
-        // TODO: replace this with Isaac's stack replace code
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
