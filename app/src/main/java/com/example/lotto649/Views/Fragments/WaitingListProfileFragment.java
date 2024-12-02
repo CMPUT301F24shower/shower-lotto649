@@ -33,6 +33,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -184,14 +185,23 @@ public class WaitingListProfileFragment extends Fragment {
         removeUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                usersRef.document(firestoreEventId + "_" + userDeviceId)
-                        .delete()
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                MyApp.getInstance().popFragment();
+                db.collection("signUps")
+                        .document(firestoreEventId + "_" + userDeviceId)
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful() && task.getResult() != null) {
+                                DocumentSnapshot doc = task.getResult();
+                                Map<String, Object> data = doc.getData();
+                                if (data != null) {
+                                    data.put("hasSeenNoti", false);
+                                    db.collection("cancelled").document(firestoreEventId + "_" + userDeviceId).set(data);
+                                    db.collection("signUps")
+                                            .document(firestoreEventId + "_" + userDeviceId)
+                                            .delete();
+                                }
                             }
                         });
+                MyApp.getInstance().popFragment();
             }
         });
 

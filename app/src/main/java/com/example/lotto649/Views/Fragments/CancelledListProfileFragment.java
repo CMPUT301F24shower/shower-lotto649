@@ -33,21 +33,16 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.Map;
 import java.util.Objects;
 
 /**
- * A fragment to display and manage a specific profile's information.
- * <p>
- * This fragment is used by an admin user to view and manage the details of a winner's profile.
- * Admins can see the winner's name, email, phone, roles, and profile picture. Additionally,
- * they can remove the user from the winners' list. This fragment is accessed from the
- * winner list in the admin view.
- * </p>
+ * A fragment to display a given profile's information.
+ * This is used by an admin user to manage a profile.
+ * This fragment is reached through a list of profiles in the admin view.
  */
-public class WinnerListProfileFragment extends Fragment {
+public class CancelledListProfileFragment extends Fragment {
     private FirebaseFirestore db;
-    private CollectionReference winnersRef;
+    private CollectionReference usersRef;
     private TextView imagePlaceholder;
     private LinearLayout linearLayout;
     private ImageView profileImage;
@@ -57,50 +52,49 @@ public class WinnerListProfileFragment extends Fragment {
     TextView email;
     TextView phone;
     TextView roles;
-    Button removeUser;
     ExtendedFloatingActionButton backButton;
+    String userDeviceId;
+    String firestoreEventId;
 
     /**
-     * Public empty constructor for WinnerListProfileFragment.
+     * Public empty constructor for BrowseEventsFragment.
      * <p>
      * Required for proper instantiation of the fragment by the Android system.
      * </p>
      */
-    public WinnerListProfileFragment() {
+    public CancelledListProfileFragment() {
         // Required empty public constructor
     }
 
     /**
      * Called to create the view hierarchy associated with this fragment.
-     * <p>
-     * This method inflates the layout for the winner profile fragment, fetches the profile details
-     * from Firestore, and sets up the UI components for managing the winner's profile.
-     * </p>
+     * This method inflates the layout defined in `fragment_browse_events.xml`.
      *
-     * @param inflater  LayoutInflater object used to inflate any views in the fragment
+     * @param inflater LayoutInflater object used to inflate any views in the fragment
      * @param container The parent view that the fragment's UI should be attached to
      * @param savedInstanceState Bundle containing data about the previous state (if any)
-     * @return View for the fragment's UI
+     * @return View for the camera fragment's UI
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // get info from bundle
-        String userDeviceId = getArguments().getString("userId");
-        String firestoreEventId = getArguments().getString("eventId");
+        userDeviceId = getArguments().getString("userDeviceId");
+        firestoreEventId = getArguments().getString("firestoreEventId");
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_waiting_list_profile, container, false);
+        ExtendedFloatingActionButton deleteBtn = view.findViewById(R.id.admin_delete_user);
+        deleteBtn.setVisibility(View.GONE);
 
 
         // initialize Firestore
         db = FirebaseFirestore.getInstance();
-        winnersRef = db.collection("winners");
+        usersRef = db.collection("canceled");
 
         name = view.findViewById(R.id.admin_user_name);
         email = view.findViewById(R.id.admin_user_email);
         phone = view.findViewById(R.id.admin_user_phone);
         roles = view.findViewById(R.id.admin_user_roles);
-        removeUser = view.findViewById(R.id.admin_delete_user);
         profileImage = new ImageView(getContext());
         profileImage.setId(View.generateViewId());
         // TODO: This is hardcoded, but works good on my phone, not sure if this is a good idea or not
@@ -175,32 +169,6 @@ public class WinnerListProfileFragment extends Fragment {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MyApp.getInstance().popFragment();
-            }
-        });
-
-        removeUser.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                db.collection("winners")
-                        .document(firestoreEventId + "_" + userDeviceId)
-                        .get()
-                        .addOnCompleteListener(task -> {
-                            if (task.isSuccessful() && task.getResult() != null) {
-                                DocumentSnapshot doc = task.getResult();
-                                Map<String, Object> data = doc.getData();
-                                if (data != null) {
-                                    data.put("hasSeenNoti", false);
-                                    db.collection("cancelled").document(firestoreEventId + "_" + userDeviceId).set(data);
-                                    db.collection("winners")
-                                            .document(firestoreEventId + "_" + userDeviceId)
-                                            .delete();
-                                    db.collection("signUps")
-                                            .document(firestoreEventId + "_" + userDeviceId)
-                                            .delete();
-                                }
-                            }
-                        });
                 MyApp.getInstance().popFragment();
             }
         });

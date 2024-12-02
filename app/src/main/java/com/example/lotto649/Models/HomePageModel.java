@@ -3,6 +3,7 @@ package com.example.lotto649.Models;
 import android.util.Log;
 
 import com.example.lotto649.AbstractClasses.AbstractModel;
+import com.example.lotto649.EventState;
 import com.example.lotto649.MyApp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -10,7 +11,9 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 // TODO this isnt a model, just use array adapter and firestore calls from another class
 /**
@@ -78,6 +81,31 @@ public class HomePageModel extends AbstractModel {
                 });
     }
 
+    public EventModel getEventFromFirebaseObject(DocumentSnapshot doc) {
+        String eventId = doc.getId();
+        String description = doc.getString("description");
+        Date endDate = doc.getDate("endDate");
+        Boolean geo = doc.getBoolean("geo");
+        int numMaxEntrants = Objects.requireNonNull(doc.getLong("numberOfMaxEntrants")).intValue();
+        int numSpots = Objects.requireNonNull(doc.getLong("numberOfSpots")).intValue();
+        String organizerId = doc.getString("organizerId");
+        String posterImage = doc.getString("posterImage");
+        String qrCode = doc.getString("qrCode");
+        Date startDate = doc.getDate("startDate");
+        String stateStr = doc.getString("state");
+        EventState state = EventState.OPEN;
+        if (Objects.equals(stateStr, "WAITING")) {
+            state = EventState.WAITING;
+        } else if (Objects.equals(stateStr, "CLOSED")) {
+            state = EventState.CLOSED;
+        }
+        String title = doc.getString("title");
+        EventModel newEvent = new EventModel(title, description, numSpots, numMaxEntrants, startDate, endDate, posterImage, geo, qrCode, state, db);
+        newEvent.setOrganizerId(organizerId);
+        newEvent.setEventId(eventId);
+        return newEvent;
+    }
+
     /**
      * Retrieves the events for the current user (organizer) and updates the myEvents list.
      *
@@ -89,11 +117,7 @@ public class HomePageModel extends AbstractModel {
             @Override
             public void onCallback(List<DocumentSnapshot> documents) {
                 for (DocumentSnapshot document : documents) {
-                    // TODO use constructor here, why are we doing this
-                    EventModel event = document.toObject(EventModel.class);
-                    event.setEventId(document.getId());
-                    event.setDb(db);
-                    Log.e("Ohm", "Doc Id " + event.getEventId());
+                    EventModel event = getEventFromFirebaseObject(document);
                     myEvents.add(event);
                 }
                 callback.onEventsFetched(myEvents);

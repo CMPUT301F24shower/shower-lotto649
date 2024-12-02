@@ -82,7 +82,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * </p>
  */
 public class WaitingListFragment extends Fragment {
-    private ArrayList<String> signUpIdList, deviceIdList;
+    private ArrayList<String> deviceIdList;
     private ArrayList<UserModel> dataList;
     private ListView browseProfilesList;
     private BrowseProfilesArrayAdapter profilesAdapter;
@@ -107,37 +107,16 @@ public class WaitingListFragment extends Fragment {
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
 
-        // Initialize data lists
-        dataList = new ArrayList<>();
-        deviceIdList = new ArrayList<>();
-        signUpIdList = new ArrayList<>();
+        // fill dataList from Firestore
+        dataList = new ArrayList<UserModel>();
+        deviceIdList = new ArrayList<String>();
 
-        // Set up the list view and adapter
         browseProfilesList = view.findViewById(R.id.browse_profiles_list);
         profilesAdapter = new BrowseProfilesArrayAdapter(view.getContext(), dataList);
         browseProfilesList.setAdapter(profilesAdapter);
 
-        // Set up the back button
         backButton = view.findViewById(R.id.back_button);
 
-        // Load data from Firestore
-        fetchUserProfiles(view);
-
-        // Handle list item clicks
-        handleListItemClick();
-
-        // Handle back button click
-        handleBackButtonClick();
-
-        return view;
-    }
-
-    /**
-     * Fetches user profiles associated with the given Firestore event ID and updates the list view.
-     *
-     * @param view The root view of the fragment, used for UI updates
-     */
-    private void fetchUserProfiles(View view) {
         db.collection("signUps").whereEqualTo("eventId", firestoreEventId).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot querySnapshots, @Nullable FirebaseFirestoreException error) {
@@ -170,53 +149,45 @@ public class WaitingListFragment extends Fragment {
                         });
                     }
                     if (noSignUps.get()) {
-                        showNoSignUpsMessage(view);
+                        ConstraintLayout layout = view.findViewById(R.id.browse_profiles_layout);
+                        Context context = getContext();
+                        if (context != null) {
+                            TextView textView = new TextView(getContext());
+                            textView.setId(View.generateViewId()); // Generate an ID for the TextView
+                            textView.setText("No Users have signed up yet");
+                            textView.setTextSize(24);
+                            textView.setGravity(Gravity.CENTER);
+                            textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black)); // Update with your color
+
+                            // Set layout params for the TextView to match parent constraints
+                            ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
+                                    ConstraintLayout.LayoutParams.MATCH_PARENT,
+                                    ConstraintLayout.LayoutParams.WRAP_CONTENT
+                            );
+
+                            params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
+                            params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
+                            params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
+                            params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
+
+                            textView.setLayoutParams(params);
+
+                            // Add the TextView to the layout
+                            layout.addView(textView);
+                        }
                     }
                 }
             }
         });
-    }
 
-    /**
-     * Displays a message if no users have signed up for the event.
-     *
-     * @param view The root view of the fragment, used to add the message
-     */
-    private void showNoSignUpsMessage(View view) {
-        ConstraintLayout layout = view.findViewById(R.id.browse_profiles_layout);
-        TextView textView = new TextView(getContext());
-        textView.setId(View.generateViewId());
-        textView.setText("No Users have signed up yet");
-        textView.setTextSize(24);
-        textView.setGravity(Gravity.CENTER);
-        textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
-
-        // Set layout params for the TextView
-        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
-                ConstraintLayout.LayoutParams.MATCH_PARENT,
-                ConstraintLayout.LayoutParams.WRAP_CONTENT
-        );
-
-        params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
-        params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
-        params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
-        params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
-
-        textView.setLayoutParams(params);
-
-        // Add the TextView to the layout
-        layout.addView(textView);
-    }
-
-    /**
-     * Sets up the click listener for the list view items.
-     * Navigates to the WaitingListProfileFragment to display profile details.
-     */
-    private void handleListItemClick() {
+        /**
+         * Sets up the click listener for the list view items.
+         * Navigates to the WaitingListProfileFragment to display profile details.
+         */
         browseProfilesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String chosenUserId = deviceIdList.get(i);
+                String chosenUserId = (String) deviceIdList.get(i);
                 Bundle bundle = new Bundle();
                 bundle.putString("userDeviceId", chosenUserId);
                 bundle.putString("firestoreEventId", firestoreEventId);
@@ -225,18 +196,18 @@ public class WaitingListFragment extends Fragment {
                 MyApp.getInstance().addFragmentToStack(frag);
             }
         });
-    }
 
-    /**
-     * Sets up the click listener for the back button.
-     * Navigates to the previous fragment in the stack.
-     */
-    private void handleBackButtonClick() {
+        /**
+         * Sets up the click listener for the back button.
+         * Navigates to the previous fragment in the stack.
+         */
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 MyApp.getInstance().popFragment();
             }
         });
+
+        return view;
     }
 }

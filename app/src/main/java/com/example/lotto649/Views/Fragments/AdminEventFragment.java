@@ -66,7 +66,6 @@ public class AdminEventFragment extends Fragment {
     private Uri posterUri;
     private MutableLiveData<Boolean> imageAbleToBeDeleted;
     private MutableLiveData<Boolean> qrCodeAbleToBeDeleted;
-    FirestoreHelper firestoreHelper;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -91,7 +90,6 @@ public class AdminEventFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // get info from bundle
         firestoreEventId = getArguments().getString("firestoreEventId");
-        firestoreHelper = new FirestoreHelper();
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_admin_view_event, container, false);
@@ -222,9 +220,9 @@ public class AdminEventFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (posterUri != null){
-                    firestoreHelper.deletePosterFromEvent(posterUri.toString());
+                    FirestoreHelper.getInstance().deletePosterFromEvent(posterUri.toString());
                 }
-                firestoreHelper.markSignupsAsDeleted(firestoreEventId);
+                FirestoreHelper.getInstance().markSignupsAsDeleted(firestoreEventId);
                 eventsRef
                         .document(firestoreEventId)
                         .delete()

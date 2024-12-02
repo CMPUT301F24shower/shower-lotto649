@@ -23,6 +23,7 @@ import android.widget.ListView;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.lotto649.EventState;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.R;
@@ -36,6 +37,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * BrowseEventsFragment class represents a fragment for the admin to browse all events in the application.
@@ -110,10 +112,17 @@ public class BrowseEventsFragment extends Fragment {
                         Date endDate = doc.getDate("endDate");
                         String posterImageUriString = doc.getString("posterImage");
                         String qrCodeHash = doc.getString("qrCode");
-                        boolean geo = doc.getBoolean("geo");
-                        dataList.add( new EventModel(getContext(), title, description, numberOfSpots,
+                        boolean geo = Boolean.TRUE.equals(doc.getBoolean("geo"));
+                        String stateStr = doc.getString("state");
+                        EventState state = EventState.OPEN;
+                        if (Objects.equals(stateStr, "WAITING")) {
+                            state = EventState.WAITING;
+                        } else if (Objects.equals(stateStr, "CLOSED")) {
+                            state = EventState.CLOSED;
+                        }
+                        dataList.add( new EventModel(title, description, numberOfSpots,
                         numberOfMaxEntrants, startDate, endDate, posterImageUriString, geo, qrCodeHash,
-                                0, false, null));
+                                state, null));
                         eventIdList.add(eventId);
                     }
                     eventsAdapter.notifyDataSetChanged();

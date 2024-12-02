@@ -63,7 +63,6 @@ public class AdminProfileFragment extends Fragment {
     Button removeImage;
     Button removeUser;
     ExtendedFloatingActionButton backButton;
-    FirestoreHelper firestoreHelper;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -88,7 +87,6 @@ public class AdminProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // get info from bundle
         String userDeviceId = getArguments().getString("userDeviceId");
-        firestoreHelper = new FirestoreHelper();
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_admin_view_profile, container, false);
 
@@ -200,7 +198,65 @@ public class AdminProfileFragment extends Fragment {
         removeUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                firestoreHelper.deleteFacility(userDeviceId);
+                FirestoreHelper.getInstance().deleteFacility(userDeviceId);
+                db.collection("signUps")
+                        .whereEqualTo("userId", userDeviceId)
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                // Loop through the documents in the query result
+                                for (DocumentSnapshot document : task.getResult()) {
+                                    // Delete each document
+                                    db.collection("signUps").document(document.getId()).delete();
+                                }
+                            }
+                        });
+                db.collection("winners")
+                        .whereEqualTo("userId", userDeviceId)
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                // Loop through the documents in the query result
+                                for (DocumentSnapshot document : task.getResult()) {
+                                    // Delete each document
+                                    db.collection("signUps").document(document.getId()).delete();
+                                }
+                            }
+                        });
+                db.collection("noSelected")
+                        .whereEqualTo("userId", userDeviceId)
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                // Loop through the documents in the query result
+                                for (DocumentSnapshot document : task.getResult()) {
+                                    // Delete each document
+                                    db.collection("signUps").document(document.getId()).delete();
+                                }
+                            }
+                        });
+                db.collection("enrolled")
+                        .whereEqualTo("userId", userDeviceId)
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                // Loop through the documents in the query result
+                                for (DocumentSnapshot document : task.getResult()) {
+                                    // Delete each document
+                                    db.collection("signUps").document(document.getId()).delete();
+                                }
+                            }
+                        });
+                db.collection("cancelled")
+                        .whereEqualTo("userId", userDeviceId)
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                for (DocumentSnapshot document : task.getResult()) {
+                                    db.collection("signUps").document(document.getId()).delete();
+                                }
+                            }
+                        });
                 usersRef
                         .document(userDeviceId)
                         .delete()
