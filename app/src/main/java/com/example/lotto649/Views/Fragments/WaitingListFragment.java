@@ -1,14 +1,3 @@
-/**
- * BrowseProfilesFragment class represents a fragment for the admin to browse all profiles in the application.
- * <p>
- * This fragment shows a list view of every profile, selecting the event will show its full details and allow for it to be deleted.
- * This page is only accessible to users with 'admin' status
- * </p>
- * <p>
- * Code for the bottom navigation bar was adapted from:
- * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
- * </p>
- */
 package com.example.lotto649.Views.Fragments;
 
 import android.content.Context;
@@ -42,39 +31,30 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * BrowseProfilesFragment class represents a fragment for the admin to browse all profiles in the application.
- * <p>
- * This fragment shows a list view of every profile, selecting the event will show its full details and allow for it to be deleted.
- * This page is only accessible to users with 'admin' status
- * </p>
- * <p>
- * Code for the bottom navigation bar was adapted from:
- * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
- * </p>
- * <p>
- * Code for creating context from:
- * https://stackoverflow.com/questions/47987649/why-getcontext-in-fragment-sometimes-returns-null
- * </p>
+ * A fragment that displays a list of users who are waiting for an event. The list is populated
+ * by querying Firestore for users who have signed up for the event. It also provides a back button
+ * to navigate back to the previous screen.
  */
 public class WaitingListFragment extends Fragment {
+    ExtendedFloatingActionButton backButton;
     private ArrayList<String> deviceIdList;
     private ArrayList<UserModel> dataList;
     private ListView browseProfilesList;
     private BrowseProfilesArrayAdapter profilesAdapter;
     private FirebaseFirestore db;
-    ExtendedFloatingActionButton backButton;
     private String firestoreEventId;
 
     /**
-     * Called to create the view hierarchy associated with this fragment.
+     * Called to create and initialize the fragment's view. It sets up the Firestore database,
+     * fetches the users' data, binds the data to the list view, and sets up event listeners
+     * for user interactions.
      *
-     * @param inflater LayoutInflater object used to inflate any views in the fragment
-     * @param container The parent view that the fragment's UI should be attached to
-     * @param savedInstanceState Bundle containing data about the previous state (if any)
-     * @return View for this fragment
+     * @param inflater           The LayoutInflater used to inflate the fragment's view.
+     * @param container          The parent view that the fragment's UI will be attached to.
+     * @param savedInstanceState A bundle containing the state of the fragment if it was previously saved.
+     * @return The root view of the fragment.
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -114,7 +94,7 @@ public class WaitingListFragment extends Fragment {
                 }
                 if (querySnapshots != null) {
                     dataList.clear();
-                    for (QueryDocumentSnapshot doc: querySnapshots) {
+                    for (QueryDocumentSnapshot doc : querySnapshots) {
                         String deviceId = doc.getString("userId");
                         db.collection("users").document(deviceId).get().addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
@@ -181,7 +161,7 @@ public class WaitingListFragment extends Fragment {
         browseProfilesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String chosenUserId = (String) deviceIdList.get(i);
+                String chosenUserId = deviceIdList.get(i);
                 Bundle bundle = new Bundle();
                 bundle.putString("userDeviceId", chosenUserId);
                 bundle.putString("firestoreEventId", firestoreEventId);

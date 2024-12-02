@@ -12,24 +12,19 @@
 package com.example.lotto649.Views.Fragments;
 
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.lotto649.Models.FacilityModel;
-import com.example.lotto649.Models.UserModel;
 import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.example.lotto649.Views.ArrayAdapters.BrowseFacilitiesArrayAdapter;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
@@ -72,8 +67,8 @@ public class BrowseFacilitiesFragment extends Fragment {
     /**
      * Called to create the view hierarchy associated with this fragment.
      *
-     * @param inflater LayoutInflater object used to inflate any views in the fragment
-     * @param container The parent view that the fragment's UI should be attached to
+     * @param inflater           LayoutInflater object used to inflate any views in the fragment
+     * @param container          The parent view that the fragment's UI should be attached to
      * @param savedInstanceState Bundle containing data about the previous state (if any)
      * @return View for this fragment
      */
@@ -102,7 +97,7 @@ public class BrowseFacilitiesFragment extends Fragment {
                 }
                 if (querySnapshots != null) {
                     dataList.clear();
-                    for (QueryDocumentSnapshot doc: querySnapshots) {
+                    for (QueryDocumentSnapshot doc : querySnapshots) {
                         String deviceIdText = doc.getId();
                         String nameText = doc.getString("facility");
                         String addressText = doc.getString("address");

@@ -20,11 +20,13 @@ import android.provider.Settings;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import androidx.test.uiautomator.UiObjectNotFoundException;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -38,6 +40,11 @@ public class JoinEventTest {
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule =
             new ActivityScenarioRule<MainActivity>(getCustomIntent());
+
+    @Before
+    public void setUp() throws UiObjectNotFoundException {
+        PermissionHandler.handlePermissions();
+    }
 
     private Intent getCustomIntent() {
         // Create a custom Intent with a data URI
@@ -74,7 +81,6 @@ public class JoinEventTest {
         calendar.add(Calendar.DAY_OF_YEAR, 1);
         Date tomorrow = calendar.getTime();
         String tomorrowFormatted = dateFormat.format(tomorrow);
-        // TODO make sure this matches how we are creating events
         DocumentReference eventRef = FirebaseFirestore.getInstance().collection("events").document("THISISATESTEVENT");
         eventRef.set(new HashMap<String, Object>() {{
             put("title", "TEST EVENT");
@@ -97,7 +103,6 @@ public class JoinEventTest {
         onView(withId(R.id.admin_event_name)).check(matches(isDisplayed())).check(matches(withText("TEST EVENT")));
         onView(withId(R.id.admin_event_status)).check(matches(isDisplayed())).check(matches(withText("OPEN")));
         onView(withId(R.id.admin_event_location)).check(matches(isDisplayed())).check(matches(withText("LOCATION")));
-        // TODO update this when it is fixed
         onView(withId(R.id.admin_event_spots)).check(matches(isDisplayed())).check(matches(withText("TODO")));
         onView(withId(R.id.admin_event_attendees)).check(matches(isDisplayed())).check(matches(withText("5 Attendees")));
         onView(withId(R.id.admin_event_dates)).check(matches(isDisplayed())).check(matches(withText("Enter between " + todayFormatted + " - " + tomorrowFormatted)));

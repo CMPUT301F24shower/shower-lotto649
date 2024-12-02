@@ -60,20 +60,74 @@ import org.osmdroid.config.Configuration;
 
 import java.util.HashMap;
 
+/**
+ * MainActivity is the entry point of the application that implements a bottom navigation bar
+ * for switching between different fragments such as Home, Camera, and Account.
+ * <p>
+ * Code adapted from the following source for implementing a bottom navigation bar:
+ * <a href="https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/">GeeksforGeeks: Bottom Navigation Bar in Android</a>
+ * Notification permission code was adapted from this thread:
+ * https://stackoverflow.com/questions/44305206/ask-permission-for-push-notification
+ * </p>
+ */
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener {
-    BottomNavigationView bottomNavigationView;
+    public static final int LOCATION_SETTINGS_REQUEST_CODE = 100;
     private static final int REQUEST_CODE_POST_NOTIFICATIONS = 1;
-    private MutableLiveData<Integer> whichMenuToShow;
-    DocumentReference userRef;
-    Boolean newEventSeen;
     private static final int LOCATION_REQUEST_CODE = 100;
     private static final int BACKGROUND_LOCATION_REQUEST_CODE = 101;
-    public static final int LOCATION_SETTINGS_REQUEST_CODE = 100;
+    BottomNavigationView bottomNavigationView;
+    DocumentReference userRef;
+    Boolean newEventSeen;
     FusedLocationProviderClient fusedLocationClient;
     LocationRequest locationRequest;
     String deviceId;
+    // Create fragment instances
+    HomeFragment homeFragment = new HomeFragment();
+    HomeTab homeTab = new HomeTab();
+    CameraFragment cameraFragment = new CameraFragment();    // Register the permissions callback, which handles the user's response to the
+    // system permissions dialog. Save the return value, an instance of
+    // ActivityResultLauncher, as an instance variable.
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    // Permission is granted. Continue the action or workflow in your
+                    // app.
+                    Log.e("JASON LOCATION", "Permission granted - set tracking");
+                    LocationManagerSingleton.getInstance().setLocationTrackingEnabled(true);
+                    // turnOnGPS();
+                    getUserLocation(getApplicationContext());
+                } else {
+                    // Explain to the user that the feature is unavailable because the
+                    // feature requires a permission that the user has denied. At the
+                    // same time, respect the user's decision. Don't link to system
+                    // settings in an effort to convince the user to change their
+                    // decision.
+                    Log.e("JASON LOCATION", "Permission not granted");
+                    Toast.makeText(getApplicationContext(), "Location services not found - please check your settings", Toast.LENGTH_SHORT).show();
+                }
+            });
+    AccountFragment accountFragment = new AccountFragment();
+    FacilityFragment facilityFragment = new FacilityFragment();
+    BrowseEventsFragment browseEventsFragment = new BrowseEventsFragment();
+    BrowseProfilesFragment browseProfilesFragment = new BrowseProfilesFragment();
+    BrowseFacilitiesFragment browseFacilitiesFragment = new BrowseFacilitiesFragment();
+    AdminAndUserFragment adminAndUserFragment = new AdminAndUserFragment();
+    private MutableLiveData<Integer> whichMenuToShow;
+    private final ActivityResultLauncher<String> requestNotificationPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    Log.d("notif", "Notification permission granted");
+                } else {
+                    Log.d("notif", "Notification permission not granted");
+                }
+            });
 
+    /**
+     * Uses the Android permissions to check if user has location, and gets location of current user
+     *
+     * @param context the given context
+     */
     public void getUserLocation(Context context) {
         if (context == null) {
             Log.e("LocationHelper", "Context is null. Cannot check permission.");
@@ -106,38 +160,9 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    // Register the permissions callback, which handles the user's response to the
-    // system permissions dialog. Save the return value, an instance of
-    // ActivityResultLauncher, as an instance variable.
-    private ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    // Permission is granted. Continue the action or workflow in your
-                    // app.
-                    Log.e("JASON LOCATION", "Permission granted - set tracking");
-                    LocationManagerSingleton.getInstance().setLocationTrackingEnabled(true);
-                    // turnOnGPS();
-                    getUserLocation(getApplicationContext());
-                } else {
-                    // Explain to the user that the feature is unavailable because the
-                    // feature requires a permission that the user has denied. At the
-                    // same time, respect the user's decision. Don't link to system
-                    // settings in an effort to convince the user to change their
-                    // decision.
-                    Log.e("JASON LOCATION", "Permission not granted");
-                    Toast.makeText(getApplicationContext(), "Location services not found - please check your settings", Toast.LENGTH_SHORT).show();
-                }
-            });
-
-    private ActivityResultLauncher<String> requestNotificationPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    Log.d("notif", "Notification permission granted");
-                } else {
-                    Log.d("notif", "Notification permission not granted");
-                }
-            });
-
+    /**
+     * Checks if user has notification permissions and requests them if not
+     */
     private void checkAndRequestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13+
             if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -193,7 +218,6 @@ public class MainActivity extends AppCompatActivity
         Context ctx = getApplicationContext();
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
 
-        // TODO this code is incomplete, just here to fix build errors
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.getMenu().clear();
 
@@ -214,7 +238,7 @@ public class MainActivity extends AppCompatActivity
                     int id = bottomNavigationView.getSelectedItemId();
                     removeMenuItems();
                     bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu);
-                    if (id == R.id.home || id == R.id.camera|| id == R.id.facility || id == R.id.account) {
+                    if (id == R.id.home || id == R.id.camera || id == R.id.facility || id == R.id.account) {
                         bottomNavigationView.setSelectedItemId(id);
                     } else {
                         bottomNavigationView.setSelectedItemId(R.id.home);
@@ -229,7 +253,7 @@ public class MainActivity extends AppCompatActivity
                     int id = bottomNavigationView.getSelectedItemId();
                     removeMenuItems();
                     bottomNavigationView.inflateMenu(R.menu.bottom_nav_menu_user_and_admin);
-                    if (id == R.id.home || id == R.id.camera|| id == R.id.facility || id == R.id.account) {
+                    if (id == R.id.home || id == R.id.camera || id == R.id.facility || id == R.id.account) {
                         bottomNavigationView.setSelectedItemId(id);
                     } else {
                         bottomNavigationView.setSelectedItemId(R.id.home);
@@ -262,18 +286,6 @@ public class MainActivity extends AppCompatActivity
         });
         createMenuByUserType();
     }
-
-    // Create fragment instances
-    HomeFragment homeFragment = new HomeFragment();
-    HomeTab homeTab = new HomeTab();
-    CameraFragment cameraFragment = new CameraFragment();
-    AccountFragment accountFragment = new AccountFragment();
-    FacilityFragment facilityFragment = new FacilityFragment();
-
-    BrowseEventsFragment browseEventsFragment = new BrowseEventsFragment();
-    BrowseProfilesFragment browseProfilesFragment = new BrowseProfilesFragment();
-    BrowseFacilitiesFragment browseFacilitiesFragment = new BrowseFacilitiesFragment();
-    AdminAndUserFragment adminAndUserFragment = new AdminAndUserFragment();
 
     /**
      * Handles the selection of items from the BottomNavigationView.
@@ -348,6 +360,9 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Gives functionailty to send notifications to users through Firebase
+     */
     private void sendNotifications() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("winners").whereEqualTo("userId", deviceId).get().addOnCompleteListener(task -> {
@@ -366,26 +381,26 @@ public class MainActivity extends AppCompatActivity
             }
         });
         db.collection("winners").whereEqualTo("userId", deviceId).addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                        if (error != null) {
-                            return;
-                        }
-                        if (value != null) {
-                            for (QueryDocumentSnapshot doc : value) {
-                                if (Boolean.FALSE.equals(doc.getBoolean("hasSeenNoti"))) {
-                                    NotificationHelper notis = new NotificationHelper();
-                                    CharSequence title = "Event Lottery System";
-                                    String description = "You have been selected!\n Click to accept the invitation";
-                                    notis.sendNotification(getApplicationContext(), title, description, doc.getString("eventId"));
-                                    db.collection("winners").document(doc.getId()).update(new HashMap<String, Object>() {{
-                                        put("hasSeenNoti", true);
-                                    }});
-                                }
-                            }
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    return;
+                }
+                if (value != null) {
+                    for (QueryDocumentSnapshot doc : value) {
+                        if (Boolean.FALSE.equals(doc.getBoolean("hasSeenNoti"))) {
+                            NotificationHelper notis = new NotificationHelper();
+                            CharSequence title = "Event Lottery System";
+                            String description = "You have been selected!\n Click to accept the invitation";
+                            notis.sendNotification(getApplicationContext(), title, description, doc.getString("eventId"));
+                            db.collection("winners").document(doc.getId()).update(new HashMap<String, Object>() {{
+                                put("hasSeenNoti", true);
+                            }});
                         }
                     }
-                });
+                }
+            }
+        });
         db.collection("cancelled").whereEqualTo("userId", deviceId).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 for (QueryDocumentSnapshot doc : task.getResult()) {
@@ -460,7 +475,7 @@ public class MainActivity extends AppCompatActivity
         });
         db.collection("custom").whereEqualTo("userId", deviceId).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                for (QueryDocumentSnapshot doc :task.getResult()) {
+                for (QueryDocumentSnapshot doc : task.getResult()) {
                     if (Boolean.FALSE.equals(doc.getBoolean("hasSeenNoti"))) {
                         NotificationHelper notis = new NotificationHelper();
                         CharSequence title = doc.getString("title");
@@ -478,7 +493,7 @@ public class MainActivity extends AppCompatActivity
                     return;
                 }
                 if (value != null) {
-                    for (QueryDocumentSnapshot doc :value) {
+                    for (QueryDocumentSnapshot doc : value) {
                         if (Boolean.FALSE.equals(doc.getBoolean("hasSeenNoti"))) {
                             NotificationHelper notis = new NotificationHelper();
                             CharSequence title = doc.getString("title");
@@ -492,6 +507,9 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    /**
+     * Removes the menu options on the UI
+     */
     private void removeMenuItems() {
         bottomNavigationView.getMenu().removeItem(R.id.home);
         bottomNavigationView.getMenu().removeItem(R.id.camera);
@@ -503,15 +521,17 @@ public class MainActivity extends AppCompatActivity
         bottomNavigationView.getMenu().removeItem(R.id.admin);
     }
 
+    /**
+     * Checks if there is intent, if so shows the join event screen.
+     * Used for scanning QR codes and clicking notifications
+     */
     private void handleDeeplink() {
         Intent intent = getIntent();
         if (intent != null && intent.getData() != null) {
             String url = getIntent().getData().toString();
             Uri uri = Uri.parse(url);
             String eventId = uri.getQueryParameter("eventId");
-            // TODO make sure QR code hasnt been deleted, if it has dont return anything
             Bundle bundle = new Bundle();
-            // TODO check that this is a valid event first
             bundle.putString("firestoreEventId", eventId);
             JoinEventFragment frag = new JoinEventFragment();
             frag.setArguments(bundle);
@@ -521,9 +541,7 @@ public class MainActivity extends AppCompatActivity
                     .commit();
         }
         if (intent != null && intent.hasExtra("eventId")) {
-            Log.d("ISAAC", "OPENED FROM NOTIFICATION");
             Bundle bundle = new Bundle();
-            // TODO check that this is a valid event first
             bundle.putString("firestoreEventId", intent.getStringExtra("eventId"));
             JoinEventFragment frag = new JoinEventFragment();
             frag.setArguments(bundle);
@@ -534,6 +552,9 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * When back button pressed, pop the fragment stack
+     */
     @Override
     public void onBackPressed() {
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
@@ -547,7 +568,6 @@ public class MainActivity extends AppCompatActivity
      * Checks if the current user has an admin status in the Firestore database.
      * This method retrieves the device ID, then queries the "users" collection in Firestore
      * to determine if the user has admin privileges.
-     *
      */
     private void createMenuByUserType() {
         String deviceId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
@@ -587,13 +607,13 @@ public class MainActivity extends AppCompatActivity
      * @param grantResults An array of permission grant results corresponding to the permissions in the `permissions` array.
      *                     Each element in the array is either {@link PackageManager#PERMISSION_GRANTED} or
      *                     {@link PackageManager#PERMISSION_DENIED}.
-     *
-     * If the requestCode matches {@link #REQUEST_CODE_POST_NOTIFICATIONS}, the method checks if the user has granted
-     * or denied the notification permission:
-     * <ul>
-     *     <li>If the permission is granted, proceed with posting notifications.</li>
-     *     <li>If the permission is denied, handle accordingly (e.g., show a message to the user).</li>
-     * </ul>
+     *                     <p>
+     *                     If the requestCode matches {@link #REQUEST_CODE_POST_NOTIFICATIONS}, the method checks if the user has granted
+     *                     or denied the notification permission:
+     *                     <ul>
+     *                         <li>If the permission is granted, proceed with posting notifications.</li>
+     *                         <li>If the permission is denied, handle accordingly (e.g., show a message to the user).</li>
+     *                     </ul>
      */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -607,10 +627,12 @@ public class MainActivity extends AppCompatActivity
             }
         }
         if (requestCode == LOCATION_REQUEST_CODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 getUserLocation(getApplicationContext());
             }
         }
     }
+
+
 
 }

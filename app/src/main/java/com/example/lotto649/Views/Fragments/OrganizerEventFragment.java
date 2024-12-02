@@ -1,8 +1,8 @@
 package com.example.lotto649.Views.Fragments;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.app.AlertDialog;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -42,14 +42,11 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * OrganizerEventFragment inflates the screen for organizers to manage a specific event of theirs.
+ * Changes when the state of the event changes, and updates states on certain conditions.
+ */
 public class OrganizerEventFragment extends Fragment {
-    private FirebaseFirestore db;
-    private CollectionReference eventsRef;
-    private String firestoreEventId;
-    private ImageView posterImage;
-    private String eventId;
-    private int numberOfSpots;
-    private EventModel event;
     TextView name;
     TextView status;
     TextView location;
@@ -60,6 +57,13 @@ public class OrganizerEventFragment extends Fragment {
     TextView description;
     TextView attendeesText;
     ExtendedFloatingActionButton optionsButtons, backButton, viewEntrantsMapButton, qrButton, viewEntrantsButton, editButton, randomButton, cancelButton, viewInvitedEntrantsButton, viewCanceledEntrants, sendCustomNotiButton, replacementWinnerButton, viewFinalEntrants;
+    private FirebaseFirestore db;
+    private CollectionReference eventsRef;
+    private String firestoreEventId;
+    private ImageView posterImage;
+    private String eventId;
+    private int numberOfSpots;
+    private EventModel event;
     private MutableLiveData<Boolean> hasQrCode;
     private MutableLiveData<Boolean> canDraw;
     private MutableLiveData<Boolean> canReplacementDraw;
@@ -72,6 +76,21 @@ public class OrganizerEventFragment extends Fragment {
         // Required empty public constructor
     }
 
+    /**
+     * Converts a Firestore DocumentSnapshot into an EventModel object.
+     * <p>
+     * This method retrieves various fields from the given DocumentSnapshot representing an event and constructs an
+     * EventModel object with the corresponding data. The method handles converting fields such as event ID, description,
+     * start and end dates, number of spots, and event state, and it returns a populated EventModel instance.
+     * </p>
+     *
+     * @param doc the DocumentSnapshot containing the Firestore data for the event. It should include fields such as
+     *            description, startDate, endDate, geo, numberOfMaxEntrants, numberOfSpots, organizerId, posterImage,
+     *            qrCode, state, and title.
+     * @return a new EventModel object populated with data from the provided DocumentSnapshot.
+     * The EventModel is initialized with event-specific details like title, description, number of spots,
+     * start and end dates, and state.
+     */
     public EventModel getEventFromFirebaseObject(DocumentSnapshot doc) {
         String eventId = doc.getId();
         String description = doc.getString("description");
@@ -97,6 +116,19 @@ public class OrganizerEventFragment extends Fragment {
         return newEvent;
     }
 
+    /**
+     * Hides all buttons associated with the "open" state of the event.
+     * <p>
+     * This method checks if each of the following buttons is not null and, if so, sets their visibility to "gone":
+     * - viewEntrantsButton
+     * - randomButton
+     * - qrButton
+     * - viewEntrantsMapButton
+     * - editButton
+     * - cancelButton
+     * </p>
+     * This effectively hides these buttons from the UI when the event is no longer in the "open" state.
+     */
     private void hideOpenStateButtons() {
         if (viewEntrantsButton != null) {
             viewEntrantsButton.setVisibility(View.GONE);
@@ -118,6 +150,20 @@ public class OrganizerEventFragment extends Fragment {
         }
     }
 
+    /**
+     * Hides all buttons associated with the "waiting" state of the event.
+     * <p>
+     * This method checks if each of the following buttons is not null and, if so, sets their visibility to "gone":
+     * - viewInvitedEntrantsButton
+     * - replacementWinnerButton
+     * - qrButton
+     * - editButton
+     * - viewCanceledEntrants
+     * - viewEntrantsMapButton
+     * - cancelButton
+     * </p>
+     * This effectively hides these buttons from the UI when the event is in the "waiting" state.
+     */
     private void hideWaitingStateButtons() {
         if (viewInvitedEntrantsButton != null) {
             viewInvitedEntrantsButton.setVisibility(View.GONE);
@@ -142,6 +188,17 @@ public class OrganizerEventFragment extends Fragment {
         }
     }
 
+    /**
+     * Hides all buttons associated with the "closed" state of the event.
+     * <p>
+     * This method checks if each of the following buttons is not null and, if so, sets their visibility to "gone":
+     * - viewEntrantsMapButton
+     * - cancelButton
+     * - viewCanceledEntrants
+     * - viewFinalEntrants
+     * </p>
+     * This effectively hides these buttons from the UI when the event is in the "closed" state.
+     */
     private void hideClosedStateButtons() {
         if (viewEntrantsMapButton != null) {
             viewEntrantsMapButton.setVisibility(View.GONE);
@@ -157,6 +214,18 @@ public class OrganizerEventFragment extends Fragment {
         }
     }
 
+    /**
+     * Displays all buttons associated with the "open" state of the event.
+     * <p>
+     * This method checks if each of the following buttons is not null and, if so, sets their visibility to "visible":
+     * - viewEntrantsButton
+     * - randomButton
+     * - viewEntrantsMapButton
+     * - editButton
+     * - cancelButton
+     * </p>
+     * This effectively shows these buttons in the UI when the event is in the "open" state.
+     */
     private void showOpenStateButtons() {
         if (viewEntrantsButton != null) {
             viewEntrantsButton.setVisibility(View.VISIBLE);
@@ -175,6 +244,18 @@ public class OrganizerEventFragment extends Fragment {
         }
     }
 
+    /**
+     * Displays all buttons associated with the "waiting" state of the event.
+     * <p>
+     * This method checks if each of the following buttons is not null and, if so, sets their visibility to "visible":
+     * - viewInvitedEntrantsButton
+     * - editButton
+     * - viewCanceledEntrants
+     * - viewEntrantsMapButton
+     * - cancelButton
+     * </p>
+     * This effectively shows these buttons in the UI when the event is in the "waiting" state.
+     */
     private void showWaitingStateButtons() {
         if (viewInvitedEntrantsButton != null) {
             viewInvitedEntrantsButton.setVisibility(View.VISIBLE);
@@ -193,6 +274,17 @@ public class OrganizerEventFragment extends Fragment {
         }
     }
 
+    /**
+     * Displays all buttons associated with the "closed" state of the event.
+     * <p>
+     * This method checks if each of the following buttons is not null and, if so, sets their visibility to "visible":
+     * - viewEntrantsMapButton
+     * - cancelButton
+     * - viewCanceledEntrants
+     * - viewFinalEntrants
+     * </p>
+     * This effectively shows these buttons in the UI when the event is in the "closed" state.
+     */
     private void showClosedStateButtons() {
         if (viewEntrantsMapButton != null) {
             viewEntrantsMapButton.setVisibility(View.VISIBLE);
@@ -208,6 +300,23 @@ public class OrganizerEventFragment extends Fragment {
         }
     }
 
+    /**
+     * Sets up the buttons and click listeners for the "open" state of the event.
+     * <p>
+     * This method configures the visibility and functionality of various buttons based on the current state of the event.
+     * It hides buttons related to other states ("waiting" and "closed") and shows buttons related to the "open" state.
+     * The method also sets up click listeners for the following buttons:
+     * - randomButton: triggers a random drawing for the event if allowed.
+     * - qrButton: generates and displays a QR code for the event.
+     * - viewEntrantsMapButton: navigates to the map view showing the entrants.
+     * - viewEntrantsButton: navigates to the waiting list view.
+     * - editButton: allows editing of the event details.
+     * - sendCustomNotiButton: opens a custom notification dialog for the event.
+     * - cancelButton: closes the dialog without performing any action.
+     * </p>
+     *
+     * @param dialog the AlertDialog instance that is used to display the UI for managing event buttons.
+     */
     private void setUpOpenStateButtons(AlertDialog dialog) {
         hideWaitingStateButtons();
         hideClosedStateButtons();
@@ -231,7 +340,7 @@ public class OrganizerEventFragment extends Fragment {
                 CustomNotificationFragment customNotificationFragment = new CustomNotificationFragment();
                 customNotificationFragment.setArguments(bundle);
                 MyApp.getInstance().addFragmentToStack(customNotificationFragment);
-                dialog.dismiss();;
+                dialog.dismiss();
             }
         });
 
@@ -313,6 +422,24 @@ public class OrganizerEventFragment extends Fragment {
         });
     }
 
+    /**
+     * Sets up the buttons and click listeners for the "waiting" state of the event.
+     * <p>
+     * This method configures the visibility and functionality of various buttons based on the current state of the event.
+     * It hides buttons related to other states ("open" and "closed") and shows buttons related to the "waiting" state.
+     * The method also sets up click listeners for the following buttons:
+     * - qrButton: generates and displays a QR code for the event if allowed.
+     * - viewEntrantsMapButton: navigates to the map view showing the entrants.
+     * - viewInvitedEntrantsButton: navigates to the winner list view.
+     * - viewCanceledEntrants: navigates to the canceled entrants list view.
+     * - editButton: allows editing of the event details.
+     * - replacementWinnerButton: triggers a replacement draw for the event if allowed.
+     * - sendCustomNotiButton: opens a custom notification dialog for the event.
+     * - cancelButton: closes the dialog without performing any action.
+     * </p>
+     *
+     * @param dialog the AlertDialog instance that is used to display the UI for managing event buttons.
+     */
     private void setUpWaitingStateButtons(AlertDialog dialog) {
         hideOpenStateButtons();
         hideClosedStateButtons();
@@ -425,6 +552,21 @@ public class OrganizerEventFragment extends Fragment {
         });
     }
 
+    /**
+     * Sets up the buttons and click listeners for the "closed" state of the event.
+     * <p>
+     * This method configures the visibility and functionality of various buttons based on the current state of the event.
+     * It hides buttons related to other states ("open" and "waiting") and shows buttons related to the "closed" state.
+     * The method also sets up click listeners for the following buttons:
+     * - viewEntrantsMapButton: navigates to the map view showing the entrants.
+     * - viewFinalEntrants: navigates to the final enrolled list view.
+     * - viewCanceledEntrants: navigates to the canceled entrants list view.
+     * - sendCustomNotiButton: opens a custom notification dialog for the event.
+     * - cancelButton: closes the dialog without performing any action.
+     * </p>
+     *
+     * @param dialog the AlertDialog instance that is used to display the UI for managing event buttons.
+     */
     private void setUpClosedStateButtons(AlertDialog dialog) {
         hideWaitingStateButtons();
         hideOpenStateButtons();
@@ -437,7 +579,7 @@ public class OrganizerEventFragment extends Fragment {
                 CustomNotificationFragment customNotificationFragment = new CustomNotificationFragment();
                 customNotificationFragment.setArguments(bundle);
                 MyApp.getInstance().addFragmentToStack(customNotificationFragment);
-                dialog.dismiss();;
+                dialog.dismiss();
             }
         });
 
@@ -485,6 +627,17 @@ public class OrganizerEventFragment extends Fragment {
         });
     }
 
+    /**
+     * Inflates and returns the view for the fragment.
+     * <p>
+     * This method is called to create and initialize the view hierarchy of the fragment. It retrieves the event ID passed in the fragment's arguments and prepares the necessary layout for display.
+     * </p>
+     *
+     * @param inflater           the LayoutInflater object that can be used to inflate any views in the fragment
+     * @param container          the parent view that the fragment's UI should be attached to, or null if it does not have one
+     * @param savedInstanceState if non-null, this fragment is being re-constructed from a previous saved state as given here
+     * @return the view for the fragment's UI
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         firestoreEventId = getArguments().getString("firestoreEventId");
@@ -555,7 +708,6 @@ public class OrganizerEventFragment extends Fragment {
 
         db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
-        // TODO lots of these are not displaying the right stuff
 
         name = view.findViewById(R.id.organizer_event_name);
         status = view.findViewById(R.id.organizer_event_status);
@@ -637,7 +789,7 @@ public class OrganizerEventFragment extends Fragment {
 
                             String eventState = doc.getString("state");
                             if (eventState != null) {
-                                status.setText(eventState);;
+                                status.setText(eventState);
                             } else {
                                 status.setText("OPEN");
                             }
@@ -754,10 +906,18 @@ public class OrganizerEventFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Checks the event state and updates relevant flags based on the event data.
+     * <p>
+     * This method evaluates the current event state by examining various parameters, including the number of winners, non-selected entrants, enrolled participants, and available spots. It updates the `canReplacementDraw` flag to indicate whether a replacement draw can occur. Additionally, it changes the event's state from "waiting" to "closed" under certain conditions.
+     * </p>
+     *
+     * @param doc the DocumentSnapshot containing event data retrieved from Firestore
+     */
     private void checkEventStateInfo(DocumentSnapshot doc) {
-        Log.e("JASON REDRAW", "numWinners: " + Integer.toString(numWinners.getValue()));
-        Log.e("JASON REDRAW", "numNotSelected: " + Integer.toString(numNotSelected.getValue()));
-        Log.e("JASON REDRAW", "numEnrolled: " + Integer.toString(numEnrolled.getValue()));
+        Log.e("JASON REDRAW", "numWinners: " + numWinners.getValue());
+        Log.e("JASON REDRAW", "numNotSelected: " + numNotSelected.getValue());
+        Log.e("JASON REDRAW", "numEnrolled: " + numEnrolled.getValue());
 //                            Log.e("JASON REDRAW", "numSpots: " + Integer.toString(numSpots.intValue()));
         Long numSpotsLong = doc.getLong("numberOfSpots");
         int numSpots = 0;

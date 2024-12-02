@@ -3,20 +3,18 @@ package com.example.lotto649.Models;
 import android.util.Log;
 
 import com.example.lotto649.AbstractClasses.AbstractModel;
-import com.example.lotto649.MyApp;
 import com.example.lotto649.EventState;
+import com.example.lotto649.MyApp;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.io.Serializable;
-
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
@@ -43,13 +41,6 @@ public class EventModel extends AbstractModel implements Serializable {
     private FirebaseFirestore db;
     private boolean savedToFirestore = false;
     private String eventId;
-    public String getEventId() {
-        return eventId;
-    }
-
-    public void setDb(FirebaseFirestore db) {
-        this.db = db;
-    }
 
     /**
      * No-argument constructor for Firestore deserialization.
@@ -60,18 +51,6 @@ public class EventModel extends AbstractModel implements Serializable {
         // No initialization required
     }
 
-    private void clear(){
-        this.title = "";
-        this.organizerId = "";
-        this.description = "";
-        this.numberOfSpots = 0;
-        this.numberOfMaxEntrants = -1;
-        this.startDate = new Date();
-        this.endDate =  new Date();
-        this.posterImage = "";
-        this.geo = false;
-    }
-
     /**
      * Constructs a new EventModel with the Firestore database instance.
      * <p>
@@ -79,7 +58,7 @@ public class EventModel extends AbstractModel implements Serializable {
      * event type, and poster image with default values. It also generates a QR code for the event and
      * saves the event data to Firestore.
      *
-     * @param db      the Firestore database instance used to store event data
+     * @param db the Firestore database instance used to store event data
      */
     public EventModel(FirebaseFirestore db) {
         clear();
@@ -91,10 +70,10 @@ public class EventModel extends AbstractModel implements Serializable {
      * Constructor to create an EventModel instance.
      * Automatically generates a QR code and initializes the Firestore database instance.
      *
-     * @param title the title of the event
-     * @param description a description of the event
+     * @param title         the title of the event
+     * @param description   a description of the event
      * @param numberOfSpots the number of spots available for the event
-     * @param db the Firestore database instance
+     * @param db            the Firestore database instance
      */
     public EventModel(String title, String description, int numberOfSpots,
                       Date startDate, Date endDate, boolean geo, EventState state, FirebaseFirestore db) {
@@ -112,10 +91,10 @@ public class EventModel extends AbstractModel implements Serializable {
      * Constructor to create an EventModel instance.
      * Automatically generates a QR code and initializes the Firestore database instance.
      *
-     * @param title the title of the event
-     * @param description a description of the event
+     * @param title         the title of the event
+     * @param description   a description of the event
      * @param numberOfSpots the number of spots available for the event
-     * @param db the Firestore database instance
+     * @param db            the Firestore database instance
      */
     public EventModel(String title, String description, int numberOfSpots,
                       int numberOfMaxEntrants, Date startDate, Date endDate, String posterImage, boolean geo, String qrCodeUrl,
@@ -134,15 +113,26 @@ public class EventModel extends AbstractModel implements Serializable {
         this.state = state;
     }
 
+    private void clear() {
+        this.title = "";
+        this.organizerId = "";
+        this.description = "";
+        this.numberOfSpots = 0;
+        this.numberOfMaxEntrants = -1;
+        this.startDate = new Date();
+        this.endDate = new Date();
+        this.posterImage = "";
+        this.geo = false;
+    }
+
     /**
      * Saves the event data to Firestore.
      * If the event has already been saved, this method does nothing.
      */
     public void saveEventToFirestore(OnSuccessListener<String> onSuccess) {
-        // TODO move to helper
         if (savedToFirestore) return;
 
-        DocumentReference eventRef =  db.collection("events").document(eventId);
+        DocumentReference eventRef = db.collection("events").document(eventId);
         eventRef.set(new HashMap<String, Object>() {{
                     put("title", title);
                     put("organizerId", organizerId);
@@ -153,7 +143,7 @@ public class EventModel extends AbstractModel implements Serializable {
                     put("endDate", endDate);
                     put("qrCode", qrCode);
                     put("posterImage", posterImage);
-                    put("geo",geo);
+                    put("geo", geo);
                     put("state", state.name());
                 }})
                 .addOnSuccessListener(task -> {
@@ -168,15 +158,18 @@ public class EventModel extends AbstractModel implements Serializable {
                 .addOnFailureListener(e -> {
                     System.err.println("Error saving event: " + e.getMessage());
                 });
-        }
+    }
 
-    // TODO can we remove this variable
     /**
      * Retrieves if saved to firestore.
+     * <p>
+     * Outstanding issue, this is not needed anymore
      *
      * @return if saved to firestore as a boolean
      */
-    public boolean getSavedToFirestore() { return savedToFirestore; }
+    public boolean getSavedToFirestore() {
+        return savedToFirestore;
+    }
 
     /**
      * Sets the Firestore save status.
@@ -185,6 +178,33 @@ public class EventModel extends AbstractModel implements Serializable {
      */
     public void setSavedToFirestore(boolean savedToFirestore) {
         this.savedToFirestore = savedToFirestore;
+    }
+
+    /**
+     * sets the Firebase database object of this event
+     *
+     * @param db the FirebaseFirestore db object
+     */
+    public void setDb(FirebaseFirestore db) {
+        this.db = db;
+    }
+
+    /**
+     * Gets the eventId of this event
+     *
+     * @return the event id
+     */
+    public String getEventId() {
+        return eventId;
+    }
+
+    /**
+     * Gets the eventId of this event
+     *
+     * @param eventId the new event id
+     */
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
     }
 
     /**
@@ -209,13 +229,6 @@ public class EventModel extends AbstractModel implements Serializable {
                 });
         clear();
         notifyViews();
-    }
-
-    // TODO this should never change
-    public void setEventId(String eventId){
-        //removeEventFirestore();
-        this.eventId = eventId;
-        //saveEventToFirestore();
     }
 
     /**
@@ -265,6 +278,22 @@ public class EventModel extends AbstractModel implements Serializable {
         return organizerId;
     }
 
+    /**
+     * Sets the organizer ID associated with this event and updates Firestore.
+     *
+     * @param organizerId the new organizer ID
+     */
+    public void setOrganizerId(String organizerId) {
+        this.organizerId = organizerId;
+        updateFirestore("organizerId", organizerId);
+        notifyViews();
+    }
+
+    /**
+     * gets the address of the location from Firebase
+     *
+     * @param callback the callback function to be run on success
+     */
     public void getLocation(Consumer<String> callback) {
         db.collection("facilities").document(organizerId).get().addOnSuccessListener(
                 doc -> {
@@ -280,28 +309,25 @@ public class EventModel extends AbstractModel implements Serializable {
         });
     }
 
+    /**
+     * gets the Event State of the event
+     *
+     * @return the EventState of the event
+     */
+    public EventState getState() {
+        return this.state;
+    }
+
+    /**
+     * sets the Event State of the event and updates it in Firestore, and shows to views
+     *
+     * @param state the new EventState for the event
+     */
     public void setState(EventState state) {
         this.state = state;
         updateFirestore("state", state.name());
         notifyViews();
     }
-
-    public EventState getState() {
-        return this.state;
-    }
-
-
-    /**
-     * Sets the organizer ID associated with this event and updates Firestore.
-     *
-     * @param organizerId the new organizer ID
-     */
-    public void setOrganizerId(String organizerId) {
-        this.organizerId = organizerId;
-        updateFirestore("organizerId", organizerId);
-        notifyViews();
-    }
-    // TODO this should never be set
 
     /**
      * Retrieves the description of the event.
@@ -473,21 +499,25 @@ public class EventModel extends AbstractModel implements Serializable {
      */
     public ArrayList<String> getWaitingList() {
         ArrayList<String> waitingList = new ArrayList<>();
-        db.collection("signUps").whereEqualTo("eventId",eventId)
-            .get()
-            .addOnCompleteListener(
-                task -> {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot doc : task.getResult()) {
-                            waitingList.add(doc.getString("userId"));
+        db.collection("signUps").whereEqualTo("eventId", eventId)
+                .get()
+                .addOnCompleteListener(
+                        task -> {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot doc : task.getResult()) {
+                                    waitingList.add(doc.getString("userId"));
+                                }
+                            }
                         }
-                    }
-                }
-            );
+                );
         return waitingList;
     }
 
 
+    /**
+     * Does the initial random draw from the waiting list of this event.
+     * Places winners and losers in their appropriate Firebase collections.
+     */
     public void doDraw() {
         if (!getState().equals(EventState.OPEN)) return;
 
@@ -500,7 +530,6 @@ public class EventModel extends AbstractModel implements Serializable {
                         Collections.shuffle(docs);
                         int i = 0;
                         for (DocumentSnapshot doc : docs) {
-                            // TODO this is untested
                             HashMap<String, Object> data = new HashMap<>(doc.getData());
                             data.put("hasSeenNoti", false);
                             if (i++ < numberOfSpots) {
@@ -518,6 +547,10 @@ public class EventModel extends AbstractModel implements Serializable {
         notifyViews();
     }
 
+    /**
+     * Does the replacement draw from the waiting list of this event.
+     * Places winners into correct Firebase collection, and removes from not selected collection.
+     */
     public void doReplacementDraw() {
         // This only draws 1 additional user
         if (!getState().equals(EventState.WAITING)) return;

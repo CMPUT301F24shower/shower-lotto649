@@ -7,7 +7,6 @@ package com.example.lotto649.Views.Fragments;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,12 +33,9 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.ArrayList;
 import java.util.Objects;
 
 /**
@@ -48,6 +44,13 @@ import java.util.Objects;
  * This fragment is reached through a list of profiles in the admin view.
  */
 public class AdminProfileFragment extends Fragment {
+    TextView name;
+    TextView email;
+    TextView phone;
+    TextView roles;
+    Button removeImage;
+    Button removeUser;
+    ExtendedFloatingActionButton backButton;
     private FirebaseFirestore db;
     private CollectionReference usersRef;
     private TextView imagePlaceholder;
@@ -56,13 +59,6 @@ public class AdminProfileFragment extends Fragment {
     private Uri profileUri;
     private String nameText;
     private MutableLiveData<Boolean> imageAbleToBeDeleted;
-    TextView name;
-    TextView email;
-    TextView phone;
-    TextView roles;
-    Button removeImage;
-    Button removeUser;
-    ExtendedFloatingActionButton backButton;
 
     /**
      * Public empty constructor for BrowseEventsFragment.
@@ -76,12 +72,12 @@ public class AdminProfileFragment extends Fragment {
 
     /**
      * Called to create the view hierarchy associated with this fragment.
-     * This method inflates the layout defined in `fragment_browse_events.xml`.
+     * This method inflates the layout defined in `fragment_admin_view_profile.xml`.
      *
-     * @param inflater LayoutInflater object used to inflate any views in the fragment
-     * @param container The parent view that the fragment's UI should be attached to
+     * @param inflater           LayoutInflater object used to inflate any views in the fragment
+     * @param container          The parent view that the fragment's UI should be attached to
      * @param savedInstanceState Bundle containing data about the previous state (if any)
-     * @return View for the camera fragment's UI
+     * @return View for the fragment's UI
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -115,7 +111,6 @@ public class AdminProfileFragment extends Fragment {
         removeUser = view.findViewById(R.id.admin_delete_user);
         profileImage = new ImageView(getContext());
         profileImage.setId(View.generateViewId());
-        // TODO: This is hardcoded, but works good on my phone, not sure if this is a good idea or not
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(450, 450);
         profileImage.setLayoutParams(layoutParams);
         profileImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -162,7 +157,7 @@ public class AdminProfileFragment extends Fragment {
                             }
                             roles.setText(rolesText);
 
-                        //     getting profile image
+                            //     getting profile image
                             imagePlaceholder.setText(new UserModel(getContext(), nameText, emailText).getInitials());
                             String profileUriString = doc.getString("profileImage");
                             if (profileUriString != null && !Objects.equals(profileUriString, "")) {

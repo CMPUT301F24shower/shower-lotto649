@@ -1,14 +1,12 @@
 /**
- * BrowseProfilesFragment class represents a fragment for the admin to browse all profiles in the application.
+ * EnrolledListFragment class represents a fragment for viewing user profiles enrolled in a specific event.
  * <p>
- * This fragment shows a list view of every profile, selecting the event will show its full details and allow for it to be deleted.
- * This page is only accessible to users with 'admin' status
- * </p>
- * <p>
- * Code for the bottom navigation bar was adapted from:
- * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
+ * This fragment dynamically retrieves and displays a list of enrolled user profiles for a given event using Firestore.
+ * Admin users can view detailed information about each user by selecting a profile from the list. If no users are
+ * enrolled, a message is displayed indicating this. The fragment also includes a "Back" button for navigation.
  * </p>
  */
+
 package com.example.lotto649.Views.Fragments;
 
 import android.content.Context;
@@ -45,36 +43,34 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * BrowseProfilesFragment class represents a fragment for the admin to browse all profiles in the application.
+ * EnrolledListFragment class represents a fragment for viewing user profiles enrolled in a specific event.
  * <p>
- * This fragment shows a list view of every profile, selecting the event will show its full details and allow for it to be deleted.
- * This page is only accessible to users with 'admin' status
- * </p>
- * <p>
- * Code for the bottom navigation bar was adapted from:
- * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
- * </p>
- * <p>
- * Code for creating context from:
- * https://stackoverflow.com/questions/47987649/why-getcontext-in-fragment-sometimes-returns-null
+ * This fragment dynamically retrieves and displays a list of enrolled user profiles for a given event using Firestore.
+ * Admin users can view detailed information about each user by selecting a profile from the list. If no users are
+ * enrolled, a message is displayed indicating this. The fragment also includes a "Back" button for navigation.
  * </p>
  */
 public class EnrolledListFragment extends Fragment {
+    ExtendedFloatingActionButton backButton;
     private ArrayList<String> deviceIdList;
     private ArrayList<UserModel> dataList;
     private ListView browseProfilesList;
     private BrowseProfilesArrayAdapter profilesAdapter;
     private FirebaseFirestore db;
-    ExtendedFloatingActionButton backButton;
     private String firestoreEventId;
 
+
     /**
-     * Called to create the view hierarchy associated with this fragment.
+     * Initializes the fragment's view hierarchy.
+     * <p>
+     * This method inflates the layout, initializes the Firestore database connection, sets up the list view,
+     * and configures observers and listeners for handling Firestore data changes and user interactions.
+     * </p>
      *
-     * @param inflater LayoutInflater object used to inflate any views in the fragment
-     * @param container The parent view that the fragment's UI should be attached to
-     * @param savedInstanceState Bundle containing data about the previous state (if any)
-     * @return View for this fragment
+     * @param inflater           The `LayoutInflater` object for inflating the fragment's layout.
+     * @param container          The parent view that the fragment's UI should attach to.
+     * @param savedInstanceState A `Bundle` containing the fragment's previous state, if available.
+     * @return The root `View` for this fragment.
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -107,6 +103,14 @@ public class EnrolledListFragment extends Fragment {
 
 
         db.collection("enrolled").whereEqualTo("eventId", firestoreEventId).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            /**
+             * Fetches enrolled user profiles for the specified event.
+             * <p>
+             * Listens to changes in the "enrolled" Firestore collection for the given `firestoreEventId`. User data is
+             * fetched from the "users" collection and displayed in a list view. If no users are enrolled, a message
+             * is dynamically shown on the screen.
+             * </p>
+             */
             @Override
             public void onEvent(@Nullable QuerySnapshot querySnapshots, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {
@@ -115,7 +119,7 @@ public class EnrolledListFragment extends Fragment {
                 if (querySnapshots != null) {
                     dataList.clear();
                     AtomicBoolean noSignUps = new AtomicBoolean(true);
-                    for (QueryDocumentSnapshot doc: querySnapshots) {
+                    for (QueryDocumentSnapshot doc : querySnapshots) {
                         String deviceId = doc.getString("userId");
                         db.collection("users").document(deviceId).get().addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
@@ -143,6 +147,13 @@ public class EnrolledListFragment extends Fragment {
         });
 
         noEnrolledUsers.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            /**
+             * Observes changes in the list of enrolled users.
+             * <p>
+             * Displays a "No users have enrolled" message if the list of users is empty. Otherwise, updates the
+             * list view with the retrieved user profiles.
+             * </p>
+             */
             @Override
             public void onChanged(Boolean aBoolean) {
                 if (Objects.equals(aBoolean, Boolean.TRUE)) {
@@ -184,9 +195,16 @@ public class EnrolledListFragment extends Fragment {
         });
 
         browseProfilesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            /**
+             * Handles profile selection from the list view.
+             * <p>
+             * Navigates to the `EnrolledListProfileFragment`, passing the selected user's details via a `Bundle`.
+             * This allows the admin to view detailed information about the selected user.
+             * </p>
+             */
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String chosenUserId = (String) deviceIdList.get(i);
+                String chosenUserId = deviceIdList.get(i);
                 Bundle bundle = new Bundle();
                 bundle.putString("userDeviceId", chosenUserId);
                 bundle.putString("firestoreEventId", firestoreEventId);
@@ -200,6 +218,13 @@ public class EnrolledListFragment extends Fragment {
         });
 
         backButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Configures the "Back" button to return to the previous fragment.
+             * <p>
+             * Uses the `MyApp` utility to pop the current fragment from the stack, returning the user to the
+             * previous screen.
+             * </p>
+             */
             @Override
             public void onClick(View view) {
                 MyApp.getInstance().popFragment();

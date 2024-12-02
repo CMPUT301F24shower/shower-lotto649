@@ -1,8 +1,12 @@
 /**
- * CameraFragment class represents a fragment for camera-related functionality in the application.
+ * CameraFragment class represents a fragment that provides camera functionality within the application.
  * <p>
- * This fragment inflates the camera layout when the user navigates to the camera section of the app.
- * It is part of the bottom navigation bar implementation used in the application.
+ * This fragment is part of the bottom navigation bar and is responsible for initializing the camera,
+ * handling permissions, and analyzing images to detect QR codes using ML Kit's BarcodeScanner.
+ * </p>
+ * <p>
+ * The camera layout is inflated when the user navigates to this fragment, and the camera lifecycle is
+ * managed automatically with the help of CameraX library.
  * </p>
  * <p>
  * Code for the bottom navigation bar was adapted from:
@@ -39,7 +43,21 @@ import com.google.mlkit.vision.barcode.BarcodeScanning;
 import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.mlkit.vision.common.InputImage;
 
-// TODO this class can likely be deleted, along with the entire page
+/**
+ * CameraFragment class represents a fragment that provides camera functionality within the application.
+ * <p>
+ * This fragment is part of the bottom navigation bar and is responsible for initializing the camera,
+ * handling permissions, and analyzing images to detect QR codes using ML Kit's BarcodeScanner.
+ * </p>
+ * <p>
+ * The camera layout is inflated when the user navigates to this fragment, and the camera lifecycle is
+ * managed automatically with the help of CameraX library.
+ * </p>
+ * <p>
+ * Code for the bottom navigation bar was adapted from:
+ * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
+ * </p>
+ */
 public class CameraFragment extends Fragment {
 
     private static final String TAG = "CameraFragment";
@@ -50,20 +68,22 @@ public class CameraFragment extends Fragment {
     /**
      * Public empty constructor for CameraFragment.
      * <p>
-     * Required for prope   r instantiation of the fragment by the Android system.
+     * This constructor is required for the proper instantiation of the fragment by the Android system.
      * </p>
      */
     public CameraFragment() {
         // Required empty public constructor
     }
+
     /**
      * Called to create the view hierarchy associated with this fragment.
-     * This method inflates the layout defined in `fragment_camera.xml`.
+     * This method inflates the layout defined in `fragment_camera.xml` and initializes
+     * the camera if permissions are granted, or requests permissions otherwise.
      *
-     * @param inflater LayoutInflater object used to inflate any views in the fragment
-     * @param container The parent view that the fragment's UI should be attached to
-     * @param savedInstanceState Bundle containing data about the previous state (if any)
-     * @return View for the camera fragment's UI
+     * @param inflater           LayoutInflater object used to inflate any views in the fragment.
+     * @param container          The parent view that the fragment's UI should be attached to.
+     * @param savedInstanceState Bundle containing data about the previous state (if any).
+     * @return View for the camera fragment's UI.
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -79,6 +99,11 @@ public class CameraFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Checks if all required permissions are granted.
+     *
+     * @return True if all permissions are granted, false otherwise.
+     */
     private boolean allPermissionsGranted() {
         for (String permission : REQUIRED_PERMISSIONS) {
             if (ContextCompat.checkSelfPermission(requireContext(), permission) != PackageManager.PERMISSION_GRANTED) {
@@ -88,6 +113,13 @@ public class CameraFragment extends Fragment {
         return true;
     }
 
+    /**
+     * Starts the camera using the CameraX library.
+     * <p>
+     * This method initializes the camera preview and sets up an image analyzer to detect
+     * QR codes using ML Kit's BarcodeScanner.
+     * </p>
+     */
     @OptIn(markerClass = ExperimentalGetImage.class)
     private void startCamera() {
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
@@ -96,9 +128,6 @@ public class CameraFragment extends Fragment {
         cameraProviderFuture.addListener(() -> {
             try {
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
-                PreviewView previewView = requireView().findViewById(R.id.previewView);
-
-
                 Preview preview = new Preview.Builder()
                         .setTargetRotation(Surface.ROTATION_0)
                         .build();
@@ -131,18 +160,29 @@ public class CameraFragment extends Fragment {
                 preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
             } catch (Exception e) {
-                    Log.e(TAG, "Camera initialization failed", e);
+                Log.e(TAG, "Camera initialization failed", e);
             }
         }, ContextCompat.getMainExecutor(requireContext()));
     }
 
+    /**
+     * Callback for handling permission results.
+     * <p>
+     * If the required permissions are granted, this method starts the camera. Otherwise,
+     * it logs an error indicating that permissions were not granted.
+     * </p>
+     *
+     * @param requestCode  The request code passed in requestPermissions().
+     * @param permissions  The requested permissions.
+     * @param grantResults The grant results for the corresponding permissions.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (allPermissionsGranted()) {
                 startCamera();
             } else {
-                Log.e("CameraFragment", "Permissions not granted by the user.");
+                Log.e(TAG, "Permissions not granted by the user.");
             }
         }
     }

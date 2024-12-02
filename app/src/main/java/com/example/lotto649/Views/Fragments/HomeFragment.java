@@ -1,14 +1,3 @@
-/**
- * HomeFragment is a fragment class representing the home screen of the application.
- * <p>
- * This class inflates the layout for the home fragment and displays its content
- * when the fragment is created.
- * </p>
- * <p>
- * Code adapted from the following source for implementing a bottom navigation bar:
- * <a href="https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/">GeeksforGeeks: Bottom Navigation Bar in Android</a>
- * </p>
- */
 package com.example.lotto649.Views.Fragments;
 
 import android.content.Context;
@@ -29,12 +18,12 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
-import com.example.lotto649.Models.HomePageModel;
-import com.example.lotto649.MyApp;
-import com.example.lotto649.Views.ArrayAdapters.BrowseEventsArrayAdapter;
 import com.example.lotto649.Controllers.EventsController;
 import com.example.lotto649.Models.EventModel;
+import com.example.lotto649.Models.HomePageModel;
+import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
+import com.example.lotto649.Views.ArrayAdapters.BrowseEventsArrayAdapter;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -43,6 +32,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.Objects;
 
+/**
+ * HomeFragment class displays the user's events and allows the user to add new events.
+ * <p>
+ * This fragment fetches and displays the user's events from Firestore and allows interaction with them.
+ * If the user has no events, a message is shown. The fragment also conditionally shows the "add event" button
+ * based on the user's account and facility status.
+ * </p>
+ */
 public class HomeFragment extends Fragment {
     private EventsController eventsController;
     private ExtendedFloatingActionButton addButton;
@@ -57,10 +54,15 @@ public class HomeFragment extends Fragment {
     }
 
     /**
-     * Called to inflate the fragment's layout when it is created.
+     * Initializes the fragment's view hierarchy and fetches the necessary data.
+     * <p>
+     * This method inflates the layout, checks the user's account and facility status,
+     * initializes UI components, and sets up observers for the "add event" button visibility.
+     * It also handles the fetching and displaying of the user's events from Firestore.
+     * </p>
      *
-     * @param inflater The LayoutInflater object that can be used to inflate views in the fragment.
-     * @param container If non-null, this is the parent view that the fragment's UI should be attached to.
+     * @param inflater           The LayoutInflater object that can be used to inflate views in the fragment.
+     * @param container          If non-null, this is the parent view that the fragment's UI should be attached to.
      * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state.
      * @return The View for the fragment's UI.
      */
@@ -89,6 +91,13 @@ public class HomeFragment extends Fragment {
             textView = null;
         }
         noAccepts.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            /**
+             * Observes changes in the availability of events and updates the UI accordingly.
+             * <p>
+             * If the user has no events, a TextView is added to the layout to inform the user that they must create
+             * an account and a facility to add events. If events are available, the TextView is hidden.
+             * </p>
+             */
             @Override
             public void onChanged(Boolean aBoolean) {
                 if (Objects.equals(aBoolean, Boolean.TRUE)) {
@@ -129,7 +138,7 @@ public class HomeFragment extends Fragment {
             if (!userExists) {
                 addButton.setVisibility(View.GONE);
             }
-        }).addOnFailureListener(task -> addButton.setVisibility(View.GONE));;
+        }).addOnFailureListener(task -> addButton.setVisibility(View.GONE));
         facilityRef.get().addOnCompleteListener(task -> {
             DocumentSnapshot facilityDoc = task.getResult();
             boolean facilityExists = facilityDoc != null && facilityDoc.exists();
@@ -142,12 +151,18 @@ public class HomeFragment extends Fragment {
 
         // Use the asynchronous method and handle data once it's ready
         eventsController.getMyEvents(new HomePageModel.MyEventsCallback() {
+            /**
+             * Fetches the user's events and displays them in a ListView.
+             * <p>
+             * Uses the `EventsController` to retrieve the user's events asynchronously and populate a `ListView`.
+             * The events are displayed using a custom adapter (`BrowseEventsArrayAdapter`), and the visibility
+             * of a "no events" message is updated accordingly.
+             * </p>
+             */
             @Override
             public void onEventsFetched(ArrayList<EventModel> events) {
                 Log.w("Ohm", "Events fetched: " + events.size());
 
-
-                // TODO test that this doesnt introduce any bugs - so far so good
                 if (isAdded()) {
                     // Initialize and set the adapter with fetched events
                     if (!events.isEmpty()) {
@@ -162,6 +177,13 @@ public class HomeFragment extends Fragment {
         addButton.setOnClickListener(v -> eventsController.addEvent());
 
         eventsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            /**
+             * Handles interaction with the events list, including viewing or editing events.
+             * <p>
+             * If the user clicks on an event in the list, the corresponding fragment is opened based on whether
+             * the event is organized by the current user or not.
+             * </p>
+             */
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 EventModel event = (EventModel) adapterView.getItemAtPosition(i);
