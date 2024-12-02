@@ -283,14 +283,15 @@ public class EventModel extends AbstractModel implements Serializable {
         db.collection("facilities").document(organizerId).get().addOnSuccessListener(
                 doc -> {
                     if (doc.exists()) {
+                        String name = doc.getString("facility");
                         String address = doc.getString("address");
-                        callback.accept(address); // Pass the result to the callback
+                        callback.accept(name + " - " + address);
                     } else {
-                        callback.accept(null); // No document found
+                        callback.accept("Location");
                     }
                 }).addOnFailureListener(e -> {
             Log.e("Ohm", "Error fetching location: ", e);
-            callback.accept(null); // Handle errors
+            callback.accept("Location");
         });
     }
 
