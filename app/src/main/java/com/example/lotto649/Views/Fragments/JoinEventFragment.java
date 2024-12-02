@@ -165,7 +165,7 @@ public class JoinEventFragment extends Fragment {
 
                                 FirestoreHelper.getInstance().getWaitlistSize(firestoreEventId);
 
-                                spotsAvail.setText("OPEN");
+                                spotsAvail.setText("No max waitlist size");
                                 if (maxNum != -1 && getView() != null) {
                                     FirestoreHelper.getInstance().getCurrWaitlistSize().observe(getViewLifecycleOwner(), size -> {
                                         if (size != null) {
@@ -195,6 +195,10 @@ public class JoinEventFragment extends Fragment {
                                     datesText = "Enter between " + df.format(startDate) + " - " + df.format(endDate);
                                 } else {
                                     datesText = "Error finding dates";
+                                }
+                                Date currentDate = new Date();
+                                if (currentDate.before(startDate) || currentDate.after(endDate)) {
+                                    joinButton.setVisibility(View.GONE);
                                 }
                                 Boolean isGeo = doc.getBoolean("geo");
                                 String geoLocationText = Boolean.TRUE.equals(isGeo) ? "Requires GeoLocation Tracking" : "";

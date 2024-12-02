@@ -155,11 +155,9 @@ public class AdminEventFragment extends Fragment {
                                 else {
                                     maxNum = 0;
                                 }
-                                String spotsAvailText;
-
                                 FirestoreHelper.getInstance().getWaitlistSize(firestoreEventId);
 
-                                spotsAvail.setText("OPEN");
+                                spotsAvail.setText("No max waitlist size");
                                 if (maxNum != -1 && getView() != null) {
                                     FirestoreHelper.getInstance().getCurrWaitlistSize().observe(getViewLifecycleOwner(), size -> {
                                         if (size != null) {
