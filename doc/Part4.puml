@@ -1009,7 +1009,11 @@ OrganizerEventFragment "0..*" --> "1" FirestoreHelper : uses to update firestore
 
 JoinEventFragment "0..*" --> "1" LocationManagerSingleton : uses
 
-
+OrganizerEventFragment --> WinnerListFragment : creates
+OrganizerEventFragment --> CancelledListFragment : creates
+OrganizerEventFragment --> WaitingListFragment : creates
+OrganizerEventFragment --> EnrolledListFragment : creates
 OrganizerEventFragment --> CustomNotificationFragment : creates
+OrganizerEventFragment --> MapFragment : creates
 
 @enduml
