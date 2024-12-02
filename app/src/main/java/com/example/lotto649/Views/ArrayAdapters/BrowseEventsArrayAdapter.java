@@ -77,7 +77,7 @@ public class BrowseEventsArrayAdapter extends ArrayAdapter<EventModel> {
 
         eventName.setText(event.getTitle());
         eventStatus.setText(event.getState().toString());
-        eventSpotsAvail.setText("OPEN");
+        eventSpotsAvail.setText("No max waitlist size");
         if (event.getNumberOfMaxEntrants() != -1) {
             FirestoreHelper.getInstance().getCurrWaitlistSize().observe(lifecycleOwner, size -> {
                 if (size != null) {
@@ -93,7 +93,7 @@ public class BrowseEventsArrayAdapter extends ArrayAdapter<EventModel> {
             });
         }
         eventNumAttendees.setText(event.getNumberOfSpots() + " Lottery Winners");
-
+        eventLocation.setText("LOCATION");
         String facilityId = event.getOrganizerId();
         FirebaseFirestore.getInstance().collection("facilities").document(facilityId).get().addOnCompleteListener(facilityTask -> {
             if (facilityTask.isSuccessful()) {
@@ -102,11 +102,7 @@ public class BrowseEventsArrayAdapter extends ArrayAdapter<EventModel> {
                 String facilityAddress = facilityDoc.getString("address");
                 if (facilityName != null && facilityAddress != null) {
                     eventLocation.setText(facilityName + " - " + facilityAddress);
-                } else {
-                    eventLocation.setText("LOCATION");
                 }
-            } else {
-                eventLocation.setText("LOCATION");
             }
         });
 

@@ -59,6 +59,7 @@ public class OrganizerEventFragment extends Fragment {
     TextView daysLeft;
     TextView geoLocation;
     TextView description;
+    TextView attendeesText;
     ExtendedFloatingActionButton optionsButtons, backButton, viewEntrantsMapButton, qrButton, viewEntrantsButton, editButton, randomButton, cancelButton, viewInvitedEntrantsButton, viewCanceledEntrants, replacementWinnerButton, viewFinalEntrants;
     private MutableLiveData<Boolean> hasQrCode;
     private MutableLiveData<Boolean> canDraw;
@@ -533,6 +534,7 @@ public class OrganizerEventFragment extends Fragment {
         optionsButtons = view.findViewById(R.id.organizer_event_options);
         backButton = view.findViewById(R.id.organizer_event_cancel);
         posterImage = view.findViewById(R.id.organizer_event_poster);
+        attendeesText = view.findViewById(R.id.organizer_event_attendees);
         optionsButtons.setOnClickListener(v -> {
 
 
@@ -576,7 +578,7 @@ public class OrganizerEventFragment extends Fragment {
                             FirestoreHelper.getInstance().getWaitlistSize(firestoreEventId);
                             int curNum = FirestoreHelper.getInstance().getCurrWaitlistSize().getValue();
 
-                            spotsAvail.setText("OPEN");
+                            spotsAvail.setText("No max waitlist size");
                             if (maxNum != -1 && getView() != null) {
                                 FirestoreHelper.getInstance().getCurrWaitlistSize().observe(getViewLifecycleOwner(), size -> {
                                     if (size != null) {
@@ -599,6 +601,12 @@ public class OrganizerEventFragment extends Fragment {
                                 statusText = "PENDING";
                             } else {
                                 statusText = "OPEN";
+                            }
+                            Long numSpots = doc.getLong("numberOfSpots");
+                            if (numSpots == null) {
+                                attendeesText.setText("Unknown number of Attendees");
+                            } else {
+                                attendeesText.setText(numSpots + " Lottery Winners");
                             }
 
                             DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
