@@ -3,7 +3,6 @@ package com.example.lotto649.Views.Fragments;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.app.AlertDialog;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,8 +39,8 @@ import com.google.firebase.storage.StorageReference;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class OrganizerEventFragment extends Fragment {
     private FirebaseFirestore db;
@@ -65,6 +64,9 @@ public class OrganizerEventFragment extends Fragment {
     private MutableLiveData<Boolean> canDraw;
     private MutableLiveData<Boolean> canReplacementDraw;
     private Uri posterUri;
+    private MutableLiveData<Integer> numWinners;
+    private MutableLiveData<Integer> numNotSelected;
+    private MutableLiveData<Integer> numEnrolled;
 
     public OrganizerEventFragment() {
         // Required empty public constructor
@@ -162,9 +164,6 @@ public class OrganizerEventFragment extends Fragment {
         if (randomButton != null) {
             randomButton.setVisibility(View.VISIBLE);
         }
-        if (qrButton != null) {
-            qrButton.setVisibility(View.VISIBLE);
-        }
         if (viewEntrantsMapButton != null) {
             viewEntrantsMapButton.setVisibility(View.VISIBLE);
         }
@@ -179,12 +178,6 @@ public class OrganizerEventFragment extends Fragment {
     private void showWaitingStateButtons() {
         if (viewInvitedEntrantsButton != null) {
             viewInvitedEntrantsButton.setVisibility(View.VISIBLE);
-        }
-        if (replacementWinnerButton != null) {
-            replacementWinnerButton.setVisibility(View.VISIBLE);
-        }
-        if (qrButton != null) {
-            qrButton.setVisibility(View.VISIBLE);
         }
         if (editButton != null) {
             editButton.setVisibility(View.VISIBLE);
@@ -556,6 +549,9 @@ public class OrganizerEventFragment extends Fragment {
                 }
             }
         });
+        numWinners = new MutableLiveData<Integer>(-1);
+        numNotSelected = new MutableLiveData<Integer>(-1);
+        numEnrolled = new MutableLiveData<Integer>(-1);
 
         db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
@@ -612,13 +608,14 @@ public class OrganizerEventFragment extends Fragment {
                                 maxNum = 0;
                             }
 
-                            FirestoreHelper.getInstance().getWaitlistSize(firestoreEventId);
-                            int curNum = FirestoreHelper.getInstance().getCurrWaitlistSize().getValue();
-
+                            MutableLiveData<Integer> waitListSize = new MutableLiveData<>(-1);
+                            FirestoreHelper.getInstance().getWaitlistSize(firestoreEventId, waitListSize);
+                            AtomicInteger curNum = new AtomicInteger(-1);
                             spotsAvail.setText("No max waitlist size");
                             if (maxNum != -1 && getView() != null) {
-                                FirestoreHelper.getInstance().getCurrWaitlistSize().observe(getViewLifecycleOwner(), size -> {
+                                waitListSize.observe(getViewLifecycleOwner(), size -> {
                                     if (size != null) {
+                                        curNum.set(size);
                                         Log.d("Waitlist organizerevenfragment", "Current waitlist size: " + size);
                                         // Perform actions with the waitlist size
                                         if (maxNum <= size) {
@@ -627,17 +624,22 @@ public class OrganizerEventFragment extends Fragment {
                                             String newText = size + "/" + maxNum + " Spots Full";
                                             spotsAvail.setText(newText);
                                         }
+                                        if (Objects.equals(doc.getString("state"), "OPEN")) {
+                                            if (size > 0) {
+                                                canDraw.setValue(Boolean.TRUE);
+                                            } else {
+                                                canDraw.setValue(Boolean.FALSE);
+                                            }
+                                        }
                                     }
                                 });
                             }
 
-                            String statusText;
-                            if (maxNum == -1) {
-                                statusText = "OPEN";
-                            } else if (maxNum <= curNum) {
-                                statusText = "PENDING";
+                            String eventState = doc.getString("state");
+                            if (eventState != null) {
+                                status.setText(eventState);;
                             } else {
-                                statusText = "OPEN";
+                                status.setText("OPEN");
                             }
                             Long numSpots = doc.getLong("numberOfSpots");
                             if (numSpots == null) {
@@ -656,22 +658,9 @@ public class OrganizerEventFragment extends Fragment {
                                 datesText = "Error finding dates";
                             }
                             daysLeft.setText(datesText);
-                            if (Objects.equals(doc.getString("state"), "OPEN")) {
-                                Log.e("JASON STATE TEST", Objects.requireNonNull(doc.getString("state")));
-                                FirestoreHelper.getInstance().getWaitlistSize(firestoreEventId);
-                                int waitListSize = FirestoreHelper.getInstance().getCurrWaitlistSize().getValue();
-                                if (waitListSize > 0) {
-                                    canDraw.setValue(Boolean.TRUE);
-                                } else {
-                                    canDraw.setValue(Boolean.FALSE);
-                                }
-                            } else {
-                                if (Objects.equals(doc.getString("state"), "WAITING")) {
-                                    // TODO: set if replacement button can be clicked
-                                    statusText = "PENDING";
-                                } else {
-                                    statusText = "CLOSED";
-                                }
+                            String statusText;
+
+                            if (!Objects.equals(doc.getString("state"), "OPEN")) {
                                 canDraw.setValue(Boolean.FALSE);
                             }
                             String posterUriString = doc.getString("posterImage");
@@ -702,7 +691,6 @@ public class OrganizerEventFragment extends Fragment {
                             String descriptionText = doc.getString("description");
 
                             name.setText(nameText);
-                            status.setText(statusText);
                             String facilityId = event.getOrganizerId();
                             if (facilityId != null) {
                                 db.collection("facilities").document(facilityId).get().addOnCompleteListener(facilityTask -> {
@@ -736,57 +724,62 @@ public class OrganizerEventFragment extends Fragment {
                                 hasQrCode.setValue(Boolean.TRUE);
                             }
 
-                            MutableLiveData<Integer> numWinners = new MutableLiveData<Integer>(-1);
-                            FirestoreHelper.getInstance().getWinnersSize(firestoreEventId);
-                            FirestoreHelper.getInstance().getCurrWaitlistSize().observe(getViewLifecycleOwner(), size -> {
-                                if (size != null) {
-                                    // Perform actions with the waitlist size
-                                    numWinners.setValue(size);
-                                }
-                            });
-                            FirestoreHelper.getInstance().getNotSelectedSize(firestoreEventId);
-                            MutableLiveData<Integer> numNotSelected = new MutableLiveData<Integer>(-1);
-                            FirestoreHelper.getInstance().getCurrNotSelectedSize().observe(getViewLifecycleOwner(), size -> {
-                                if (size != null) {
-                                    // Perform actions with the waitlist size
-                                    numNotSelected.setValue(size);
-                                }
-                            });
-                            FirestoreHelper.getInstance().getEnrolledSize(firestoreEventId);
-                            MutableLiveData<Integer> numEnrolled = new MutableLiveData<Integer>(-1);
-                            FirestoreHelper.getInstance().getCurrEnrolledSize().observe(getViewLifecycleOwner(), size -> {
-                                if (size != null) {
-                                    // Perform actions with the waitlist size
-                                    numEnrolled.setValue(size);
-                                }
-                            });
 
-                            Log.e("JASON REDRAW", "numWinners: " + Integer.toString(numWinners.getValue()));
-                            Log.e("JASON REDRAW", "numNotSelected: " + Integer.toString(numNotSelected.getValue()));
-                            Log.e("JASON REDRAW", "numEnrolled: " + Integer.toString(numEnrolled.getValue()));
-//                            Log.e("JASON REDRAW", "numSpots: " + Integer.toString(numSpots.intValue()));
-
-                            if (numNotSelected.getValue() == 0) {
-                                canReplacementDraw.setValue(Boolean.FALSE);
-                            } else {
-                                // TODO use new method for firestore stuff
-                               if (numWinners.getValue() + numEnrolled.getValue() < numSpots) {
-                                   canReplacementDraw.setValue(Boolean.TRUE);
-                               } else {
-                                   canReplacementDraw.setValue(Boolean.FALSE);
-                               }
+                            FirestoreHelper.getInstance().getWinnersSize(firestoreEventId, numWinners);
+                            FirestoreHelper.getInstance().getNotSelectedSize(firestoreEventId, numNotSelected);
+                            FirestoreHelper.getInstance().getEnrolledSize(firestoreEventId, numEnrolled);
+                            if (getView() != null) {
+                                numWinners.observe(getViewLifecycleOwner(), new Observer<Integer>() {
+                                    @Override
+                                    public void onChanged(Integer integer) {
+                                        checkEventStateInfo(doc);
+                                    }
+                                });
+                                numNotSelected.observe(getViewLifecycleOwner(), new Observer<Integer>() {
+                                    @Override
+                                    public void onChanged(Integer integer) {
+                                        checkEventStateInfo(doc);
+                                    }
+                                });
+                                numEnrolled.observe(getViewLifecycleOwner(), new Observer<Integer>() {
+                                    @Override
+                                    public void onChanged(Integer integer) {
+                                        checkEventStateInfo(doc);
+                                    }
+                                });
                             }
-
-                            if (numWinners.getValue() == 0 && event.getState().equals(EventState.WAITING)) {
-                                // can't be in the waiting state and these be zero, so only change state here
-                                if (numNotSelected.getValue() == 0 || (numEnrolled.getValue() == numSpots.intValue())) {
-                                    event.setState(EventState.CLOSED);
-                                }
-                            }
-
                         }
                     }
                 });
         return view;
+    }
+
+    private void checkEventStateInfo(DocumentSnapshot doc) {
+        Log.e("JASON REDRAW", "numWinners: " + Integer.toString(numWinners.getValue()));
+        Log.e("JASON REDRAW", "numNotSelected: " + Integer.toString(numNotSelected.getValue()));
+        Log.e("JASON REDRAW", "numEnrolled: " + Integer.toString(numEnrolled.getValue()));
+//                            Log.e("JASON REDRAW", "numSpots: " + Integer.toString(numSpots.intValue()));
+        Long numSpotsLong = doc.getLong("numberOfSpots");
+        int numSpots = 0;
+        if (numSpotsLong != null) {
+            numSpots = numSpotsLong.intValue();
+        }
+
+        if (numNotSelected.getValue() == 0 || numNotSelected.getValue() == -1) {
+            canReplacementDraw.setValue(Boolean.FALSE);
+        } else {
+            if (numWinners.getValue() + numEnrolled.getValue() < numSpots) {
+                canReplacementDraw.setValue(Boolean.TRUE);
+            } else {
+                canReplacementDraw.setValue(Boolean.FALSE);
+            }
+        }
+
+        if (numWinners.getValue() == 0 && event.getState().equals(EventState.WAITING)) {
+            // can't be in the waiting state and these be zero, so only change state here
+            if (numNotSelected.getValue() == 0 || (numEnrolled.getValue() == numSpots)) {
+                event.setState(EventState.CLOSED);
+            }
+        }
     }
 }
