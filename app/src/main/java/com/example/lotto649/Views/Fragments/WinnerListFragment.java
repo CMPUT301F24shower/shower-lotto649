@@ -1,14 +1,4 @@
-/**
- * BrowseProfilesFragment class represents a fragment for the admin to browse all profiles in the application.
- * <p>
- * This fragment shows a list view of every profile, selecting the event will show its full details and allow for it to be deleted.
- * This page is only accessible to users with 'admin' status
- * </p>
- * <p>
- * Code for the bottom navigation bar was adapted from:
- * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
- * </p>
- */
+
 package com.example.lotto649.Views.Fragments;
 
 import android.content.Context;
@@ -52,19 +42,8 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * BrowseProfilesFragment class represents a fragment for the admin to browse all profiles in the application.
- * <p>
- * This fragment shows a list view of every profile, selecting the event will show its full details and allow for it to be deleted.
- * This page is only accessible to users with 'admin' status
- * </p>
- * <p>
- * Code for the bottom navigation bar was adapted from:
- * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
- * </p>
- * <p>
- * Code for creating context from:
- * https://stackoverflow.com/questions/47987649/why-getcontext-in-fragment-sometimes-returns-null
- * </p>
+ * A fragment that displays the list of winners for a specific event. It retrieves the winners from Firestore
+ * and displays their profiles in a list. If there are no winners, a message is shown.
  */
 public class WinnerListFragment extends Fragment {
     private ArrayList<String> winnerList, deviceIdList;
@@ -98,12 +77,14 @@ public class WinnerListFragment extends Fragment {
     }
 
     /**
-     * Called to create the view hierarchy associated with this fragment.
+     * Creates and initializes the fragment's view. This includes setting up Firestore references,
+     * fetching the list of winners, and updating the UI when data is retrieved.
+     * If no winners are found, a message will be displayed.
      *
-     * @param inflater LayoutInflater object used to inflate any views in the fragment
-     * @param container The parent view that the fragment's UI should be attached to
-     * @param savedInstanceState Bundle containing data about the previous state (if any)
-     * @return View for this fragment
+     * @param inflater The LayoutInflater used to inflate the fragment's view.
+     * @param container The parent view that the fragment's UI will be attached to.
+     * @param savedInstanceState A bundle containing the state of the fragment if it was previously saved.
+     * @return The root view of the fragment.
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

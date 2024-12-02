@@ -123,12 +123,21 @@ public class MyApp extends Application {
         }
     }
 
+    /**
+     * Pops the top fragment from the back stack.
+     *
+     * <p>This method allows the app to navigate back to the previous fragment in the stack.</p>
+     */
     public void popFragment() {
         if (currentActivity != null) {
             currentActivity.get().getSupportFragmentManager().popBackStackImmediate();
         }
     }
 
+    /**
+     * Enum representing the state of an event.
+     * <p>This enum is used to track the state of an event in the application.</p>
+     */
     public enum EventState {
         OPEN,
         WAITING,

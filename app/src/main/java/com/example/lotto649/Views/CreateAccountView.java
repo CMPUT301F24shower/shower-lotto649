@@ -1,3 +1,10 @@
+package com.example.lotto649.Views;
+
+import com.example.lotto649.AbstractClasses.AbstractModel;
+import com.example.lotto649.AbstractClasses.AbstractView;
+import com.example.lotto649.Views.Fragments.AccountFragment;
+import com.example.lotto649.Models.UserModel;
+import com.example.lotto649.Views.Fragments.CreateAccountFragment;
 /**
  * AccountView is part of the Model-View-Controller (MVC) architecture.
  * It represents the view component in the application, observing the state of the `UserModel`
@@ -7,14 +14,6 @@
  * and updating the view with the latest user details.
  * </p>
  */
-package com.example.lotto649.Views;
-
-import com.example.lotto649.AbstractClasses.AbstractModel;
-import com.example.lotto649.AbstractClasses.AbstractView;
-import com.example.lotto649.Views.Fragments.AccountFragment;
-import com.example.lotto649.Models.UserModel;
-import com.example.lotto649.Views.Fragments.CreateAccountFragment;
-
 public class CreateAccountView extends AbstractView {
     // Reference to the AccountFragment associated with this view
     private final CreateAccountFragment createAccountFragment;
