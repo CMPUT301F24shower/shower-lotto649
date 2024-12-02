@@ -25,10 +25,12 @@ import androidx.fragment.app.Fragment;
 
 import com.example.lotto649.Models.FacilityModel;
 import com.example.lotto649.Models.UserModel;
+import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.example.lotto649.Views.ArrayAdapters.BrowseFacilitiesArrayAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -55,6 +57,7 @@ public class BrowseFacilitiesFragment extends Fragment {
     private BrowseFacilitiesArrayAdapter facilitiesAdapter;
     private FirebaseFirestore db;
     private CollectionReference facilitiesRef;
+    private ExtendedFloatingActionButton backButton;
 
     /**
      * Public empty constructor for BrowseFacilitiesFragment.
@@ -86,6 +89,7 @@ public class BrowseFacilitiesFragment extends Fragment {
         // fill dataList from Firestore
         dataList = new ArrayList<FacilityModel>();
 
+        backButton = view.findViewById(R.id.back_button);
         browseFacilityList = view.findViewById(R.id.browse_facilities_list);
         facilitiesAdapter = new BrowseFacilitiesArrayAdapter(view.getContext(), dataList);
         browseFacilityList.setAdapter(facilitiesAdapter);
@@ -124,7 +128,12 @@ public class BrowseFacilitiesFragment extends Fragment {
             }
         });
 
-        // TODO needs a back button
+        backButton.setOnClickListener(new ExtendedFloatingActionButton.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MyApp.getInstance().popFragment();
+            }
+        });
 
         return view;
     }

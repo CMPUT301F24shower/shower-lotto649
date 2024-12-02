@@ -152,14 +152,12 @@ public class BrowseProfilesFragment extends Fragment {
             }
         });
 
-        backButton.setVisibility(View.GONE);
-
-//        backButton.setOnClickListener(new ExtendedFloatingActionButton.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                MyApp.getInstance().popFragment();
-//            }
-//        });
+        backButton.setOnClickListener(new ExtendedFloatingActionButton.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MyApp.getInstance().popFragment();
+            }
+        });
 
         return view;
     }

@@ -70,18 +70,8 @@ public class BrowseEventsArrayAdapter extends ArrayAdapter<EventModel> {
         TextView eventDescription = view.findViewById(R.id.admin_event_description);
         ImageView posterImage = view.findViewById(R.id.event_poster);
         eventName.setText(event.getTitle());
-        String statusText;
-        int maxNum = event.getNumberOfMaxEntrants();
-        int curNum = event.getWaitingList().size();
-        if (maxNum != -1 && maxNum <= curNum)
-            statusText = "PENDING";
-        else
-            statusText = "OPEN";
-        if (event.getEndDate().getTime() - event.getStartDate().getTime() <= 0)
-            statusText = "PENDING";
-        if (event.isDrawn())
-            statusText = "CLOSED";
-        eventStatus.setText(statusText);
+
+        eventStatus.setText(event.getState().name());
 
         event.getLocation(eventLocation::setText);
 

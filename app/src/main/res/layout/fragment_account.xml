@@ -117,6 +117,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"
+            android:phoneNumber="true"
             android:maxLength="10"
             android:digits="0123456789"
             android:fontFamily="sans-serif-medium"/>
