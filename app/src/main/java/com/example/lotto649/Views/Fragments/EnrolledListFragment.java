@@ -42,7 +42,14 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-
+/**
+ * EnrolledListFragment class represents a fragment for viewing user profiles enrolled in a specific event.
+ * <p>
+ * This fragment dynamically retrieves and displays a list of enrolled user profiles for a given event using Firestore.
+ * Admin users can view detailed information about each user by selecting a profile from the list. If no users are
+ * enrolled, a message is displayed indicating this. The fragment also includes a "Back" button for navigation.
+ * </p>
+ */
 public class EnrolledListFragment extends Fragment {
     private ArrayList<String> deviceIdList;
     private ArrayList<UserModel> dataList;

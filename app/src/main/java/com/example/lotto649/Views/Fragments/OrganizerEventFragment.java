@@ -42,6 +42,10 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * OrganizerEventFragment inflates the screen for organizers to manage a specific event of theirs.
+ * Changes when the state of the event changes, and updates states on certain conditions.
+ */
 public class OrganizerEventFragment extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference eventsRef;

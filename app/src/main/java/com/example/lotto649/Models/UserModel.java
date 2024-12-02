@@ -69,6 +69,7 @@ public class UserModel extends AbstractModel {
      * @param name the name of the user
      * @param email the email of the user
      * @param phone the phone number of the user (optional)
+     * @param db the Firestore database object
      */
     public UserModel(Context context, String name, String email, String phone, FirebaseFirestore db) {
         this.name = name;
@@ -124,19 +125,16 @@ public class UserModel extends AbstractModel {
     /**
      * Updates Firestore with the current user's information.
      * This method is used whenever a setter modifies the user data to synchronize the changes.
+     *
+     * @param field the field of the attribute to update
+     * @param value the value of the attribute to update
      */
     public void updateFirestore(String field, Object value) {
         if (deviceId == null) return; // Ensure the device ID exists
         if (db == null) return;
         db.collection("users")
                 .document(deviceId)
-                .update(field, value)
-                .addOnSuccessListener(aVoid -> {
-                    // TODO: Add error handling to test for failure
-                })
-                .addOnFailureListener(e -> {
-                    // TODO: Add error handling to test for failure
-                });
+                .update(field, value);
     }
 
     /**

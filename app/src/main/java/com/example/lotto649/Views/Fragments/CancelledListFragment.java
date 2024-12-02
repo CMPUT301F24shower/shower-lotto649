@@ -52,6 +52,26 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.Objects;
 
+/**
+ * CancelledListFragment class represents a fragment that displays a list of users
+ * who have canceled their participation in a specific event.
+ * <p>
+ * This fragment retrieves and shows the canceled users based on an event ID from Firestore.
+ * The list includes user details like name, email, phone number, and profile image.
+ * Administrators can select a user to view their detailed profile in a new fragment.
+ * </p>
+ * <p>
+ * If no users are found, a message indicating "No users have cancelled" is displayed on the screen.
+ * </p>
+ * <p>
+ * Code for the bottom navigation bar was adapted from:
+ * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
+ * </p>
+ * <p>
+ * Code for creating context was referenced from:
+ * https://stackoverflow.com/questions/47987649/why-getcontext-in-fragment-sometimes-returns-null
+ * </p>
+ */
 public class CancelledListFragment extends Fragment {
     private ArrayList<String> deviceIdList;
     private ArrayList<UserModel> dataList;

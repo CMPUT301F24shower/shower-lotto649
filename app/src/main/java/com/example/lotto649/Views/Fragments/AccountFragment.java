@@ -385,16 +385,6 @@ public class AccountFragment extends Fragment {
      * @param user The user model containing the details to be displayed
      */
     public void showUserDetails(UserModel user) {
-//         getActivity().runOnUiThread(new Runnable() {
-//         requireActivity().runOnUiThread(new Runnable() {
-//             @Override
-//             public void run() {
-//                 nameEditText.setText(user.getName());
-//                 emailEditText.setText(user.getEmail());
-//                 phoneEditText.setText(user.getPhone());
-//                 imagePlaceholder.setText(user.getInitials());
-//             }
-//         });
         nameEditText.setText(user.getName());
         emailEditText.setText(user.getEmail());
         phoneEditText.setText(user.getPhone());

@@ -49,7 +49,6 @@ public class QrCodeModel extends AbstractModel {
      * @throws RuntimeException if SHA-256 algorithm is not available.
      */
     public static String generateHash(String input) {
-        //TODO: Unhash string function for when we scan QR Code.
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hashBytes = digest.digest(input.getBytes());

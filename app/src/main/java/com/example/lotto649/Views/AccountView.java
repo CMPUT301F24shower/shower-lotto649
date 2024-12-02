@@ -14,6 +14,15 @@ import com.example.lotto649.AbstractClasses.AbstractView;
 import com.example.lotto649.Views.Fragments.AccountFragment;
 import com.example.lotto649.Models.UserModel;
 
+/**
+ * AccountView is part of the Model-View-Controller (MVC) architecture.
+ * It represents the view component in the application, observing the state of the `UserModel`
+ * and updating the associated `AccountFragment` whenever the model changes.
+ * <p>
+ * This class extends `AbstractView` to implement the functionality for observing the `UserModel`
+ * and updating the view with the latest user details.
+ * </p>
+ */
 public class AccountView extends AbstractView {
     // Reference to the AccountFragment associated with this view
     private final AccountFragment accountFragment;

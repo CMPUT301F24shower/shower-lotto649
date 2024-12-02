@@ -133,14 +133,4 @@ public class MyApp extends Application {
             currentActivity.get().getSupportFragmentManager().popBackStackImmediate();
         }
     }
-
-    /**
-     * Enum representing the state of an event.
-     * <p>This enum is used to track the state of an event in the application.</p>
-     */
-    public enum EventState {
-        OPEN,
-        WAITING,
-        CLOSED
-    }
 }

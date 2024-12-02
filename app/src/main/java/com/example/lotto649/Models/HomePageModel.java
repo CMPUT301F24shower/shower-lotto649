@@ -15,13 +15,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-// TODO this isnt a model, just use array adapter and firestore calls from another class
 /**
  * Model class for managing a collection of events.
  * Interacts with Firebase Firestore to fetch and manage event data.
  */
 public class HomePageModel extends AbstractModel {
-    // TODO name this myCreatedEvents
     private ArrayList<EventModel> myEvents;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -81,6 +79,12 @@ public class HomePageModel extends AbstractModel {
                 });
     }
 
+    /**
+     * Takes a Firebase document and constructs a new EventModel from that data
+     *
+     * @param doc the Firebase document holding event data
+     * @return newEvent the new event created
+     */
     public EventModel getEventFromFirebaseObject(DocumentSnapshot doc) {
         String eventId = doc.getId();
         String description = doc.getString("description");

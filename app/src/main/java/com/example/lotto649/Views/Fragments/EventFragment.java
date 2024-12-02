@@ -117,6 +117,9 @@ public class EventFragment extends Fragment {
         }
     }
 
+    /**
+     * Sets the initial text values for this fragment (used for checking if info in text boxes changed)
+     */
     public void setInitialValues() {
         initialTitle = titleEditText.getText().toString();
         initialDescription = descriptionEditText.getText().toString();
@@ -161,6 +164,9 @@ public class EventFragment extends Fragment {
         this.event = event;
     }
 
+    /**
+     * Gets the poster of this event from Firebase and loads it into the UI
+     */
     private void getPosterFromFirebase() {
         StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(currentImageUriString.get());
         imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
@@ -465,6 +471,15 @@ public class EventFragment extends Fragment {
     }
 
     // https://stackoverflow.com/questions/38604157/android-date-time-picker-in-one-dialog
+    /**
+     * Displays a time picker dialog and updates the selected time in the specified EditText field.
+     *
+     * @param dateToPick   The EditText field to update with the selected date.
+     * @param dateReference The AtomicReference to hold the selected date.
+     * @param year the year from the previous date picked
+     * @param month the month from the previous date picked
+     * @param day the day from the previous date picked
+     */
     private void timePicker(EditText dateToPick, AtomicReference<Date> dateReference, int year, int month, int day) {
         final Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -491,6 +506,11 @@ public class EventFragment extends Fragment {
     }
 
 
+    /**
+     * checks if the information in the edit text boxes changed
+     *
+     * @return if the information changed
+     */
     private boolean DidInfoRemainConstant() {
         return Objects.equals(titleEditText.getEditableText().toString(), initialTitle)
                 && Objects.equals(descriptionEditText.getEditableText().toString(), initialDescription)
@@ -500,6 +520,9 @@ public class EventFragment extends Fragment {
                 && Objects.equals(maxEntrantsEditText.getEditableText().toString(), initialMaxEntrants);
     }
 
+    /**
+     * Text watcher for the event title
+     */
     private final TextWatcher titleWatcher = new TextWatcher() {
         public void afterTextChanged(Editable s) {}
 
@@ -510,6 +533,9 @@ public class EventFragment extends Fragment {
         }
     };
 
+    /**
+     * Text watcher for the event description
+     */
     private final TextWatcher descriptionWatcher = new TextWatcher() {
         public void afterTextChanged(Editable s) {}
 
@@ -520,6 +546,9 @@ public class EventFragment extends Fragment {
         }
     };
 
+    /**
+     * Text watcher for the event start date
+     */
     private final TextWatcher startDateWatcher = new TextWatcher() {
         public void afterTextChanged(Editable s) {}
 
@@ -530,6 +559,9 @@ public class EventFragment extends Fragment {
         }
     };
 
+    /**
+     * Text watcher for the event end date
+     */
     private final TextWatcher endDateWatcher = new TextWatcher() {
         public void afterTextChanged(Editable s) {}
 
@@ -540,6 +572,9 @@ public class EventFragment extends Fragment {
         }
     };
 
+    /**
+     * Text watcher for the event attendees
+     */
     private final TextWatcher attendeesWatcher = new TextWatcher() {
         public void afterTextChanged(Editable s) {}
 
@@ -550,6 +585,9 @@ public class EventFragment extends Fragment {
         }
     };
 
+    /**
+     * Text watcher for the event maximum wait list size
+     */
     private final TextWatcher maxSizeWatcher = new TextWatcher() {
         public void afterTextChanged(Editable s) {}
 
@@ -560,7 +598,11 @@ public class EventFragment extends Fragment {
         }
     };
 
-
+    /**
+     * Sets the save button visibility
+     *
+     * @param isEqual if the text boxes have not changed
+     */
     private void SetSaveButtonVisibility(boolean isEqual) {
         if (isEqual) {
             saveButtonShow.setValue(Boolean.FALSE);

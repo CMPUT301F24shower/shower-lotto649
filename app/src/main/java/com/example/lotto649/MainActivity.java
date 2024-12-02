@@ -60,6 +60,16 @@ import org.osmdroid.config.Configuration;
 
 import java.util.HashMap;
 
+/**
+ * MainActivity is the entry point of the application that implements a bottom navigation bar
+ * for switching between different fragments such as Home, Camera, and Account.
+ * <p>
+ * Code adapted from the following source for implementing a bottom navigation bar:
+ * <a href="https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/">GeeksforGeeks: Bottom Navigation Bar in Android</a>
+ * Notification permission code was adapted from this thread:
+ * https://stackoverflow.com/questions/44305206/ask-permission-for-push-notification
+ * </p>
+ */
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener {
     BottomNavigationView bottomNavigationView;
@@ -74,6 +84,11 @@ public class MainActivity extends AppCompatActivity
     LocationRequest locationRequest;
     String deviceId;
 
+    /**
+     * Uses the Android permissions to check if user has location, and gets location of current user
+     *
+     * @param context the given context
+     */
     public void getUserLocation(Context context) {
         if (context == null) {
             Log.e("LocationHelper", "Context is null. Cannot check permission.");
@@ -138,6 +153,9 @@ public class MainActivity extends AppCompatActivity
                 }
             });
 
+    /**
+     * Checks if user has notification permissions and requests them if not
+     */
     private void checkAndRequestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13+
             if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -348,6 +366,9 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Gives functionailty to send notifications to users through Firebase
+     */
     private void sendNotifications() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("winners").whereEqualTo("userId", deviceId).get().addOnCompleteListener(task -> {
@@ -492,6 +513,9 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    /**
+     * Removes the menu options on the UI
+     */
     private void removeMenuItems() {
         bottomNavigationView.getMenu().removeItem(R.id.home);
         bottomNavigationView.getMenu().removeItem(R.id.camera);
@@ -503,6 +527,10 @@ public class MainActivity extends AppCompatActivity
         bottomNavigationView.getMenu().removeItem(R.id.admin);
     }
 
+    /**
+     * Checks if there is intent, if so shows the join event screen.
+     * Used for scanning QR codes and clicking notifications
+     */
     private void handleDeeplink() {
         Intent intent = getIntent();
         if (intent != null && intent.getData() != null) {
@@ -534,6 +562,9 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * When back button pressed, pop the fragment stack
+     */
     @Override
     public void onBackPressed() {
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {

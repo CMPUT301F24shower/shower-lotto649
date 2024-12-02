@@ -1,3 +1,18 @@
+/**
+ * Fragment for sending custom notifications to users based on their status.
+ * <p>
+ * This fragment allows an admin to create and send notifications to users in specific status groups
+ * (e.g., "All," "Selected," "Cancelled"). Notifications are sent using Firestore to dynamically fetched
+ * user groups. The fragment provides fields for entering a notification title and message, along with
+ * a dropdown for selecting the recipient group.
+ * </p>
+ *
+ * <p>
+ * The `CustomNotificationFragment` is designed for use in the admin interface of the application.
+ * It integrates with Firebase Firestore to retrieve relevant user data and send notifications
+ * to appropriate collections.
+ * </p>
+ */
 package com.example.lotto649.Views.Fragments;
 
 import android.os.Bundle;

@@ -43,13 +43,6 @@ public class EventModel extends AbstractModel implements Serializable {
     private FirebaseFirestore db;
     private boolean savedToFirestore = false;
     private String eventId;
-    public String getEventId() {
-        return eventId;
-    }
-
-    public void setDb(FirebaseFirestore db) {
-        this.db = db;
-    }
 
     /**
      * No-argument constructor for Firestore deserialization.
@@ -188,6 +181,33 @@ public class EventModel extends AbstractModel implements Serializable {
     }
 
     /**
+     * sets the Firebase database object of this event
+     *
+     * @param db the FirebaseFirestore db object
+     */
+    public void setDb(FirebaseFirestore db) {
+        this.db = db;
+    }
+
+    /**
+     * Gets the eventId of this event
+     *
+     * @return the event id
+     */
+    public String getEventId() {
+        return eventId;
+    }
+
+    /**
+     * Gets the eventId of this event
+     *
+     * @param eventId the new event id
+     */
+    public void setEventId(String eventId){
+        this.eventId = eventId;
+    }
+
+    /**
      * Removes the event data to Firestore.
      * If the event has already been removed, this method does nothing.
      */
@@ -209,13 +229,6 @@ public class EventModel extends AbstractModel implements Serializable {
                 });
         clear();
         notifyViews();
-    }
-
-    // TODO this should never change
-    public void setEventId(String eventId){
-        //removeEventFirestore();
-        this.eventId = eventId;
-        //saveEventToFirestore();
     }
 
     /**
@@ -265,6 +278,11 @@ public class EventModel extends AbstractModel implements Serializable {
         return organizerId;
     }
 
+    /**
+     * gets the address of the location from Firebase
+     *
+     * @param callback the callback function to be run on success
+     */
     public void getLocation(Consumer<String> callback) {
         db.collection("facilities").document(organizerId).get().addOnSuccessListener(
                 doc -> {
@@ -280,12 +298,22 @@ public class EventModel extends AbstractModel implements Serializable {
         });
     }
 
+    /**
+     * sets the Event State of the event and updates it in Firestore, and shows to views
+     *
+     * @param state the new EventState for the event
+     */
     public void setState(EventState state) {
         this.state = state;
         updateFirestore("state", state.name());
         notifyViews();
     }
 
+    /**
+     * gets the Event State of the event
+     *
+     * @return the EventState of the event
+     */
     public EventState getState() {
         return this.state;
     }
@@ -301,7 +329,6 @@ public class EventModel extends AbstractModel implements Serializable {
         updateFirestore("organizerId", organizerId);
         notifyViews();
     }
-    // TODO this should never be set
 
     /**
      * Retrieves the description of the event.
@@ -488,6 +515,10 @@ public class EventModel extends AbstractModel implements Serializable {
     }
 
 
+    /**
+     * Does the initial random draw from the waiting list of this event.
+     * Places winners and losers in their appropriate Firebase collections.
+     */
     public void doDraw() {
         if (!getState().equals(EventState.OPEN)) return;
 
@@ -500,7 +531,6 @@ public class EventModel extends AbstractModel implements Serializable {
                         Collections.shuffle(docs);
                         int i = 0;
                         for (DocumentSnapshot doc : docs) {
-                            // TODO this is untested
                             HashMap<String, Object> data = new HashMap<>(doc.getData());
                             data.put("hasSeenNoti", false);
                             if (i++ < numberOfSpots) {
@@ -518,6 +548,10 @@ public class EventModel extends AbstractModel implements Serializable {
         notifyViews();
     }
 
+    /**
+     * Does the replacement draw from the waiting list of this event.
+     * Places winners into correct Firebase collection, and removes from not selected collection.
+     */
     public void doReplacementDraw() {
         // This only draws 1 additional user
         if (!getState().equals(EventState.WAITING)) return;

@@ -1,4 +1,11 @@
-
+/**
+ * EnrolledListProfileFragment class represents a fragment for viewing detailed information about an enrolled user.
+ * <p>
+ * This fragment fetches and displays user details (name, email, phone, roles) for a selected user from Firestore.
+ * It also attempts to retrieve and display the user's profile image from Firebase Storage. If the profile image
+ * is unavailable, a placeholder is shown.
+ * </p>
+ */
 package com.example.lotto649.Views.Fragments;
 
 import android.net.Uri;

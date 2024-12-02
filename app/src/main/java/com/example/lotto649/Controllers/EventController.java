@@ -8,7 +8,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.Date;
 
-// TODO dont reuse this controller between View/Fragment classes, for diff functionality make new controller
 /**
  * Controller class for managing an EventModel instance.
  * Provides methods to update event properties and save/remove events from Firestore.
@@ -105,6 +104,8 @@ public class EventController extends AbstractController {
     }
     /**
      * Updates QR Code hash
+     *
+     * @param qrCodeHash The hash of the new QR code.
      */
     public void updateQrCode(String qrCodeHash){
         getModel().setQrCode(qrCodeHash);
@@ -112,10 +113,11 @@ public class EventController extends AbstractController {
 
     /**
      * Saves the current event to Firestore and navigates to the HomeFragment.
+     *
+     * @param onSuccess the onSuccessListener for the event to be saved (used as pseudo-callback)
      */
     public void saveEventToFirestore(OnSuccessListener<String> onSuccess) {
         getModel().saveEventToFirestore(onSuccess);
-        // TODO this shouldnt be in controller, also this should be popFragment
         MyApp.getInstance().popFragment();
     }
 
@@ -124,7 +126,6 @@ public class EventController extends AbstractController {
      */
     public void removeEventFromFirestore() {
         getModel().removeEventFromFirestore();
-        // TODO this shouldnt be in controller, also this should be popFragment
         MyApp.getInstance().popFragment();
     }
 
@@ -134,5 +135,4 @@ public class EventController extends AbstractController {
     public void returnToEvents() {
         MyApp.getInstance().popFragment();
     }
-    // TODO should be popFragment, shouldnt be in controller
 }

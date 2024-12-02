@@ -43,6 +43,21 @@ import com.google.mlkit.vision.barcode.BarcodeScanning;
 import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.mlkit.vision.common.InputImage;
 
+/**
+ * CameraFragment class represents a fragment that provides camera functionality within the application.
+ * <p>
+ * This fragment is part of the bottom navigation bar and is responsible for initializing the camera,
+ * handling permissions, and analyzing images to detect QR codes using ML Kit's BarcodeScanner.
+ * </p>
+ * <p>
+ * The camera layout is inflated when the user navigates to this fragment, and the camera lifecycle is
+ * managed automatically with the help of CameraX library.
+ * </p>
+ * <p>
+ * Code for the bottom navigation bar was adapted from:
+ * https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/
+ * </p>
+ */
 public class CameraFragment extends Fragment {
 
     private static final String TAG = "CameraFragment";

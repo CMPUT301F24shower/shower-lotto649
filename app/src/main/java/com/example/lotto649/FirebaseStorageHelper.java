@@ -23,7 +23,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-
+/**
+ * Helper class for uploading images to Firebase Storage and updating user profile information in Firestore.
+ *
+ * <p>This class includes methods to upload a profile image to a specified location in Firebase Storage and
+ * update the corresponding user's profile image URL in Firestore.</p>
+ * This code was adapted from the firebase docs:
+ * https://firebase.google.com/docs/storage/android/upload-files
+ */
 public class FirebaseStorageHelper {
 
 
