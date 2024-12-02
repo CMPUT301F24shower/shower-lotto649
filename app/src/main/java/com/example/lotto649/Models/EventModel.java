@@ -280,19 +280,21 @@ public class EventModel extends AbstractModel implements Serializable {
     public String getOrganizerId() { return organizerId; }
 
     public void getLocation(Consumer<String> callback) {
-        db.collection("facilities").document(organizerId).get().addOnSuccessListener(
-                doc -> {
-                    if (doc.exists()) {
+        db.collection("facilities")
+                .document(organizerId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists() && doc.getString("facility") != null && doc.getString("address") != null) {
                         String name = doc.getString("facility");
                         String address = doc.getString("address");
                         callback.accept(name + " - " + address);
-                    } else {
+                    } else
                         callback.accept("Location");
-                    }
-                }).addOnFailureListener(e -> {
-            Log.e("Ohm", "Error fetching location: ", e);
-            callback.accept("Location");
-        });
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Ohm", "Error fetching location: ", e);
+                    callback.accept("Location");
+                });
     }
 
     public void setState(EventState state) {

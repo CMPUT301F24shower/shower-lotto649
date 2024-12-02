@@ -270,7 +270,7 @@ public class AdminEventFragment extends Fragment {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MyApp.getInstance().replaceFragment(new BrowseEventsFragment());
+                MyApp.getInstance().popFragment();
             }
         });
 

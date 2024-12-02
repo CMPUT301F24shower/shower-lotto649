@@ -79,19 +79,19 @@ public class BrowseEventsArrayAdapter extends ArrayAdapter<EventModel> {
 
         eventStatus.setText(event.getState().name());
 
-        event.getLocation(eventLocation::setText);
-//        eventLocation.setText("LOCATION");
-//        String facilityId = event.getOrganizerId();
-//        FirebaseFirestore.getInstance().collection("facilities").document(facilityId).get().addOnCompleteListener(facilityTask -> {
-//            if (facilityTask.isSuccessful()) {
-//                DocumentSnapshot facilityDoc = facilityTask.getResult();
-//                String facilityName = facilityDoc.getString("facility");
-//                String facilityAddress = facilityDoc.getString("address");
-//                if (facilityName != null && facilityAddress != null) {
-//                    eventLocation.setText(facilityName + " - " + facilityAddress);
-//                }
-//            }
-//        });
+//        event.getLocation(eventLocation::setText);
+        eventLocation.setText("LOCATION");
+        String facilityId = event.getOrganizerId();
+        FirebaseFirestore.getInstance().collection("facilities").document(facilityId).get().addOnCompleteListener(facilityTask -> {
+            if (facilityTask.isSuccessful()) {
+                DocumentSnapshot facilityDoc = facilityTask.getResult();
+                String facilityName = facilityDoc.getString("facility");
+                String facilityAddress = facilityDoc.getString("address");
+                if (facilityName != null && facilityAddress != null) {
+                    eventLocation.setText(facilityName + " - " + facilityAddress);
+                }
+            }
+        });
 
         eventSpotsAvail.setText("No max waitlist size");
         if (event.getNumberOfMaxEntrants() != -1) {

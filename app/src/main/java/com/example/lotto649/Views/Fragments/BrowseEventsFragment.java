@@ -14,6 +14,7 @@ package com.example.lotto649.Views.Fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,8 +27,10 @@ import androidx.fragment.app.Fragment;
 import com.example.lotto649.EventState;
 import com.example.lotto649.Models.EventModel;
 import com.example.lotto649.Models.UserModel;
+import com.example.lotto649.MyApp;
 import com.example.lotto649.R;
 import com.example.lotto649.Views.ArrayAdapters.BrowseEventsArrayAdapter;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -57,6 +60,7 @@ public class BrowseEventsFragment extends Fragment {
     private BrowseEventsArrayAdapter eventsAdapter;
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
+    private ExtendedFloatingActionButton backButton;
 
     /**
      * Public empty constructor for BrowseFacilitiesFragment.
@@ -89,6 +93,7 @@ public class BrowseEventsFragment extends Fragment {
         dataList = new ArrayList<EventModel>();
         eventIdList = new ArrayList<String>();
 
+        backButton = view.findViewById(R.id.back_button);
         browseEventsList = view.findViewById(R.id.browse_events_list);
         eventsAdapter = new BrowseEventsArrayAdapter(view.getContext(), dataList, getViewLifecycleOwner());
         browseEventsList.setAdapter(eventsAdapter);
@@ -103,11 +108,14 @@ public class BrowseEventsFragment extends Fragment {
                     dataList.clear();
                     for (QueryDocumentSnapshot doc: querySnapshots) {
                         String eventId = doc.getId();
+                        Log.e("Ohm", "eventId: " + eventId);
                         String title = doc.getString("title");
                         String facilityId = doc.getString("facilityId");
                         String description = doc.getString("description");
                         int numberOfSpots = ((Long) doc.get("numberOfSpots")).intValue();
+                        Log.e("Ohm", "numberOfSpots: " + String.valueOf(numberOfSpots));
                         int numberOfMaxEntrants = ((Long) doc.get("numberOfMaxEntrants")).intValue();
+                        Log.e("Ohm", "numberOfMaxEntrants: " + String.valueOf(numberOfMaxEntrants));
                         Date startDate = doc.getDate("startDate");
                         Date endDate = doc.getDate("endDate");
                         String posterImageUriString = doc.getString("posterImage");
@@ -138,14 +146,16 @@ public class BrowseEventsFragment extends Fragment {
                 bundle.putString("firestoreEventId", chosenEvent);
                 AdminEventFragment frag = new AdminEventFragment();
                 frag.setArguments(bundle);
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.flFragment, frag, null)
-                        .addToBackStack(null)
-                        .commit();
+                MyApp.getInstance().addFragmentToStack(frag);
             }
         });
 
-        // TODO needs a back button
+        backButton.setOnClickListener(new ExtendedFloatingActionButton.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MyApp.getInstance().popFragment();
+            }
+        });
 
         return view;
     }
