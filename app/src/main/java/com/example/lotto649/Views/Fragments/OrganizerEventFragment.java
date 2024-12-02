@@ -227,7 +227,10 @@ public class OrganizerEventFragment extends Fragment {
         sendCustomNotiButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Bundle bundle = new Bundle();
+                bundle.putString("eventId", firestoreEventId);
                 CustomNotificationFragment customNotificationFragment = new CustomNotificationFragment();
+                customNotificationFragment.setArguments(bundle);
                 MyApp.getInstance().addFragmentToStack(customNotificationFragment);
                 dialog.dismiss();;
             }
@@ -324,9 +327,12 @@ public class OrganizerEventFragment extends Fragment {
         sendCustomNotiButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Bundle bundle = new Bundle();
+                bundle.putString("eventId", firestoreEventId);
                 CustomNotificationFragment customNotificationFragment = new CustomNotificationFragment();
+                customNotificationFragment.setArguments(bundle);
                 MyApp.getInstance().addFragmentToStack(customNotificationFragment);
-                dialog.dismiss();;
+                dialog.dismiss();
             }
         });
 
@@ -427,7 +433,10 @@ public class OrganizerEventFragment extends Fragment {
         sendCustomNotiButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Bundle bundle = new Bundle();
+                bundle.putString("eventId", firestoreEventId);
                 CustomNotificationFragment customNotificationFragment = new CustomNotificationFragment();
+                customNotificationFragment.setArguments(bundle);
                 MyApp.getInstance().addFragmentToStack(customNotificationFragment);
                 dialog.dismiss();;
             }
