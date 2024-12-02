@@ -94,17 +94,27 @@ public class BrowseEventsArrayAdapter extends ArrayAdapter<EventModel> {
         }
         eventNumAttendees.setText(event.getNumberOfSpots() + " Lottery Winners");
         eventLocation.setText("LOCATION");
-        String facilityId = event.getOrganizerId();
-        FirebaseFirestore.getInstance().collection("facilities").document(facilityId).get().addOnCompleteListener(facilityTask -> {
-            if (facilityTask.isSuccessful()) {
-                DocumentSnapshot facilityDoc = facilityTask.getResult();
-                String facilityName = facilityDoc.getString("facility");
-                String facilityAddress = facilityDoc.getString("address");
-                if (facilityName != null && facilityAddress != null) {
-                    eventLocation.setText(facilityName + " - " + facilityAddress);
+        FirebaseFirestore.getInstance().collection("events").document(event.getEventId()).get().addOnCompleteListener(eventTask -> {
+            if (eventTask.isSuccessful()) {
+                DocumentSnapshot eventDoc = eventTask.getResult();
+                if (eventDoc != null) {
+                    String facilityId = eventDoc.getString("organizerId");
+                    if (facilityId != null) {
+                        FirebaseFirestore.getInstance().collection("facilities").document(facilityId).get().addOnCompleteListener(facilityTask -> {
+                            if (facilityTask.isSuccessful()) {
+                                DocumentSnapshot facilityDoc = facilityTask.getResult();
+                                String facilityName = facilityDoc.getString("facility");
+                                String facilityAddress = facilityDoc.getString("address");
+                                if (facilityName != null && facilityAddress != null) {
+                                    eventLocation.setText(facilityName + " - " + facilityAddress);
+                                }
+                            }
+                        });
+                    }
                 }
             }
         });
+
 
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         if (event.getStartDate() != null && event.getEndDate() != null)
