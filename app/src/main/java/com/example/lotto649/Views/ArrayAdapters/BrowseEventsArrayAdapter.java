@@ -19,6 +19,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.MutableLiveData;
 
 import com.bumptech.glide.Glide;
 import com.example.lotto649.FirestoreHelper;
@@ -78,9 +79,11 @@ public class BrowseEventsArrayAdapter extends ArrayAdapter<EventModel> {
         eventName.setText(event.getTitle());
         eventStatus.setText(event.getState().toString());
         eventSpotsAvail.setText("No max waitlist size");
+        MutableLiveData<Integer> waitListSize = new MutableLiveData<>(-1);
+        FirestoreHelper.getInstance().getWaitlistSize(event.getEventId(), waitListSize);
         if (event.getNumberOfMaxEntrants() != -1) {
-            FirestoreHelper.getInstance().getCurrWaitlistSize().observe(lifecycleOwner, size -> {
-                if (size != null) {
+            waitListSize.observe(lifecycleOwner, size -> {
+                if (size != null && size != -1) {
                     Log.d("Waitlist browseeventsarrayadapter", "Current waitlist size: " + size);
                     // Perform actions with the waitlist size
                     if (event.getNumberOfMaxEntrants() <= size) {
@@ -92,6 +95,7 @@ public class BrowseEventsArrayAdapter extends ArrayAdapter<EventModel> {
                 }
             });
         }
+
         eventNumAttendees.setText(event.getNumberOfSpots() + " Lottery Winners");
         eventLocation.setText("LOCATION");
         FirebaseFirestore.getInstance().collection("events").document(event.getEventId()).get().addOnCompleteListener(eventTask -> {

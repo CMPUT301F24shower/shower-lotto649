@@ -3,7 +3,6 @@ package com.example.lotto649.Views.Fragments;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.app.AlertDialog;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,8 +39,8 @@ import com.google.firebase.storage.StorageReference;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class OrganizerEventFragment extends Fragment {
     private FirebaseFirestore db;
@@ -575,13 +574,14 @@ public class OrganizerEventFragment extends Fragment {
                                 maxNum = 0;
                             }
 
-                            FirestoreHelper.getInstance().getWaitlistSize(firestoreEventId);
-                            int curNum = FirestoreHelper.getInstance().getCurrWaitlistSize().getValue();
-
+                            MutableLiveData<Integer> waitListSize = new MutableLiveData<>(-1);
+                            FirestoreHelper.getInstance().getWaitlistSize(firestoreEventId, waitListSize);
+                            AtomicInteger curNum = new AtomicInteger(-1);
                             spotsAvail.setText("No max waitlist size");
                             if (maxNum != -1 && getView() != null) {
-                                FirestoreHelper.getInstance().getCurrWaitlistSize().observe(getViewLifecycleOwner(), size -> {
+                                waitListSize.observe(getViewLifecycleOwner(), size -> {
                                     if (size != null) {
+                                        curNum.set(size);
                                         Log.d("Waitlist organizerevenfragment", "Current waitlist size: " + size);
                                         // Perform actions with the waitlist size
                                         if (maxNum <= size) {
@@ -590,18 +590,29 @@ public class OrganizerEventFragment extends Fragment {
                                             String newText = size + "/" + maxNum + " Spots Full";
                                             spotsAvail.setText(newText);
                                         }
+                                        if (Objects.equals(doc.getString("state"), "OPEN")) {
+                                            if (size > 0) {
+                                                canDraw.setValue(Boolean.TRUE);
+                                            } else {
+                                                canDraw.setValue(Boolean.FALSE);
+                                            }
+                                        }
+                                        String statusText;
+
+                                        if (maxNum == -1) {
+                                            statusText = "OPEN";
+                                        } else if (maxNum <= size) {
+                                            statusText = "PENDING";
+                                        } else {
+                                            statusText = "OPEN";
+                                        }
+
+
                                     }
                                 });
                             }
 
-                            String statusText;
-                            if (maxNum == -1) {
-                                statusText = "OPEN";
-                            } else if (maxNum <= curNum) {
-                                statusText = "PENDING";
-                            } else {
-                                statusText = "OPEN";
-                            }
+
                             Long numSpots = doc.getLong("numberOfSpots");
                             if (numSpots == null) {
                                 attendeesText.setText("Unknown number of Attendees");
@@ -619,22 +630,16 @@ public class OrganizerEventFragment extends Fragment {
                                 datesText = "Error finding dates";
                             }
                             daysLeft.setText(datesText);
-                            if (Objects.equals(doc.getString("state"), "OPEN")) {
-                                Log.e("JASON STATE TEST", Objects.requireNonNull(doc.getString("state")));
-                                FirestoreHelper.getInstance().getWaitlistSize(firestoreEventId);
-                                int waitListSize = FirestoreHelper.getInstance().getCurrWaitlistSize().getValue();
-                                if (waitListSize > 0) {
-                                    canDraw.setValue(Boolean.TRUE);
-                                } else {
-                                    canDraw.setValue(Boolean.FALSE);
-                                }
-                            } else {
+                            String statusText;
+
+                            if (!Objects.equals(doc.getString("state"), "OPEN")) {
                                 if (Objects.equals(doc.getString("state"), "WAITING")) {
                                     // TODO: set if replacement button can be clicked
                                     statusText = "PENDING";
                                 } else {
                                     statusText = "CLOSED";
                                 }
+                                status.setText(statusText);
                                 canDraw.setValue(Boolean.FALSE);
                             }
                             String posterUriString = doc.getString("posterImage");
@@ -665,7 +670,6 @@ public class OrganizerEventFragment extends Fragment {
                             String descriptionText = doc.getString("description");
 
                             name.setText(nameText);
-                            status.setText(statusText);
                             String facilityId = event.getOrganizerId();
                             if (facilityId != null) {
                                 db.collection("facilities").document(facilityId).get().addOnCompleteListener(facilityTask -> {
@@ -700,24 +704,25 @@ public class OrganizerEventFragment extends Fragment {
                             }
 
                             MutableLiveData<Integer> numWinners = new MutableLiveData<Integer>(-1);
-                            FirestoreHelper.getInstance().getWinnersSize(firestoreEventId);
-                            FirestoreHelper.getInstance().getCurrWaitlistSize().observe(getViewLifecycleOwner(), size -> {
+                            waitListSize.observe(getViewLifecycleOwner(), size -> {
                                 if (size != null) {
                                     // Perform actions with the waitlist size
                                     numWinners.setValue(size);
                                 }
                             });
-                            FirestoreHelper.getInstance().getNotSelectedSize(firestoreEventId);
                             MutableLiveData<Integer> numNotSelected = new MutableLiveData<Integer>(-1);
-                            FirestoreHelper.getInstance().getCurrNotSelectedSize().observe(getViewLifecycleOwner(), size -> {
+
+                            FirestoreHelper.getInstance().getNotSelectedSize(firestoreEventId, numNotSelected);
+                            numNotSelected.observe(getViewLifecycleOwner(), size -> {
                                 if (size != null) {
                                     // Perform actions with the waitlist size
                                     numNotSelected.setValue(size);
                                 }
                             });
-                            FirestoreHelper.getInstance().getEnrolledSize(firestoreEventId);
                             MutableLiveData<Integer> numEnrolled = new MutableLiveData<Integer>(-1);
-                            FirestoreHelper.getInstance().getCurrEnrolledSize().observe(getViewLifecycleOwner(), size -> {
+
+                            FirestoreHelper.getInstance().getEnrolledSize(firestoreEventId, numEnrolled);
+                            numEnrolled.observe(getViewLifecycleOwner(), size -> {
                                 if (size != null) {
                                     // Perform actions with the waitlist size
                                     numEnrolled.setValue(size);
