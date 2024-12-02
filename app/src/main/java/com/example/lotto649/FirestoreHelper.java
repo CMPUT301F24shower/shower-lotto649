@@ -30,8 +30,6 @@ public class FirestoreHelper {
     private FirebaseStorage storageRef;
     private Context context;
     boolean waitingForWaitList;
-    String waitlistEventId;
-    boolean spinlock;
 
     // Private constructor to prevent instantiation
     private FirestoreHelper() {
@@ -148,6 +146,8 @@ public class FirestoreHelper {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         data.setValue(task.getResult().size()); // Store the result
+                    } else {
+                        data.setValue(0);
                     }
                 });
     }
@@ -158,7 +158,11 @@ public class FirestoreHelper {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
+                        Log.e("JASON REDRAW", "get winners size success");
                         data.setValue(task.getResult().size()); // Store the result
+                    } else {
+                        Log.e("JASON REDRAW", "get winners size fail - set to 0");
+                        data.setValue(0);
                     }
                 });
     }
@@ -170,6 +174,8 @@ public class FirestoreHelper {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         data.setValue(task.getResult().size()); // Store the result
+                    } else {
+                        data.setValue(0);
                     }
                 });
     }
@@ -181,6 +187,8 @@ public class FirestoreHelper {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         data.setValue(task.getResult().size()); // Store the result
+                    } else {
+                        data.setValue(0);
                     }
                 });
     }
