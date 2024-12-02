@@ -175,8 +175,8 @@ public class EventModel extends AbstractModel implements Serializable {
         // TODO move to helper
         if (savedToFirestore) return;
 
-        Task<DocumentReference> task = db.collection("events")
-                .add(new HashMap<String, Object>() {{
+        DocumentReference eventRef =  db.collection("events").document(eventId);
+        eventRef.set(new HashMap<String, Object>() {{
                     put("title", title);
                     put("organizerId", organizerId);
                     put("description", description);
@@ -189,8 +189,8 @@ public class EventModel extends AbstractModel implements Serializable {
                     put("geo",geo);
                     put("state", state.name());
                 }})
-                .addOnSuccessListener(documentReference -> {
-                    eventId = documentReference.getId();
+                .addOnSuccessListener(task -> {
+                    eventId = eventRef.getId();
                     savedToFirestore = true;
                     System.out.println("Event saved successfully with ID: " + eventId);
 

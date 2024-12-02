@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--Code used from the following source for menu bar-->
 <!--https://www.geeksforgeeks.org/bottom-navigation-bar-in-android/-->
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -8,12 +13,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
+
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/back_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:fontFamily="sans-serif-medium"
         android:backgroundTint="@color/lightSurfaceContainerHigh"
         app:icon="@drawable/ic_back_foreground"
         app:iconSize="40dp"
@@ -21,15 +26,15 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ListView
-        android:id="@+id/browse_events_list"
+        android:id="@+id/browse_profiles_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
-        android:dividerHeight="16dp"
-        android:divider="@color/colorBackground"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/back_button" />
+        app:layout_constraintTop_toBottomOf="@+id/back_button"
+        android:paddingHorizontal="16dp"
+        android:dividerHeight="16dp"
+        android:divider="@color/colorBackground"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

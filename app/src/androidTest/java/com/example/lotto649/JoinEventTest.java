@@ -20,11 +20,13 @@ import android.provider.Settings;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import androidx.test.uiautomator.UiObjectNotFoundException;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -38,6 +40,11 @@ public class JoinEventTest {
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule =
             new ActivityScenarioRule<MainActivity>(getCustomIntent());
+
+    @Before
+    public void setUp() throws UiObjectNotFoundException {
+        PermissionHandler.handlePermissions();
+    }
 
     private Intent getCustomIntent() {
         // Create a custom Intent with a data URI

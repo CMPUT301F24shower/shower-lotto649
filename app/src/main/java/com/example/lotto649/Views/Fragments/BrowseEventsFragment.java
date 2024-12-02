@@ -96,6 +96,7 @@ public class BrowseEventsFragment extends Fragment {
         browseEventsList = view.findViewById(R.id.browse_events_list);
         eventsAdapter = new BrowseEventsArrayAdapter(view.getContext(), dataList, getViewLifecycleOwner());
         browseEventsList.setAdapter(eventsAdapter);
+        backButton = view.findViewById(R.id.back_button);
 
         eventsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override

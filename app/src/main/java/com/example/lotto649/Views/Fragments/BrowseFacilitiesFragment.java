@@ -93,6 +93,7 @@ public class BrowseFacilitiesFragment extends Fragment {
         browseFacilityList = view.findViewById(R.id.browse_facilities_list);
         facilitiesAdapter = new BrowseFacilitiesArrayAdapter(view.getContext(), dataList);
         browseFacilityList.setAdapter(facilitiesAdapter);
+        backButton = view.findViewById(R.id.back_button);
 
         facilitiesRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override

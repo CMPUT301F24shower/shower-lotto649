@@ -32,6 +32,7 @@ import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.matcher.BoundedMatcher;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.uiautomator.UiObjectNotFoundException;
 import androidx.work.Configuration;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
@@ -53,6 +54,7 @@ import com.google.firebase.storage.UploadTask;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,6 +75,11 @@ public class AdminManageProfileTest {
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
+
+    @Before
+    public void setUp() throws UiObjectNotFoundException {
+        PermissionHandler.handlePermissions();
+    }
 
     /**
      * Deletes a profile as an admin
@@ -103,7 +110,7 @@ public class AdminManageProfileTest {
         data.put("phone", "");
         data.put("profileImage", "");
         // document set so it is first in list
-        DocumentReference testRef = db.collection("users").document("1111111111111111111111111uitest1");
+        DocumentReference testRef = db.collection("users").document("000000000000000000000000uitest1");
         testRef.set(data, SetOptions.merge());
 
     //     run test
@@ -191,11 +198,11 @@ public class AdminManageProfileTest {
         data.put("phone", "");
         data.put("profileImage", "");
         // document set so it is first in list
-        DocumentReference testRef = db.collection("users").document("1111111111111111111111111uitest1");
+        DocumentReference testRef = db.collection("users").document("000000000000000000000000uitest1");
         testRef.set(data, SetOptions.merge());
 
         Uri newUri = copyFirebaseImage();
-        FirebaseFirestore.getInstance().collection("users").document("1111111111111111111111111uitest1")
+        FirebaseFirestore.getInstance().collection("users").document("000000000000000000000000uitest1")
                 .update("profileImage", newUri.toString());
 
         //     run test
@@ -294,7 +301,7 @@ public class AdminManageProfileTest {
         data.put("phone", "");
         data.put("profileImage", "");
         // document set so it is first in list
-        DocumentReference testRef = db.collection("users").document("1111111111111111111111111uitest1");
+        DocumentReference testRef = db.collection("users").document("000000000000000000000000uitest1");
         testRef.set(data, SetOptions.merge());
 
         //     create example profile
@@ -307,7 +314,7 @@ public class AdminManageProfileTest {
         data2.put("phone", "54321");
         data2.put("profileImage", "");
         // document set so it is first in list
-        DocumentReference testRef2 = db.collection("users").document("1111111111111111111111111uitest2");
+        DocumentReference testRef2 = db.collection("users").document("000000000000000000000000uitest2");
         testRef2.set(data2, SetOptions.merge());
 
         //     create example profile
@@ -320,7 +327,7 @@ public class AdminManageProfileTest {
         data3.put("phone", "");
         data3.put("profileImage", "");
         // document set so it is first in list
-        DocumentReference testRef3 = db.collection("users").document("1111111111111111111111111uitest3");
+        DocumentReference testRef3 = db.collection("users").document("000000000000000000000000uitest3");
         testRef3.set(data3, SetOptions.merge());
 
         //     run test
