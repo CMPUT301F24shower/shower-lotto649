@@ -28,6 +28,7 @@ import androidx.test.espresso.ViewInteraction;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.uiautomator.UiObjectNotFoundException;
 
 import com.example.lotto649.Models.UserModel;
 import com.google.android.gms.tasks.Task;
@@ -42,6 +43,7 @@ import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,6 +62,11 @@ public class AdminManageEventTest {
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
+
+    @Before
+    public void setUp() throws UiObjectNotFoundException {
+        PermissionHandler.handlePermissions();
+    }
 
     /**
      * Tests deleting an event
@@ -162,6 +169,8 @@ public class AdminManageEventTest {
                     }});
 
         IdlingRegistry.getInstance().unregister(idlingResource);
+        userRef.delete();
+        testRef.delete();
     }
 
     /**
@@ -198,16 +207,17 @@ public class AdminManageEventTest {
         data.put("startDate", testDate);
         data.put("title", "UI Test Event");
         // document set so it is first in list
-        DocumentReference testRef = db.collection("events").document("1111111111111111111111111uitest1");
+        DocumentReference testRef = db.collection("events").document("000000000000000000000000uitest1");
         testRef.set(data, SetOptions.merge());
 
         Uri newUri = copyFirebaseImage();
-        FirebaseFirestore.getInstance().collection("events").document("1111111111111111111111111uitest1")
+        FirebaseFirestore.getInstance().collection("events").document("000000000000000000000000uitest1")
                 .update("posterImage", newUri.toString());
 
         //     run test
         ElapsedTimeIdlingResource idlingResource = new ElapsedTimeIdlingResource(5000);
         IdlingRegistry.getInstance().register(idlingResource);
+        Thread.sleep(1000);
         onView(withId(R.id.bottomNavigationView)).check(matches(isDisplayed()));
         onView(withId(R.id.browseEvents))
                 .check(matches(isDisplayed()))
