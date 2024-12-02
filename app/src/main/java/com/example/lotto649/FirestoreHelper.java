@@ -33,6 +33,9 @@ public class FirestoreHelper {
     private MutableLiveData<Integer> currEnrolledSize;
     private MutableLiveData<Integer> currNotSelectedSize;
     private Context context;
+    boolean waitingForWaitList;
+    String waitlistEventId;
+    boolean spinlock;
 
     // Private constructor to prevent instantiation
     private FirestoreHelper() {
@@ -46,6 +49,7 @@ public class FirestoreHelper {
         currWinnersSize = new MutableLiveData<Integer>(0);
         currEnrolledSize = new MutableLiveData<Integer>(0);
         currNotSelectedSize = new MutableLiveData<Integer>(0);
+        waitingForWaitList = false;
     }
 
     // Get the singleton instance
@@ -163,6 +167,8 @@ public class FirestoreHelper {
 
     public void getWaitlistSize(String eventId) {
         Log.e("JASON LATCH", "start");
+        waitingForWaitList = true;
+        waitlistEventId = eventId;
 
         db.collection("signUps")
                 .whereEqualTo("eventId", eventId)
@@ -171,6 +177,7 @@ public class FirestoreHelper {
                     if (task.isSuccessful()) {
                         currWaitlistSize.setValue(task.getResult().size()); // Store the result
                     }
+                    waitingForWaitList = false;
                 });
     }
 

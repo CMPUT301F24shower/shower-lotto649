@@ -1,5 +1,6 @@
 package com.example.lotto649.Views.Fragments;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.app.AlertDialog;
 import android.graphics.Bitmap;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
+import com.bumptech.glide.Glide;
 import com.example.lotto649.EventState;
 import com.example.lotto649.FirestoreHelper;
 import com.example.lotto649.Models.EventModel;
@@ -31,6 +34,8 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -54,6 +59,7 @@ public class OrganizerEventFragment extends Fragment {
     TextView daysLeft;
     TextView geoLocation;
     TextView description;
+    TextView attendeesText;
     ExtendedFloatingActionButton optionsButtons, backButton, viewEntrantsMapButton, qrButton, viewEntrantsButton, editButton, randomButton, cancelButton, viewInvitedEntrantsButton, viewCanceledEntrants, replacementWinnerButton, viewFinalEntrants;
     private MutableLiveData<Boolean> hasQrCode;
     private MutableLiveData<Boolean> canDraw;
@@ -527,7 +533,8 @@ public class OrganizerEventFragment extends Fragment {
         description = view.findViewById(R.id.organizer_event_description);
         optionsButtons = view.findViewById(R.id.organizer_event_options);
         backButton = view.findViewById(R.id.organizer_event_cancel);
-
+        posterImage = view.findViewById(R.id.organizer_event_poster);
+        attendeesText = view.findViewById(R.id.organizer_event_attendees);
         optionsButtons.setOnClickListener(v -> {
 
 
@@ -561,120 +568,167 @@ public class OrganizerEventFragment extends Fragment {
                             event = getEventFromFirebaseObject(doc);
                             eventId = doc.getId();
                             Long maxEntrants = (Long) doc.get("numberOfMaxEntrants");
-                            int maxNum = 0;
+                            int maxNum;
                             if (maxEntrants != null)
                                 maxNum = (maxEntrants).intValue();
+                            else {
+                                maxNum = 0;
+                            }
 
                             FirestoreHelper.getInstance().getWaitlistSize(firestoreEventId);
                             int curNum = FirestoreHelper.getInstance().getCurrWaitlistSize().getValue();
 
-                            Long numSpots = (Long) doc.get("numberOfSpots");
-                            if (numSpots != null)
-                                numberOfSpots = (numSpots).intValue();
+                            spotsAvail.setText("No max waitlist size");
+                            if (maxNum != -1 && getView() != null) {
+                                FirestoreHelper.getInstance().getCurrWaitlistSize().observe(getViewLifecycleOwner(), size -> {
+                                    if (size != null) {
+                                        Log.d("Waitlist", "Current waitlist size: " + size);
+                                        // Perform actions with the waitlist size
+                                        if (maxNum <= size) {
+                                            spotsAvail.setText("FULL");
+                                        } else {
+                                            String newText = size + "/" + maxNum + " Spots Full";
+                                            spotsAvail.setText(newText);
+                                        }
+                                    }
+                                });
+                            }
 
-                            String spotsAvailText;
                             String statusText;
                             if (maxNum == -1) {
-                                spotsAvailText = "OPEN";
                                 statusText = "OPEN";
                             } else if (maxNum <= curNum) {
-                                spotsAvailText = "FULL";
                                 statusText = "PENDING";
                             } else {
-                                spotsAvailText = Integer.toString(maxNum - curNum) + " Spots Available";
                                 statusText = "OPEN";
+                            }
+                            Long numSpots = doc.getLong("numberOfSpots");
+                            if (numSpots == null) {
+                                attendeesText.setText("Unknown number of Attendees");
+                            } else {
+                                attendeesText.setText(numSpots + " Lottery Winners");
                             }
 
                             DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
                             Date startDate = doc.getDate("startDate");
                             Date endDate = doc.getDate("endDate");
-
+                            String datesText;
                             if (startDate != null && endDate != null) {
-                                // Calculate the difference in milliseconds
-                                long diffInMillis = endDate.getTime() - startDate.getTime();
-                                if (diffInMillis <= 0)
-                                    statusText = "PENDING";
-
-                                if (Objects.equals(doc.getString("state"), "OPEN")) {
-                                    Log.e("JASON STATE TEST", Objects.requireNonNull(doc.getString("state")));
-                                    FirestoreHelper.getInstance().getWaitlistSize(firestoreEventId);
-                                    int waitListSize = FirestoreHelper.getInstance().getCurrWaitlistSize().getValue();
-                                    if (waitListSize > 0) {
-                                        canDraw.setValue(Boolean.TRUE);
-                                    } else {
-                                        canDraw.setValue(Boolean.FALSE);
-                                    }
+                                datesText = "Enter between " + df.format(startDate) + " - " + df.format(endDate);
+                            } else {
+                                datesText = "Error finding dates";
+                            }
+                            daysLeft.setText(datesText);
+                            if (Objects.equals(doc.getString("state"), "OPEN")) {
+                                Log.e("JASON STATE TEST", Objects.requireNonNull(doc.getString("state")));
+                                FirestoreHelper.getInstance().getWaitlistSize(firestoreEventId);
+                                int waitListSize = FirestoreHelper.getInstance().getCurrWaitlistSize().getValue();
+                                if (waitListSize > 0) {
+                                    canDraw.setValue(Boolean.TRUE);
                                 } else {
-                                    if (Objects.equals(doc.getString("state"), "WAITING")) {
-                                        // TODO: set if replacement button can be clicked
-                                        statusText = "PENDING";
-                                    } else {
-                                        statusText = "CLOSED";
-                                    }
                                     canDraw.setValue(Boolean.FALSE);
                                 }
-
-                                // Convert milliseconds to days (rounding down)
-                                int daysLeftInt = (int) (diffInMillis / (24 * 60 * 60 * 1000));
-
-                                String daysLeftText = Integer.toString(daysLeftInt);
-
-                                Boolean isGeo = doc.getBoolean("geo");
-                                String geoLocationText = Boolean.TRUE.equals(isGeo) ? "Requires GeoLocation Tracking" : "";
-                                String descriptionText = doc.getString("description");
-
-
-                                name.setText(nameText);
-                                status.setText(statusText);
-                                event.getLocation(address -> {
-                                    Log.e("Ohm", "Addy: " + address);
-                                    location.setText((address != null) ? address : "Address not found.");
+                            } else {
+                                if (Objects.equals(doc.getString("state"), "WAITING")) {
+                                    // TODO: set if replacement button can be clicked
+                                    statusText = "PENDING";
+                                } else {
+                                    statusText = "CLOSED";
+                                }
+                                canDraw.setValue(Boolean.FALSE);
+                            }
+                            String posterUriString = doc.getString("posterImage");
+                            if (posterUriString != null && !Objects.equals(posterUriString, "")) {
+                                posterUri = Uri.parse(posterUriString);
+                                StorageReference imageRef = FirebaseStorage.getInstance("gs://shower-lotto649.firebasestorage.app").getReferenceFromUrl(posterUriString);
+                                imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                                    posterUri = uri;
+                                    if (isAdded()) {
+                                        Context context = getContext();
+                                        if (context != null) {
+                                            Glide.with(context)
+                                                    .load(uri)
+                                                    .into(posterImage);
+                                        } else {
+                                            posterUri = null;
+                                        }
+                                    }
+                                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(900, 450);
+                                    posterImage.setLayoutParams(layoutParams);
+                                    posterImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
                                 });
-                                spotsAvail.setText(spotsAvailText);
-                                daysLeft.setText(daysLeftText);
-                                if (isGeo) {
-                                    geoLocation.setVisibility(View.VISIBLE);
-                                    geoLocation.setText(geoLocationText);
-                                } else {
-                                    geoLocation.setVisibility(View.GONE);
-                                }
-                                description.setText(descriptionText);
-                                String qrCodeHash = doc.getString("qrCode");
-                                if (qrCodeHash.isEmpty()) {
-                                    hasQrCode.setValue(Boolean.FALSE);
-                                } else {
-                                    hasQrCode.setValue(Boolean.TRUE);
-                                }
+                            } else {
+                                posterUri = null;
+                            }
+                            Boolean isGeo = doc.getBoolean("geo");
+                            String geoLocationText = Boolean.TRUE.equals(isGeo) ? "Requires GeoLocation Tracking" : "";
+                            String descriptionText = doc.getString("description");
 
-                                FirestoreHelper.getInstance().getWinnersSize(firestoreEventId);
-                                int numWinners = FirestoreHelper.getInstance().getCurrWinnersSize().getValue();
-                                FirestoreHelper.getInstance().getNotSelectedSize(firestoreEventId);
-                                int numNotSelected = FirestoreHelper.getInstance().getCurrNotSelectedSize().getValue();
-                                FirestoreHelper.getInstance().getEnrolledSize(firestoreEventId);
-                                int numEnrolled = FirestoreHelper.getInstance().getCurrEnrolledSize().getValue();
-
-                                Log.e("JASON REDRAW", "numWinners: " + Integer.toString(numWinners));
-                                Log.e("JASON REDRAW", "numNotSelected: " + Integer.toString(numNotSelected));
-                                Log.e("JASON REDRAW", "numEnrolled: " + Integer.toString(numEnrolled));
-                                Log.e("JASON REDRAW", "numSpots: " + Integer.toString(numSpots.intValue()));
-
-                                if (numNotSelected == 0) {
-                                    canReplacementDraw.setValue(Boolean.FALSE);
-                                } else {
-                                    if (numWinners + numEnrolled < numSpots) {
-                                        canReplacementDraw.setValue(Boolean.TRUE);
+                            name.setText(nameText);
+                            status.setText(statusText);
+                            String facilityId = event.getOrganizerId();
+                            if (facilityId != null) {
+                                db.collection("facilities").document(facilityId).get().addOnCompleteListener(facilityTask -> {
+                                    if (facilityTask.isSuccessful()) {
+                                        DocumentSnapshot facilityDoc = facilityTask.getResult();
+                                        String facilityName = facilityDoc.getString("facility");
+                                        String facilityAddress = facilityDoc.getString("address");
+                                        if (facilityName != null && facilityAddress != null) {
+                                            location.setText(facilityName + " - " + facilityAddress);
+                                        } else {
+                                            location.setText("LOCATION");
+                                        }
                                     } else {
-                                        canReplacementDraw.setValue(Boolean.FALSE);
+                                        location.setText("LOCATION");
                                     }
-                                }
+                                });
+                            } else {
+                                location.setText("LOCATION");
+                            }
+                            if (isGeo) {
+                                geoLocation.setVisibility(View.VISIBLE);
+                                geoLocation.setText(geoLocationText);
+                            } else {
+                                geoLocation.setVisibility(View.GONE);
+                            }
+                            description.setText(descriptionText);
+                            String qrCodeHash = doc.getString("qrCode");
+                            if (qrCodeHash.isEmpty()) {
+                                hasQrCode.setValue(Boolean.FALSE);
+                            } else {
+                                hasQrCode.setValue(Boolean.TRUE);
+                            }
 
-                                if (numWinners == 0 && event.getState().equals(EventState.WAITING)) {
-                                    // can't be in the waiting state and these be zero, so only change state here
-                                    if (numNotSelected != 0 || numEnrolled != 0){
-                                        event.setState(EventState.CLOSED);
-                                    }
+                            FirestoreHelper.getInstance().getWinnersSize(firestoreEventId);
+                            int numWinners = FirestoreHelper.getInstance().getCurrWinnersSize().getValue();
+                            FirestoreHelper.getInstance().getNotSelectedSize(firestoreEventId);
+                            int numNotSelected = FirestoreHelper.getInstance().getCurrNotSelectedSize().getValue();
+                            FirestoreHelper.getInstance().getEnrolledSize(firestoreEventId);
+                            int numEnrolled = FirestoreHelper.getInstance().getCurrEnrolledSize().getValue();
+
+                            Log.e("JASON REDRAW", "numWinners: " + Integer.toString(numWinners));
+                            Log.e("JASON REDRAW", "numNotSelected: " + Integer.toString(numNotSelected));
+                            Log.e("JASON REDRAW", "numEnrolled: " + Integer.toString(numEnrolled));
+//                            Log.e("JASON REDRAW", "numSpots: " + Integer.toString(numSpots.intValue()));
+
+                            if (numNotSelected == 0) {
+                                canReplacementDraw.setValue(Boolean.FALSE);
+                            } else {
+                                // TODO use new method for firestore stuff
+//                                if (numWinners + numEnrolled < numSpots) {
+//                                    canReplacementDraw.setValue(Boolean.TRUE);
+//                                } else {
+//                                    canReplacementDraw.setValue(Boolean.FALSE);
+//                                }
+                            }
+
+                            if (numWinners == 0 && event.getState().equals(EventState.WAITING)) {
+                                // can't be in the waiting state and these be zero, so only change state here
+                                if (numNotSelected != 0 || numEnrolled != 0){
+                                    event.setState(EventState.CLOSED);
                                 }
                             }
+
                         }
                     }
                 });
